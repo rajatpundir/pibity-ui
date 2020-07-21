@@ -15,9 +15,10 @@ import Users from '../components/accounts/Users';
 import Profile from '../components/accounts/Profile';
 import Categories from '../components/inventory/categories/Categories';
 import Product from "../components/inventory/Product"
-import Supplier from '../components/inventory/Supplier';
+import Supplier from '../components/inventory/Supplier/Supplier';
 import Purchase from '../components/inventory/Purchase';
 import Customer from '../components/inventory/Customer/Customer';
+
 // Set token for Axios requests
 if (localStorage.getItem('jwtToken')) {
 	setTokenForAxios(localStorage.getItem('jwtToken'));

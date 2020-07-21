@@ -42,21 +42,13 @@ class ProductGeneralDetails extends React.Component {
         this.systemTypes = Array.from([ 'Text', 'Number', 'Decimal', 'Boolean', 'Formula', 'List' ]);
     }
     
-    onChange(e) {
-
+	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
-		if (typeof this.props.generalDetails.type === 'object' && this.props.generalDetails.type !== null) {
-			if (this.props.generalDetails.type.keys.hasOwnProperty(e.target.name)) {
-				if (this.systemTypes.includes(this.props.generalDetails.type.keys[e.target.name].type)) {
+		if (this.props.generalDetails !== null) {
+			if (typeof this.props.generalDetails.type === 'object' && this.props.generalDetails.type !== null) {
+				if (this.props.generalDetails.type.keys.hasOwnProperty(e.target.name)) {
 					const values = cloneDeep(this.state.values);
 					values.set(e.target.name, e.target.value);
-					this.setState({ values: values });
-				} else {
-					const value = {};
-					value.variableName = e.target.value;
-					value.values = {};
-					const values = cloneDeep(this.state.values);
-					values.set(e.target.name, value);
 					this.setState({ values: values });
 				}
 			}

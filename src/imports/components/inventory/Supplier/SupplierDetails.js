@@ -1,68 +1,51 @@
 import React from 'react';
 import styled from 'styled-components';
+// import Select from 'react-select'
+import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
 
-class SupplierGeneralDetails extends React.Component {
+class SupplierDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			supplierName: '',
-            attributeSet:'',
-            comments:'',
-            currency:'',
-            defaultCarrier:'',
-            discount:'',
-            paymentTerm:'',
-            status:'',
-            taxNumber:'',
-            taxRule:'',
-			value: {},
-			type: {},
-			generalDetails: {},
-			variableName: '',
-			values: new Map(),
-			general: {}
+			variable: props.variable
 		};
 		this.onChange = this.onChange.bind(this);
-		this.systemTypes = Array.from([ 'Text', 'Number', 'Decimal', 'Boolean', 'Formula', 'List' ]);
+		this.onVariableNameChange = this.onVariableNameChange.bind(this);
+	}
+
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables("Currency")
+		this.props.getVariables("PaymentTerm")
+		this.props.getVariables("SalesTaxRule")
+		this.props.getVariables("Status")
+		this.props.getVariables("CarrierService")
+		this.props.getVariables("AttributeSet")
+	}
+
+	onVariableNameChange(e) {
+		const variable = cloneDeep(this.state.variable)
+		variable.set('variableName', e.target.value)
+		this.setState({ variable: variable })
+		this.props.updateDetails(variable)
 	}
 
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
-		if (typeof this.props.generalDetails.type === 'object' && this.props.generalDetails.type !== null) {
-			if (this.props.generalDetails.type.keys.hasOwnProperty(e.target.name)) {
-					const values = cloneDeep(this.state.values);
-					values.set(e.target.name, e.target.value);
-					this.setState({ values: values });
-            }
-        }
-	}
-
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
-			} else {
-				lo[k] = v;
-			}
-		}
-		return lo;
-	};
-
-	saveGeneralDetails(e) {
-		var generalDetails = {
-			variableName: this.state.supplierName,
-			values: this.mapToObjectRec(this.state.values)
-		};
-		this.setState({ general: generalDetails }, () => {
-			this.props.sendData(this.state.supplierName, this.state.general);
-		});
+		const variable = cloneDeep(this.state.variable)
+		const values = variable.get('values')
+		values.set(e.target.name, e.target.value)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		this.props.updateDetails(variable)
 	}
 
 	render() {
 		return (
-			<PageBlock style={{ display: 'block' }} id="supplier">
+			<PageBlock>
 				<PageToolbar>
 					<ToolbarLeftItems>
 						<LeftItemH1>New Supplier</LeftItemH1>
@@ -76,32 +59,42 @@ class SupplierGeneralDetails extends React.Component {
 									name="supplierName"
 									type="text"
 									placeholder="Supplier Name"
-									value={this.state.supplierName}
-									onChange={this.onChange}
+									value={this.state.variable.get('variableName')}
+									onChange={this.onVariableNameChange}
 								/>{' '}
-								<InputLabel>
-									Name
-									<Required>*</Required>
-								</InputLabel>
+								<InputLabel>Name<Required>*</Required></InputLabel>
 							</FormControl>
-							<FormControl>
-								<Input
-									name="currency"
-									type="text"
-									placeholder="Default"
-									value={this.state.currency}
-									onChange={this.onChange}
-								/>
-								<InputLabel>
-									Currency <Required>*</Required>
-								</InputLabel>
-							</FormControl>
+							<Select
+								name="currency"
+								value={this.state.variable.get('values').get('currency')}
+								onChange={this.onChange}
+							>
+								<option value="none" disabled hidden>
+									Select Currency
+								</option>
+								{this.props.variables.Currency ? this.props.variables.Currency.map((variable) => {
+									console.log(variable)
+									return (
+										<option key={variable.variableName} value={variable.variableName}>
+											{variable.variableName}
+										</option>
+									);
+								}) : undefined}
+							</Select>
+							{/* <Select
+								name="currency"
+								value={this.state.variable.get('values').get('currency')}
+								onChange={(option) => {
+									this.onChange({ target: { name: 'currency', value: option.value } })
+								}}
+								options={[{ value: 'SSSSSSSSSSSSS', label: 'LLLLLLLLLLLL' }]}
+							/> */}
 							<FormControl>
 								<Input
 									name="paymentTerm"
 									type="text"
 									placeholder="Default"
-									value={this.state.paymentTerm}
+									value={this.state.variable.get('values').get('paymentTerm')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>
@@ -110,7 +103,7 @@ class SupplierGeneralDetails extends React.Component {
 								</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input/>
+								<Input />
 								<InputLabel>
 									Accounts Payable
 									<Required>*</Required>
@@ -123,7 +116,7 @@ class SupplierGeneralDetails extends React.Component {
 									name="taxRule"
 									type="text"
 									placeholder="Defult"
-									value={this.state.taxRule}
+									value={this.state.variable.get('values').get('taxRule')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>
@@ -135,7 +128,7 @@ class SupplierGeneralDetails extends React.Component {
 									name="status"
 									type="text"
 									placeholder="default"
-									value={this.state.status}
+									value={this.state.variable.get('values').get('status')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>
@@ -147,7 +140,7 @@ class SupplierGeneralDetails extends React.Component {
 									name="defaultCarrier"
 									type="text"
 									placeholder="default"
-									value={this.state.defaultCarrier}
+									value={this.state.variable.get('values').get('defaultCarrier')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Default Carrier</InputLabel>
@@ -157,7 +150,7 @@ class SupplierGeneralDetails extends React.Component {
 									name="taxNumber"
 									type="text"
 									placeholder="tax Number"
-									value={this.state.taxNumber}
+									value={this.state.variable.get('values').get('taxNumber')}
 									onChange={this.onChange}
 								/>
 								<InputLabel> Tax Number</InputLabel>
@@ -169,7 +162,7 @@ class SupplierGeneralDetails extends React.Component {
 									name="discount"
 									type="number"
 									placeholder="discount"
-									value={this.state.discount}
+									value={this.state.variable.get('values').get('discount')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Discount</InputLabel>
@@ -179,7 +172,7 @@ class SupplierGeneralDetails extends React.Component {
 									name="attributeSet"
 									type="text"
 									placeholder="default"
-									value={this.state.attributeSet}
+									value={this.state.variable.get('values').get('attributeSet')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Attribute Set </InputLabel>
@@ -191,7 +184,7 @@ class SupplierGeneralDetails extends React.Component {
 									name="comments"
 									type="text"
 									placeholder="comments"
-									value={this.state.comments}
+									value={this.state.variable.get('values').get('comments')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Comment</InputLabel>
@@ -199,21 +192,54 @@ class SupplierGeneralDetails extends React.Component {
 						</InputRowWrapper>
 					</InputFieldContainer>
 				</InputBody>
-				<button onClick={(e) => this.saveGeneralDetails()}>save</button>
 			</PageBlock>
-		);
+		)
 	}
 }
 
-export default SupplierGeneralDetails;
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	types: state.types,
+	variables: state.variables
+});
 
-const InputFieldContainer = styled.div`
-	display: flex;
-	display: -ms-flexbox;
-	justify-content: space-between;
-	flex-wrap: wrap;
+export default connect(mapStateToProps, {
+	clearErrors,
+	getVariables
+})(SupplierDetails);
+
+
+const PageBlock = styled.div`
+	display: block;
+	background: #fff;
 	width: 100%;
+	float: left;
+	border-radius: 6px;
+	margin-bottom: 20px;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	font-family: 'IBM Plex Sans', sans-serif;
+	vertical-align: baseline;
+	align-items: center;
 `;
+
+const PageToolbar = styled.div`
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 16px 20px;
+`;
+
+const ToolbarLeftItems = styled.div`
+	display: flex;
+	justify-content: flex-start !important;
+	align-items: center;
+	float: left;
+`;
+
 const LeftItemH1 = styled.h1`
 	font-size: 16px;
 	text-transform: uppercase;
@@ -228,10 +254,6 @@ const LeftItemH1 = styled.h1`
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 `;
-const InputRowWrapper = styled.div.attrs((props) => ({
-	flexBasis: props.flexBasis || '100%'
-}))`
-flex-basis: ${(props) => props.flexBasis};`;
 
 const InputBody = styled.div.attrs((props) => ({
 	alignitem: props.alignItem || 'start',
@@ -255,21 +277,15 @@ align-items: ${(props) => props.alignItem};
 	padding: 20px 20px 0 20px;
 	padding-bottom: 20px !important;
 `;
-const Required = styled.span`
-	display: inline-block;
-	padding: 0 !important;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
-	vertical-align: baseline;
-	white-space: nowrap;
-	color: #3b3b3b;
-	user-select: none;
-	pointer-events: none;
+
+const InputFieldContainer = styled.div`
+	display: flex;
+	display: -ms-flexbox;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	width: 100%;
 `;
+
 const InputColumnWrapper = styled.div`
 	flex-basis: calc(100% / 3 - 12px) !important;
 	width: 30%;
@@ -281,6 +297,11 @@ const InputColumnWrapper = styled.div`
 	}
 `;
 
+const InputRowWrapper = styled.div.attrs((props) => ({
+	flexBasis: props.flexBasis || '100%'
+}))`
+flex-basis: ${(props) => props.flexBasis};`;
+
 const FormControl = styled.div`
 	padding-bottom: 20px;
 	min-height: 60px;
@@ -290,14 +311,8 @@ const FormControl = styled.div`
 	@media (max-width: 991px) {
 		flex-basis: calc(100% / 2 - 9px) !important;
 	}
-}
 `;
-const ToolbarLeftItems = styled.div`
-	display: flex;
-	justify-content: flex-start !important;
-	align-items: center;
-	float: left;
-`;
+
 const Input = styled.input`
 	font-size: 13px;
 	outline: none !important;
@@ -326,6 +341,7 @@ const Input = styled.input`
 	outline: none;
 	vertical-align: baseline;
 `;
+
 const InputLabel = styled.label`
 	font-size: 13px;
 	line-height: 13px;
@@ -351,26 +367,34 @@ const InputLabel = styled.label`
 	}
 `;
 
-const PageBlock = styled.div`
-	display: none;
-	background: #fff;
-	width: 100%;
-	float: left;
-	border-radius: 6px;
-	margin-bottom: 20px;
+const Required = styled.span`
+	display: inline-block;
+	padding: 0 !important;
+	margin: 0;
+	padding: 0;
 	border: 0;
 	font-size: 100%;
 	font: inherit;
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
-	align-items: center;
+	white-space: nowrap;
+	color: #3b3b3b;
+	user-select: none;
+	pointer-events: none;
 `;
 
-const PageToolbar = styled.div`
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 16px 20px;
+export const Select = styled.select.attrs((props) => ({
+	marginBottom: props.marginBottom || '1.4rem',
+	padding: props.padding || 'none',
+	paddingLeft: props.paddingLeft || props.padding
+}))`
+	font-size: 1.4rem;
+	max-height: 4.5rem;
+	font-family: Helvetica, Arial, sans-serif;
+	margin-bottom:${(props) => props.marginBottom};
+	padding: ${(props) => props.padding};
+	padding-left:${(props) => props.paddingLeft}
+	&:focus {
+		outline: none;
+	}
 `;

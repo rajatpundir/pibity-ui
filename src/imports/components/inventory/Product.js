@@ -52,8 +52,8 @@ class Product extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			type: nextProps.type[0],
-			generalDetails: nextProps.type[0] === undefined ? null : nextProps.type[0].keys['general']
+			type: nextProps.type === undefined ? null : nextProps.type[0],
+			generalDetails: nextProps.type[0] === undefined ? null : nextProps.type[0].keys['general'],
 		};
 	}
 	

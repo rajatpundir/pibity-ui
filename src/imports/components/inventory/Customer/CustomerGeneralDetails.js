@@ -6,6 +6,7 @@ class CustomerGeneralDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			customer: [],
 			customerName: '',
 			attributeSet: '',
 			comments: '',
@@ -25,10 +26,41 @@ class CustomerGeneralDetails extends React.Component {
 			generalDetails: {},
 			variableName: '',
 			values: new Map(),
-			general: {},
+			general: {}
 		};
 		this.onChange = this.onChange.bind(this);
 		this.systemTypes = Array.from([ 'Text', 'Number', 'Decimal', 'Boolean', 'Formula', 'List' ]);
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.mode === 'update') {
+			if (nextProps.customerGeneralInfo !== null) {
+				if (nextProps.customerGeneralInfo.length !== 0) {
+					return {
+						...prevState,
+						customerName: nextProps.customerGeneralInfo[0].variableName,
+						attributeSet: nextProps.customerGeneralInfo[0].values.general.values.attributeSet.variableName,
+						comments: nextProps.customerGeneralInfo[0].values.general.values.comments,
+						currency: nextProps.customerGeneralInfo[0].values.general.values.currency.variableName,
+						paymentTerm: nextProps.customerGeneralInfo[0].values.general.values.paymentTerm.variableName,
+						status: nextProps.customerGeneralInfo[0].values.general.values.status.variableName,
+						taxRule: nextProps.customerGeneralInfo[0].values.general.values.taxRule.variableName,
+						salesPriceTier:
+							nextProps.customerGeneralInfo[0].values.general.values.salesPriceTier.variableName,
+						defaultCarrier:
+							nextProps.customerGeneralInfo[0].values.general.values.defaultCarrier.variableName,
+						defaultLocation:
+							nextProps.customerGeneralInfo[0].values.general.values.defaultLocation.variableName,
+						taxNumber: nextProps.customerGeneralInfo[0].values.general.values.taxNumber,
+						discount: nextProps.customerGeneralInfo[0].values.general.values.discount,
+						creditLimit: nextProps.customerGeneralInfo[0].values.general.values.creditLimit,
+						onCreditHold: nextProps.customerGeneralInfo[0].values.general.values.onCreditHold
+					};
+				}
+			}
+		} else {
+			return null;
+		}
 	}
 
 	onChange(e) {
@@ -67,7 +99,6 @@ class CustomerGeneralDetails extends React.Component {
 	}
 
 	render() {
-		console.log(this.props.carrierServices)
 		return (
 			<PageBlock style={{ display: 'block' }} id="customer">
 				<PageToolbar>
@@ -100,7 +131,11 @@ class CustomerGeneralDetails extends React.Component {
 									onChange={this.onChange}
 								/>
 								<datalist id="status">
-									{this.props.status !== undefined ? this.props.status.map((item) => <option key={item.variableName} value={item.variableName} />):null}
+									{this.props.status !== undefined ? (
+										this.props.status.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
 								</datalist>
 								<InputLabel>
 									Status<Required>*</Required>
@@ -110,12 +145,16 @@ class CustomerGeneralDetails extends React.Component {
 								<Input
 									name="currency"
 									type="text"
-                                    list="currency"
+									list="currency"
 									value={this.state.currency}
 									onChange={this.onChange}
 								/>
 								<datalist id="currency">
-									{this.props.currency !== undefined ? this.props.currency.map((item) => <option key={item.variableName} value={item.variableName} />):null}
+									{this.props.currency !== undefined ? (
+										this.props.currency.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
 								</datalist>
 								<InputLabel>
 									Currency <Required>*</Required>
@@ -125,12 +164,16 @@ class CustomerGeneralDetails extends React.Component {
 								<Input
 									name="paymentTerm"
 									type="text"
-                                    list="paymentTerm"
+									list="paymentTerm"
 									value={this.state.paymentTerm}
 									onChange={this.onChange}
 								/>
-									<datalist id="paymentTerm">
-									{this.props.paymentTerm !== undefined ? this.props.paymentTerm.map((item) => <option key={item.variableName} value={item.variableName} />):null}
+								<datalist id="paymentTerm">
+									{this.props.paymentTerm !== undefined ? (
+										this.props.paymentTerm.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
 								</datalist>
 								<InputLabel>
 									Payment Term
@@ -148,10 +191,17 @@ class CustomerGeneralDetails extends React.Component {
 								<Input
 									name="salesPriceTier"
 									type="text"
-									placeholder="Defult"
+									list="priceTierName"
 									value={this.state.salesPriceTier}
 									onChange={this.onChange}
 								/>
+								<datalist id="priceTierName">
+									{this.props.priceTierName !== undefined ? (
+										this.props.priceTierName.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
+								</datalist>
 								<InputLabel>
 									Sales Price Tier<Required>*</Required>
 								</InputLabel>
@@ -175,7 +225,11 @@ class CustomerGeneralDetails extends React.Component {
 									onChange={this.onChange}
 								/>
 								<datalist id="taxRule">
-									{this.props.salesTaxRule !== undefined ? this.props.salesTaxRule.map((item) => <option key={item.variableName} value={item.variableName} />):null}
+									{this.props.salesTaxRule !== undefined ? (
+										this.props.salesTaxRule.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
 								</datalist>
 								<InputLabel>
 									Tax Rule<Required>*</Required>
@@ -194,7 +248,11 @@ class CustomerGeneralDetails extends React.Component {
 									onChange={this.onChange}
 								/>
 								<datalist id="defaultCarrier">
-									{this.props.carrierServices !== undefined ? this.props.carrierServices.map((item) => <option key={item.variableName} value={item.variableName} />):null}
+									{this.props.carrierServices !== undefined ? (
+										this.props.carrierServices.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
 								</datalist>
 								<InputLabel>Default Carrier</InputLabel>
 							</FormControl>
@@ -202,10 +260,17 @@ class CustomerGeneralDetails extends React.Component {
 								<Input
 									name="defaultLocation"
 									type="text"
-									placeholder="default"
+									list="location"
 									value={this.state.defaultLocation}
 									onChange={this.onChange}
 								/>
+								<datalist id="location">
+									{this.props.location !== undefined ? (
+										this.props.location.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
+								</datalist>
 								<InputLabel>Default Location</InputLabel>
 							</FormControl>
 							<FormControl>
@@ -277,7 +342,11 @@ class CustomerGeneralDetails extends React.Component {
 									onChange={this.onChange}
 								/>
 								<datalist id="attributeSet">
-									{this.props.attributeSet !== undefined ? this.props.attributeSet.map((item) => <option key={item.variableName} value={item.variableName} />):null}
+									{this.props.attributeSet !== undefined ? (
+										this.props.attributeSet.map((item) => (
+											<option key={item.variableName} value={item.variableName} />
+										))
+									) : null}
 								</datalist>
 								<InputLabel>Attribute Set </InputLabel>
 							</FormControl>
