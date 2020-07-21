@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getTypeDetails, createVariable } from '../../../redux/actions/product'; 
-import {getVariables,getVariable} from '../../../redux/actions/variables'
+import { getTypeDetails, createVariable } from '../../../redux/actions/product';
+import { getVariables, getVariable } from '../../../redux/actions/variables';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
-class Supplier extends React.Component {
+class Customer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -19,9 +19,12 @@ class Supplier extends React.Component {
 			//supplier keys//
 			customerValues: new Map(),
 			general: {},
+			customer: [],
 			addresses: [],
 			contacts: [],
-			counter: 0
+			mode: 'update',
+			counter: 0,
+			passedCustomerName: 'C1'
 		};
 		this.onChange = this.onChange.bind(this);
 		this.getGeneralDetails = this.getGeneralDetails.bind(this);
@@ -58,21 +61,38 @@ class Supplier extends React.Component {
 	}
 
 	componentDidMount() {
-		this.props.getTypeDetails('Customer')
-		this.props.getVariables('Country')
-		this.props.getVariables('Currency')
-		this.props.getVariables('CarrierService')
-		this.props.getVariables('PaymentTerm')
-		this.props.getVariables('Status')
-		this.props.getVariables('SalesTaxRule')
-		this.props.getVariables('AttributeSet')
+		this.props.getTypeDetails('Customer');
+		this.props.getVariables('Country');
+		this.props.getVariables('Currency');
+		this.props.getVariables('CarrierService');
+		this.props.getVariables('PaymentTerm');
+		this.props.getVariables('Status');
+		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('AttributeSet');
+		this.props.getVariables('AddressType');
+		this.props.getVariables('PriceTierName');
+		this.props.getVariables('Location');
+		this.props.getVariables('Customer').then(() => {
+			var customers = this.props.variable.Customer.filter((customer) => {
+				return customer.variableName === 'C1';
+			});
+			this.setState({customer:customers})
+		});
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			type:nextProps.type === undefined ? null :nextProps.type[0],
-			generalDetails: nextProps.type[0] === undefined ? null : nextProps.type[0].keys['general']
+			type: nextProps.type === undefined ? null : nextProps.type[0],
+			generalDetails: nextProps.type[0] === undefined ? null : nextProps.type[0].keys['general'],
+			customer:
+				'update' === 'update'
+					? nextProps.variable !== undefined && nextProps.variable.Customer !==undefined
+						? nextProps.variable.Customer.filter((customer) => {
+								return customer.variableName === 'C1';
+							})
+						: null
+					: null
 		};
 	}
 
@@ -175,10 +195,8 @@ class Supplier extends React.Component {
 										<ButtonText>Contact</ButtonText>
 									</NavButton>
 								</NavListItems>
-
 							</NavList>
 						</HorizontalNav>
-				
 					</HorizontalNavWrapper>
 				</PageSidebar>
 				<PageWrapper>
@@ -189,14 +207,23 @@ class Supplier extends React.Component {
 							generalDetails={this.state.generalDetails}
 							currency={this.props.variable.Currency}
 							country={this.props.variable.Country}
-                            salesTaxRule={this.props.variable.SalesTaxRule}
+							salesTaxRule={this.props.variable.SalesTaxRule}
 							carrierServices={this.props.variable.CarrierService}
 							paymentTerm={this.props.variable.PaymentTerm}
 							status={this.props.variable.Status}
 							attributeSet={this.props.variable.AttributeSet}
+							priceTierName={this.props.variable.PriceTierName}
+							location={this.props.variable.Location}
+							mode="update"
+							customerGeneralInfo={this.state.customer}
+							
 						/>
-						<CustomerContact sendData={this.getCustomerContact}/>
-						<CustomerAddresses sendData={this.getCustomerAddress}/>
+						<CustomerContact sendData={this.getCustomerContact} />
+						<CustomerAddresses
+							sendData={this.getCustomerAddress}
+							addressType={this.props.variable.AddressType}
+							country={this.props.variable.Country}
+						/>
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -206,7 +233,7 @@ class Supplier extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
 	type: state.types,
-	variable:state.variables
+	variable: state.variables
 });
 
 export default connect(mapStateToProps, {
@@ -214,7 +241,7 @@ export default connect(mapStateToProps, {
 	getVariables,
 	getVariable,
 	createVariable
-})(Supplier);
+})(Customer);
 
 export const HorizontalistPageBlock = styled.div`
 	width: 100%;

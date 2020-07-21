@@ -53,8 +53,8 @@ function mapToObjectRec(m) {
 		if (v instanceof Map) {
 			lo[k] = mapToObjectRec(v);
 		} else {
-			if (v instanceof Set) {
-				lo[k] = Array.from(v).toString();
+			if(v instanceof Array || v instanceof Set) {
+				lo[k] = v.map(variable => mapToObjectRec(variable))
 			} else {
 				lo[k] = v;
 			}
@@ -81,15 +81,12 @@ export const getVariables = (typeName: String) => async (dispatch) => {
 	}
 };
 
-export const createVariable = (typeName: String, variableName: String, values: Map) => async (dispatch) => {
+export const createVariable = (variable: Map) => async (dispatch) => {
 	try {
 		const url = domain + '/variable/create';
-		const request = {
-			organization: "pbt",
-			typeName: typeName,
-			variableName: variableName,
-			values: mapToObjectRec(values)
-		};
+		const request = mapToObjectRec(variable)
+		console.log(request)
+		console.log("----")
 		const response = await axios.post(url, request);
 		await replaceVariable(dispatch, response.data);
 	} catch (error) {
