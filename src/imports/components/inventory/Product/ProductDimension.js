@@ -1,33 +1,43 @@
 import React from 'react';
 import styled from 'styled-components';
+import Select from 'react-select';
+import { connect } from 'react-redux';
+import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
 
 class ProductDimension extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			productHeight: '0',
-			productLength: '0',
-			productWidth: '0',
-			unitOfDimension: '',
-			productWeight: '0',
-			unitForWeight: ''
+			variable: props.variable
 		};
 		this.onChange = this.onChange.bind(this);
 	}
 
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables('UnitForWeights');
+		this.props.getVariables('UnitForDimensions');
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			variable: nextProps.variable
+		};
+	}
+
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set(e.target.name, e.target.value);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateDimensions(variable);
 	}
-	saveProductDimensions() {
-		this.props.sendData(
-			this.state.productHeight,
-			this.state.productLength,
-			this.state.productWidth,
-			this.state.unitOfDimension,
-			this.state.productWeight,
-			this.state.unitForWeight
-		);
-	}
+
 	render() {
 		return (
 			<PageBlock id="dimensions">
@@ -40,13 +50,27 @@ class ProductDimension extends React.Component {
 					<InputColumnWrapper>
 						<H3>Item Size</H3>
 						<FormControl>
-							<Input
-								name="unitOfDimension"
-								type="text"
-								placeholder="Unit"
-								value={this.state.unitOfDimension}
-								onChange={this.onChange}
-							/>{' '}
+							<SelectWrapper>
+								<Select
+									value={{
+										value: this.state.variable.get('values').get('unitOfDimension'),
+										label: this.state.variable.get('values').get('unitOfDimension')
+									}}
+									onChange={(option) => {
+										this.onChange({ target: { name: 'unitOfDimension', value: option.value } });
+									}}
+									options={
+										this.props.variables.UnitForDimensions !== undefined ? (
+											this.props.variables.UnitForDimensions.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
+
 							<InputLabel>Unit of Measure</InputLabel>
 						</FormControl>
 						<FormControl>
@@ -54,9 +78,9 @@ class ProductDimension extends React.Component {
 								name="productLength"
 								type="number"
 								placeholder="Length"
-								value={this.state.productLength}
+								value={this.state.variable.get('values').get('productLength')}
 								onChange={this.onChange}
-							/>{' '}
+							/>
 							<InputLabel>Length</InputLabel>
 						</FormControl>
 					</InputColumnWrapper>
@@ -66,9 +90,9 @@ class ProductDimension extends React.Component {
 								name="productWidth"
 								type="number"
 								placeholder="Width"
-								value={this.state.productWidth}
+								value={this.state.variable.get('values').get('productWidth')}
 								onChange={this.onChange}
-							/>{' '}
+							/>
 							<InputLabel>Width</InputLabel>
 						</FormControl>
 					</InputColumnWrapper>
@@ -78,9 +102,9 @@ class ProductDimension extends React.Component {
 								name="productHeight"
 								type="number"
 								placeholder="Height"
-								value={this.state.productHeight}
+								value={this.state.variable.get('values').get('productHeight')}
 								onChange={this.onChange}
-							/>{' '}
+							/>
 							<InputLabel>Height</InputLabel>
 						</FormControl>
 					</InputColumnWrapper>
@@ -93,33 +117,54 @@ class ProductDimension extends React.Component {
 								name="productWeight"
 								type="number"
 								placeholder="Weight"
-								value={this.state.productWeight}
+								value={this.state.variable.get('values').get('productWeight')}
 								onChange={this.onChange}
-							/>{' '}
+							/>
 							<InputLabel>Weight</InputLabel>
 						</FormControl>
 					</InputColumnWrapper>
 					<InputColumnWrapper>
 						<FormControl>
-							<Input
-								name="unitForWeight"
-								type="text"
-								placeholder="Unit"
-								value={this.state.unitForWeight}
-								onChange={this.onChange}
-							/>{' '}
+							<SelectWrapper>
+								<Select
+									value={{
+										value: this.state.variable.get('values').get('unitForWeights'),
+										label: this.state.variable.get('values').get('unitForWeights')
+									}}
+									onChange={(option) => {
+										this.onChange({ target: { name: 'unitForWeights', value: option.value } });
+									}}
+									options={
+										this.props.variables.UnitForWeights !== undefined ? (
+											this.props.variables.UnitForWeights.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
 							<InputLabel>Unit for Weight</InputLabel>
 						</FormControl>
 					</InputColumnWrapper>
 					<InputColumnWrapper />
 				</InputBody>
-				<button onClick={(e) => this.saveProductDimensions()}>save</button>
 			</PageBlock>
 		);
 	}
 }
 
-export default ProductDimension;
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	types: state.types,
+	variables: state.variables
+});
+
+export default connect(mapStateToProps, {
+	clearErrors,
+	getVariables
+})(ProductDimension);
 
 const LeftItemH1 = styled.h1`
 	font-size: 16px;
@@ -187,6 +232,33 @@ const ToolbarLeftItems = styled.div`
 	align-items: center;
 	float: left;
 `;
+const SelectWrapper = styled.div`
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+`;
+
 const Input = styled.input`
 	font-size: 13px;
 	outline: none !important;
@@ -220,7 +292,6 @@ const InputLabel = styled.label`
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
 	position: absolute;
 	top: -6px;
 	left: 7px;

@@ -1,131 +1,156 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getTypeDetails } from '../../../redux/actions/product';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-class Stock extends React.Component {
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
+import Select from 'react-select';
+
+class ReorderLevels extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			keys: new Map(),
-			key: new Map([
-				[ 'location', '' ],
-				[ 'minimumBeforeReorder', '' ],
-				[ 'reorderQuantity', '' ],
-				[ 'stockLocator', '' ]
-			]),
-			type: '',
-			counter: 0
+			list: props.list
 		};
 		this.onChange = this.onChange.bind(this);
 	}
 
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables('Customer');
 	}
 
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			list: nextProps.list
+		};
+	}
+
+	onChange(e, variableName) {
+		const list = cloneDeep(this.state.list).map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
 			} else {
-				lo[k] = v;
+				return listVariable;
 			}
-		}
-		return lo;
-	};
+		});
+		this.setState({ list: list });
+		this.props.updateProductReorderLevels(list);
+	}
 
-	saveStock() {
-		this.props.sendData(this.mapToObjectRec(this.state.keys));
+	addVariableToList() {
+		const list = cloneDeep(this.state.list);
+		list.unshift(
+			new Map([
+				[ 'variableName',String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1 ) ],
+				[
+					'values',
+					new Map([
+						[ 'location', '' ],
+						[ 'minimumBeforeReorder', '' ],
+						[ 'reorderQuantity', '' ],
+						[ 'stockLocator', '' ]
+					])
+				]
+			])
+		);
+		this.setState({ list: list });
+		this.props.updateProductReorderLevels(list);
 	}
-	addListVariable() {
-		const addkey = cloneDeep(this.state.keys);
-		addkey.set(this.state.counter, this.state.key);
-		this.setState({
-			keys: addkey
+
+	onRemoveKey(e, variableName) {
+		const list = cloneDeep(this.state.list).filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName;
 		});
-		this.setState((prevState) => {
-			return { counter: prevState.counter + 1 };
-		});
+		this.setState({ list: list });
+		this.props.updateProductReorderLevels(list);
 	}
+
 	renderInputFields() {
 		const rows = [];
-		if (this.state.keys.size === 0) {
-			return (
-				<TableRow>
-					<TableHeader width="58px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="167px" />
-				</TableRow>
-			);
-		} else {
-			for (let key of this.state.keys) {
-				rows.push(
-					<TableRow key={key[0]}>
-						<TableHeader width="5%" left="0px">
-							{' '}
-						</TableHeader>
-						<TableHeader width="10%" left="7%">
-							<Input
-								name="location"
-								type="text"
-								placeholder="default"
-								value={key[1].get('location')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('location', e.target.value);
-									this.setState({ keys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="8%" left="15%">
+		this.state.list.forEach((listVariable) =>
+			rows.push(
+				<TableRow key={listVariable.get('variableName')}>
+					<TableHeader width="5%" left="0px">
+						<i
+							name={listVariable.get('variableName')}
+							className="large material-icons"
+							onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}
+						>
+							remove_circle_outline
+						</i>
+					</TableHeader>
+					<TableHeader width="10%" left="7%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('location'),
+										label: listVariable.get('values').get('location')
+									}}
+									onChange={(option) => {
+										this.onChange(
+											{ target: { name: 'location', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.Location !== undefined ? (
+											this.props.variables.Location.map((variable) => {
+												return {
+													value: variable.variableName,
+													label: variable.variableName
+												};
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableHeader>
+					<TableHeader width="8%" left="15%">
+						<TableHeaderInner>
 							<Input
 								name="minimumBeforeReorder"
-								type="number"
-								placeholder="minimumBeforeReorder"
-								value={key[1].get('minimumBeforeReorder')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('minimumBeforeReorder', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								type="text"
+								value={listVariable.get('values').get('minimumBeforeReorder')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="8%" left="23%">
+						</TableHeaderInner>
+					</TableHeader>
+					<TableHeader width="8%" left="23%">
+						<TableHeaderInner>
 							<Input
 								name="reorderQuantity"
-								type="number"
-								placeholder="reorderQuantity"
-								value={key[1].get('reorderQuantity')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('reorderQuantity', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								type="text"
+								value={listVariable.get('values').get('reorderQuantity')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="8%" left="34%">
+						</TableHeaderInner>
+					</TableHeader>
+					<TableHeader width="8%" left="34%">
+						<TableHeaderInner>
 							<Input
 								name="stockLocator"
 								type="text"
-								placeholder="stockLocator"
-								value={key[1].get('stockLocator')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('stockLocator', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('stockLocator')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-					</TableRow>
-				);
-			}
-			return rows;
-		}
+						</TableHeaderInner>
+					</TableHeader>
+				</TableRow>
+			)
+		);
+		return rows;
 	}
+
 	render() {
 		return (
 			<PageBlock id="reorderLevel">
@@ -149,42 +174,50 @@ class Stock extends React.Component {
 						<TableFieldContainer>
 							<Headers>
 								<HeaderContainer>
-									<HeaderContainerInner>
-										<ColumnName width="5%" left="0px">
-											<SelectIconContainer>
-												<SelectSpan>
-													<SelectSpanInner>
-														<i className="large material-icons">create</i>
-													</SelectSpanInner>
-												</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="20%" left="3%">
-											<SelectIconContainer>
-												<SelectSpan>Location</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="24%">
-											<SelectIconContainer>
-												<SelectSpan textAlign="right">Minimum Before Reorder</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="40%">
-											<SelectIconContainer>
-												<SelectSpan>Reorder Quantity </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="55%">
-											<SelectIconContainer>
-												<SelectSpan>Stock Locator </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="20%" left="65%">
-											<SelectIconContainer>
-												<SelectSpan>Pick Zones </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-									</HeaderContainerInner>
+									<HeaderBody>
+										<BodyTable>
+											<TableBody>
+												<TableRow>
+													<TableHeaders width="5%" left="0px">
+														<SelectIconContainer>
+															<SelectSpan>
+																<SelectSpanInner>
+																	<i className="large material-icons">create</i>
+																</SelectSpanInner>
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="20%" left="3%">
+														<SelectIconContainer>
+															<SelectSpan>Location</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="24%">
+														<SelectIconContainer>
+															<SelectSpan textAlign="right">
+																Minimum Before Reorder
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="40%">
+														<SelectIconContainer>
+															<SelectSpan>Reorder Quantity </SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="55%">
+														<SelectIconContainer>
+															<SelectSpan>Stock Locator </SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="20%" left="65%">
+														<SelectIconContainer>
+															<SelectSpan>Pick Zones </SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+												</TableRow>
+											</TableBody>
+										</BodyTable>
+									</HeaderBody>
 								</HeaderContainer>
 							</Headers>
 							<HeaderBodyContainer>
@@ -193,17 +226,16 @@ class Stock extends React.Component {
 										<TableBody>{this.renderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.keys.size === 0 ? <EmptyRow>No Location Found</EmptyRow> : undefined}
+								{this.state.list.length === 0 ? <EmptyRow>No Location Found</EmptyRow> : undefined}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addListVariable()}>
+								<AddMoreButton onClick={(e) => this.addVariableToList()}>
 									<i className="large material-icons">add</i>Add More Items
 								</AddMoreButton>
 							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>
-				<button onClick={(e) => this.saveStock()}>save</button>
 			</PageBlock>
 		);
 	}
@@ -211,12 +243,11 @@ class Stock extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.type
+	types: state.types,
+	variables: state.variables
 });
 
-export default connect(mapStateToProps, {
-	getTypeDetails
-})(Stock);
+export default connect(mapStateToProps, { clearErrors, getVariables })(ReorderLevels);
 const AddMoreBlock = styled.div`
 	flex-flow: row wrap;
 	display: flex;
@@ -268,78 +299,61 @@ const PageBlock = styled.div`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	align-items: center;
-`;
-
-const PageToolbar = styled.div`
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 16px 20px;
-`;
-
-const ToolbarLeftItems = styled.div`
-	display: flex;
-	justify-content: flex-start !important;
-	align-items: center;
-	float: left;
-`;
-
-const LeftItemH1 = styled.h1`
-	font-size: 16px;
-	text-transform: uppercase;
-	font-weight: bold;
-	padding-right: 20px;
-	display: flex;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
-	vertical-align: baseline;
 `;
 
 const InputBody = styled.div.attrs((props) => ({
 	alignitem: props.alignItem || 'start',
 	borderTop: props.borderTop || '1px solid #e0e1e7'
 }))`
-align-items: ${(props) => props.alignItem};
-	max-height: 4000px;
-	overflow: hidden;
-	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	-webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	border-top:  ${(props) => props.borderTop};
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 20px 20px 0 20px;
-	padding-bottom: 20px !important;
+  align-items: ${(props) => props.alignItem};
+  max-height: 4000px;
+  overflow: hidden;
+  animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+  -webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+  transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+  -webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+  border-top: ${(props) => props.borderTop};
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 20px 0 20px;
+  padding-bottom: 20px !important;
 `;
-
-const FormControl = styled.div`
-	padding-bottom: 20px;
-	min-height: 60px;
-	position: relative;
-	display: flex;
-	align-items: start;
-	@media (max-width: 991px) {
-		flex-basis: calc(100% / 2 - 9px) !important;
-	}
-}
+const SelectWrapper = styled.div`
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
 `;
-
 const Input = styled.input`
+	width: inherit;
 	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
@@ -386,23 +400,154 @@ const PageBarAlignLeft = styled.div`
 const RoundedBlock = styled.div.attrs((props) => ({
 	marginTop: props.marginTop || '0'
 }))`
-	border: 1px solid #b9bdce;
-	border-radius: 4px;
-	width: 100%;
-	float: left;
-	overflow: hidden;
-	margin-top:${(props) => props.marginTop};
+  border: 1px solid #b9bdce;
+  border-radius: 4px;
+  width: 100%;
+  float: left;
+  overflow: hidden;
+  margin-top: ${(props) => props.marginTop};
 `;
+
+// float: left;
 const TableFieldContainer = styled.div`
+	position: relative;
 	width: 100% !important;
+	overflow: hidden;
+
 	min-height: auto !important;
 	text-align: center;
-	position: relative !important;
 	top: 0 !important;
 	height: inherit !important;
-	float: left;
-	overflow: hidden !important;
 `;
+
+const SelectIconContainer = styled.div`
+	justify-content: center;
+	padding: 0 10px !important;
+
+	font-weight: bold;
+	font-size: 11px;
+	text-transform: uppercase;
+	height: 100% !important;
+	display: flex;
+	align-self: stretch;
+	width: 100%;
+`;
+const SelectSpan = styled.span.attrs((props) => ({
+	textAlign: props.textAlign || 'left'
+}))`
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-align: ${(props) => props.textAlign};
+  cursor: pointer;
+`;
+const SelectSpanInner = styled.span`white-space: nowrap;`;
+
+const HeaderBodyContainer = styled.div`
+	width: 100%;
+	height: inherit !important;
+	float: left;
+	position: relative;
+	top: 0 !important;
+	left: 0 !important;
+	overflow: hidden;
+`;
+const HeaderBody = styled.div`
+	border-width: 0px;
+	overflow: auto;
+	margin: 0px;
+	width: 100%;
+`;
+const BodyTable = styled.table`
+	width: 100%;
+	height: 1px;
+	table-layout: fixed;
+	border-collapse: separate;
+	border-spacing: 0;
+`;
+const TableBody = styled.tbody``;
+const TableRow = styled.tr`
+	cursor: pointer;
+	&:hover {
+		background-color: #f0f3fa;
+	}
+`;
+
+const TableHeaders = styled.th.attrs((props) => ({
+	width: props.width,
+	left: props.left || '0'
+}))`
+  width: ${(props) => props.width};
+  left: ${(props) => props.left};
+  font-family: inherit;
+  vertical-align: middle;
+  border-bottom: 1px solid #e7e8ec;
+  overflow: hidden;
+  padding: 5px 0;
+  height: 60px;
+  float: none !important;
+`;
+const TableHeaderInner = styled.div`
+    width:100%;
+    padding: 1px 3px;
+    color: #41454e;
+    vertical-align: middle;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+`;
+const EmptyRow = styled.div`
+	text-align: center;
+	border-bottom: 1px solid #e7e8ec;
+	min-height: 59px !important;
+	line-height: 55px;
+`;
+
+const PageToolbar = styled.div`
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 16px 20px;
+`;
+
+const ToolbarLeftItems = styled.div`
+	display: flex;
+	justify-content: flex-start !important;
+	align-items: center;
+	float: left;
+`;
+
+const LeftItemH1 = styled.h1`
+	font-size: 16px;
+	text-transform: uppercase;
+	font-weight: bold;
+	padding-right: 20px;
+	display: flex;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	font-family: "IBM Plex Sans", sans-serif;
+	vertical-align: baseline;
+`;
+
+const FormControl = styled.div`
+	padding-bottom: 20px;
+	min-height: 60px;
+	position: relative;
+	display: flex;
+	align-items: start;
+	@media (max-width: 991px) {
+		flex-basis: calc(100% / 2 - 9px) !important;
+	}
+}
+`;
+
 const Headers = styled.div`
 	border-width: 0px;
 	width: 100%;
@@ -427,99 +572,13 @@ const HeaderContainer = styled.div`
 	top: 0;
 `;
 
-const HeaderContainerInner = styled.div`
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 100% !important;
-	width: 100% !important;
-`;
-const ColumnName = styled.div.attrs((props) => ({
-	width: props.width,
-	left: props.left
-}))`
-width: ${(props) => props.width};
-left:${(props) => props.left};
-	border-width: 1px;    
-    height: auto;
-    margin: 0px;
-    top: 0px;
-   font-size: 11px;
-    font-weight: bold;
-    font-family: inherit;
-    color: #707887;
-    text-transform: uppercase;
-    letter-spacing: -0.4px;
-    vertical-align: middle;
-    position: absolute;
-    bottom: 0; 
-
-`;
-
-const SelectIconContainer = styled.div`
-	justify-content: center;
-	padding: 0 10px !important;
-
-	font-weight: bold;
-	font-size: 11px;
-	text-transform: uppercase;
-	height: 100% !important;
-	display: flex;
-	align-self: stretch;
-	width: 100%;
-`;
-const SelectSpan = styled.span.attrs((props) => ({
-	textAlign: props.textAlign || 'left'
-}))`
-	display: flex;
-	align-items: center;
-	overflow: hidden;
-	text-align: ${(props) => props.textAlign};
-	cursor: pointer;
-`;
-const SelectSpanInner = styled.span`white-space: nowrap;`;
-
-const HeaderBodyContainer = styled.div`
-	width: 100%;
-	height: auto;
-	height: inherit !important;
-	float: left;
-	height: auto !important;
-	position: relative;
-	top: 0 !important;
-	left: 0 !important;
-	overflow: hidden;
-`;
-const HeaderBody = styled.div`
-	border-width: 0px;
-	overflow: auto;
-	margin: 0px;
-	width: 1158px;
-`;
-const BodyTable = styled.table`
-	width: 100%;
-	height: 1px;
-	table-layout: fixed;
-	border-collapse: separate;
-	border-collapse: collapse;
-	border-spacing: 0;
-`;
-const TableBody = styled.tbody``;
-const TableRow = styled.tr``;
-const TableHeader = styled.th.attrs((props) => ({
+const TableHeader = styled.td.attrs((props) => ({
 	width: props.width,
 	height: props.height || '0',
-	left: props.left || '0'
+	left: props.left
 }))`
-width: ${(props) => props.width};
-left:${(props) => props.left};
-`;
-
-const EmptyRow = styled.div`
-	text-align: center;
-	border-bottom: 1px solid #e7e8ec;
-	min-height: 59px !important;
-	line-height: 55px;
+  width: ${(props) => props.width};
+  left: ${(props) => props.left};
 `;
 
 const ButtonWithOutline = styled.button`

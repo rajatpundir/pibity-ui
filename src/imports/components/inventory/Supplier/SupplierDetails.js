@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-// import Select from 'react-select'
+import Select from 'react-select'
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
@@ -11,7 +11,7 @@ class SupplierDetails extends React.Component {
 		super(props);
 		this.state = {
 			variable: props.variable
-		};
+		}
 		this.onChange = this.onChange.bind(this);
 		this.onVariableNameChange = this.onVariableNameChange.bind(this);
 	}
@@ -25,6 +25,13 @@ class SupplierDetails extends React.Component {
 		this.props.getVariables("Status")
 		this.props.getVariables("CarrierService")
 		this.props.getVariables("AttributeSet")
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return ({
+			...prevState,
+			variable: nextProps.variable
+		})
 	}
 
 	onVariableNameChange(e) {
@@ -64,44 +71,37 @@ class SupplierDetails extends React.Component {
 								/>{' '}
 								<InputLabel>Name<Required>*</Required></InputLabel>
 							</FormControl>
-							<Select
-								name="currency"
-								value={this.state.variable.get('values').get('currency')}
-								onChange={this.onChange}
-							>
-								<option value="none" disabled hidden>
-									Select Currency
-								</option>
-								{this.props.variables.Currency ? this.props.variables.Currency.map((variable) => {
-									console.log(variable)
-									return (
-										<option key={variable.variableName} value={variable.variableName}>
-											{variable.variableName}
-										</option>
-									);
-								}) : undefined}
-							</Select>
-							{/* <Select
-								name="currency"
-								value={this.state.variable.get('values').get('currency')}
-								onChange={(option) => {
-									this.onChange({ target: { name: 'currency', value: option.value } })
-								}}
-								options={[{ value: 'SSSSSSSSSSSSS', label: 'LLLLLLLLLLLL' }]}
-							/> */}
 							<FormControl>
-								<Input
-									name="paymentTerm"
-									type="text"
-									placeholder="Default"
-									value={this.state.variable.get('values').get('paymentTerm')}
-									onChange={this.onChange}
-								/>
+								<SelectWrapper>
+									<Select
+										value={{ value: this.state.variable.get('values').get('currency'), label: this.state.variable.get('values').get('currency') }}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'currency', value: option.value } })
+										}}
+										options={this.props.variables.Currency !== undefined ?
+											this.props.variables.Currency.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									/>
+								</SelectWrapper>
+								<InputLabel>Currency</InputLabel>
+							</FormControl>
+
+							<FormControl>
+								<SelectWrapper>
+									<Select
+										value={{ value: this.state.variable.get('values').get('paymentTerm'), label: this.state.variable.get('values').get('paymentTerm') }}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'paymentTerm', value: option.value } })
+										}}
+										options={this.props.variables.PaymentTerm !== undefined ?
+											this.props.variables.PaymentTerm.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									/>
+								</SelectWrapper>
 								<InputLabel>
-									Payment Term
-									<Required>*</Required>
+									PaymentTerm<Required>*</Required>
 								</InputLabel>
 							</FormControl>
+
+
 							<FormControl>
 								<Input />
 								<InputLabel>
@@ -112,38 +112,50 @@ class SupplierDetails extends React.Component {
 						</InputColumnWrapper>
 						<InputColumnWrapper>
 							<FormControl>
-								<Input
-									name="taxRule"
-									type="text"
-									placeholder="Defult"
-									value={this.state.variable.get('values').get('taxRule')}
-									onChange={this.onChange}
-								/>
+								<SelectWrapper>
+									<Select
+										value={{ value: this.state.variable.get('values').get('taxRule'), label: this.state.variable.get('values').get('taxRule') }}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'taxRule', value: option.value } })
+										}}
+										options={this.props.variables.SalesTaxRule !== undefined ?
+											this.props.variables.SalesTaxRule.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									/>
+								</SelectWrapper>
+
 								<InputLabel>
-									Tax Rule<Required>*</Required>
-								</InputLabel>
+								Tax Rule<Required>*</Required>
+							</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="status"
-									type="text"
-									placeholder="default"
-									value={this.state.variable.get('values').get('status')}
-									onChange={this.onChange}
-								/>
+								<SelectWrapper>
+									<Select
+										value={{ value: this.state.variable.get('values').get('status'), label: this.state.variable.get('values').get('status') }}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'status', value: option.value } })
+										}}
+										options={this.props.variables.Status !== undefined ?
+											this.props.variables.Status.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									/>
+								</SelectWrapper>
 								<InputLabel>
-									Status<Required>*</Required>
-								</InputLabel>
+								Status<Required>*</Required>
+							</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="defaultCarrier"
-									type="text"
-									placeholder="default"
-									value={this.state.variable.get('values').get('defaultCarrier')}
-									onChange={this.onChange}
-								/>
-								<InputLabel>Default Carrier</InputLabel>
+								<SelectWrapper>
+									<Select
+										value={{ value: this.state.variable.get('values').get('defaultCarrier'), label: this.state.variable.get('values').get('defaultCarrier') }}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'defaultCarrier', value: option.value } })
+										}}
+										options={this.props.variables.CarrierService !== undefined ?
+											this.props.variables.CarrierService.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									/>
+								</SelectWrapper>
+								<InputLabel>
+								Carrier Service
+							</InputLabel>
 							</FormControl>
 							<FormControl>
 								<Input
@@ -168,14 +180,18 @@ class SupplierDetails extends React.Component {
 								<InputLabel>Discount</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="attributeSet"
-									type="text"
-									placeholder="default"
-									value={this.state.variable.get('values').get('attributeSet')}
-									onChange={this.onChange}
-								/>
-								<InputLabel>Attribute Set </InputLabel>
+								<SelectWrapper>
+
+									<Select
+										value={{ value: this.state.variable.get('values').get('attributeSet'), label: this.state.variable.get('values').get('attributeSet') }}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'attributeSet', value: option.value } })
+										}}
+										options={this.props.variables.AttributeSet !== undefined ?
+											this.props.variables.AttributeSet.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									/>
+								</SelectWrapper>
+								<InputLabel>Attribute Set</InputLabel>
 							</FormControl>
 						</InputColumnWrapper>
 						<InputRowWrapper>
@@ -209,37 +225,13 @@ export default connect(mapStateToProps, {
 })(SupplierDetails);
 
 
-const PageBlock = styled.div`
-	display: block;
-	background: #fff;
-	width: 100%;
-	float: left;
-	border-radius: 6px;
-	margin-bottom: 20px;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
-	vertical-align: baseline;
-	align-items: center;
-`;
-
-const PageToolbar = styled.div`
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
+const InputFieldContainer = styled.div`
 	display: flex;
+	display: -ms-flexbox;
 	justify-content: space-between;
+	flex-wrap: wrap;
 	width: 100%;
-	padding: 16px 20px;
 `;
-
-const ToolbarLeftItems = styled.div`
-	display: flex;
-	justify-content: flex-start !important;
-	align-items: center;
-	float: left;
-`;
-
 const LeftItemH1 = styled.h1`
 	font-size: 16px;
 	text-transform: uppercase;
@@ -254,6 +246,10 @@ const LeftItemH1 = styled.h1`
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 `;
+const InputRowWrapper = styled.div.attrs((props) => ({
+	flexBasis: props.flexBasis || '100%'
+}))`
+flex-basis: ${(props) => props.flexBasis};`;
 
 const InputBody = styled.div.attrs((props) => ({
 	alignitem: props.alignItem || 'start',
@@ -261,7 +257,6 @@ const InputBody = styled.div.attrs((props) => ({
 }))`
 align-items: ${(props) => props.alignItem};
 	max-height: 4000px;
-	overflow: hidden;
 	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
@@ -277,15 +272,21 @@ align-items: ${(props) => props.alignItem};
 	padding: 20px 20px 0 20px;
 	padding-bottom: 20px !important;
 `;
-
-const InputFieldContainer = styled.div`
-	display: flex;
-	display: -ms-flexbox;
-	justify-content: space-between;
-	flex-wrap: wrap;
-	width: 100%;
+const Required = styled.span`
+	display: inline-block;
+	padding: 0 !important;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	font-family: 'IBM Plex Sans', sans-serif;
+	vertical-align: baseline;
+	white-space: nowrap;
+	color: #3b3b3b;
+	user-select: none;
+	pointer-events: none;
 `;
-
 const InputColumnWrapper = styled.div`
 	flex-basis: calc(100% / 3 - 12px) !important;
 	width: 30%;
@@ -297,11 +298,6 @@ const InputColumnWrapper = styled.div`
 	}
 `;
 
-const InputRowWrapper = styled.div.attrs((props) => ({
-	flexBasis: props.flexBasis || '100%'
-}))`
-flex-basis: ${(props) => props.flexBasis};`;
-
 const FormControl = styled.div`
 	padding-bottom: 20px;
 	min-height: 60px;
@@ -311,8 +307,42 @@ const FormControl = styled.div`
 	@media (max-width: 991px) {
 		flex-basis: calc(100% / 2 - 9px) !important;
 	}
+}
+`;
+const ToolbarLeftItems = styled.div`
+	display: flex;
+	justify-content: flex-start !important;
+	align-items: center;
+	float: left;
 `;
 
+const SelectWrapper = styled.div`
+font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+
+`
 const Input = styled.input`
 	font-size: 13px;
 	outline: none !important;
@@ -341,13 +371,11 @@ const Input = styled.input`
 	outline: none;
 	vertical-align: baseline;
 `;
-
 const InputLabel = styled.label`
 	font-size: 13px;
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
 	position: absolute;
 	top: -6px;
 	left: 7px;
@@ -367,34 +395,126 @@ const InputLabel = styled.label`
 	}
 `;
 
-const Required = styled.span`
-	display: inline-block;
-	padding: 0 !important;
-	margin: 0;
-	padding: 0;
+const PageBlock = styled.div`
+	display: block;
+	background: #fff;
+	width: 100%;
+	float: left;
+	border-radius: 6px;
+	margin-bottom: 20px;
 	border: 0;
 	font-size: 100%;
 	font: inherit;
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
-	white-space: nowrap;
-	color: #3b3b3b;
-	user-select: none;
-	pointer-events: none;
+	align-items: center;
 `;
 
-export const Select = styled.select.attrs((props) => ({
-	marginBottom: props.marginBottom || '1.4rem',
-	padding: props.padding || 'none',
-	paddingLeft: props.paddingLeft || props.padding
-}))`
-	font-size: 1.4rem;
-	max-height: 4.5rem;
-	font-family: Helvetica, Arial, sans-serif;
-	margin-bottom:${(props) => props.marginBottom};
-	padding: ${(props) => props.padding};
-	padding-left:${(props) => props.paddingLeft}
-	&:focus {
-		outline: none;
-	}
+const PageToolbar = styled.div`
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 16px 20px;
+`;
+const CheckBoxWapper = styled.div`
+	float: left;
+	width: 16px;
+`;
+const CheckBoxTable = styled.table`
+	width: 35% !important;
+	table-layout: auto !important;
+	border-collapse: inherit !important;
+	border-spacing: 0;
+`;
+
+const TBody = styled.tbody``;
+const TR = styled.tr``;
+const TD = styled.td`
+	width: 100% !important;
+	height: 16px;
+	line-height: 1px;
+	position: relative;
+	font-weight: normal;
+	overflow: hidden;
+	cursor: pointer;
+	vertical-align: top;
+	// &:before {
+	// 	border-width: 1px;
+	// 	border-style: solid;
+	// 	border-radius: 4px;
+	// 	border-color: #b9bdce;
+	// 	content: '';
+	// 	width: 16px;
+	// 	height: 16px;
+	// 	position: absolute;
+	// 	left: 0;
+	// 	top: 0;
+	// 	text-align: center;
+	// 	font-size: 21px;
+	// 	display: flex;
+	// 	background-color: transparent;
+	// 	justify-content: center;
+	// 	-webkit-transition: all 0.15s ease-in-out;
+	// 	pointer-events: none;
+	// }
+	// &:after {
+	// 	content: '\e81a';
+	// 	line-height: 18px;
+	// 	font-style: normal;
+	// 	color: transparent;
+	// 	font-family: 'icons_2019';
+	// 	width: 16px;
+	// 	height: 16px;
+	// 	position: absolute;
+	// 	left: 0;
+	// 	top: 0;
+	// 	text-align: center;
+	// 	font-size: 21px;
+	// 	display: flex;
+	// 	background-color: transparent;
+	// 	justify-content: center;
+	// 	transition: all 0.15s ease-in-out;
+	// 	pointer-events: none;
+	// }
+`;
+const CheckBoxInput = styled.input`
+	width: 16px;
+	height: 16px;
+	padding: 0;
+	-webkit-appearance: button;
+	cursor: pointer;
+	font-size: 100%;
+	outline: none;
+	vertical-align: baseline;
+	line-height: normal;
+	color: -internal-light-dark-color(buttontext, rgb(170, 170, 170));
+	background-color: -internal-light-dark-color(rgb(239, 239, 239), rgb(74, 74, 74));
+	border-width: 2px;
+	border-style: outset;
+	border-color: -internal-light-dark-color(rgb(118, 118, 118), rgb(195, 195, 195));
+	border-image: initial;
+	user-select: none;
+	white-space: pre;
+	align-items: flex-start;
+	text-align: center;
+`;
+
+const CheckBoxLabel = styled.label`
+	position: static;
+	padding: 0 0 0 10px;
+	pointer-events: all !important;
+	cursor: pointer;
+	top: -6px;
+	left: 7px;
+	background-color: #fff;
+	white-space: nowrap;
+	font-size: 13px;
+	line-height: 13px;
+	color: #3b3b3b;
+	background: transparent;
+	z-index: 20;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
 `;

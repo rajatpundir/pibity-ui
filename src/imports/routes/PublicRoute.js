@@ -2,6 +2,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
+// import Navigator from '../components/main/Navigator';
+import styled from 'styled-components';
+import MiniDrawer from '../components/main/nav2';
 
 export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => (
 	<Route
@@ -10,9 +13,10 @@ export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => 
 			isAuthenticated ? (
 				<Redirect to="/dashboard" />
 			) : (
-				<div>
+				<MainContainer>
+					<MiniDrawer />
 					<Component {...props} />
-				</div>
+				</MainContainer>
 			)}
 	/>
 );
@@ -26,3 +30,6 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps)(PublicRoute);
+
+const MainContainer = styled.div`
+display: flex;`;

@@ -1,33 +1,111 @@
 import React from 'react';
 import styled from 'styled-components';
-import { cloneDeep } from 'lodash';
-import { getTypeDetails, createVariable } from '../../redux/actions/product';
 import { connect } from 'react-redux';
-// import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {customErrorMessage} from '../main/Notification';
+import { clearErrors } from '../../redux/actions/errors';
+import { createVariable, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
 import PurchaseGeneralDetails from './Purchase/PurchaseGeneralDetails';
 import PurchaseOrderDetails from './Purchase/PurchaseOrderDetails';
-import PurchaseInvoiceDetails from './Purchase/PurchaseInvoiceDetails'
-import PurchaseStockReceived from './Purchase/PurchaseStockReceived'
+import PurchaseInvoiceDetails from './Purchase/PurchaseInvoiceDetails';
+import PurchaseStockReceived from './Purchase/PurchaseStockReceived';
+import CheckIcon from '@material-ui/icons/Check';
 
 class Purchase extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			generalDetails: {},
-			type: {},
-		    PurchaseValues: new Map(),
-			//purchaseOrderKeys
-			general:{},
-			invoiceDetails:[],
-			//based on selection it can be not defined for that purchase order,if object avalue is needed buta list can have no values
-			orderDetails:[],
-			stockReceived:[]
+			createPurchaseOrder: true,
+			prevPropVariable: {},
+			prevVariable: new Map(),
+			variable: new Map([
+				[ 'organization', 'zs' ],
+				[ 'typeName', 'SimplePurchase' ],
+				[ 'variableName', '' ], //supllier name is variable name
+				[
+					'values',
+					new Map([
+						[
+							'general',
+							new Map([
+								[ 'variableName', '' ],
+								[
+									'values',
+									new Map([
+										[ 'supplierName', '' ],
+										[ 'blindReceipt', false ],
+										[ 'term', '' ],
+										[ 'taxRule', '' ],
+										[ 'date', '' ],
+										[ 'contact', new Map([
+											["context",''],
+											['variableName','']
+										]) ],
+										[ 'stockOrInvoice', 'Stock First' ],
+										[ 'phone', '' ],
+										[ 'taxInclusive', false ],
+										[ 'shippingAddress1', '' ],
+										[ 'shippingAddress2', '' ],
+										[ 'location', '' ],
+										[ 'vendorAddressLine1', '' ],
+										[ 'vendorAddressLine2', '' ],
+										[ 'requiredBy', '' ],
+										[ 'comments', '' ]
+									])
+								]
+							])
+						],
+						[
+							'invoiceDetails',
+							[
+								new Map([
+									[ 'variableName', '0' ],
+									[
+										'values',
+										new Map([
+											[ 'additionalCost', [] ],
+											[ 'productInvoiceDetails', [] ],
+											[ 'supplierDeposit', [] ],
+											[ 'invoiceDate', '' ],
+											[ 'dueDate', '' ],
+											[ 'invoiceNumber', '' ],
+											[ 'total', '' ],
+											[ 'purchaseOrderMemo', '' ]
+										])
+									]
+								])
+							]
+						],
+						[
+							'orderDetails',
+							[
+								new Map([
+									[ 'variableName', '0' ],
+									[
+										'values',
+										new Map([
+											[ 'additionalCost', [] ],
+											[ 'productInvoiceDetails', [] ],
+											[ 'supplierDeposit', [] ],
+											[ 'total', '' ],
+											[ 'purchaseOrderMemo', '' ]
+										])
+									]
+								])
+							]
+						],
+						[ 'stockReceived', [] ]
+					])
+				]
+			]),
+			visibleSection: 'addresses'
 		};
-
-		this.onChange = this.onChange.bind(this);
-		this.getGeneralDetails = this.getGeneralDetails.bind(this);
-		this.getInvoiceDetails=this.getInvoiceDetails.bind(this);
-		this.getStockReceived=this.getStockReceived.bind(this);
+		this.updateDetails = this.updateDetails.bind(this);
+		this.updateInvoice = this.updateInvoice.bind(this);
+		this.updateOrder = this.updateOrder.bind(this);
+		this.updateStock = this.updateStock.bind(this);
 	}
 
 	divVisibility(divId) {
@@ -39,7 +117,7 @@ class Purchase extends React.Component {
 	}
 
 	hideNonVisibleDivs(visibleDivId) {
-		var divs = [ 'purchase', 'order' ,'invoice','stockReceived'];
+		var divs = [ 'purchase', 'order', 'invoice', 'stockReceived' ];
 		var i, divId, div;
 		for (i = 0; i < divs.length; i++) {
 			divId = divs[i];
@@ -54,81 +132,123 @@ class Purchase extends React.Component {
 		}
 	}
 
-	onChange(e) {
-		this.setState({ [e.target.name]: [ e.target.value ] });
-	}
-
 	componentDidMount() {
-		this.props.getTypeDetails('SimplePurchase');
+		if (this.props.match.params.variableName) {
+			this.props
+				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+				.then((variable) => {
+					this.setState({ prevVariable: variable });
+				});
+		}
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		return {
-			...prevState,
-			type:nextProps.type === undefined ? null :nextProps.type[0],
-			generalDetails: nextProps.type[0] === undefined ? null : nextProps.type[0].keys['general']
-		};
-	}
-
-	getGeneralDetails(supplierName, purchaseGeneralDetails) {
-		this.setState({
-			general: purchaseGeneralDetails,
-			supplierName: supplierName
-		});
-	}
-
-	getOrderDetails(orderDetails){
-		this.setState({ orderDetails: [ ...this.state.orderDetails, ...orderDetails ] });
-	}
-
-	getInvoiceDetails(invoicedetails){
-		this.setState({invoiceDetails:[this.state.invoiceDetails,...invoicedetails]})
-	}
-	getStockReceived(stockReceivedDetails){
-		this.setState(
-			{
-				stockRecieved: []
-			},
-			() => {
-			 var variableArray=[]
-				Object.entries(stockReceivedDetails).forEach((item) => {
-					var variable = {
-						variableName: item[1].name,
-						values: item[1]
-					};
-					variableArray.push(variable)
-				});
-				this.setState({ stockRecieved: [ ...this.state.stockRecieved, ...variableArray ] });
+		if (nextProps.match.params.variableName && nextProps.variables.SimplePurchase) {
+			const variable = nextProps.variables.SimplePurchase.filter(
+				(variable) => variable.variableName === nextProps.match.params.variableName
+			)[0];
+			if (variable && prevState.prevPropVariable !== variable) {
+				const variableMap = objToMapRec(variable);
+				const values = variableMap.get('values');
+				const general = values.get('general');
+				general.set('variableName', variableMap.get('variableName'));
+				values.set('general', general);
+				variableMap.set('values', values);
+				return {
+					...prevState,
+					variable: variableMap,
+					prevPropVariable: variable
+				};
 			}
-		);
-
+		}
+		return prevState;
 	}
 
-	createVariable(e) {
-		const values = cloneDeep(this.state.PurchaseValues);
-		values.set('general', this.state.general);
-		values.set('orderDetails', this.state.orderDetails);
-		values.set('invoiceDetails', this.state.invoiceDetails);
-		values.set('stockRecieved', this.state.stockReceived);
-		this.setState({ PurchaseValues: values }, () => {
-			this.props.createVariable('SimplePurchase', this.state.supplierName, this.state.PurchaseValues);
-			this.setState({
-				values: new Map(),
-				variableName: ''
-			});
-		});
+	checkRequiredField(variable) {
+		if (variable.get('values').get('supplierName') === '') {
+			customErrorMessage('Supplier Name  is missing');
+			this.setState({ createPurchaseOrder: false });
+		}
+		if (variable.get('values').get('location') === '') {
+			customErrorMessage(' Location is missing');
+			this.setState({ createPurchaseOrder: false });
+		}
+		if (variable.get('values').get('term') === '') {
+			customErrorMessage(' Term is missing');
+			this.setState({ createPurchaseOrder: false });
+		}
+		if (variable.get('values').get('taxRule') === '') {
+			customErrorMessage(' Tax Rule is missing');
+			this.setState({ createPurchaseOrder: false });
+		}
+	}
+
+	updateDetails(details) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('general', details);
+		variable.set('values', values);
+		variable.set('variableName', details.get('variableName'));
+		this.setState({ variable: variable });
+	}
+
+	updateInvoice(invoiceDetails) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('invoiceDetails', [ invoiceDetails ]);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
+	updateOrder(orderDetails) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('orderDetails', [ orderDetails ]);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
+	updateStock(productStock) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('stockReceived', productStock);
+		variable.set('values', values);
+		this.setState({ variable: variable });
 	}
 
 	render() {
 		return (
 			<Container>
+				<ToastContainer limit={3} />
 				<PageWrapper>
 					<PageBody>
-					<button onClick={(e) => this.createVariable()}>save</button>
-
+						<SaveButtonContaier>
+							<SaveButton
+								onClick={(e) => {
+									if (this.props.match.params.variableName) {
+										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+									} else {
+										new Promise((resolve) => {
+											resolve(
+												this.checkRequiredField(
+													this.state.variable.get('values').get('general')
+												)
+											);
+										}).then(() => {
+											if (this.state.createPurchaseOrder) {
+												this.props.createVariable(this.state.variable);
+											}
+											this.setState({ createPurchaseOrder: true });
+										});
+									}
+								}}
+							>
+								<CheckIcon />
+							</SaveButton>
+						</SaveButtonContaier>
 						<PurchaseGeneralDetails
-							sendData={this.getGeneralDetails}
-							generalDetails={this.state.generalDetails}
+							variable={this.state.variable.get('values').get('general')}
+							updateDetails={this.updateDetails}
 						/>
 						<HorizontalistPageBlock>
 							<HorizontalBlockListOuter>
@@ -168,9 +288,18 @@ class Purchase extends React.Component {
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
 						</HorizontalistPageBlock>
-						<PurchaseOrderDetails sendData={this.getOrderDetails} />
-						<PurchaseInvoiceDetails sendData={this.getInvoiceDetails}/>
-						<PurchaseStockReceived sendData={this.getStockReceived}/>
+						<PurchaseOrderDetails
+							variable={this.state.variable.get('values').get('orderDetails')[0]}
+							updateInvoice={this.updateOrder}
+						/>
+						<PurchaseInvoiceDetails
+							variable={this.state.variable.get('values').get('invoiceDetails')[0]}
+							updateInvoice={this.updateInvoice}
+						/>
+						<PurchaseStockReceived
+							list={this.state.variable.get('values').get('stockReceived')}
+							updateStock={this.updateStock}
+						/>
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -179,12 +308,14 @@ class Purchase extends React.Component {
 }
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.type
+	variables: state.variables
 });
 
 export default connect(mapStateToProps, {
-	getTypeDetails,
-	createVariable
+	clearErrors,
+	createVariable,
+	getVariable,
+	updateVariable
 })(Purchase);
 
 export const HorizontalistPageBlock = styled.div`
@@ -280,13 +411,15 @@ const Container = styled.div`
 	width: 100%;
 	min-width: 860px;
 	border-radius: 6px;
-	position: relative;
+  position: relative;
+  margin-top: 65px;
+	min-height: 100vh;
 	display: flex;
 	flex-direction: row;
 	flex-grow: 1;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	background-color: #e3e4e8;
 	@media (max-width: 1200px) {
@@ -320,9 +453,32 @@ const PageBody = styled.div`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
 		max-width: 1200px;
 	}
+`;
+const SaveButtonContaier = styled.div`
+	position: fixed;
+	bottom: 50px;
+	right: 50px;
+	bottom: 37px;
+	right: 37px;
+	z-index: 300;
+`;
+const SaveButton = styled.button`
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	background-color: #05cbbf;
+	border: 0;
+	color: #fff;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+  transition: background-color 0.15s ease-in-out;
+  outline: none; 
+
 `;

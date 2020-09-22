@@ -1,103 +1,58 @@
 import React from 'react';
 import styled from 'styled-components';
+import Select from 'react-select';
+import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
 
 class CustomerGeneralDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			customer: [],
-			customerName: '',
-			attributeSet: '',
-			comments: '',
-			currency: '',
-			paymentTerm: '',
-			status: '',
-			taxRule: '',
-			salesPriceTier: '',
-			defaultCarrier: '',
-			defaultLocation: '',
-			taxNumber: '',
-			discount: '',
-			creditLimit: '',
-			onCreditHold: false,
-			value: {},
-			type: {},
-			generalDetails: {},
-			variableName: '',
-			values: new Map(),
-			general: {}
+			variable: props.variable
 		};
 		this.onChange = this.onChange.bind(this);
-		this.systemTypes = Array.from([ 'Text', 'Number', 'Decimal', 'Boolean', 'Formula', 'List' ]);
+		this.onVariableNameChange = this.onVariableNameChange.bind(this);
+	}
+
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables('Country');
+		this.props.getVariables('Currency');
+		this.props.getVariables('CarrierService');
+		this.props.getVariables('PaymentTerm');
+		this.props.getVariables('Status');
+		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('AttributeSet');
+		this.props.getVariables('PriceTierName');
+		this.props.getVariables('Location');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.mode === 'update') {
-			if (nextProps.customerGeneralInfo !== null) {
-				if (nextProps.customerGeneralInfo.length !== 0) {
-					return {
-						...prevState,
-						customerName: nextProps.customerGeneralInfo[0].variableName,
-						attributeSet: nextProps.customerGeneralInfo[0].values.general.values.attributeSet.variableName,
-						comments: nextProps.customerGeneralInfo[0].values.general.values.comments,
-						currency: nextProps.customerGeneralInfo[0].values.general.values.currency.variableName,
-						paymentTerm: nextProps.customerGeneralInfo[0].values.general.values.paymentTerm.variableName,
-						status: nextProps.customerGeneralInfo[0].values.general.values.status.variableName,
-						taxRule: nextProps.customerGeneralInfo[0].values.general.values.taxRule.variableName,
-						salesPriceTier:
-							nextProps.customerGeneralInfo[0].values.general.values.salesPriceTier.variableName,
-						defaultCarrier:
-							nextProps.customerGeneralInfo[0].values.general.values.defaultCarrier.variableName,
-						defaultLocation:
-							nextProps.customerGeneralInfo[0].values.general.values.defaultLocation.variableName,
-						taxNumber: nextProps.customerGeneralInfo[0].values.general.values.taxNumber,
-						discount: nextProps.customerGeneralInfo[0].values.general.values.discount,
-						creditLimit: nextProps.customerGeneralInfo[0].values.general.values.creditLimit,
-						onCreditHold: nextProps.customerGeneralInfo[0].values.general.values.onCreditHold
-					};
-				}
-			}
-		} else {
-			return null;
-		}
+		return {
+			...prevState,
+			variable: nextProps.variable
+		};
+	}
+
+	onVariableNameChange(e) {
+		const variable = cloneDeep(this.state.variable);
+		variable.set('variableName', e.target.value);
+		this.setState({ variable: variable });
+		this.props.updateDetails(variable);
 	}
 
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
-		if (this.props.generalDetails !== null) {
-			if (typeof this.props.generalDetails.type === 'object' && this.props.generalDetails.type !== null) {
-				if (this.props.generalDetails.type.keys.hasOwnProperty(e.target.name)) {
-					const values = cloneDeep(this.state.values);
-					values.set(e.target.name, e.target.value);
-					this.setState({ values: values });
-				}
-			}
-		}
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set(e.target.name, e.target.value);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateDetails(variable);
 	}
-
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
-			} else {
-				lo[k] = v;
-			}
-		}
-		return lo;
-	};
-
-	saveGeneralDetails(e) {
-		var generalDetails = {
-			variableName: this.state.customerName,
-			values: this.mapToObjectRec(this.state.values)
-		};
-		this.setState({ general: generalDetails }, () => {
-			this.props.sendData(this.state.customerName, this.state.general);
-		});
-	}
-
+	
 	render() {
 		return (
 			<PageBlock style={{ display: 'block' }} id="customer">
@@ -114,8 +69,8 @@ class CustomerGeneralDetails extends React.Component {
 									name="customerName"
 									type="text"
 									placeholder="Customer Name"
-									value={this.state.customerName}
-									onChange={this.onChange}
+									value={this.state.variable.get('variableName')}
+									onChange={this.onVariableNameChange}
 								/>{' '}
 								<InputLabel>
 									Name
@@ -123,58 +78,85 @@ class CustomerGeneralDetails extends React.Component {
 								</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="status"
-									type="text"
-									list="status"
-									value={this.state.status}
-									onChange={this.onChange}
-								/>
-								<datalist id="status">
-									{this.props.status !== undefined ? (
-										this.props.status.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('status'),
+											label: this.state.variable.get('values').get('status')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'status', value: option.value } });
+										}}
+										options={
+											this.props.variables.Status !== undefined ? (
+												this.props.variables.Status.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>
 									Status<Required>*</Required>
 								</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="currency"
-									type="text"
-									list="currency"
-									value={this.state.currency}
-									onChange={this.onChange}
-								/>
-								<datalist id="currency">
-									{this.props.currency !== undefined ? (
-										this.props.currency.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('currency'),
+											label: this.state.variable.get('values').get('currency')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'currency', value: option.value } });
+										}}
+										options={
+											this.props.variables.Currency !== undefined ? (
+												this.props.variables.Currency.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>
 									Currency <Required>*</Required>
 								</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="paymentTerm"
-									type="text"
-									list="paymentTerm"
-									value={this.state.paymentTerm}
-									onChange={this.onChange}
-								/>
-								<datalist id="paymentTerm">
-									{this.props.paymentTerm !== undefined ? (
-										this.props.paymentTerm.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('paymentTerm'),
+											label: this.state.variable.get('values').get('paymentTerm')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'paymentTerm', value: option.value } });
+										}}
+										options={
+											this.props.variables.PaymentTerm !== undefined ? (
+												this.props.variables.PaymentTerm.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>
 									Payment Term
 									<Required>*</Required>
@@ -188,26 +170,34 @@ class CustomerGeneralDetails extends React.Component {
 								</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="salesPriceTier"
-									type="text"
-									list="priceTierName"
-									value={this.state.salesPriceTier}
-									onChange={this.onChange}
-								/>
-								<datalist id="priceTierName">
-									{this.props.priceTierName !== undefined ? (
-										this.props.priceTierName.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('salesPriceTier'),
+											label: this.state.variable.get('values').get('salesPriceTier')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'salesPriceTier', value: option.value } });
+										}}
+										options={
+											this.props.variables.PriceTierName !== undefined ? (
+												this.props.variables.PriceTierName.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>
 									Sales Price Tier<Required>*</Required>
 								</InputLabel>
 							</FormControl>
 						</InputColumnWrapper>
-
 						<InputColumnWrapper>
 							<FormControl>
 								<Input />
@@ -217,20 +207,29 @@ class CustomerGeneralDetails extends React.Component {
 								</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="taxRule"
-									type="text"
-									list="taxRule"
-									value={this.state.taxRule}
-									onChange={this.onChange}
-								/>
-								<datalist id="taxRule">
-									{this.props.salesTaxRule !== undefined ? (
-										this.props.salesTaxRule.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('taxRule'),
+											label: this.state.variable.get('values').get('taxRule')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'taxRule', value: option.value } });
+										}}
+										options={
+											this.props.variables.SalesTaxRule !== undefined ? (
+												this.props.variables.SalesTaxRule.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>
 									Tax Rule<Required>*</Required>
 								</InputLabel>
@@ -240,45 +239,63 @@ class CustomerGeneralDetails extends React.Component {
 								<InputLabel>Sales Representative</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="defaultCarrier"
-									type="text"
-									list="defaultCarrier"
-									value={this.state.defaultCarrier}
-									onChange={this.onChange}
-								/>
-								<datalist id="defaultCarrier">
-									{this.props.carrierServices !== undefined ? (
-										this.props.carrierServices.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('defaultCarrier'),
+											label: this.state.variable.get('values').get('defaultCarrier')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'defaultCarrier', value: option.value } });
+										}}
+										options={
+											this.props.variables.CarrierService !== undefined ? (
+												this.props.variables.CarrierService.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>Default Carrier</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="defaultLocation"
-									type="text"
-									list="location"
-									value={this.state.defaultLocation}
-									onChange={this.onChange}
-								/>
-								<datalist id="location">
-									{this.props.location !== undefined ? (
-										this.props.location.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('defaultLocation'),
+											label: this.state.variable.get('values').get('defaultLocation')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'defaultLocation', value: option.value } });
+										}}
+										options={
+											this.props.variables.Location !== undefined ? (
+												this.props.variables.Location.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>Default Location</InputLabel>
 							</FormControl>
 							<FormControl>
 								<Input
 									name="taxNumber"
-									type="number"
+									type="text"
 									placeholder="tax Number"
-									value={this.state.taxNumber}
+									value={this.state.variable.get('values').get('taxNumber')}
 									onChange={this.onChange}
 								/>
 								<InputLabel> Tax Number</InputLabel>
@@ -290,7 +307,7 @@ class CustomerGeneralDetails extends React.Component {
 									name="discount"
 									type="number"
 									placeholder="discount"
-									value={this.state.discount}
+									value={this.state.variable.get('values').get('discount')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Discount</InputLabel>
@@ -300,7 +317,7 @@ class CustomerGeneralDetails extends React.Component {
 									name="creditLimit"
 									type="number"
 									placeholder="creditLimit"
-									value={this.state.creditLimit}
+									value={this.state.variable.get('values').get('creditLimit')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Credit Limit</InputLabel>
@@ -313,17 +330,17 @@ class CustomerGeneralDetails extends React.Component {
 												<TD>
 													<CheckBoxInput
 														type="checkbox"
-														checked={this.state.onCreditHold}
+														checked={this.state.variable.get('values').get('onCreditHold')}
 														tabindex="55"
-														onChange={() => {
-															this.setState(
-																{ onCreditHold: !this.state.onCreditHold },
-																() => {
-																	const values = cloneDeep(this.state.values);
-																	values.set('onCreditHold', this.state.onCreditHold);
-																	this.setState({ values: values });
+														onChange={(option) => {
+															this.onChange({
+																target: {
+																	name: 'onCreditHold',
+																	value: !this.state.variable
+																		.get('values')
+																		.get('onCreditHold')
 																}
-															);
+															});
 														}}
 													/>
 												</TD>
@@ -334,20 +351,29 @@ class CustomerGeneralDetails extends React.Component {
 								<CheckBoxLabel>On Credit Hold</CheckBoxLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="attributeSet"
-									type="text"
-									list="attributeSet"
-									value={this.state.attributeSet}
-									onChange={this.onChange}
-								/>
-								<datalist id="attributeSet">
-									{this.props.attributeSet !== undefined ? (
-										this.props.attributeSet.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('attributeSet'),
+											label: this.state.variable.get('values').get('attributeSet')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'attributeSet', value: option.value } });
+										}}
+										options={
+											this.props.variables.AttributeSet !== undefined ? (
+												this.props.variables.AttributeSet.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>Attribute Set </InputLabel>
 							</FormControl>
 							<FormControl>
@@ -361,7 +387,7 @@ class CustomerGeneralDetails extends React.Component {
 									name="comments"
 									type="text"
 									placeholder="comments"
-									value={this.state.comments}
+									value={this.state.variable.get('values').get('comments')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Comment</InputLabel>
@@ -369,13 +395,21 @@ class CustomerGeneralDetails extends React.Component {
 						</InputRowWrapper>
 					</InputFieldContainer>
 				</InputBody>
-				<button onClick={(e) => this.saveGeneralDetails()}>save</button>
 			</PageBlock>
 		);
 	}
 }
 
-export default CustomerGeneralDetails;
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	types: state.types,
+	variables: state.variables
+});
+
+export default connect(mapStateToProps, {
+	clearErrors,
+	getVariables
+})(CustomerGeneralDetails);
 
 const InputFieldContainer = styled.div`
 	display: flex;
@@ -409,7 +443,6 @@ const InputBody = styled.div.attrs((props) => ({
 }))`
 align-items: ${(props) => props.alignItem};
 	max-height: 4000px;
-	overflow: hidden;
 	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
@@ -468,6 +501,33 @@ const ToolbarLeftItems = styled.div`
 	align-items: center;
 	float: left;
 `;
+
+const SelectWrapper = styled.div`
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+`;
 const Input = styled.input`
 	font-size: 13px;
 	outline: none !important;
@@ -501,7 +561,6 @@ const InputLabel = styled.label`
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
 	position: absolute;
 	top: -6px;
 	left: 7px;
@@ -522,7 +581,7 @@ const InputLabel = styled.label`
 `;
 
 const PageBlock = styled.div`
-	display: none;
+	display: block;
 	background: #fff;
 	width: 100%;
 	float: left;

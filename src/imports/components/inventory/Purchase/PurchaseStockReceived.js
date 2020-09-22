@@ -1,190 +1,182 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getTypeDetails } from '../../../redux/actions/product';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
+import Select from 'react-select'
+
 class PurchaseStockReceived extends React.Component {
+
 	constructor(props) {
 		super(props);
 		this.state = {
-			keys: new Map(),
-			key: new Map([
-				[ 'product', '' ],
-				[ 'batch', '' ],
-				[ 'dateRecieved', '' ],
-				[ 'expiryDate', '' ],
-				[ 'supplierSku', '' ],
-				[ 'quantity', '' ],
-				[ 'unit', '' ],
-				[ 'location', '' ],
-				[ 'recieved', '' ]
-			]),
-			type: '',
-			counter: 0
-		};
+			list: props.list
+		}
 		this.onChange = this.onChange.bind(this);
 	}
 
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables("Product")
 	}
 
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return ({
+			...prevState,
+			list: nextProps.list
+		})
+	}
+
+	onChange(e, variableName) {
+		const list = cloneDeep(this.state.list).map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values')
+				values.set(e.target.name, e.target.value)
+				listVariable.set('values', values)
+				return listVariable
 			} else {
-				lo[k] = v;
+				return listVariable
 			}
-		}
-		return lo;
-	};
-
-	savePurchaseStockReceived() {
-		this.props.sendData(this.mapToObjectRec(this.state.keys));
+		})
+		this.setState({ list: list })
+		this.props.updateStock(list)
 	}
 
-	addListVariable() {
-		const addkey = cloneDeep(this.state.keys);
-		addkey.set(this.state.counter, this.state.key);
-		this.setState({
-			keys: addkey
-		});
-		this.setState((prevState) => {
-			return { counter: prevState.counter + 1 };
-		});
+	addVariableToList() {
+		const list = cloneDeep(this.state.list)
+		list.unshift(new Map([
+			['variableName', String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1 )],
+			['values', new Map([
+				['product', ''],
+				['batch', ''],
+				['dateRecieved', ''],
+				['expiryDate', ''],
+				['supplierSku', ''],
+				['quantity', ''],
+				['unit', ''],
+				['location', ''],
+				['recieved', '']
+			])]
+		]))
+		this.setState({ list: list })
+		this.props.updateStock(list)
+	}
+
+	onRemoveKey(e, variableName) {
+		const list = cloneDeep(this.state.list).filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName
+		})
+		this.setState({ list: list })
+		this.props.updateStock(list)
 	}
 
 	renderInputFields() {
 		const rows = [];
-		if (this.state.keys.size === 0) {
-			return (
-				<TableRow>
-					<TableHeader width="58px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="167px" />
-				</TableRow>
-			);
-		} else {
-			for (let key of this.state.keys) {
-				rows.push(
-					<TableRow key={key[0]}>
-						<TableHeader width="5%" left="0px">
-							{' '}
-						</TableHeader>
-						<TableHeader width="10%" left="5%">
-							<Input
-								name="product"
-								type="text"
-								placeholder="default"
-								value={key[1].get('product')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('product', e.target.value);
-									this.setState({ keys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="10%" left="14%">
+		this.state.list.forEach(listVariable =>
+			rows.push(
+				<TableRow key={listVariable.get('variableName')}>
+					<TableData width="5%" left="0px">
+						<i name={listVariable.get('variableName')} className="large material-icons" onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}>
+							remove_circle_outline
+						</i>
+					</TableData>
+					<TableData width="10%" left="5%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{ value: listVariable.get('values').get('product'), label: listVariable.get('values').get('product') }}
+									onChange={(option) => {
+										this.onChange({ target: { name: 'product', value: option.value } }, listVariable.get('variableName'))
+									}}
+									options={this.props.variables.Product !== undefined ?
+										this.props.variables.Product.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%" left="14%">
+						<TableHeaderInner>
 							<Input
 								name="batch"
 								type="text"
-								placeholder="batch"
-								value={key[1].get('batch')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('batch', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('batch')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="11%" left="26%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="11%" left="26%">
+						<TableHeaderInner>
 							<Input
 								name="expiryDate"
 								type="text"
-								placeholder="default"
-								value={key[1].get('expiryDate')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('expiryDate', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('expiryDate')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="12%" left="37%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="12%" left="37%">
+
+						<TableHeaderInner>
 							<Input
 								name="supplierSKU"
 								type="text"
-								placeholder="default"
-								value={key[1].get('supplierSKU')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('supplierSKU', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('supplierSKU')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="8%" left="46%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="46%">
+						<TableHeaderInner>
 							<Input
 								name="unit"
-								type="text"
-								placeholder="default"
-								value={key[1].get('unit')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('unit', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								type="number"
+								value={listVariable.get('values').get('unit')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="10%" left="54%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%" left="54%">
+						<TableHeaderInner>
 							<Input
 								name="quantity"
 								type="number"
-								placeholder="quantity"
-								value={key[1].get('quantity')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('quantity', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('quantity')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="10%" left="65%">
-							<Input
-								name="location"
-								type="text"
-								placeholder="default"
-								value={key[1].get('location')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('location', e.target.value);
-									this.setState({ keys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="11%" left="77%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%" left="65%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{ value: listVariable.get('values').get('location'), label: listVariable.get('values').get('location') }}
+									onChange={(option) => {
+										this.onProductOrderInputChange({ target: { name: 'location', value: option.value } }, listVariable.get('variableName'))
+									}}
+									options={this.props.variables.Location !== undefined ?
+										this.props.variables.Location.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="11%" left="77%">
+						<TableHeaderInner>
 							<Input
 								name="dateRecieved"
 								type="text"
-								placeholder="Date Received"
-								value={key[1].get('dateRecieved')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('dateRecieved', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('dateRecieved')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-					</TableRow>
-				);
-			}
-			return rows;
-		}
+						</TableHeaderInner>
+					</TableData>
+				</TableRow>
+			)
+		)
+		return (rows)
 	}
+
 	render() {
 		return (
 			<PageBlock id="stockReceived">
@@ -195,7 +187,7 @@ class PurchaseStockReceived extends React.Component {
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlignLeft>
-						<PlusButton onClick={(e) => this.addListVariable()}>
+						<PlusButton onClick={(e) => this.addVariableToList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
 					</PageBarAlignLeft>
@@ -203,76 +195,74 @@ class PurchaseStockReceived extends React.Component {
 				<InputBody borderTop="0">
 					<RoundedBlock>
 						<TableFieldContainer>
-							<Headers>
-								<HeaderContainer>
-									<HeaderContainerInner>
-										<ColumnName width="5%" left="0px">
-											<SelectIconContainer>
-												<SelectSpan>
-													<SelectSpanInner>
-														<i className="large material-icons">create</i>
-													</SelectSpanInner>
-												</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="5%">
-											<SelectIconContainer>
-												<SelectSpan>Product</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="14%">
-											<SelectIconContainer>
-												<SelectSpan textAlign="right">Batch/ Serial</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="11%" left="26%">
-											<SelectIconContainer>
-												<SelectSpan>Expirey Date </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="12%" left="36%">
-											<SelectIconContainer>
-												<SelectSpan>Supplier SKU </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="8%" left="46%">
-											<SelectIconContainer>
-												<SelectSpan>Unit </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-                                        <ColumnName width="10%" left="54%">
-											<SelectIconContainer>
-												<SelectSpan>Quantity </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-                                        <ColumnName width="10%" left="65%">
-											<SelectIconContainer>
-												<SelectSpan>Location </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-                                        <ColumnName width="11%" left="77%">
-											<SelectIconContainer>
-												<SelectSpan>Date Recieved </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-                                        <ColumnName width="10%" left="88%">
-											<SelectIconContainer>
-												<SelectSpan>Received </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-									</HeaderContainerInner>
-								</HeaderContainer>
-							</Headers>
 							<HeaderBodyContainer>
 								<HeaderBody>
 									<BodyTable>
-										<TableBody>{this.renderInputFields()}</TableBody>
+										<TableBody>
+											<TableRow>
+												<TableHeaders width="5%" left="0px">
+													<SelectIconContainer>
+														<SelectSpan>
+															<SelectSpanInner>
+																<i className="large material-icons">create</i>
+															</SelectSpanInner>
+														</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%" left="5%">
+													<SelectIconContainer>
+														<SelectSpan>Product</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%" left="14%">
+													<SelectIconContainer>
+														<SelectSpan textAlign="right">Batch/ Serial</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="11%" left="26%">
+													<SelectIconContainer>
+														<SelectSpan>Expirey Date </SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="12%" left="36%">
+													<SelectIconContainer>
+														<SelectSpan>Supplier SKU </SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="8%" left="46%">
+													<SelectIconContainer>
+														<SelectSpan>Unit </SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%" left="54%">
+													<SelectIconContainer>
+														<SelectSpan>Quantity </SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%" left="65%">
+													<SelectIconContainer>
+														<SelectSpan>Location </SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="11%" left="77%">
+													<SelectIconContainer>
+														<SelectSpan>Date Recieved </SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%" left="88%">
+													<SelectIconContainer>
+														<SelectSpan>Received </SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+											</TableRow>
+											{this.renderInputFields()}
+										</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.keys.size === 0 ? <EmptyRow>You do not have any Stock Received Lines.</EmptyRow> : undefined}
+								{this.state.list.length === 0 ? <EmptyRow>No Contacts found.</EmptyRow> : undefined}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addListVariable()}>
+								<AddMoreButton onClick={(e) => this.addVariableToList()}>
 									<i className="large material-icons">add</i>Add More Items
 								</AddMoreButton>
 							</AddMoreBlock>
@@ -285,14 +275,13 @@ class PurchaseStockReceived extends React.Component {
 	}
 }
 
+
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.type
+	variables: state.variables
 });
 
-export default connect(mapStateToProps, {
-	getTypeDetails
-})(PurchaseStockReceived);
+export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseStockReceived);
 const AddMoreBlock = styled.div`
 	flex-flow: row wrap;
 	display: flex;
@@ -335,7 +324,7 @@ const AddMoreButton = styled.button`
 	}
 `;
 const PageBlock = styled.div`
-	display: none;
+	display: block;
 	background: #fff;
 	width: 100%;
 	float: left;
@@ -348,36 +337,6 @@ const PageBlock = styled.div`
 	vertical-align: baseline;
 	align-items: center;
 `;
-
-const PlusButton = styled.button`
-	margin-left: 5px;
-	color: #04beb3;
-	background-color: #05cbbf;
-	border-color: #05cbbf;
-	width: 32px !important;
-	min-width: 32px !important;
-	max-width: 32px !important;
-	justify-content: center;
-	padding: 0 !important;
-	height: 32px !important;
-	text-align: center;
-	border-width: 1px;
-	border-style: solid;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	text-decoration: none;
-	display: inline-flex;
-	vertical-align: middle;
-	flex-direction: row;
-	align-items: center;
-	background: transparent;
-	white-space: nowrap;
-	border-radius: 4px;
-`;
-
-///border-top: 1px solid #e0e1e7;
-
 const PageToolbar = styled.div`
 	-webkit-flex-flow: row wrap;
 	flex-flow: row wrap;
@@ -433,19 +392,8 @@ align-items: ${(props) => props.alignItem};
 	padding-bottom: 20px !important;
 `;
 
-const FormControl = styled.div`
-	padding-bottom: 20px;
-	min-height: 60px;
-	position: relative;
-	display: flex;
-	align-items: start;
-	@media (max-width: 991px) {
-		flex-basis: calc(100% / 2 - 9px) !important;
-	}
-}
-`;
-
 const Input = styled.input`
+	width: inherit;
 	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
@@ -473,7 +421,33 @@ const Input = styled.input`
 	outline: none;
 	vertical-align: baseline;
 `;
+const SelectWrapper = styled.div`
+font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
 
+`
 const PageBar = styled.div`
 	flex-flow: row wrap;
 	display: flex;
@@ -499,67 +473,17 @@ const RoundedBlock = styled.div.attrs((props) => ({
 	overflow: hidden;
 	margin-top:${(props) => props.marginTop};
 `;
+
+// float: left;
 const TableFieldContainer = styled.div`
+	position: relative;
 	width: 100% !important;
+	overflow: hidden;
+
 	min-height: auto !important;
 	text-align: center;
-	position: relative !important;
 	top: 0 !important;
 	height: inherit !important;
-	float: left;
-	overflow: hidden !important;
-`;
-const Headers = styled.div`
-	border-width: 0px;
-	width: 100%;
-	left: 0px;
-	top: 0px;
-	border-top: 0 !important;
-	zoom: 1;
-	cursor: default;
-	background-color: #fff;
-	border-bottom: 1px solid #e7e8ec !important;
-	border-top: 1px solid #e7e8ec !important;
-	height: 60px;
-	overflow: hidden;
-`;
-const HeaderContainer = styled.div`
-	width: 100%;
-	height: 100% !important;
-	overflow: hidden;
-	zoom: 1;
-	position: relative;
-	left: 0;
-	top: 0;
-`;
-
-const HeaderContainerInner = styled.div`
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 100% !important;
-	width: 100% !important;
-`;
-const ColumnName = styled.div.attrs((props) => ({
-	width: props.width,
-	left: props.left
-}))`
-width: ${(props) => props.width};
-left:${(props) => props.left};
-	border-width: 1px;    
-    height: auto;
-    margin: 0px;
-    top: 0px;
-   font-size: 11px;
-    font-weight: bold;
-    font-family: inherit;
-    color: #707887;
-    text-transform: uppercase;
-    letter-spacing: -0.4px;
-    vertical-align: middle;
-    position: absolute;
-    bottom: 0; 
-
 `;
 
 const SelectIconContainer = styled.div`
@@ -587,10 +511,8 @@ const SelectSpanInner = styled.span`white-space: nowrap;`;
 
 const HeaderBodyContainer = styled.div`
 	width: 100%;
-	height: auto;
 	height: inherit !important;
 	float: left;
-	height: auto !important;
 	position: relative;
 	top: 0 !important;
 	left: 0 !important;
@@ -600,27 +522,59 @@ const HeaderBody = styled.div`
 	border-width: 0px;
 	overflow: auto;
 	margin: 0px;
-	width: 1158px;
+	width: 100%;
 `;
 const BodyTable = styled.table`
 	width: 100%;
 	height: 1px;
 	table-layout: fixed;
 	border-collapse: separate;
-	border-collapse: collapse;
 	border-spacing: 0;
 `;
 const TableBody = styled.tbody``;
-const TableRow = styled.tr``;
-const TableHeader = styled.th.attrs((props) => ({
+const TableRow = styled.tr`
+	cursor: pointer;
+	&:hover {
+		background-color: #f0f3fa;
+	}
+`;
+
+const TableHeaders = styled.th.attrs((props) => ({
 	width: props.width,
-	height: props.height || '0',
 	left: props.left || '0'
 }))`
 width: ${(props) => props.width};
 left:${(props) => props.left};
+	font-family: inherit;
+	vertical-align: middle;
+	border-bottom: 1px solid #e7e8ec;
+	overflow: hidden;
+	padding: 5px 0;
+	height: 60px;
+	float: none !important;
 `;
 
+const TableData = styled.td`
+	font-family: inherit;
+	vertical-align: middle;
+	border-bottom: 1px solid #e7e8ec;
+	overflow: hidden;
+	padding: 5px 0;
+	height: 60px;
+	float: none !important;
+`;
+
+const TableHeaderInner = styled.div`
+    width:100%;
+    padding: 0 3px;
+    color: #41454e;
+    vertical-align: middle;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+`;
 const EmptyRow = styled.div`
 	text-align: center;
 	border-bottom: 1px solid #e7e8ec;
@@ -628,29 +582,29 @@ const EmptyRow = styled.div`
 	line-height: 55px;
 `;
 
-const ButtonWithOutline = styled.button`
-	background-color: transparent !important;
-	color: #05cbbf;
-	border-color: #05cbbf;
+const PlusButton = styled.button`
 	margin-left: 5px;
-	min-width: 70px;
-	padding: 0 10px;
+	color: #04beb3;
+	background-color: #05cbbf;
+	border-color: #05cbbf;
+	width: 32px !important;
+	min-width: 32px !important;
+	max-width: 32px !important;
+	justify-content: center;
+	padding: 0 !important;
 	height: 32px !important;
+	text-align: center;
 	border-width: 1px;
 	border-style: solid;
 	font-family: inherit;
 	font-size: 13px;
 	font-weight: 500;
-	text-align: center;
 	text-decoration: none;
 	display: inline-flex;
 	vertical-align: middle;
-	justify-content: center;
 	flex-direction: row;
 	align-items: center;
-	align-self: center;
+	background: transparent;
 	white-space: nowrap;
 	border-radius: 4px;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
-		opacity 0.15s ease-in-out;
 `;

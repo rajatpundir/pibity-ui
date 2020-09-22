@@ -1,504 +1,491 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getTypeDetails } from '../../../redux/actions/product';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
+import Select from 'react-select'
 class PurchaseOrderDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			purchaseOrderMemo:'',
-			additionalCost:[],
-			productInvoiceDetails:[],
-			supplierDeposit:[],
-			additionalCostkeys: new Map(),
-			additionalCostkey: new Map([
-				[ 'description', '' ],
-				[ 'discount', '' ],
-				[ 'price', '' ],
-				[ 'quantity', '' ],
-				[ 'reference', '' ],
-				[ 'taxRule', '' ],
-				[ 'total', '' ]
-			]),
-			productOrderkeys: new Map(),
-			productOrderkey: new Map([
-				[ 'comment', '' ],
-				[ 'discount', '' ],
-				[ 'price', '' ],
-				[ 'quantity', '' ],
-				[ 'unit', '' ],
-				[ 'taxRule', '' ],
-				[ 'total', '' ],
-				[ 'supplierSKU', '' ],
-				[ 'product', '' ]
-			]),
-			supplierDepositkeys: new Map(),
-			supplierDepositkey: new Map([
-				[ 'ammount', '' ],
-				[ 'account', '' ],
-				[ 'datePaid', '' ],
-				[ 'reference', '' ]
-			]),
-			type: '',
-			additonalCostKeyCounter: 0,
-			productOrderDetailCounter: 0,
-			supplierDepositCounter: 0
-		};
+			variable: props.variable
+		}
 		this.onChange = this.onChange.bind(this);
-		this.saveInfo = this.saveInfo.bind(this);
+		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this)
+	}
 
+
+	// supplierDepositkey: new Map([
+	// 	[ 'ammount', '' ],
+	// 	[ 'account', '' ],
+	// 	[ 'datePaid', '' ],
+	// 	[ 'reference', '' ]
+	// ]),
+
+
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables("PurchaseTaxRule")
+		this.props.getVariables("Product")
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return ({
+			...prevState,
+			variable: nextProps.variable
+		})
 	}
 
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		const variable = cloneDeep(this.state.variable)
+		const values = variable.get('values')
+		values.set(e.target.name, e.target.value)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		this.props.updateInvoice(variable)
+	}
+	onAdditionalCostChange(e, variableName) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		const list = values.get("additionalCost").map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values')
+				values.set(e.target.name, e.target.value)
+				listVariable.set('values', values)
+				return listVariable
+			} else {
+				return listVariable
+			}
+		})
+		values.set('additionalCost', list)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		this.props.updateInvoice(variable)
 	}
 
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
+	onProductOrderInputChange(e, variableName) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		const list = values.get("productInvoiceDetails").map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values')
+				values.set(e.target.name, e.target.value)
+				listVariable.set('values', values)
+				return listVariable
 			} else {
-				lo[k] = v;
+				return listVariable
 			}
-		}
-		return lo;
-	};
-  
+		})
+		values.set('productInvoiceDetails', list)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		this.props.updateInvoice(variable)
+	}
 
+	addVariableToadditionalCostList() {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		const list = values.get("additionalCost")
+		list.unshift(new Map([
+			['variableName', String(list.length)],
+			['values', new Map([
+				['description', ''],
+				['discount', ''],
+				['price', ''],
+				['quantity', ''],
+				['reference', ''],
+				['taxRule', ''],
+				['total', '']
+			])]
+		]))
+		values.set('additionalCost', list)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		this.props.updateInvoice(variable)
+	}
+	addVariableToProductOrderInputList() {
+		const variable = cloneDeep(this.state.variable);
+		console.log(variable)
+		console.log("hello")
 
-	saveInfo() {
-		console.log(this.mapToObjectRec(this.state.additionalCostkeys))
-		new Promise((resolve) => {
-			resolve(this.setState(
-				{
-					additionalCost: [],
-					productInvoiceDetails:[]
-				},
-				() => {
-					var tempCostArray=[]
-					Object.entries(this.mapToObjectRec(this.state.additionalCostkeys)).forEach((item) => {
-						console.log(item)
-						var variable = {
-							variableName: item[1].description,
-							values: item[1]
-						};
-						tempCostArray.push(variable)
-						this.setState({ additionalCost: [ ...this.state.additionalCost, ...tempCostArray ] });
-	
-					});	
-					var tempProductArray=[]
-					Object.entries(this.mapToObjectRec(this.state.productOrderkeys)).forEach((item) => {
-						var variable = {
-							variableName: item[1].product,
-							values: item[1]
-						};
-						tempProductArray.push(variable)	
-					});
-					this.setState({ productInvoiceDetails: [ ...this.state.productInvoiceDetails, ...tempProductArray ] });
-				}
-				
-			));
-
-	    }).then(() => {
-			 this.props.sendData({
-				variableName:'purchaseOrderDetails',
-				value:{
-					additionalCost:this.state.additionalCost,
-					productInvoiceDetails:this.state.productInvoiceDetails,
-					purchaseOrderMemo:this.state.purchaseOrderMemo,
-					supplierDeposit:this.state.supplierDeposit
-				}
-			})
-		});
-    }
-
-	addAdditionalCostListVariable() {
-		const addkey = cloneDeep(this.state.additionalCostkeys);
-		addkey.set(this.state.additonalCostKeyCounter, this.state.additionalCostkey);
-		this.setState({
-			additionalCostkeys: addkey
-		});
-		this.setState((prevState) => {
-			return { additonalCostKeyCounter: prevState.additonalCostKeyCounter + 1 };
-		});
+		const values = variable.get('values');
+		const list = values.get("productInvoiceDetails")
+		list.unshift(new Map([
+			['variableName', String(list.length)],
+			['values', new Map([
+				['comment', ''],
+				['discount', ''],
+				['price', ''],
+				['quantity', ''],
+				['unit', ''],
+				['taxRule', ''],
+				['total', ''],
+				['supplierSKU', ''],
+				['product', '']
+			])]
+		]))
+		console.log(list)
+		values.set('productInvoiceDetails', list)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		console.log(variable)
+		this.props.updateInvoice(variable)
+	}
+	onRemoveProductOrderInputListKey(e, variableName) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		const list = values.get("productInvoiceDetails").filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName
+		})
+		values.set('productInvoiceDetails', list)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		this.props.updateInvoice(variable)
+	}
+	onRemoveAdditionalCostListKey(e, variableName) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		const list = values.get("additionalCost").filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName
+		})
+		values.set('additionalCost', list)
+		variable.set('values', values)
+		this.setState({ variable: variable })
+		this.props.updateInvoice(variable)
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		if (this.state.additionalCostkeys.size === 0) {
-			return (
-				<TableRow>
-					<TableHeader width="58px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="167px" />
-					<TableHeader width="167px" />
-					<TableHeader width="58px" />
-				</TableRow>
-			);
-		} else {
-			for (let key of this.state.additionalCostkeys) {
-				rows.push(
-					<TableRow key={key[0]}>
-						<TableHeader width="6%" left="0px">
-							{' '}
-						</TableHeader>
-						<TableHeader width="11%" left="8%">
+		const values = this.state.variable.get('values');
+		values.get('additionalCost').forEach(listVariable =>
+			rows.push(
+				<TableRow key={listVariable.get('variableName')}>
+					<TableData width="5%" left="0px">
+						<i name={listVariable.get('variableName')} className="large material-icons" onClick={(e) => this.onRemoveAdditionalCostListKey(e, listVariable.get('variableName'))}>
+							remove_circle_outline
+						</i>
+					</TableData>
+					<TableData width="11%" left="8%">
+						<TableHeaderInner>
 							<Input
 								name="description"
 								type="text"
-								placeholder="description"
-								value={key[1].get('description')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.additionalCostkeys);
-									keys.get(key[0]).set('description', e.target.value);
-									this.setState({ additionalCostkeys: keys });
-								}}
+								value={listVariable.get('values').get('description')}
+								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="11%" left="22%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="11%" left="22%">
+						<TableHeaderInner>
 							<Input
 								name="reference"
 								type="text"
-								placeholder="reference"
-								value={key[1].get('reference')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.additionalCostkeys);
-									keys.get(key[0]).set('reference', e.target.value);
-									this.setState({ additionalCostkeys: keys });
-								}}
+								value={listVariable.get('values').get('reference')}
+								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="11%" left="35%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="11%" left="35%">
+						<TableHeaderInner>
 							<Input
 								name="quantity"
 								type="number"
-								placeholder="quantity"
-								value={key[1].get('quantity')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.additionalCostkeys);
-									keys.get(key[0]).set('quantity', e.target.value);
-									this.setState({ additionalCostkeys: keys });
-								}}
+								value={listVariable.get('values').get('quantity')}
+								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="8%" left="50%">
+						</TableHeaderInner>
+
+					</TableData>
+					<TableData width="8%" left="50%">
+						<TableHeaderInner>
 							<Input
 								name="price"
 								type="text"
-								placeholder="price"
-								value={key[1].get('price')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.additionalCostkeys);
-									keys.get(key[0]).set('price', e.target.value);
-									this.setState({ additionalCostkeys: keys });
-								}}
+								value={listVariable.get('values').get('price')}
+								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="11%" left="60%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="11%" left="60%">
+						<TableHeaderInner>
 							<Input
 								name="discount"
 								type="text"
-								placeholder="discount"
-								value={key[1].get('discount')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.additionalCostkeys);
-									keys.get(key[0]).set('discount', e.target.value);
-									this.setState({ additionalCostkeys: keys });
-								}}
+								value={listVariable.get('values').get('discount')}
+								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="10%" left="73%">
-							<Input
-								name="taxRule"
-								type="text"
-								placeholder="default"
-								value={key[1].get('taxRule')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.additionalCostkeys);
-									keys.get(key[0]).set('taxRule', e.target.value);
-									this.setState({ additionalCostkeys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="10%" left="85%">
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%" left="73%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{ value: listVariable.get('values').get('taxRule'), label: listVariable.get('values').get('taxRule') }}
+									onChange={(option) => {
+										this.onAdditionalCostChange({ target: { name: 'country', value: option.value } }, listVariable.get('variableName'))
+									}}
+									options={this.props.variables.PurchaseTaxRule !== undefined ?
+										this.props.variables.PurchaseTaxRule.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%" left="85%">
+						<TableHeaderInner>
 							<Input
 								name="total"
-								type="decimal"
-								placeholder="total"
-								value={key[1].get('total')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.additionalCostkeys);
-									keys.get(key[0]).set('total', e.target.value);
-									this.setState({ additionalCostkeys: keys });
-								}}
+								type="number"
+								value={listVariable.get('values').get('total')}
+								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-					</TableRow>
-				);
-			}
-			return rows;
-		}
-	}
-
-	productOrderDetailsListVariable() {
-		const addkey = cloneDeep(this.state.productOrderkeys);
-		addkey.set(this.state.productOrderDetailCounter, this.state.productOrderkey);
-		this.setState({
-			productOrderkeys: addkey
-		});
-		this.setState((prevState) => {
-			return { productOrderDetailCounter: prevState.productOrderDetailCounter + 1 };
-		});
-	}
-
-    renderProductOrderInputFields() {
-		const rows = [];
-		if (this.state.productOrderkeys.size === 0) {
-			return (
-				<TableRow>
-					<TableHeader width="58px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="167px" />
-					<TableHeader width="167px" />
-					<TableHeader width="58px" />
+						</TableHeaderInner>
+					</TableData>
 				</TableRow>
-			);
-		} else {
-			for (let key of this.state.productOrderkeys) {
-				rows.push(
-					<TableRow key={key[0]}>
-						<TableHeader width="6%" left="0px">
-							{' '}
-						</TableHeader>
-						<TableHeader width="11%" left="8%">
-							<Input
-								name="product"
-								type="text"
-								placeholder="product default"
-								value={key[1].get('product')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('product', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="11%" left="22%">
+			)
+		)
+		return (rows)
+	}
+
+	renderProductOrderInputFields() {
+		const rows = [];
+		const values = this.state.variable.get('values');
+		values.get('productInvoiceDetails').forEach(listVariable =>
+			rows.push(
+				<TableRow key={listVariable.get('variableName')}>
+					<TableData width="5%" left="0px">
+						<i name={listVariable.get('variableName')} className="large material-icons" onClick={(e) => this.onRemoveProductOrderInputListKey(e, listVariable.get('variableName'))}>
+							remove_circle_outline
+						</i>
+					</TableData>
+					<TableData width="11%" left="8%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{ value: listVariable.get('values').get('product'), label: listVariable.get('values').get('product') }}
+									onChange={(option) => {
+										this.onProductOrderInputChange({ target: { name: 'product', value: option.value } }, listVariable.get('variableName'))
+									}}
+									options={this.props.variables.Product !== undefined ?
+										this.props.variables.Product.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="11%" left="22%">
+						<TableHeaderInner>
 							<Input
 								name="comment"
 								type="text"
-								placeholder="commment"
-								value={key[1].get('comment')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('comment', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
+								value={listVariable.get('values').get('comment')}
+								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="11%" left="35%">
+						</TableHeaderInner>
+
+					</TableData>
+					<TableData width="11%" left="35%">
+						<TableHeaderInner>
 							<Input
 								name="supplierSKU"
 								type="text"
-								placeholder="supplierSKU default"
-								value={key[1].get('supplierSKU')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('supplierSKU', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
+								value={listVariable.get('values').get('supplierSKU')}
+								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="8%" left="50%">
+						</TableHeaderInner>
+
+					</TableData>
+					<TableData width="8%" left="50%">
+						<TableHeaderInner>
+
 							<Input
-								name="price"
-								type="text"
-								placeholder="price"
-								value={key[1].get('price')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('price', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
+								name="unit"
+								type="number"
+								value={listVariable.get('values').get('unit')}
+								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="11%" left="60%">
-							<Input
-								name="Unit"
-								type="text"
-								placeholder="unit"
-								value={key[1].get('unit')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('unit', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="10%" left="73%">
+						</TableHeaderInner>
+
+					</TableData>
+					<TableData width="11%" left="60%">
+						<TableHeaderInner>
+
 							<Input
 								name="quantity"
 								type="number"
-								placeholder="quantity"
-								value={key[1].get('quantity')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('quantity', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
+								value={listVariable.get('values').get('quantity')}
+								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="10%" left="85%">
+						</TableHeaderInner>
+
+					</TableData>
+					<TableData width="10%" left="73%">
+						<TableHeaderInner>
+
+							<Input
+								name="price"
+								type="number"
+								value={listVariable.get('values').get('price')}
+								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
+							/>
+						</TableHeaderInner>
+
+					</TableData>
+					<TableData width="10%" left="85%">
+						<TableHeaderInner>
+
 							<Input
 								name="discount"
-								type="decimal"
-								placeholder="price"
-								value={key[1].get('discount')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('discount', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
+								type="number"
+								value={listVariable.get('values').get('discount')}
+								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="10%" left="85%">
-							<Input
-								name="taxRule"
-								type="text"
-								placeholder="default"
-								value={key[1].get('taxRule')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('taxRule', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="10%" left="85%">
+						</TableHeaderInner>
+
+
+					</TableData>
+					<TableData width="10%" left="85%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{ value: listVariable.get('values').get('taxRule'), label: listVariable.get('values').get('taxRule') }}
+									onChange={(option) => {
+										this.onProductOrderInputChange({ target: { name: 'country', value: option.value } }, listVariable.get('variableName'))
+									}}
+									options={this.props.variables.PurchaseTaxRule !== undefined ?
+										this.props.variables.PurchaseTaxRule.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+
+					</TableData>
+					<TableData width="10%" left="85%">
+						<TableHeaderInner>
+
 							<Input
 								name="total"
-								type="decimal"
-								placeholder="total"
-								value={key[1].get('total')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.productOrderkeys);
-									keys.get(key[0]).set('total', e.target.value);
-									this.setState({ productOrderkeys: keys });
-								}}
+								type="number"
+								value={listVariable.get('values').get('total')}
+								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-					</TableRow>
-				);
-			}
-			return rows;
-		}
+						</TableHeaderInner>
+
+
+					</TableData>
+				</TableRow>
+			)
+		)
+		return (rows)
 	}
+
+
 	render() {
 		return (
-			<PageBlock id="order" style={{ display: 'block' }}>
+			<PageBlock id="order" >
 				<PageToolbar>
 					<ToolbarLeftItems>
 						<LeftItemH1>Order</LeftItemH1>
 					</ToolbarLeftItems>
 				</PageToolbar>
+				
 				<PageBar>
 					<PageBarAlignLeft>
-						<PlusButton onClick={(e) => this.productOrderDetailsListVariable()}>
+						<PlusButton onClick={(e) => this.addVariableToProductOrderInputList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
 					</PageBarAlignLeft>
 				</PageBar>
 				<InputBody borderTop="0">
 					<RoundedBlock>
+
 						<TableFieldContainer>
 							<Headers>
 								<HeaderContainer>
-									<HeaderContainerInner>
-										<ColumnName width="6%" left="0px">
-											<SelectIconContainer>
-												<SelectSpan>
-													<SelectSpanInner>
-														<i className="large material-icons">create</i>
-													</SelectSpanInner>
-												</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="7%">
-											<SelectIconContainer>
-												<SelectSpan>Product</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="17%">
-											<SelectIconContainer>
-												<SelectSpan textAlign="right">Comment</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="30%">
-											<SelectIconContainer>
-												<SelectSpan>Supplier SKU</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="8%" left="39%">
-											<SelectIconContainer>
-												<SelectSpan>Unit</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="11%" left="46%">
-											<SelectIconContainer>
-												<SelectSpan>Quantity</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="55%">
-											<SelectIconContainer>
-												<SelectSpan>Price</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="64%">
-											<SelectIconContainer>
-												<SelectSpan>Discount</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="75%">
-											<SelectIconContainer>
-												<SelectSpan>Tax Rule</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="12%" left="87%">
-											<SelectIconContainer>
-												<SelectSpan>Total</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-									</HeaderContainerInner>
+									<HeaderBody>
+										<BodyTable>
+											<TableBody>
+												<TableRow>
+													<TableHeaders width="6%" left="0px">
+														<SelectIconContainer>
+															<SelectSpan>
+																<SelectSpanInner>
+																	<i className="large material-icons">create</i>
+																</SelectSpanInner>
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="7%">
+														<SelectIconContainer>
+															<SelectSpan>Product</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="17%">
+														<SelectIconContainer>
+															<SelectSpan textAlign="right">Comment</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="30%">
+														<SelectIconContainer>
+															<SelectSpan>Supplier SKU</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="8%" left="39%">
+														<SelectIconContainer>
+															<SelectSpan>Unit</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="11%" left="46%">
+														<SelectIconContainer>
+															<SelectSpan>Quantity</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="55%">
+														<SelectIconContainer>
+															<SelectSpan>Price</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="64%">
+														<SelectIconContainer>
+															<SelectSpan>Discount</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="75%">
+														<SelectIconContainer>
+															<SelectSpan>Tax Rule</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="12%" left="87%">
+														<SelectIconContainer>
+															<SelectSpan>Total</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+
+												</TableRow>
+											</TableBody>
+										</BodyTable>
+									</HeaderBody>
 								</HeaderContainer>
 							</Headers>
+
 							<HeaderBodyContainer>
 								<HeaderBody>
 									<BodyTable>
-										<TableBody>
-										{this.renderProductOrderInputFields()}
-										</TableBody>
+										<TableBody>{this.renderProductOrderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.productOrderkeys.size === 0 ? (
+								{this.state.variable.get('values').get("productInvoiceDetails").length === 0 ? (
 									<EmptyRow>You do not have any Purchase Order Lines.</EmptyRow>
 								) : (
-									undefined
-								)}
+										undefined
+									)}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
-								<AddMoreButton  onClick={(e) => this.productOrderDetailsListVariable()}>
+								<AddMoreButton onClick={(e) => this.addVariableToProductOrderInputList()}>
 									<i className="large material-icons">add</i>Add more items
 								</AddMoreButton>
 							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
-
 
 					<H3 style={{ paddingTop: '20px' }}>Additional Cost</H3>
 					<PageBarAlignLeft style={{ paddingBottom: '20px' }}>
@@ -510,53 +497,60 @@ class PurchaseOrderDetails extends React.Component {
 						<TableFieldContainer>
 							<Headers>
 								<HeaderContainer>
-									<HeaderContainerInner>
-										<ColumnName width="6%" left="0px">
-											<SelectIconContainer>
-												<SelectSpan>
-													<SelectSpanInner>
-														<i className="large material-icons">create</i>
-													</SelectSpanInner>
-												</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="11%" left="8%">
-											<SelectIconContainer>
-												<SelectSpan>Desciption</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
+									<HeaderBody>
+										<BodyTable>
+											<TableBody>
+												<TableRow>
+													<TableHeaders width="6%" left="0px">
+														<SelectIconContainer>
+															<SelectSpan>
+																<SelectSpanInner>
+																	<i className="large material-icons">create</i>
+																</SelectSpanInner>
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="11%" left="8%">
+														<SelectIconContainer>
+															<SelectSpan>Desciption</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
 
-										<ColumnName width="11%" left="22%">
-											<SelectIconContainer>
-												<SelectSpan textAlign="right">Reference</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="11%" left="35%">
-											<SelectIconContainer>
-												<SelectSpan>Quantity</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="8%" left="50%">
-											<SelectIconContainer>
-												<SelectSpan>Price</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="11%" left="60%">
-											<SelectIconContainer>
-												<SelectSpan>Discount</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="73%">
-											<SelectIconContainer>
-												<SelectSpan>Tax Rule</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="10%" left="85%">
-											<SelectIconContainer>
-												<SelectSpan>Total</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-									</HeaderContainerInner>
+													<TableHeaders width="11%" left="22%">
+														<SelectIconContainer>
+															<SelectSpan textAlign="right">Reference</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="11%" left="35%">
+														<SelectIconContainer>
+															<SelectSpan>Quantity</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="8%" left="50%">
+														<SelectIconContainer>
+															<SelectSpan>Price</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="11%" left="60%">
+														<SelectIconContainer>
+															<SelectSpan>Discount</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="73%">
+														<SelectIconContainer>
+															<SelectSpan>Tax Rule</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="85%">
+														<SelectIconContainer>
+															<SelectSpan>Total</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+												</TableRow>
+
+											</TableBody>
+										</BodyTable>
+									</HeaderBody>
 								</HeaderContainer>
 							</Headers>
 							<HeaderBodyContainer>
@@ -565,28 +559,29 @@ class PurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.additionalCostkeys.size === 0 ? (
+								{this.state.variable.get('values').get("additionalCost").length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
-									undefined
-								)}
+										undefined
+									)}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addAdditionalCostListVariable()}>
+								<AddMoreButton onClick={(e) => this.addVariableToadditionalCostList()}>
 									<i className="large material-icons">add</i>Add more items
 								</AddMoreButton>
 							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>
+
 				<EqualBlockContainer>
 					<LeftBlock>
 						<TextAreaContainer>
 							<TextArea
-							name='purchaseOrderMemo'
-							value={this.state.purchaseOrderMemo}
-							placeholder='Write a note here...'
-							onChange={this.onChange}
+								name="purchaseOrderMemo"
+								value={this.state.purchaseOrderMemo}
+								placeholder="Write a note here..."
+								onChange={this.onChange}
 							/>
 							<InputLabel>Purchase Order Memo </InputLabel>
 						</TextAreaContainer>
@@ -661,42 +656,52 @@ class PurchaseOrderDetails extends React.Component {
 						</RightBlockTable>
 					</RightBlock>
 				</EqualBlockContainer>
+
+				{/* supplier deposit */}
+
 				<InputBody style={{ border: 'none' }}>
 					<RoundedBlock>
 						<TableFieldContainer>
 							<Headers>
 								<HeaderContainer>
-									<HeaderContainerInner>
-										<ColumnName width="5%" left="0px">
-											<SelectIconContainer>
-												<SelectSpan>
-													<SelectSpanInner>
-														<i className="large material-icons">create</i>
-													</SelectSpanInner>
-												</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="14%">
-											<SelectIconContainer>
-												<SelectSpan textAlign="right">Account</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="38%">
-											<SelectIconContainer>
-												<SelectSpan>Reference </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="59%">
-											<SelectIconContainer>
-												<SelectSpan>Date Paid </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="20%" left="77%">
-											<SelectIconContainer>
-												<SelectSpan>Amount </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-									</HeaderContainerInner>
+									<HeaderBody>
+										<BodyTable>
+											<TableBody>
+												<TableRow>
+													<TableHeaders width="5%" left="0px">
+														<SelectIconContainer>
+															<SelectSpan>
+																<SelectSpanInner>
+																	<i className="large material-icons">create</i>
+																</SelectSpanInner>
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="14%">
+														<SelectIconContainer>
+															<SelectSpan textAlign="right">Account</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="38%">
+														<SelectIconContainer>
+															<SelectSpan>Reference </SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="59%">
+														<SelectIconContainer>
+															<SelectSpan>Date Paid </SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="20%" left="77%">
+														<SelectIconContainer>
+															<SelectSpan>Amount </SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+												</TableRow>
+
+											</TableBody>
+										</BodyTable>
+									</HeaderBody>
 								</HeaderContainer>
 							</Headers>
 							<HeaderBodyContainer>
@@ -704,10 +709,10 @@ class PurchaseOrderDetails extends React.Component {
 									<BodyTable>
 										<TableBody>
 											<TableRow>
-												<TableHeader width="58px" />
-												<TableHeader width="168px" />
-												<TableHeader width="168px" />
-												<TableHeader width="168px" />
+												<TableData width="58px" />
+												<TableData width="168px" />
+												<TableData width="168px" />
+												<TableData width="168px" />
 											</TableRow>
 										</TableBody>
 									</BodyTable>
@@ -727,7 +732,6 @@ class PurchaseOrderDetails extends React.Component {
 						</RoundBlockOuterDiv>
 					</RoundedBlock>
 				</InputBody>
-				<button onClick={(e) => this.saveInfo()}>save</button>
 			</PageBlock>
 		);
 	}
@@ -735,12 +739,74 @@ class PurchaseOrderDetails extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.type
+	types: state.types,
+	variables: state.variables
 });
 
-export default connect(mapStateToProps, {
-	getTypeDetails
-})(PurchaseOrderDetails);
+export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseOrderDetails);
+
+const InputColumnWrapper = styled.div`
+	flex-basis: calc(100% / 3 - 12px) !important;
+    width: 30%;
+    @media (max-width: 991px) {
+    flex-basis: 100% !important;
+    justify-content: space-between;
+    display: flex;
+    flex-flow: wrap;
+    }
+}
+`;
+const InputBody = styled.div.attrs((props) => ({
+	alignitem: props.alignItem || 'start',
+	borderTop: props.borderTop || '1px solid #e0e1e7'
+}))`
+align-items: ${(props) => props.alignItem};
+	max-height: 4000px;
+	overflow: hidden;
+	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+	-webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+	border-top:  ${(props) => props.borderTop};
+	-webkit-flex-flow: row wrap;
+	flex-flow: row wrap;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 20px 20px 0 20px;
+	padding-bottom: 20px !important;
+`;
+const FormControl = styled.div.attrs((props) => ({
+	minHeight: props.minHeight || '60px',
+	paddingBottom: props.paddingBottom || '20px'
+}))`
+	padding-bottom: ${(props) => props.paddingBottom};
+	min-height:${(props) => props.minHeight};
+	position: relative;
+	display: flex;
+	align-items: start;
+	@media (max-width: 991px) {
+		flex-basis: calc(100% / 2 - 9px) !important;
+	}
+`;
+
+const Required = styled.span`
+	display: inline-block;
+	padding: 0 !important;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	font-family: 'IBM Plex Sans', sans-serif;
+	vertical-align: baseline;
+	white-space: nowrap;
+	color: #3b3b3b;
+	user-select: none;
+	pointer-events: none;
+`;
 
 const PageBlock = styled.div`
 	display: none;
@@ -787,29 +853,34 @@ const LeftItemH1 = styled.h1`
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 `;
+const SelectWrapper = styled.div`
+font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
 
-const InputBody = styled.div.attrs((props) => ({
-	alignitem: props.alignItem || 'start',
-	borderTop: props.borderTop || '1px solid #e0e1e7'
-}))`
-align-items: ${(props) => props.alignItem};
-	max-height: 4000px;
-	overflow: hidden;
-	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	-webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	border-top:  ${(props) => props.borderTop};
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 20px 20px 0 20px;
-	padding-bottom: 20px !important;
-`;
+`
+
 const Input = styled.input`
 	font-size: 13px;
 	outline: none !important;
@@ -843,7 +914,6 @@ const InputLabel = styled.label`
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
 	position: absolute;
 	top: -6px;
 	left: 7px;
@@ -898,6 +968,7 @@ const TableFieldContainer = styled.div`
 	float: left;
 	overflow: hidden !important;
 `;
+
 const Headers = styled.div`
 	border-width: 0px;
 	width: 100%;
@@ -922,34 +993,6 @@ const HeaderContainer = styled.div`
 	top: 0;
 `;
 
-const HeaderContainerInner = styled.div`
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 100% !important;
-	width: 100% !important;
-`;
-const ColumnName = styled.div.attrs((props) => ({
-	width: props.width,
-	left: props.left
-}))`
-width: ${(props) => props.width};
-left:${(props) => props.left};
-	border-width: 1px;    
-    height: auto;
-    margin: 0px;
-    top: 0px;
-   font-size: 11px;
-    font-weight: bold;
-    font-family: inherit;
-    color: #707887;
-    text-transform: uppercase;
-    letter-spacing: -0.4px;
-    vertical-align: middle;
-    position: absolute;
-    bottom: 0; 
-
-`;
 
 const SelectIconContainer = styled.div`
 	justify-content: center;
@@ -983,38 +1026,70 @@ const H3 = styled.h3`
 `;
 
 const HeaderBodyContainer = styled.div`
-	width: 100%;
-	height: auto;
-	height: inherit !important;
-	float: left;
-	height: auto !important;
-	position: relative;
-	top: 0 !important;
-	left: 0 !important;
-	overflow: hidden;
+  width: 100%;
+  height: inherit !important;
+  float: left;
+  position: relative;
+  top: 0 !important;
+  left: 0 !important;
+  overflow: hidden;
 `;
 const HeaderBody = styled.div`
-	border-width: 0px;
-	overflow: auto;
-	margin: 0px;
-	width: 1158px;
+  border-width: 0px;
+  overflow: auto;
+  margin: 0px;
+  width: 100%;
 `;
 const BodyTable = styled.table`
-	width: 100%;
-	height: 1px;
-	table-layout: fixed;
-	border-collapse: separate;
-	border-collapse: collapse;
-	border-spacing: 0;
+  width: 100%;
+  height: 1px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
 `;
 const TableBody = styled.tbody``;
-const TableRow = styled.tr``;
-const TableHeader = styled.th.attrs((props) => ({
-	width: props.width,
-	height: props.height || '0'
-}))`
-width: ${(props) => props.width};
+const TableRow = styled.tr`
+  cursor: pointer;
+  &:hover {
+    background-color: #f0f3fa;
+  }
 `;
+
+const TableHeaders = styled.th.attrs((props) => ({
+	width: props.width,
+	left: props.left || "0",
+}))`
+  width: ${(props) => props.width};
+  left: ${(props) => props.left};
+  font-family: inherit;
+  vertical-align: middle;
+  border-bottom: 1px solid #e7e8ec;
+  overflow: hidden;
+  padding: 5px 0;
+  height: 60px;
+  float: none !important;
+`;
+const TableHeaderInner = styled.div`
+    width:100%;
+    padding: 1px 3px;
+    color: #41454e;
+    vertical-align: middle;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+`;
+const TableData = styled.td`
+	font-family: inherit;
+	vertical-align: middle;
+	border-bottom: 1px solid #e7e8ec;
+	overflow: hidden;
+	padding: 5px 0;
+	height: 60px;
+	float: none !important;
+`;
+
 
 const EmptyRow = styled.div`
 	text-align: center;

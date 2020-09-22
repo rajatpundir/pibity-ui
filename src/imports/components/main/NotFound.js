@@ -23,3 +23,4 @@ const Container = styled.div`
 	text-align: center;
 	color: #343434;
 `;
+
