@@ -20,7 +20,7 @@ class Customer extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'organization', 'zs' ],
+				[ 'organization', 'pibity' ],
 				[ 'typeName', 'Customer' ],
 				[ 'variableName', '' ],
 				[
@@ -176,8 +176,8 @@ class Customer extends React.Component {
 		return (
 			<Container>
 				<StyledContainer limit={2} />
-				<PageSidebar>
-					<VerticalWrapper>
+				{/* <PageSidebar> */}
+					{/* <VerticalWrapper>
 						<NavList>
 							<NavListItems>
 								<NavButton
@@ -240,8 +240,8 @@ class Customer extends React.Component {
 								</NavListItems>
 							</NavList>
 						</HorizontalNav>
-					</HorizontalNavWrapper>
-				</PageSidebar>
+					</HorizontalNavWrapper> */}
+				{/* </PageSidebar> */}
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -273,6 +273,32 @@ class Customer extends React.Component {
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
 						/>
+							<HorizontaListPageBlock>
+							<HorizontalBlockListOuter>
+								<HorizontalBlockListInnerWrapper>
+									<HoizontalBlockList>
+										<HoizontalBlockListItems>
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'addresses' });
+												}}
+											>
+												Addresess
+											</BlockListItemButton>
+										</HoizontalBlockListItems>
+										<HoizontalBlockListItems>
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'contacts' });
+												}}
+											>
+												Contacts
+											</BlockListItemButton>
+										</HoizontalBlockListItems>
+									</HoizontalBlockList>
+								</HorizontalBlockListInnerWrapper>
+							</HorizontalBlockListOuter>
+						</HorizontaListPageBlock>
 						{this.state.visibleSection === 'contacts' && (
 							<CustomerContact
 								list={this.state.variable.get('values').get('contacts')}
@@ -622,3 +648,50 @@ const StyledContainer = styled(ToastContainer).attrs(
 	}
 	.Toastify__progress-bar {}
   `;
+
+
+  export const HorizontaListPageBlock = styled.div`
+	width: 100%;
+	height: 60px;
+	padding: 10px 10px;
+	background: #fff;
+	float: left;
+	border-radius: 6px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: row;
+	position: relative;
+	margin-bottom: 20px !important;
+`;
+
+export const BlockListItemButton = styled.button`
+	height: 40px;
+	width: 100%;
+	border-radius: 4px;
+	font-size: 13px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #3b3b3b;
+	padding: 0 10px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	border: 0;
+	background: transparent;
+	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+	-webkit-appearance: button;
+	cursor: pointer;
+	text-transform: none;
+	line-height: normal;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+	vertical-align: middle;
+	&:before,
+	&:after {
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+`;

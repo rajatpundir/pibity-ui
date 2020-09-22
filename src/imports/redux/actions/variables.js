@@ -88,11 +88,10 @@ export const getVariables = (typeName: String) => async (dispatch) => {
 		await loadVariables(dispatch, typeName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: 'zs',
+			organization: 'pibity',
 			typeName: typeName,
 			query: {
-				operation: 'query',
-				query: {}
+				values: {}
 			}
 		};
 		const response = await axios.post(url, request);
@@ -184,12 +183,10 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 		await loadVariable(dispatch, typeName, variableName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: 'zs',
+			organization: 'pibity',
 			typeName: typeName,
-			variableName: variableName,
 			query: {
-				operation: 'query',
-				query: {}
+				values: {}
 			}
 		};
 		const response = await axios.post(url, request);

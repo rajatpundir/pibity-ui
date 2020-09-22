@@ -930,6 +930,7 @@ font-size: 13px;
 `
 
 const Input = styled.input`
+width:inherit;
 	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
@@ -941,7 +942,6 @@ const Input = styled.input`
 	font-size: 13px;
 	font-weight: 400;
 	font-family: inherit;
-	min-width: 100px;
 	flex: 1;
 	min-height: 40px;
 	background-color: #fff;
@@ -1119,7 +1119,7 @@ const TableHeaders = styled.th.attrs((props) => ({
 `;
 const TableHeaderInner = styled.div`
     width:100%;
-    padding: 1px 3px;
+    padding: 0px 3px;
     color: #41454e;
     vertical-align: middle;
     font-size: 13px;

@@ -68,8 +68,6 @@ class ProductGeneralDetails extends React.Component {
 				<InputBody>
 					<InputFieldContainer>
 						<InputColumnWrapper>
-						<form onSubmit={this.props.updateDetails}>
-
 							<FormControl>
 								<Input
 									name="productSKU"
@@ -275,8 +273,6 @@ class ProductGeneralDetails extends React.Component {
 
 								<InputLabel>Bill of Materials</InputLabel>
 							</FormControl>
-							</form>
-
 						</InputColumnWrapper>
 						<InputColumnWrapper>
 							<FormControl>

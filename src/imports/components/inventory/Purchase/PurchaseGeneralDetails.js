@@ -159,12 +159,17 @@ class PurchaseGeneralDetails extends React.Component {
 							<H3>Accounting Details</H3>
 							<FormControl style={{ alignItems: 'center' }}>
 								<FormControl minHeight="0" paddingBottom="0">
-									<RadioInput type="radio" name="StockFirst" defaultChecked="false" tabindex="35" />
-									<RadioLabel>Stock First</RadioLabel>
+									<RadioLabel>
+										{' '}
+										<RadioInput type="radio" name="StockFirst" value="false" tabindex="35" />
+										Stock First
+									</RadioLabel>
 								</FormControl>
 								<FormControl minHeight="0" paddingBottom="0">
-									<RadioInput type="radio" name="InvoiceFirst" tabindex="35" />
-									<RadioLabel>Invoice First</RadioLabel>
+									<RadioLabel>
+										{' '}
+										<RadioInput type="radio" name="InvoiceFirst" tabindex="35" /> Invoice First
+									</RadioLabel>
 								</FormControl>
 							</FormControl>
 							<FormControl>
@@ -705,20 +710,24 @@ const Required = styled.span`
 `;
 
 const RadioInput = styled.input`
-	opacity: 0;
-	width: 0;
-	height: 0;
 	overflow: hidden;
 	box-sizing: border-box;
-	background-color: initial;
-	color: -internal-light-dark-color(black, white);
+	border-style: solid;
+	border-color: #05cbbf;
+	color: #05cbbf;
+
+	border-radius: 50%;
 	cursor: default;
 	-webkit-appearance: radio;
 	margin: 3px 3px 0px 5px;
-	border: initial;
 	font-size: 100%;
 	outline: none;
 	font: 400 13.3333px Arial;
+	width: 16px;
+	height: 16px;
+	justify-content: center;
+	
+	
 `;
 const RadioLabel = styled.label`
 	cursor: pointer;
@@ -735,37 +744,6 @@ const RadioLabel = styled.label`
 	color: #3b3b3b;
 	background: transparent;
 	user-select: none;
-	&:before {
-		content: '';
-		width: 16px;
-		height: 16px;
-		position: absolute;
-		left: 0;
-		top: 0;
-		text-align: center;
-		font-size: 21px;
-		display: flex;
-		background-color: transparent;
-		justify-content: center;
-		border-width: 1px;
-		border-style: solid;
-		border-color: #b9bdce;
-		border-radius: 50%;
-	}
-	&:after {
-		background-color: #05cbbf;
-		opacity: 1;
-		content: '';
-		position: absolute;
-		text-align: center;
-		font-size: 21px;
-		display: flex;
-		width: 8px !important;
-		height: 8px !important;
-		top: 4px !important;
-		left: 4px !important;
-		border-radius: 50%;
-	}
 `;
 
 const CheckBoxWapper = styled.div`
@@ -865,7 +843,6 @@ const CheckBoxLabel = styled.label`
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 `;

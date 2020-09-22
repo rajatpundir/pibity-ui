@@ -4,81 +4,93 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
-import Select from 'react-select'
+import Select from 'react-select';
+import CheckIcon from '@material-ui/icons/Check';
 
 class PurchaseStockReceived extends React.Component {
-
 	constructor(props) {
 		super(props);
 		this.state = {
 			list: props.list
-		}
+		};
 		this.onChange = this.onChange.bind(this);
 	}
 
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables("Product")
+		this.props.getVariables('Product');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		return ({
+		return {
 			...prevState,
 			list: nextProps.list
-		})
+		};
 	}
 
 	onChange(e, variableName) {
 		const list = cloneDeep(this.state.list).map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
-				const values = listVariable.get('values')
-				values.set(e.target.name, e.target.value)
-				listVariable.set('values', values)
-				return listVariable
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
 			} else {
-				return listVariable
+				return listVariable;
 			}
-		})
-		this.setState({ list: list })
-		this.props.updateStock(list)
+		});
+		this.setState({ list: list });
+		this.props.updateStock(list);
 	}
 
 	addVariableToList() {
-		const list = cloneDeep(this.state.list)
-		list.unshift(new Map([
-			['variableName', String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1 )],
-			['values', new Map([
-				['product', ''],
-				['batch', ''],
-				['dateRecieved', ''],
-				['expiryDate', ''],
-				['supplierSku', ''],
-				['quantity', ''],
-				['unit', ''],
-				['location', ''],
-				['recieved', '']
-			])]
-		]))
-		this.setState({ list: list })
-		this.props.updateStock(list)
+		const list = cloneDeep(this.state.list);
+		list.unshift(
+			new Map([
+				[
+					'variableName',
+					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
+				],
+				[
+					'values',
+					new Map([
+						[ 'product', '' ],
+						[ 'batch', '' ],
+						[ 'dateRecieved', '' ],
+						[ 'expiryDate', '' ],
+						[ 'supplierSku', '' ],
+						[ 'quantity', '' ],
+						[ 'unit', '' ],
+						[ 'location', '' ],
+						[ 'recieved', '' ]
+					])
+				]
+			])
+		);
+		this.setState({ list: list });
+		this.props.updateStock(list);
 	}
 
 	onRemoveKey(e, variableName) {
 		const list = cloneDeep(this.state.list).filter((listVariable) => {
-			return listVariable.get('variableName') !== variableName
-		})
-		this.setState({ list: list })
-		this.props.updateStock(list)
+			return listVariable.get('variableName') !== variableName;
+		});
+		this.setState({ list: list });
+		this.props.updateStock(list);
 	}
 
 	renderInputFields() {
 		const rows = [];
-		this.state.list.forEach(listVariable =>
+		this.state.list.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="5%" left="0px">
-						<i name={listVariable.get('variableName')} className="large material-icons" onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}>
+						<i
+							name={listVariable.get('variableName')}
+							className="large material-icons"
+							onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}
+						>
 							remove_circle_outline
 						</i>
 					</TableData>
@@ -86,12 +98,25 @@ class PurchaseStockReceived extends React.Component {
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
-									value={{ value: listVariable.get('values').get('product'), label: listVariable.get('values').get('product') }}
-									onChange={(option) => {
-										this.onChange({ target: { name: 'product', value: option.value } }, listVariable.get('variableName'))
+									value={{
+										value: listVariable.get('values').get('product'),
+										label: listVariable.get('values').get('product')
 									}}
-									options={this.props.variables.Product !== undefined ?
-										this.props.variables.Product.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									onChange={(option) => {
+										this.onChange(
+											{ target: { name: 'product', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.Product !== undefined ? (
+											this.props.variables.Product.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
@@ -117,7 +142,6 @@ class PurchaseStockReceived extends React.Component {
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="12%" left="37%">
-
 						<TableHeaderInner>
 							<Input
 								name="supplierSKU"
@@ -151,12 +175,25 @@ class PurchaseStockReceived extends React.Component {
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
-									value={{ value: listVariable.get('values').get('location'), label: listVariable.get('values').get('location') }}
-									onChange={(option) => {
-										this.onProductOrderInputChange({ target: { name: 'location', value: option.value } }, listVariable.get('variableName'))
+									value={{
+										value: listVariable.get('values').get('location'),
+										label: listVariable.get('values').get('location')
 									}}
-									options={this.props.variables.Location !== undefined ?
-										this.props.variables.Location.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									onChange={(option) => {
+										this.onProductOrderInputChange(
+											{ target: { name: 'location', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.Location !== undefined ? (
+											this.props.variables.Location.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
@@ -173,8 +210,8 @@ class PurchaseStockReceived extends React.Component {
 					</TableData>
 				</TableRow>
 			)
-		)
-		return (rows)
+		);
+		return rows;
 	}
 
 	render() {
@@ -184,6 +221,7 @@ class PurchaseStockReceived extends React.Component {
 					<ToolbarLeftItems>
 						<LeftItemH1>STOCK RECEIVED</LeftItemH1>
 					</ToolbarLeftItems>
+					<AuthorizeButton>Authorize</AuthorizeButton>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlignLeft>
@@ -274,7 +312,6 @@ class PurchaseStockReceived extends React.Component {
 		);
 	}
 }
-
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
@@ -422,7 +459,8 @@ const Input = styled.input`
 	vertical-align: baseline;
 `;
 const SelectWrapper = styled.div`
-font-size: 13px;
+	width: inherit;
+	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
 	border-radius: 4px;
@@ -431,7 +469,6 @@ font-size: 13px;
 	font-size: 13px;
 	font-weight: 400;
 	font-family: inherit;
-	min-width: 100px;
 	flex: 1;
 	min-height: 40px;
 	background-color: #fff;
@@ -446,8 +483,7 @@ font-size: 13px;
 	margin: 0;
 	outline: none;
 	vertical-align: baseline;
-
-`
+`;
 const PageBar = styled.div`
 	flex-flow: row wrap;
 	display: flex;
@@ -558,7 +594,7 @@ const TableData = styled.td`
 	font-family: inherit;
 	vertical-align: middle;
 	border-bottom: 1px solid #e7e8ec;
-	overflow: hidden;
+	// overflow: hidden;
 	padding: 5px 0;
 	height: 60px;
 	float: none !important;
@@ -571,7 +607,7 @@ const TableHeaderInner = styled.div`
     vertical-align: middle;
     font-size: 13px;
     white-space: nowrap;
-    overflow: hidden;
+    // overflow: hidden;
     text-overflow: ellipsis;
 }
 `;
@@ -600,6 +636,7 @@ const PlusButton = styled.button`
 	font-size: 13px;
 	font-weight: 500;
 	text-decoration: none;
+	outline: none;
 	display: inline-flex;
 	vertical-align: middle;
 	flex-direction: row;
@@ -607,4 +644,35 @@ const PlusButton = styled.button`
 	background: transparent;
 	white-space: nowrap;
 	border-radius: 4px;
+	&:focus {
+		outline: none;
+	}
+`;
+
+const AuthorizeButton = styled.button`
+	min-width: 70px;
+	color: #fff;
+	background-color: #05cbbf;
+	border-color: #05cbbf;
+	border-width: 1px;
+	border-style: solid;
+	font-size: 13px;
+	font-weight: 500;
+	text-align: center;
+	text-decoration: none;
+	display: inline-flex;
+	vertical-align: middle;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
+	height: 40px;
+	white-space: nowrap;
+	border-radius: 4px;
+	padding: 0 16px;
+	cursor: pointer;
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	&:focus {
+		outline: none;
+	}
 `;

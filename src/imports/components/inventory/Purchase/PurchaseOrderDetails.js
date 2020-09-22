@@ -4,17 +4,16 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
-import Select from 'react-select'
+import Select from 'react-select';
 class PurchaseOrderDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			variable: props.variable
-		}
+		};
 		this.onChange = this.onChange.bind(this);
-		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this)
+		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
-
 
 	// supplierDepositkey: new Map([
 	// 	[ 'ammount', '' ],
@@ -23,147 +22,160 @@ class PurchaseOrderDetails extends React.Component {
 	// 	[ 'reference', '' ]
 	// ]),
 
-
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables("PurchaseTaxRule")
-		this.props.getVariables("Product")
+		this.props.getVariables('PurchaseTaxRule');
+		this.props.getVariables('Product');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		return ({
+		return {
 			...prevState,
 			variable: nextProps.variable
-		})
+		};
 	}
 
 	onChange(e) {
-		const variable = cloneDeep(this.state.variable)
-		const values = variable.get('values')
-		values.set(e.target.name, e.target.value)
-		variable.set('values', values)
-		this.setState({ variable: variable })
-		this.props.updateInvoice(variable)
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set(e.target.name, e.target.value);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateInvoice(variable);
 	}
 	onAdditionalCostChange(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		const list = values.get("additionalCost").map((listVariable) => {
+		const list = values.get('additionalCost').map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
-				const values = listVariable.get('values')
-				values.set(e.target.name, e.target.value)
-				listVariable.set('values', values)
-				return listVariable
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
 			} else {
-				return listVariable
+				return listVariable;
 			}
-		})
-		values.set('additionalCost', list)
-		variable.set('values', values)
-		this.setState({ variable: variable })
-		this.props.updateInvoice(variable)
+		});
+		values.set('additionalCost', list);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateInvoice(variable);
 	}
 
 	onProductOrderInputChange(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		const list = values.get("productInvoiceDetails").map((listVariable) => {
+		const list = values.get('productInvoiceDetails').map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
-				const values = listVariable.get('values')
-				values.set(e.target.name, e.target.value)
-				listVariable.set('values', values)
-				return listVariable
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
 			} else {
-				return listVariable
+				return listVariable;
 			}
-		})
-		values.set('productInvoiceDetails', list)
-		variable.set('values', values)
-		this.setState({ variable: variable })
-		this.props.updateInvoice(variable)
+		});
+		values.set('productInvoiceDetails', list);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateInvoice(variable);
 	}
 
 	addVariableToadditionalCostList() {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		const list = values.get("additionalCost")
-		list.unshift(new Map([
-			['variableName', String(list.length)],
-			['values', new Map([
-				['description', ''],
-				['discount', ''],
-				['price', ''],
-				['quantity', ''],
-				['reference', ''],
-				['taxRule', ''],
-				['total', '']
-			])]
-		]))
-		values.set('additionalCost', list)
-		variable.set('values', values)
-		this.setState({ variable: variable })
-		this.props.updateInvoice(variable)
+		const list = values.get('additionalCost');
+		list.unshift(
+			new Map([
+				[ 'variableName', String(list.length) ],
+				[
+					'values',
+					new Map([
+						[ 'description', '' ],
+						[ 'discount', '' ],
+						[ 'price', '' ],
+						[ 'quantity', '' ],
+						[ 'reference', '' ],
+						[ 'taxRule', '' ],
+						[ 'total', '' ]
+					])
+				]
+			])
+		);
+		values.set('additionalCost', list);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateInvoice(variable);
 	}
 	addVariableToProductOrderInputList() {
 		const variable = cloneDeep(this.state.variable);
-		console.log(variable)
-		console.log("hello")
+		console.log(variable);
+		console.log('hello');
 
 		const values = variable.get('values');
-		const list = values.get("productInvoiceDetails")
-		list.unshift(new Map([
-			['variableName', String(list.length)],
-			['values', new Map([
-				['comment', ''],
-				['discount', ''],
-				['price', ''],
-				['quantity', ''],
-				['unit', ''],
-				['taxRule', ''],
-				['total', ''],
-				['supplierSKU', ''],
-				['product', '']
-			])]
-		]))
-		console.log(list)
-		values.set('productInvoiceDetails', list)
-		variable.set('values', values)
-		this.setState({ variable: variable })
-		console.log(variable)
-		this.props.updateInvoice(variable)
+		const list = values.get('productInvoiceDetails');
+		list.unshift(
+			new Map([
+				[ 'variableName', String(list.length) ],
+				[
+					'values',
+					new Map([
+						[ 'comment', '' ],
+						[ 'discount', '' ],
+						[ 'price', '' ],
+						[ 'quantity', '' ],
+						[ 'unit', '' ],
+						[ 'taxRule', '' ],
+						[ 'total', '' ],
+						[ 'supplierSKU', '' ],
+						[ 'product', '' ]
+					])
+				]
+			])
+		);
+		console.log(list);
+		values.set('productInvoiceDetails', list);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		console.log(variable);
+		this.props.updateInvoice(variable);
 	}
 	onRemoveProductOrderInputListKey(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		const list = values.get("productInvoiceDetails").filter((listVariable) => {
-			return listVariable.get('variableName') !== variableName
-		})
-		values.set('productInvoiceDetails', list)
-		variable.set('values', values)
-		this.setState({ variable: variable })
-		this.props.updateInvoice(variable)
+		const list = values.get('productInvoiceDetails').filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName;
+		});
+		values.set('productInvoiceDetails', list);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateInvoice(variable);
 	}
 	onRemoveAdditionalCostListKey(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		const list = values.get("additionalCost").filter((listVariable) => {
-			return listVariable.get('variableName') !== variableName
-		})
-		values.set('additionalCost', list)
-		variable.set('values', values)
-		this.setState({ variable: variable })
-		this.props.updateInvoice(variable)
+		const list = values.get('additionalCost').filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName;
+		});
+		values.set('additionalCost', list);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateInvoice(variable);
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
 		const values = this.state.variable.get('values');
-		values.get('additionalCost').forEach(listVariable =>
+		values.get('additionalCost').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="5%" left="0px">
-						<i name={listVariable.get('variableName')} className="large material-icons" onClick={(e) => this.onRemoveAdditionalCostListKey(e, listVariable.get('variableName'))}>
+						<i
+							name={listVariable.get('variableName')}
+							className="large material-icons"
+							onClick={(e) => this.onRemoveAdditionalCostListKey(e, listVariable.get('variableName'))}
+						>
 							remove_circle_outline
 						</i>
 					</TableData>
@@ -196,7 +208,6 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
 					</TableData>
 					<TableData width="8%" left="50%">
 						<TableHeaderInner>
@@ -222,12 +233,25 @@ class PurchaseOrderDetails extends React.Component {
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
-									value={{ value: listVariable.get('values').get('taxRule'), label: listVariable.get('values').get('taxRule') }}
-									onChange={(option) => {
-										this.onAdditionalCostChange({ target: { name: 'country', value: option.value } }, listVariable.get('variableName'))
+									value={{
+										value: listVariable.get('values').get('taxRule'),
+										label: listVariable.get('values').get('taxRule')
 									}}
-									options={this.props.variables.PurchaseTaxRule !== undefined ?
-										this.props.variables.PurchaseTaxRule.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									onChange={(option) => {
+										this.onAdditionalCostChange(
+											{ target: { name: 'country', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.PurchaseTaxRule !== undefined ? (
+											this.props.variables.PurchaseTaxRule.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
@@ -244,36 +268,53 @@ class PurchaseOrderDetails extends React.Component {
 					</TableData>
 				</TableRow>
 			)
-		)
-		return (rows)
+		);
+		return rows;
 	}
 
 	renderProductOrderInputFields() {
 		const rows = [];
 		const values = this.state.variable.get('values');
-		values.get('productInvoiceDetails').forEach(listVariable =>
+		values.get('productInvoiceDetails').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="5%" left="0px">
-						<i name={listVariable.get('variableName')} className="large material-icons" onClick={(e) => this.onRemoveProductOrderInputListKey(e, listVariable.get('variableName'))}>
+					<TableData width="6%" left="0px">
+						<i
+							name={listVariable.get('variableName')}
+							className="large material-icons"
+							onClick={(e) => this.onRemoveProductOrderInputListKey(e, listVariable.get('variableName'))}
+						>
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" left="8%">
+					<TableData width="10%" left="7%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
-									value={{ value: listVariable.get('values').get('product'), label: listVariable.get('values').get('product') }}
-									onChange={(option) => {
-										this.onProductOrderInputChange({ target: { name: 'product', value: option.value } }, listVariable.get('variableName'))
+									value={{
+										value: listVariable.get('values').get('product'),
+										label: listVariable.get('values').get('product')
 									}}
-									options={this.props.variables.Product !== undefined ?
-										this.props.variables.Product.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									onChange={(option) => {
+										this.onProductOrderInputChange(
+											{ target: { name: 'product', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.Product !== undefined ? (
+											this.props.variables.Product.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="22%">
+					<TableData width="10%" left="17%">
 						<TableHeaderInner>
 							<Input
 								name="comment"
@@ -282,9 +323,8 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
 					</TableData>
-					<TableData width="11%" left="35%">
+					<TableData width="10%" left="30%">
 						<TableHeaderInner>
 							<Input
 								name="supplierSKU"
@@ -293,11 +333,9 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
 					</TableData>
-					<TableData width="8%" left="50%">
+					<TableData width="8%" left="39%">
 						<TableHeaderInner>
-
 							<Input
 								name="unit"
 								type="number"
@@ -305,11 +343,9 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
 					</TableData>
-					<TableData width="11%" left="60%">
+					<TableData width="11%" left="46%">
 						<TableHeaderInner>
-
 							<Input
 								name="quantity"
 								type="number"
@@ -317,11 +353,9 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
 					</TableData>
-					<TableData width="10%" left="73%">
+					<TableData width="10%" left="55%">
 						<TableHeaderInner>
-
 							<Input
 								name="price"
 								type="number"
@@ -329,11 +363,9 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
 					</TableData>
-					<TableData width="10%" left="85%">
+					<TableData width="10%" left="64%">
 						<TableHeaderInner>
-
 							<Input
 								name="discount"
 								type="number"
@@ -341,27 +373,36 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
-
 					</TableData>
-					<TableData width="10%" left="85%">
+					<TableData width="10%" left="75%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
-									value={{ value: listVariable.get('values').get('taxRule'), label: listVariable.get('values').get('taxRule') }}
-									onChange={(option) => {
-										this.onProductOrderInputChange({ target: { name: 'country', value: option.value } }, listVariable.get('variableName'))
+									value={{
+										value: listVariable.get('values').get('taxRule'),
+										label: listVariable.get('values').get('taxRule')
 									}}
-									options={this.props.variables.PurchaseTaxRule !== undefined ?
-										this.props.variables.PurchaseTaxRule.map((variable) => { return { value: variable.variableName, label: variable.variableName } }) : []}
+									onChange={(option) => {
+										this.onProductOrderInputChange(
+											{ target: { name: 'country', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.PurchaseTaxRule !== undefined ? (
+											this.props.variables.PurchaseTaxRule.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
-
 					</TableData>
-					<TableData width="10%" left="85%">
+					<TableData width="12%" left="87%">
 						<TableHeaderInner>
-
 							<Input
 								name="total"
 								type="number"
@@ -369,25 +410,22 @@ class PurchaseOrderDetails extends React.Component {
 								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-
-
 					</TableData>
 				</TableRow>
 			)
-		)
-		return (rows)
+		);
+		return rows;
 	}
-
 
 	render() {
 		return (
-			<PageBlock id="order" >
+			<PageBlock id="order">
 				<PageToolbar>
 					<ToolbarLeftItems>
 						<LeftItemH1>Order</LeftItemH1>
 					</ToolbarLeftItems>
 				</PageToolbar>
-				
+
 				<PageBar>
 					<PageBarAlignLeft>
 						<PlusButton onClick={(e) => this.addVariableToProductOrderInputList()}>
@@ -397,7 +435,6 @@ class PurchaseOrderDetails extends React.Component {
 				</PageBar>
 				<InputBody borderTop="0">
 					<RoundedBlock>
-
 						<TableFieldContainer>
 							<Headers>
 								<HeaderContainer>
@@ -459,7 +496,6 @@ class PurchaseOrderDetails extends React.Component {
 															<SelectSpan>Total</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-
 												</TableRow>
 											</TableBody>
 										</BodyTable>
@@ -473,11 +509,11 @@ class PurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderProductOrderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get("productInvoiceDetails").length === 0 ? (
+								{this.state.variable.get('values').get('productInvoiceDetails').length === 0 ? (
 									<EmptyRow>You do not have any Purchase Order Lines.</EmptyRow>
 								) : (
-										undefined
-									)}
+									undefined
+								)}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
 								<AddMoreButton onClick={(e) => this.addVariableToProductOrderInputList()}>
@@ -515,7 +551,6 @@ class PurchaseOrderDetails extends React.Component {
 															<SelectSpan>Desciption</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-
 													<TableHeaders width="11%" left="22%">
 														<SelectIconContainer>
 															<SelectSpan textAlign="right">Reference</SelectSpan>
@@ -547,7 +582,6 @@ class PurchaseOrderDetails extends React.Component {
 														</SelectIconContainer>
 													</TableHeaders>
 												</TableRow>
-
 											</TableBody>
 										</BodyTable>
 									</HeaderBody>
@@ -559,11 +593,11 @@ class PurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get("additionalCost").length === 0 ? (
+								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
-										undefined
-									)}
+									undefined
+								)}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
 								<AddMoreButton onClick={(e) => this.addVariableToadditionalCostList()}>
@@ -698,7 +732,6 @@ class PurchaseOrderDetails extends React.Component {
 														</SelectIconContainer>
 													</TableHeaders>
 												</TableRow>
-
 											</TableBody>
 										</BodyTable>
 									</HeaderBody>
@@ -854,7 +887,9 @@ const LeftItemH1 = styled.h1`
 	vertical-align: baseline;
 `;
 const SelectWrapper = styled.div`
-font-size: 13px;
+	width: inherit;
+
+	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
 	border-radius: 4px;
@@ -878,10 +913,10 @@ font-size: 13px;
 	margin: 0;
 	outline: none;
 	vertical-align: baseline;
-
-`
+`;
 
 const Input = styled.input`
+	width: inherit;
 	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
@@ -893,7 +928,6 @@ const Input = styled.input`
 	font-size: 13px;
 	font-weight: 400;
 	font-family: inherit;
-	min-width: 100px;
 	flex: 1;
 	min-height: 40px;
 	background-color: #fff;
@@ -993,7 +1027,6 @@ const HeaderContainer = styled.div`
 	top: 0;
 `;
 
-
 const SelectIconContainer = styled.div`
 	justify-content: center;
 	padding: 0 10px !important;
@@ -1026,60 +1059,51 @@ const H3 = styled.h3`
 `;
 
 const HeaderBodyContainer = styled.div`
-  width: 100%;
-  height: inherit !important;
-  float: left;
-  position: relative;
-  top: 0 !important;
-  left: 0 !important;
-  overflow: hidden;
+	width: 100%;
+	height: inherit !important;
+	float: left;
+	position: relative;
+	top: 0 !important;
+	left: 0 !important;
+	overflow: hidden;
 `;
 const HeaderBody = styled.div`
-  border-width: 0px;
-  overflow: auto;
-  margin: 0px;
-  width: 100%;
+	border-width: 0px;
+	overflow: auto;
+	margin: 0px;
+	width: 100%;
 `;
+
 const BodyTable = styled.table`
-  width: 100%;
-  height: 1px;
-  table-layout: fixed;
-  border-collapse: separate;
-  border-spacing: 0;
+	width: 100%;
+	height: 1px;
+	table-layout: fixed;
+	border-collapse: separate;
+	border-spacing: 0;
 `;
 const TableBody = styled.tbody``;
 const TableRow = styled.tr`
-  cursor: pointer;
-  &:hover {
-    background-color: #f0f3fa;
-  }
+	cursor: pointer;
+	&:hover {
+		background-color: #f0f3fa;
+	}
 `;
 
 const TableHeaders = styled.th.attrs((props) => ({
 	width: props.width,
-	left: props.left || "0",
+	left: props.left || '0'
 }))`
-  width: ${(props) => props.width};
-  left: ${(props) => props.left};
-  font-family: inherit;
-  vertical-align: middle;
-  border-bottom: 1px solid #e7e8ec;
-  overflow: hidden;
-  padding: 5px 0;
-  height: 60px;
-  float: none !important;
+width: ${(props) => props.width};
+left:${(props) => props.left};
+	font-family: inherit;
+	vertical-align: middle;
+	border-bottom: 1px solid #e7e8ec;
+	overflow: hidden;
+	padding: 5px 0;
+	height: 60px;
+	float: none !important;
 `;
-const TableHeaderInner = styled.div`
-    width:100%;
-    padding: 1px 3px;
-    color: #41454e;
-    vertical-align: middle;
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-`;
+
 const TableData = styled.td`
 	font-family: inherit;
 	vertical-align: middle;
@@ -1090,6 +1114,17 @@ const TableData = styled.td`
 	float: none !important;
 `;
 
+const TableHeaderInner = styled.div`
+    width:100%;
+    padding: 0 3px;
+    color: #41454e;
+    vertical-align: middle;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+`;
 
 const EmptyRow = styled.div`
 	text-align: center;
