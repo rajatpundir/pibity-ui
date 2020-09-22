@@ -1,63 +1,66 @@
 import React from 'react';
 import styled from 'styled-components';
+import Select from 'react-select';
+import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
 
 class PurchaseGeneralDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			general: {},
-			values: new Map(),
-			supplierName: '',
-			blindReceipt: '',
-			comments: '',
-			contact: '',
-			date: '',
-			location: '',
-			phone: '',
-			requiredBy: '',
-			shippingAddress1: '',
-			shippingAddress2: '',
-			stockOrInvoice: '',
-			taxInclusive: '',
-			taxRule: '',
-			term: '',
-			vendorAddressLine1: '',
-			vendorAddressLine2: ''
+			variable: props.variable
 		};
 		this.onChange = this.onChange.bind(this);
-	}
-	onChange(e) {
-		if (typeof this.props.generalDetails.type === 'object' && this.props.generalDetails.type !== null) {
-			if (this.props.generalDetails.type.keys.hasOwnProperty(e.target.name)) {
-				this.setState({ [e.target.name]: e.target.value });
-				const values = cloneDeep(this.state.values);
-				values.set(e.target.name, e.target.value);
-				this.setState({ values: values });
-			}
-		}
+		this.onVariableNameChange = this.onVariableNameChange.bind(this);
 	}
 
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
-			} else {
-				lo[k] = v;
-			}
-		}
-		return lo;
-	};
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables('Supplier');
+		this.props.getVariables('Location');
+		this.props.getVariables('PaymentTerm');
+		this.props.getVariables('PurchaseTaxRule');
+	}
 
-	saveGeneralDetails(e) {
-		var generalDetails = {
-			variableName: this.state.supplierName,
-			values: this.mapToObjectRec(this.state.values)
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			variable: nextProps.variable
 		};
-		this.setState({ general: generalDetails }, () => {
-			this.props.sendData(this.state.supplierName, this.state.general);
-		});
+	}
+
+	onVariableNameChange(e) {
+		console.log(e.target);
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('supplierName', e.target.value);
+		if (e.target.data.contacts.length !== 0) {
+			values.set('contact', e.target.data.contacts[0].values.name);
+			values.set('phone', e.target.data.contacts[0].values.phone);
+		}
+		if (e.target.data.addresses.length !== 0) {
+			values.set('vendorAddressLine1', e.target.data.addresses[0].values.line1);
+			values.set('vendorAddressLine2', e.target.data.addresses[0].values.line2);
+		}
+		values.set('term', e.target.data.general.values.paymentTerm);
+		values.set('taxRule', e.target.data.general.values.taxRule);
+
+		variable.set('variableName', e.target.value);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateDetails(variable);
+	}
+
+	onChange(e) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set(e.target.name, e.target.value);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateDetails(variable);
 	}
 
 	render() {
@@ -76,13 +79,33 @@ class PurchaseGeneralDetails extends React.Component {
 						<InputColumnWrapper>
 							<H3>Supplier Details</H3>
 							<FormControl>
-								<Input
-									name="supplierName"
-									type="text"
-									placeholder="Default"
-									value={this.state.supplierName}
-									onChange={this.onChange}
-								/>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('variableName'),
+											label: this.state.variable.get('variableName')
+										}}
+										onChange={(option) => {
+											this.onVariableNameChange({
+												target: { name: 'variableName', value: option.value, data: option.data }
+											});
+										}}
+										options={
+											this.props.variables.Supplier !== undefined ? (
+												this.props.variables.Supplier.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName,
+														data: variable.values
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
+
 								<InputLabel>
 									Supplier
 									<Required>*</Required>
@@ -93,7 +116,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="contact"
 									type="text"
 									placeholder="Default"
-									value={this.state.contact}
+									value={this.state.variable.get('values').get('contact')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Contact</InputLabel>
@@ -103,7 +126,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="phone"
 									type="text"
 									placeholder="Phone"
-									value={this.state.phone}
+									value={this.state.variable.get('values').get('phone')}
 									onChange={this.onChange}
 								/>{' '}
 								<InputLabel>
@@ -116,7 +139,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="vendorAddressLine1"
 									type="text"
 									placeholder="Default"
-									value={this.state.vendorAddressLine1}
+									value={this.state.variable.get('values').get('vendorAddressLine1')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Vendor Address Line 1</InputLabel>
@@ -126,7 +149,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="vendorAddressLine2"
 									type="text"
 									placeholder="line 2"
-									value={this.state.vendorAddressLine2}
+									value={this.state.variable.get('values').get('vendorAddressLine2')}
 									onChange={this.onChange}
 								/>
 								<InputLabel> Vendor Address Line 2</InputLabel>
@@ -145,14 +168,29 @@ class PurchaseGeneralDetails extends React.Component {
 								</FormControl>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="term"
-									type="text"
-									placeholder="Default-----payment term"
-									value={this.state.term}
-									onChange={this.onChange}
-								/>
-
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('term'),
+											label: this.state.variable.get('values').get('term')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'term', value: option.value } });
+										}}
+										options={
+											this.props.variables.PaymentTerm !== undefined ? (
+												this.props.variables.PaymentTerm.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>Terms</InputLabel>
 							</FormControl>
 							<FormControl>
@@ -160,7 +198,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="requiredBy"
 									type="text"
 									placeholder="requiredy"
-									value={this.state.requiredBy}
+									value={this.state.variable.get('values').get('requiredBy')}
 									onChange={this.onChange}
 								/>
 								<InputLabel>Required By</InputLabel>
@@ -177,17 +215,17 @@ class PurchaseGeneralDetails extends React.Component {
 												<TD>
 													<CheckBoxInput
 														type="checkbox"
-														checked={this.state.taxInclusive}
 														tabindex="55"
-														onChange={() => {
-															this.setState(
-																{ taxInclusive: !this.state.taxInclusive },
-																() => {
-																	const values = cloneDeep(this.state.values);
-																	values.set('taxInclusive', this.state.taxInclusive);
-																	this.setState({ values: values });
+														checked={this.state.variable.get('values').get('taxInclusive')}
+														onChange={(option) => {
+															this.onChange({
+																target: {
+																	name: 'taxInclusive',
+																	value: !this.state.variable
+																		.get('values')
+																		.get('taxInclusive')
 																}
-															);
+															});
 														}}
 													/>
 												</TD>
@@ -198,13 +236,30 @@ class PurchaseGeneralDetails extends React.Component {
 								<CheckBoxLabel>Tax Inclusive</CheckBoxLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="taxRule"
-									type="text"
-									placeholder="Default"
-									value={this.state.taxRule}
-									onChange={this.onChange}
-								/>{' '}
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('taxRule'),
+											label: this.state.variable.get('values').get('taxRule')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'taxRule', value: option.value } });
+										}}
+										options={
+											this.props.variables.PurchaseTaxRule !== undefined ? (
+												this.props.variables.PurchaseTaxRule.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
+
 								<InputLabel>
 									Tax Rule <Required>*</Required>
 								</InputLabel>
@@ -220,18 +275,17 @@ class PurchaseGeneralDetails extends React.Component {
 												<TD>
 													<CheckBoxInput
 														type="checkbox"
-														name="blindReceipt"
-														checked={this.state.blindReceipt}
 														tabindex="55"
-														onChange={() => {
-															this.setState(
-																{ blindReceipt: !this.state.blindReceipt },
-																() => {
-																	const values = cloneDeep(this.state.values);
-																	values.set('blindReceipt', this.state.blindReceipt);
-																	this.setState({ values: values });
+														checked={this.state.variable.get('values').get('blindReceipt')}
+														onChange={(option) => {
+															this.onChange({
+																target: {
+																	name: 'blindReceipt',
+																	value: !this.state.variable
+																		.get('values')
+																		.get('blindReceipt')
 																}
-															);
+															});
 														}}
 													/>
 												</TD>
@@ -246,7 +300,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="date"
 									type="text"
 									placeholder="date"
-									value={this.state.date}
+									value={this.state.variable.get('values').get('date')}
 									onChange={this.onChange}
 								/>{' '}
 								<InputLabel>
@@ -254,13 +308,29 @@ class PurchaseGeneralDetails extends React.Component {
 								</InputLabel>
 							</FormControl>
 							<FormControl>
-								<Input
-									name="location"
-									type="text"
-									placeholder="Default"
-									value={this.state.location}
-									onChange={this.onChange}
-								/>{' '}
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.variable.get('values').get('location'),
+											label: this.state.variable.get('values').get('location')
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'location', value: option.value } });
+										}}
+										options={
+											this.props.variables.Location !== undefined ? (
+												this.props.variables.Location.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
 								<InputLabel>
 									Location <Required>*</Required>{' '}
 								</InputLabel>
@@ -284,7 +354,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="shippingAddress1"
 									type="text"
 									placeholder="Default"
-									value={this.state.shippingAddress1}
+									value={this.state.variable.get('values').get('shippingAddress1')}
 									onChange={this.onChange}
 								/>{' '}
 								<InputLabel>Shipping Address Line 1</InputLabel>
@@ -294,7 +364,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="shippingAddress2"
 									type="text"
 									placeholder="Default"
-									value={this.state.shippingAddress2}
+									value={this.state.variable.get('values').get('shippingAddress2')}
 									onChange={this.onChange}
 								/>{' '}
 								<InputLabel>Shipping Address Line 2</InputLabel>
@@ -306,7 +376,7 @@ class PurchaseGeneralDetails extends React.Component {
 									name="comments"
 									type="text"
 									placeholder="comment"
-									value={this.state.comments}
+									value={this.state.variable.get('values').get('comments')}
 									onChange={this.onChange}
 								/>{' '}
 								<InputLabel>Comment</InputLabel>
@@ -314,12 +384,20 @@ class PurchaseGeneralDetails extends React.Component {
 						</InputRowWrapper>
 					</InputFieldContainer>
 				</InputBody>
-				<button onClick={(e) => this.saveGeneralDetails()}>save</button>
 			</PageBlock>
 		);
 	}
 }
-export default PurchaseGeneralDetails;
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	types: state.types,
+	variables: state.variables
+});
+
+export default connect(mapStateToProps, {
+	clearErrors,
+	getVariables
+})(PurchaseGeneralDetails);
 
 export const HorizontalistPageBlock = styled.div`
 	width: 100%;
@@ -532,7 +610,32 @@ const FormControl = styled.div.attrs((props) => ({
 		flex-basis: calc(100% / 2 - 9px) !important;
 	}
 `;
-
+const SelectWrapper = styled.div`
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+`;
 const Input = styled.input`
 	font-size: 13px;
 	outline: none !important;
@@ -566,7 +669,6 @@ const InputLabel = styled.label`
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
 	position: absolute;
 	top: -6px;
 	left: 7px;
@@ -727,6 +829,7 @@ const TD = styled.td`
 	// 	pointer-events: none;
 	// }
 `;
+
 const CheckBoxInput = styled.input`
 	width: 16px;
 	height: 16px;

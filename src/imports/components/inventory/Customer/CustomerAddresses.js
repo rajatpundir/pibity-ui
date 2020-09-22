@@ -1,221 +1,212 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getTypeDetails } from '../../../redux/actions/product';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
+import Select from 'react-select';
+
 class CustomerAddresses extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			keys: new Map(),
-			key: new Map([
-				[ 'city', '' ],
-				[ 'country', '' ],
-				[ 'line1', '' ],
-				[ 'line2', '' ],
-				[ 'postCode', '' ],
-				[ 'state', '' ],
-				[ 'type', '' ],
-				[ 'name', '' ]
-			]),
-			type: '',
-			counter: 0
+			list: props.list
 		};
 		this.onChange = this.onChange.bind(this);
 	}
 
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables('Country');
+		this.props.getVariables('AddressType');
 	}
 
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			list: nextProps.list
+		};
+	}
+
+	onChange(e, variableName) {
+		const list = cloneDeep(this.state.list).map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
 			} else {
-				lo[k] = v;
+				return listVariable;
 			}
-		}
-		return lo;
-	};
-
-	saveAddress() {
-		this.props.sendData(this.mapToObjectRec(this.state.keys));
+		});
+		this.setState({ list: list });
+		this.props.updateAddresses(list);
 	}
 
-	addListVariable() {
-		const addkey = cloneDeep(this.state.keys);
-		addkey.set(this.state.counter, this.state.key);
-		this.setState({
-			keys: addkey
-		});
-		this.setState((prevState) => {
-			return { counter: prevState.counter + 1 };
-		});
+	addVariableToList() {
+		const list = cloneDeep(this.state.list);
+		list.unshift(
+			new Map([
+				[ 'variableName', String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1 ) ],
+				[
+					'values',
+					new Map([
+						[ 'name', '' ],
+						[ 'line1', '' ],
+						[ 'line2', '' ],
+						[ 'city', '' ],
+						[ 'state', '' ],
+						[ 'postCode', '' ],
+						[ 'country', 'Swaziland' ],
+						[ 'type', '' ]
+					])
+				]
+			])
+		);
+		this.setState({ list: list });
+		this.props.updateAddresses(list);
 	}
 
-	onRemoveKey(e,key) {
-		let keys = cloneDeep(this.state.keys);
-	    keys.delete(key)
-		this.setState({ keys: keys });
+	onRemoveKey(e, variableName) {
+		const list = cloneDeep(this.state.list).filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName;
+		});
+		this.setState({ list: list });
+		this.props.updateAddresses(list);
 	}
 
 	renderInputFields() {
 		const rows = [];
-		if (this.state.keys.size === 0) {
-			return <tr />;
-		} else {
-			for (let key of this.state.keys) {
-				rows.push(
-					<TableRow key={key[0]}>
-						<TableData width="5%" left="0px">
-							{this.state.keys.has(key[0]) ? (
-								<i name={key[0]} className="large material-icons" onClick={(e) => this.onRemoveKey(e,key[0])}>
-									remove_circle_outline
-								</i>
-							) : null}{' '}
-						</TableData>
-						<TableData width="10%" left="7%">
-							<TableHeaderInner>
-								<Input
-									name="name"
-									type="text"
-									value={key[1].get('name')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('name', e.target.value);
-										this.setState({ keys: keys });
+		this.state.list.forEach((listVariable) =>
+			rows.push(
+				<TableRow key={listVariable.get('variableName')}>
+					<TableData width="5%" left="0px">
+						<i
+							name={listVariable.get('variableName')}
+							className="large material-icons"
+							onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}
+						>
+							remove_circle_outline
+						</i>
+					</TableData>
+					<TableData width="10%" left="7%">
+						<TableHeaderInner>
+							<Input
+								name="name"
+								type="text"
+								value={listVariable.get('values').get('name')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%" left="16%">
+						<TableHeaderInner>
+							<Input
+								name="line1"
+								type="text"
+								value={listVariable.get('values').get('line1')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="25%">
+						<TableHeaderInner>
+							<Input
+								name="line2"
+								type="text"
+								value={listVariable.get('values').get('line2')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="37%">
+						<TableHeaderInner>
+							<Input
+								name="city"
+								type="text"
+								value={listVariable.get('values').get('city')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="50%">
+						<TableHeaderInner>
+							<Input
+								name="state"
+								type="text"
+								value={listVariable.get('values').get('state')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="62%">
+						<TableHeaderInner>
+							<Input
+								name="postCode"
+								type="text"
+								value={listVariable.get('values').get('postCode')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="75%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('country'),
+										label: listVariable.get('values').get('country')
 									}}
-								/>
-							</TableHeaderInner>
-						</TableData>
-						<TableData width="10%" left="16%">
-							<TableHeaderInner>
-								<Input
-									name="line1"
-									type="text"
-									value={key[1].get('line1')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('line1', e.target.value);
-										this.setState({ keys: keys });
+									onChange={(option) => {
+										this.onChange(
+											{ target: { name: 'country', value: option.value } },
+											listVariable.get('variableName')
+										);
 									}}
+									options={
+										this.props.variables.Country !== undefined ? (
+											this.props.variables.Country.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
 								/>
-							</TableHeaderInner>
-						</TableData>
-						<TableData width="8%" left="25%">
-							<TableHeaderInner>
-								<Input
-									name="line2"
-									type="text"
-									value={key[1].get('line2')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('line2', e.target.value);
-										this.setState({ keys: keys });
-									}}
-								/>
-							</TableHeaderInner>
-						</TableData>
-						<TableData width="8%" left="37%">
-							<TableHeaderInner>
-								<Input
-									name="city"
-									type="text"
-									value={key[1].get('city')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('city', e.target.value);
-										this.setState({ keys: keys });
-									}}
-								/>
-							</TableHeaderInner>
-						</TableData>
-						<TableData width="8%" left="50%">
-							<TableHeaderInner>
-								<Input
-									name="state"
-									type="text"
-									value={key[1].get('state')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('state', e.target.value);
-										this.setState({ keys: keys });
-									}}
-								/>
-							</TableHeaderInner>
-						</TableData>
-						<TableData width="8%" left="62%">
-							<TableHeaderInner>
-								<Input
-									name="postCode"
-									type="number"
-									value={key[1].get('postCode')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('postCode', e.target.value);
-										this.setState({ keys: keys });
-									}}
-								/>
-							</TableHeaderInner>
-						</TableData>
-						<TableData width="8%" left="75%">
-							<TableHeaderInner>
-								<Input
-									name="country"
-									type="text"
-									list="country"
-									value={key[1].get('country')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('country', e.target.value);
-										this.setState({ keys: keys });
-									}}
-								/>
-								<datalist id="country">
-									{this.props.country !== undefined ? (
-										this.props.country.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
-							</TableHeaderInner>
-						</TableData>
-						<TableData width="10%" left="86%">
-							<TableHeaderInner>
-								<Input
-									name="type"
-									type="text"
-									list="addressType"
-									value={key[1].get('type')}
-									onChange={(e) => {
-										const keys = cloneDeep(this.state.keys);
-										keys.get(key[0]).set('type', e.target.value);
-										this.setState({ keys: keys });
-									}}
-								/>
-								<datalist id="addressType">
-									{this.props.addressType !== undefined ? (
-										this.props.addressType.map((item) => (
-											<option key={item.variableName} value={item.variableName} />
-										))
-									) : null}
-								</datalist>
-							</TableHeaderInner>
-						</TableData>
-					</TableRow>
-				);
-			}
-			return rows;
-		}
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%" left="86%">
+						<TableHeaderInner>
+							<Input
+								name="type"
+								type="text"
+								list="addressType"
+								value={listVariable.get('values').get('type')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+							/>
+							<datalist id="addressType">
+								{this.props.addressType !== undefined ? (
+									this.props.addressType.map((item) => (
+										<option key={item.variableName} value={item.variableName} />
+									))
+								) : null}
+							</datalist>
+						</TableHeaderInner>
+					</TableData>
+				</TableRow>
+			)
+		);
+		return rows;
 	}
+
 	render() {
 		return (
 			<PageBlock id="address">
 				<PageBar>
 					<PageBarAlignLeft>
-						<PlusButton onClick={(e) => this.addListVariable()}>
+						<PlusButton onClick={(e) => this.addVariableToList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
 					</PageBarAlignLeft>
@@ -282,17 +273,16 @@ class CustomerAddresses extends React.Component {
 										</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.keys.size === 0 ? <EmptyRow>No Addresses found.</EmptyRow> : undefined}
+								{this.state.list.length === 0 ? <EmptyRow>No Addresses found.</EmptyRow> : undefined}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addListVariable()}>
+								<AddMoreButton onClick={(e) => this.addVariableToList()}>
 									<i className="large material-icons">add</i>Add More Addresess
 								</AddMoreButton>
 							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>
-				<button onClick={(e) => this.saveAddress()}>save</button>
 			</PageBlock>
 		);
 	}
@@ -300,12 +290,12 @@ class CustomerAddresses extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.type
+	types: state.types,
+	variables: state.variables
 });
 
-export default connect(mapStateToProps, {
-	getTypeDetails
-})(CustomerAddresses);
+export default connect(mapStateToProps, { clearErrors, getVariables })(CustomerAddresses);
+
 const AddMoreBlock = styled.div`
 	flex-flow: row wrap;
 	display: flex;
@@ -348,7 +338,7 @@ const AddMoreButton = styled.button`
 	}
 `;
 const PageBlock = styled.div`
-	display: none;
+	display: block;
 	background: #fff;
 	width: 100%;
 	float: left;
@@ -384,7 +374,32 @@ align-items: ${(props) => props.alignItem};
 	padding: 20px 20px 0 20px;
 	padding-bottom: 20px !important;
 `;
-
+const SelectWrapper = styled.div`
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+`;
 const Input = styled.input`
 	width: inherit;
 	font-size: 13px;

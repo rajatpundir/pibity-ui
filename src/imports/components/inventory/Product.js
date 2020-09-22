@@ -1,62 +1,94 @@
 import React from 'react';
-import { getTypeDetails, createVariable } from '../../redux/actions/product';
+import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import styled from 'styled-components';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {customErrorMessage} from '../main/Notification';
+import { clearErrors } from '../../redux/actions/errors';
+import { createVariable, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
 import ProductDimension from './Product/ProductDimension';
 import CustomPrice from './Product/CustomPrice';
 import Stock from './Product/Stock';
 import ReorderLevels from './Product/ReorderLevels';
 import SupplierProduct from './Product/SupplierProduct';
 import ProductGeneralDetails from './Product/ProductGeneralDetails';
+import CheckIcon from '@material-ui/icons/Check';
+
 class Product extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			productName: '',
-			generalDetails: {},
-			variableName: '',
-			values: new Map(),
-			//product keys//
-			productValues: new Map(),
-			general: {},
-			productHeight: '0',
-			productLength: '0',
-			productWidth: '0',
-			unitOfDimension: '',
-			productWeight: '0',
-			unitForWeights: '',
-			productCustomPrice: [],
-			productStock: [],
-			productReorderLevels: [],
-			supplierLocation: [],
-			SupplierProduct: []
+			createProduct: true,
+			prevPropVariable: {},
+			prevVariable: new Map(),
+			variable: new Map([
+				[ 'organization', 'zs' ],
+				[ 'typeName', 'Product' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[
+							'general',
+							new Map([
+								[ 'variableName', '' ],
+								[
+									'values',
+									new Map([
+										[ 'additionalAttributeSet', '' ],
+										[ 'barcode', '' ],
+										[ 'billOfMaterial', '' ],
+										[ 'brand', '' ],
+										[ 'comment', '' ],
+										[ 'defaultLocation', '' ],
+										[ 'description', '' ],
+										[ 'dropShip', '' ],
+										[ 'minimumBeforeReorder', '' ],
+										[ 'minimumReorderQuantity', '' ],
+										[ 'productCostingMethod', '' ],
+										[ 'productSKU', '' ],
+										[ 'productStatus', '' ],
+										[ 'productType', '' ],
+										[ 'productWarranty', '' ],
+										[ 'purchaseTaxRule', '' ],
+										[ 'salesTaxRule', '' ],
+										[ 'shortDescription', '' ],
+										[ 'stockLocator', '' ],
+										[ 'unitOfMeasure', '' ],
+										[ 'productDiscount', '' ],
+										[ 'internalNote', '' ]
+									])
+								]
+							])
+						],
+						[ 'productHeight', '0' ],
+						[ 'productLength', '0' ],
+						[ 'productWidth', '0' ],
+						[ 'unitOfDimension', '' ],
+						[ 'productWeight', '0' ],
+						[ 'unitForWeights', '' ],
+						[ 'productCustomPrice', [] ],
+						[ 'productStock', [] ],
+						[ 'productReorderLevels', [] ],
+						[ 'supplierLocation', [] ],
+						[ 'supplierProduct', [] ]
+					])
+				]
+			]),
+			visibleSection: 'addresses'
 		};
-		this.onChange = this.onChange.bind(this);
-		this.systemTypes = Array.from([ 'Text', 'Number', 'Decimal', 'Boolean', 'Formula', 'List' ]);
-		this.getProductDimension = this.getProductDimension.bind(this);
-		this.getCustomPrice = this.getCustomPrice.bind(this);
-		this.getStock = this.getStock.bind(this);
-		this.getReorderlevels = this.getReorderlevels.bind(this);
-		this.getGeneralDetails = this.getGeneralDetails.bind(this);
+		this.updateDetails = this.updateDetails.bind(this);
+		this.updateDimensions = this.updateDimensions.bind(this);
+		this.updateCustomPrice = this.updateCustomPrice.bind(this);
+		this.updateProductStock = this.updateProductStock.bind(this);
+		this.updateProductReorderLevels = this.updateProductReorderLevels.bind(this);
+		this.updateSupplierLocation = this.updateSupplierLocation.bind(this);
+		this.updateSupplierProduct = this.updateSupplierProduct.bind(this);
+		this.checkRequiredField = this.checkRequiredField.bind(this);
+		// this.customErrorMessage = this.customErrorMessage.bind(this);
 	}
 
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
-	}
-
-	componentDidMount() {
-		this.props.getTypeDetails('Product');
-	}
-
-	static getDerivedStateFromProps(nextProps, prevState) {
-		return {
-			...prevState,
-			type: nextProps.type === undefined ? null : nextProps.type[0],
-			generalDetails: nextProps.type[0] === undefined ? null : nextProps.type[0].keys['general'],
-		};
-	}
-	
 	divVisibility(divId) {
 		var visibleDivId = null;
 		if (visibleDivId !== divId) {
@@ -93,128 +125,106 @@ class Product extends React.Component {
 		}
 	}
 
-	onToggleDisplay(e) {
-		console.log(e);
-		var x = document.getElementById('price');
-
-		if (x.style.display === 'none') {
-			x.style.display = 'block';
-		}
-	}
-
-	mapToObjectRec = (m) => {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
-			} else {
-				lo[k] = v;
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.match.params.variableName && nextProps.variables.Product) {
+			const variable = nextProps.variables.Product.filter(
+				(variable) => variable.variableName === nextProps.match.params.variableName
+			)[0];
+			if (variable && prevState.prevPropVariable !== variable) {
+				const variableMap = objToMapRec(variable);
+				const values = variableMap.get('values');
+				const general = values.get('general');
+				general.set('variableName', variableMap.get('variableName'));
+				values.set('general', general);
+				variableMap.set('values', values);
+				return {
+					...prevState,
+					variable: variableMap,
+					prevPropVariable: variable
+				};
 			}
 		}
-		return lo;
-	};
-
-	getGeneralDetails(productName, productGeneralDetails) {
-		this.setState({
-			general: productGeneralDetails,
-			productName: productName
-		});
+		return prevState;
 	}
 
-	getProductDimension(productHeight, productLength, productWidth, unitOfDimension, productWeight, unitForWeight) {
-		this.setState({
-			productHeight: productHeight,
-			productLength: productLength,
-			productWidth: productWidth,
-			unitOfDimension: unitOfDimension,
-			productWeight: productWeight,
-			unitForWeights: unitForWeight
-		});
+	componentDidMount() {
+		if (this.props.match.params.variableName) {
+			this.props
+				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+				.then((variable) => {
+					this.setState({ prevVariable: variable });
+				});
+		}
 	}
 
-	getCustomPrice(customPrices) {
-		this.setState({ productCustomPrice: [] }, () => {
-			// used to avoid replication of entries when recived data is updated
-			var variableArray=[]
-			Object.entries(customPrices).forEach((item) => {
-				var variable = {
-					variableName: item[1].customer,
-					values: item[1]
-				};
-				variableArray.push(variable)
-			});
-			this.setState({ productCustomPrice: [ ...this.state.productCustomPrice, ...variableArray ] });
-		});
+	checkRequiredField(variable) {
+		if (variable.get('values').get('productSKU') === '') {
+			customErrorMessage('Product SKU is missing');
+			this.setState({ createProduct: false });
+		}
+		if (variable.get('variableName') === '') {
+			customErrorMessage('Product Name is missing');
+			this.setState({ createProduct: false });
+		}
 	}
 
-	getStock(stock) {
-		this.setState({ productStock: [] }, () => {
-			var variableArray=[]
-			Object.entries(stock).forEach((item) => {
-				var variable = {
-					variableName: item[1].batch,
-					values: item[1]
-				};
-				variableArray.push(variable)
-			});
-			this.setState({ productStock: [ ...this.state.productStock, ...variableArray ] });
-		});
+	updateDetails(details) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('general', details);
+		variable.set('values', values);
+		variable.set('variableName', details.get('variableName'));
+		this.setState({ variable: variable });
 	}
 
-	getReorderlevels(reorderLevel) {
-		this.setState({ productReorderLevels: [] }, () => {
-			var variableArray=[]
-			Object.entries(reorderLevel).forEach((item) => {
-				var variable = {
-					variableName: item[1].location,
-					values: item[1]
-				};
-				variableArray.push(variable)
-			});
-			this.setState({ productReorderLevels: [ ...this.state.productReorderLevels, ...variableArray ] });
-		});
+	updateDimensions(variable) {
+		this.setState({ variable: variable });
 	}
 
-	getSupplierProductInfo(supplierProductInfo) {
-		this.setState({ SupplierProduct: [] }, () => {
-			var variableArray=[]
-			Object.entries(supplierProductInfo).forEach((item) => {
-				var variable = {
-					variableName: item[1].location,
-					values: item[1]
-				};
-				variableArray.push(variable)
-			});
-			this.setState({ SupplierProduct: [ ...this.state.SupplierProduct, ...variableArray ] });
-		});
+	updateCustomPrice(customPrice) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('productCustomPrice', customPrice);
+		variable.set('values', values);
+		this.setState({ variable: variable });
 	}
 
-	createVariable(e) {
-		//const keys = new Map(Object.entries(this.state.type.keys));
-		const values = cloneDeep(this.state.productValues);
-		values.set('general', this.state.general);
-		values.set('productHeight', this.state.productHeight);
-		values.set('productLength', this.state.productLength);
-		values.set('productWidth', this.state.productWidth);
-		values.set('unitOfDimension', this.state.unitOfDimension);
-		values.set('productWeight', this.state.productWeight);
-		values.set('unitForWeights', this.state.unitForWeights);
-		values.set('productCustomPrice', this.state.productCustomPrice);
-		values.set('productStock', this.state.productStock);
-		values.set('productReorderLevels', this.state.productReorderLevels);
-		values.set('supplierLocation', this.state.supplierLocation);
-		values.set('SupplierProduct', this.state.SupplierProduct);
-		this.setState({ productValues: values }, () => {
-			this.props.createVariable( "Supplier",this.state.productName, this.state.productValues);
-			this.setState({
-				values: new Map(),
-				variableName: ''
-			});
-		});
+	updateProductStock(productStock) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('productStock', productStock);
+		variable.set('values', values);
+		this.setState({ variable: variable });
 	}
+
+	updateProductReorderLevels(reorderLevel) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('productReorderLevels', reorderLevel);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
+	updateSupplierLocation(supplierLocation) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('supplierLocation', supplierLocation);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
+	updateSupplierProduct(supplierProduct) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('supplierProduct', supplierProduct);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
 	render() {
 		return (
 			<Container>
+				<ToastContainer />
 				<PageSidebar>
 					<VerticalWrapper>
 						<NavList>
@@ -347,10 +357,33 @@ class Product extends React.Component {
 				</PageSidebar>
 				<PageWrapper>
 					<PageBody>
-						<button onClick={(e) => this.createVariable()}>save</button>
+						<SaveButtonContaier>
+							<SaveButton
+								onClick={(e) => {
+									if (this.props.match.params.variableName) {
+										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+									} else {
+										new Promise((resolve) => {
+											resolve(
+												this.checkRequiredField(
+													this.state.variable.get('values').get('general')
+												)
+											);
+										}).then(() => {
+											if (this.state.createProduct) {
+												this.props.createVariable(this.state.variable);
+											}
+											this.setState({ createProduct: true });
+										});
+									}
+								}}
+							>
+								<CheckIcon />
+							</SaveButton>
+						</SaveButtonContaier>
 						<ProductGeneralDetails
-							sendData={this.getGeneralDetails}
-							generalDetails={this.state.generalDetails}
+							variable={this.state.variable.get('values').get('general')}
+							updateDetails={this.updateDetails}
 						/>
 						<PageBlock id="price">
 							<PageToolbar>
@@ -415,8 +448,11 @@ class Product extends React.Component {
 								</RoundedBlock>
 							</InputBody>
 						</PageBlock>
-						<ProductDimension sendData={this.getProductDimension} />
-						<ReorderLevels sendData={this.getReorderlevels} />
+						<ProductDimension variable={this.state.variable} updateDimensions={this.updateDimensions} />
+						<ReorderLevels
+							list={this.state.variable.get('values').get('productReorderLevels')}
+							updateProductReorderLevels={this.updateProductReorderLevels}
+						/>
 						<PageBlock id="discounts">
 							<PageToolbar>
 								<ToolbarLeftItems>
@@ -565,21 +601,25 @@ class Product extends React.Component {
 												</BodyTable>
 											</HeaderBody>
 											<EmptyRow>
-												You do not have Ny additional unit of Measure for this Product
+												{' '}
+												You do not have any additional Unit of Measure for this Product
 											</EmptyRow>
 										</HeaderBodyContainer>
 									</TableFieldContainer>
 								</RoundedBlock>
 							</InputBody>
 						</PageBlock>
-						<CustomPrice id="customPrices" sendData={this.getCustomPrice} />
+						<CustomPrice
+							id="customPrices"
+							list={this.state.variable.get('values').get('productCustomPrice')}
+							updateCustomPrice={this.updateCustomPrice}
+						/>
 						<PageBlock id="channels">
 							<PageToolbar>
 								<ToolbarLeftItems>
 									<LeftItemH1>Channels</LeftItemH1>
 								</ToolbarLeftItems>
 							</PageToolbar>
-
 							<InputBody />
 						</PageBlock>
 						<PageBlock id="additionalDescription">
@@ -588,11 +628,16 @@ class Product extends React.Component {
 									<LeftItemH1>Additional Description</LeftItemH1>
 								</ToolbarLeftItems>
 							</PageToolbar>
-
 							<InputBody />
 						</PageBlock>
-						<Stock sendData={this.getStock} />
-						<SupplierProduct sendData={this.getSupplierProductInfo} />
+						<Stock
+							list={this.state.variable.get('values').get('productStock')}
+							updateProductStock={this.updateProductStock}
+						/>
+						<SupplierProduct
+							list={this.state.variable.get('values').get('supplierProduct')}
+							updateSupplierProduct={this.updateSupplierProduct}
+						/>
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -602,15 +647,18 @@ class Product extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.type
+	variables: state.variables
 });
 
 export default connect(mapStateToProps, {
-	getTypeDetails,
-	createVariable
+	clearErrors,
+	createVariable,
+	getVariable,
+	updateVariable
 })(Product);
 
 const Container = styled.div`
+margin-top:65px
 	padding: 0;
 	width: 100%;
 	min-width: 860px;
@@ -621,7 +669,7 @@ const Container = styled.div`
 	flex-grow: 1;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	background-color: #e3e4e8;
 	@media (max-width: 1200px) {
@@ -826,7 +874,7 @@ const PageBody = styled.div`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
 		max-width: 1200px;
@@ -843,7 +891,7 @@ const PageBlock = styled.div`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	align-items: center;
 `;
@@ -875,7 +923,7 @@ const LeftItemH1 = styled.h1`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 `;
 
@@ -883,23 +931,23 @@ const InputBody = styled.div.attrs((props) => ({
 	alignitem: props.alignItem || 'start',
 	borderTop: props.borderTop || '1px solid #e0e1e7'
 }))`
-align-items: ${(props) => props.alignItem};
-	max-height: 4000px;
-	overflow: hidden;
-	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	-webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	border-top:  ${(props) => props.borderTop};
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 20px 20px 0 20px;
-	padding-bottom: 20px !important;
+  align-items: ${(props) => props.alignItem};
+  max-height: 4000px;
+  overflow: hidden;
+  animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+  -webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+  transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+  -webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+  border-top: ${(props) => props.borderTop};
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 20px 0 20px;
+  padding-bottom: 20px !important;
 `;
 
 const PageBar = styled.div`
@@ -917,7 +965,6 @@ const PageBarAlignLeft = styled.div`
 	float: left;
 `;
 
-
 const Label = styled.div`
 	float: left;
 	margin-right: 10px;
@@ -925,12 +972,12 @@ const Label = styled.div`
 const RoundedBlock = styled.div.attrs((props) => ({
 	marginTop: props.marginTop || '0'
 }))`
-	border: 1px solid #b9bdce;
-	border-radius: 4px;
-	width: 100%;
-	float: left;
-	overflow: hidden;
-	margin-top:${(props) => props.marginTop};
+  border: 1px solid #b9bdce;
+  border-radius: 4px;
+  width: 100%;
+  float: left;
+  overflow: hidden;
+  margin-top: ${(props) => props.marginTop};
 `;
 const TableFieldContainer = styled.div`
 	width: 100% !important;
@@ -977,22 +1024,21 @@ const ColumnName = styled.div.attrs((props) => ({
 	width: props.width,
 	left: props.left
 }))`
-width: ${(props) => props.width};
-left:${(props) => props.left};
-	border-width: 1px;    
-    height: auto;
-    margin: 0px;
-    top: 0px;
-   font-size: 11px;
-    font-weight: bold;
-    font-family: inherit;
-    color: #707887;
-    text-transform: uppercase;
-    letter-spacing: -0.4px;
-    vertical-align: middle;
-    position: absolute;
-    bottom: 0; 
-
+  width: ${(props) => props.width};
+  left: ${(props) => props.left};
+  border-width: 1px;
+  height: auto;
+  margin: 0px;
+  top: 0px;
+  font-size: 11px;
+  font-weight: bold;
+  font-family: inherit;
+  color: #707887;
+  text-transform: uppercase;
+  letter-spacing: -0.4px;
+  vertical-align: middle;
+  position: absolute;
+  bottom: 0;
 `;
 
 const SelectIconContainer = styled.div`
@@ -1010,14 +1056,13 @@ const SelectIconContainer = styled.div`
 const SelectSpan = styled.span.attrs((props) => ({
 	textAlign: props.textAlign || 'left'
 }))`
-	display: flex;
-	align-items: center;
-	overflow: hidden;
-	text-align: ${(props) => props.textAlign};
-	cursor: pointer;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-align: ${(props) => props.textAlign};
+  cursor: pointer;
 `;
 const SelectSpanInner = styled.span`white-space: nowrap;`;
-
 
 const HeaderBodyContainer = styled.div`
 	width: 100%;
@@ -1050,7 +1095,7 @@ const TableHeader = styled.th.attrs((props) => ({
 	width: props.width,
 	height: props.height || '0'
 }))`
-width: ${(props) => props.width};
+  width: ${(props) => props.width};
 `;
 
 const EmptyRow = styled.div`
@@ -1126,4 +1171,27 @@ const PlusButton = styled.button`
 	background: transparent;
 	white-space: nowrap;
 	border-radius: 4px;
+`;
+const SaveButtonContaier = styled.div`
+	position: fixed;
+	bottom: 50px;
+	right: 50px;
+	bottom: 37px;
+	right: 37px;
+	z-index: 300;
+`;
+const SaveButton = styled.button`
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	background-color: #05cbbf;
+	border: 0;
+	color: #fff;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.15s ease-in-out;
+	outline: none; 
+
 `;

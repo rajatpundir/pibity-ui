@@ -1,177 +1,208 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getTypeDetails, createVariable } from '../../../redux/actions/product';
-import { getVariables, getVariable } from '../../../redux/actions/variables';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {customErrorMessage,successMessage} from '../../main/Notification';
+import { clearErrors } from '../../../redux/actions/errors';
+import { createVariable, getVariable, updateVariable, objToMapRec } from '../../../redux/actions/variables';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
+import CheckIcon from '@material-ui/icons/Check';
+
 class Customer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			customerName: '',
-			generalDetails: {},
-			variableName: '',
-			values: new Map(),
-			type: {},
-			//supplier keys//
-			customerValues: new Map(),
-			general: {},
-			customer: [],
-			addresses: [],
-			contacts: [],
-			mode: 'update',
-			counter: 0,
-			passedCustomerName: 'C1'
+			createCustomer: true,
+			prevPropVariable: {},
+			prevVariable: new Map(),
+			variable: new Map([
+				[ 'organization', 'zs' ],
+				[ 'typeName', 'Customer' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[
+							'general',
+							new Map([
+								[ 'variableName', '' ],
+								[
+									'values',
+									new Map([
+										[ 'currency', '' ],
+										[ 'paymentTerm', '' ],
+										[ 'taxRule', '' ],
+										[ 'status', '' ],
+										[ 'defaultCarrier', '' ],
+										[ 'taxNumber', '' ],
+										[ 'discount', 0 ],
+										[ 'attributeSet', '' ],
+										[ 'comments', '' ],
+										[ 'salesPriceTier', '' ],
+										[ 'defaultLocation', '' ],
+										[ 'creditLimit', 0 ],
+										[ 'onCreditHold', false ]
+									])
+								]
+							])
+						],
+						[ 'addresses', [] ],
+						[ 'contacts', [] ]
+					])
+				]
+			]),
+			visibleSection: 'addresses'
 		};
-		this.onChange = this.onChange.bind(this);
-		this.getGeneralDetails = this.getGeneralDetails.bind(this);
-		this.getCustomerAddress = this.getCustomerAddress.bind(this);
-		this.getCustomerContact = this.getCustomerContact.bind(this);
-	}
-
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
-	}
-
-	divVisibility(divId) {
-		var visibleDivId = null;
-		if (visibleDivId !== divId) {
-			visibleDivId = divId;
-		}
-		this.hideNonVisibleDivs(visibleDivId);
-	}
-
-	hideNonVisibleDivs(visibleDivId) {
-		var divs = [ 'address', 'contact' ];
-		var i, divId, div;
-		for (i = 0; i < divs.length; i++) {
-			divId = divs[i];
-			div = document.getElementById(divId);
-			if (div != null) {
-				if (visibleDivId === divId) {
-					div.style.display = 'block';
-				} else if (divId !== 'customer') {
-					div.style.display = 'none';
-				}
-			}
-		}
-	}
-
-	componentDidMount() {
-		this.props.getTypeDetails('Customer');
-		this.props.getVariables('Country');
-		this.props.getVariables('Currency');
-		this.props.getVariables('CarrierService');
-		this.props.getVariables('PaymentTerm');
-		this.props.getVariables('Status');
-		this.props.getVariables('SalesTaxRule');
-		this.props.getVariables('AttributeSet');
-		this.props.getVariables('AddressType');
-		this.props.getVariables('PriceTierName');
-		this.props.getVariables('Location');
-		this.props.getVariables('Customer').then(() => {
-			var customers = this.props.variable.Customer.filter((customer) => {
-				return customer.variableName === 'C1';
-			});
-			this.setState({customer:customers})
-		});
+		this.updateDetails = this.updateDetails.bind(this);
+		this.updateAddresses = this.updateAddresses.bind(this);
+		this.updateContacts = this.updateContacts.bind(this);
+		this.checkRequiredField = this.checkRequiredField.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		return {
-			...prevState,
-			type: nextProps.type === undefined ? null : nextProps.type[0],
-			generalDetails: nextProps.type[0] === undefined ? null : nextProps.type[0].keys['general'],
-			customer:
-				'update' === 'update'
-					? nextProps.variable !== undefined && nextProps.variable.Customer !==undefined
-						? nextProps.variable.Customer.filter((customer) => {
-								return customer.variableName === 'C1';
-							})
-						: null
-					: null
-		};
-	}
-
-	getGeneralDetails(customerName, customerGeneralDetails) {
-		this.setState({
-			general: customerGeneralDetails,
-			customerName: customerName
-		});
-	}
-
-	getCustomerAddress(customerAddresses) {
-		this.setState(
-			{
-				addresses: []
-			},
-			() => {
-				var variableArray = [];
-				Object.entries(customerAddresses).forEach((item) => {
-					var variable = {
-						variableName: item[1].name,
-						values: item[1]
-					};
-					variableArray.push(variable);
-				});
-				this.setState({ addresses: [ ...this.state.addresses, ...variableArray ] });
+		if (nextProps.match.params.variableName && nextProps.variables.Customer) {
+			const variable = nextProps.variables.Customer.filter(
+				(variable) => variable.variableName === nextProps.match.params.variableName
+			)[0];
+			if (variable && prevState.prevPropVariable !== variable) {
+				const variableMap = objToMapRec(variable);
+				const prevVariableMap=objToMapRec(prevState.prevPropVariable)
+				const values = variableMap.get('values');
+				const general = values.get('general');
+				general.set('variableName', variableMap.get('variableName'));
+				values.set('general', general);
+				variableMap.set('values', values);
+				return {
+					...prevState,
+					variable: variableMap,
+					prevPropVariable: variable,
+					prevVariable:prevVariableMap
+				};
 			}
-		);
+		}
+		return prevState;
 	}
 
-	getCustomerContact(customerContacts) {
-		this.setState(
-			{
-				contacts: []
-			},
-			() => {
-				var variableArray = [];
-				Object.entries(customerContacts).forEach((item) => {
-					var variable = {
-						variableName: item[1].name,
-						values: item[1]
-					};
-					variableArray.push(variable);
-				});
-				this.setState({ contacts: [ ...this.state.contacts, ...variableArray ] });
-			}
-		);
-	}
-	createVariable(e) {
-		const values = cloneDeep(this.state.customerValues);
-		values.set('general', this.state.general);
-		values.set('contacts', this.state.contacts);
-		values.set('addresses', this.state.addresses);
-		this.setState({ customerValues: values }, () => {
-			this.props.createVariable('Customer', this.state.customerName, this.state.customerValues);
-			this.setState({
-				values: new Map(),
-				variableName: ''
-			});
-		});
+	componentDidMount() {
+		if (this.props.match.params.variableName) {
+			const variable=decodeURIComponent(this.props.match.params.variableName)
+			console.log(variable)
+			this.props
+				.getVariable(this.state.variable.get('typeName'),variable )
+				// .then((updated) => {
+				// 	if(updated){
+				// 		this.setState({ prevVariable: this.state.variable });
+
+				// 	}
+				// });
+		}
 	}
 
+	checkRequiredField(variable) {
+		let message = '';
+		if (variable.get('general').get('variableName') === '') {
+			message = message + ' Please provide a Customer Name  \n';
+			// customErrorMessage(' Customer Name is missing');
+			this.setState({ createCustomer: false });
+		}
+		if (variable.get('general').get('values').get('status') === '') {
+			message = message + ' Please choose the Status \n';
+
+			// customErrorMessage('status is missing');
+			this.setState({ createCustomer: false });
+		}
+		if (variable.get('general').get('values').get('taxRule') === '') {
+			message = message + ' Please choose the TaxRule  \n';
+			// customErrorMessage('taxRule is missing');
+			this.setState({ createCustomer: false });
+		}
+		if (variable.get('general').get('values').get('paymentTerm') === '') {
+			message = message + ' Please choose the Payment Term \n';
+			// customErrorMessage('paymentTerm is missing');
+			this.setState({ createCustomer: false });
+		}
+		if (variable.get('general').get('values').get('currency') === '') {
+			message = message + 'Please choose a Currency  \n';
+
+			// customErrorMessage('currency is missing');
+			this.setState({ createCustomer: false });
+		}
+		if (variable.get('contacts').length === 0) {
+			message = message + ' Add at least One Contact field \n';
+
+			// customErrorMessage('Add at least One Contact field');
+			this.setState({ createCustomer: false });
+		}
+		if (variable.get('addresses').length === 0) {
+			message = message + ' Add at least One Address field \n';
+
+			// customErrorMessage('Add at least One Address field');
+			this.setState({ createCustomer: false });
+		}
+		if (message !== '') {
+			customErrorMessage(message);
+		}
+	}
+
+	updateDetails(details) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('general', details);
+		variable.set('values', values);
+		variable.set('variableName', details.get('variableName'));
+		this.setState({ variable: variable });
+	}
+
+	updateAddresses(addresses) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('addresses', addresses);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
+	updateContacts(contacts) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('contacts', contacts);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
 	render() {
 		return (
 			<Container>
+				<StyledContainer limit={2} />
 				<PageSidebar>
 					<VerticalWrapper>
 						<NavList>
 							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('customer')}>
+								<NavButton
+									onClick={(e) => {
+										this.setState({ visibleSection: 'addresses' });
+									}}
+								>
 									<ButtonText>General</ButtonText>
 								</NavButton>
 							</NavListItems>
 							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('address')}>
+								<NavButton
+									onClick={(e) => {
+										this.setState({ visibleSection: 'addresses' });
+									}}
+								>
 									<ButtonText>Addresses</ButtonText>
 								</NavButton>
 							</NavListItems>
 							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('contact')}>
+								<NavButton
+									onClick={(e) => {
+										this.setState({ visibleSection: 'contacts' });
+									}}
+								>
 									<ButtonText>Contact</ButtonText>
 								</NavButton>
 							</NavListItems>
@@ -181,17 +212,29 @@ class Customer extends React.Component {
 						<HorizontalNav>
 							<NavList>
 								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('customer')}>
+									<NavButton
+										onClick={(e) => {
+											this.setState({ visibleSection: 'customer' });
+										}}
+									>
 										<ButtonText>General</ButtonText>
 									</NavButton>
 								</NavListItems>
 								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('address')}>
+									<NavButton
+										onClick={(e) => {
+											this.setState({ visibleSection: 'addresses' });
+										}}
+									>
 										<ButtonText>Addresses</ButtonText>
 									</NavButton>
 								</NavListItems>
 								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('contact')}>
+									<NavButton
+										onClick={(e) => {
+											this.setState({ visibleSection: 'contacts' });
+										}}
+									>
 										<ButtonText>Contact</ButtonText>
 									</NavButton>
 								</NavListItems>
@@ -201,29 +244,47 @@ class Customer extends React.Component {
 				</PageSidebar>
 				<PageWrapper>
 					<PageBody>
-						<button onClick={(e) => this.createVariable()}>save</button>
+						<SaveButtonContaier>
+							<SaveButton
+								onClick={(e) => {
+									if (this.props.match.params.variableName) {
+										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+										console.log('update me gya ');
+									} else {
+										new Promise((resolve) => {
+											resolve(this.checkRequiredField(this.state.variable.get('values')));
+										}).then(() => {
+											if (this.state.createCustomer) {
+												this.props.createVariable(this.state.variable).then((status)=>{
+													if(status===200){
+														successMessage("created customer");
+													}
+												});
+											}
+											this.setState({ createCustomer: true });
+										});
+									}
+								}}
+							>
+								<CheckIcon />
+							</SaveButton>
+						</SaveButtonContaier>
 						<CustomerGeneralDetails
-							sendData={this.getGeneralDetails}
-							generalDetails={this.state.generalDetails}
-							currency={this.props.variable.Currency}
-							country={this.props.variable.Country}
-							salesTaxRule={this.props.variable.SalesTaxRule}
-							carrierServices={this.props.variable.CarrierService}
-							paymentTerm={this.props.variable.PaymentTerm}
-							status={this.props.variable.Status}
-							attributeSet={this.props.variable.AttributeSet}
-							priceTierName={this.props.variable.PriceTierName}
-							location={this.props.variable.Location}
-							mode="update"
-							customerGeneralInfo={this.state.customer}
-							
+							variable={this.state.variable.get('values').get('general')}
+							updateDetails={this.updateDetails}
 						/>
-						<CustomerContact sendData={this.getCustomerContact} />
-						<CustomerAddresses
-							sendData={this.getCustomerAddress}
-							addressType={this.props.variable.AddressType}
-							country={this.props.variable.Country}
-						/>
+						{this.state.visibleSection === 'contacts' && (
+							<CustomerContact
+								list={this.state.variable.get('values').get('contacts')}
+								updateContacts={this.updateContacts}
+							/>
+						)}
+						{this.state.visibleSection === 'addresses' && (
+							<CustomerAddresses
+								list={this.state.variable.get('values').get('addresses')}
+								updateAddresses={this.updateAddresses}
+							/>
+						)}
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -232,15 +293,14 @@ class Customer extends React.Component {
 }
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.types,
-	variable: state.variables
+	variables: state.variables
 });
 
 export default connect(mapStateToProps, {
-	getTypeDetails,
-	getVariables,
+	clearErrors,
+	createVariable,
 	getVariable,
-	createVariable
+	updateVariable
 })(Customer);
 
 export const HorizontalistPageBlock = styled.div`
@@ -337,13 +397,15 @@ const Container = styled.div`
 	width: 100%;
 	min-width: 860px;
 	border-radius: 6px;
+	margin-top: 65px;
+	min-height: 100vh;
 	position: relative;
 	display: flex;
 	flex-direction: row;
 	flex-grow: 1;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	background-color: #e3e4e8;
 	@media (max-width: 1200px) {
@@ -377,7 +439,7 @@ const PageBody = styled.div`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
 		max-width: 1200px;
@@ -496,3 +558,67 @@ const HorizontalNav = styled.div`
 	}
 	-ms-overflow-style: none;
 `;
+
+const SaveButtonContaier = styled.div`
+	position: fixed;
+	bottom: 50px;
+	right: 50px;
+	bottom: 37px;
+	right: 37px;
+	z-index: 300;
+`;
+const SaveButton = styled.button`
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	background-color: #05cbbf;
+	border: 0;
+	color: #fff;
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.15s ease-in-out;
+	outline: none;
+`;
+// styling Toast container
+const StyledContainer = styled(ToastContainer).attrs(
+	{
+		// custom props
+	}
+)`
+	.Toastify__toast-container {}
+	.Toastify__toast {}
+	.Toastify__toast--error {
+		margin: 0 0 6px;
+		padding: 10px 15px;
+		-moz-border-radius: 6px;
+		-webkit-border-radius: 6px;
+		border-radius: 6px;
+		background-repeat: no-repeat;
+		background-color: #fd4a4a;
+	}
+	.Toastify__toast--warning {
+		margin: 0 0 6px;
+		padding: 16px 42px 16px 55px;
+		-moz-border-radius: 6px;
+		-webkit-border-radius: 6px;
+		border-radius: 6px;
+		background-repeat: no-repeat;
+		background-color: #fd4a4a;
+	}
+	.Toastify__toast--success {
+		margin: 0 0 6px;
+		padding: 16px 42px 16px 55px;
+		-moz-border-radius: 6px;
+		-webkit-border-radius: 6px;
+		border-radius: 6px;
+		background-repeat: no-repeat;
+		background-color: #fd4a4a;
+	}
+	.Toastify__toast-body {
+		white-space: pre-line;
+
+	}
+	.Toastify__progress-bar {}
+  `;

@@ -10,7 +10,7 @@ import PrivateRoute from './PrivateRoute';
 import LogIn from '../components/main/LogIn';
 import SignUp from '../components/main/SignUp';
 import NotFound from '../components/main/NotFound';
-import Dashboard from '../components/main/Dashboard';
+// import Dashboard from '../components/main/Dashboard';
 import Users from '../components/accounts/Users';
 import Profile from '../components/accounts/Profile';
 import Categories from '../components/inventory/categories/Categories';
@@ -18,6 +18,19 @@ import Product from "../components/inventory/Product"
 import Supplier from '../components/inventory/Supplier/Supplier';
 import Purchase from '../components/inventory/Purchase';
 import Customer from '../components/inventory/Customer/Customer';
+import CustomerList from '../components/inventory/Customer/CustomerList';
+import ProductList from '../components/inventory/Product/ProductList';
+import PurchaseList from "../components/inventory/Purchase/PurchaseList";
+import SupplierList from '../components/inventory/Supplier/SupplierList';
+import BiddingList from '../components/inventory/Jyy/BiddingList';
+import AdminBiddingList from '../components/inventory/Jyy/AdminBiddingList';
+
+import Machine from '../components/inventory/Jyy/Machine';
+import CreateMachine from '../components/inventory/Jyy/CreateMachine';
+import MachineList from '../components/inventory/Jyy/MachineList';
+import Dashboard from '../components/inventory/Jyy/Dashboard';
+
+
 
 // Set token for Axios requests
 if (localStorage.getItem('jwtToken')) {
@@ -46,14 +59,30 @@ export const AppRouter = () => (
 			<PublicRoute exact path="/" render={(props) => <LogIn />} />
 			<PublicRoute exact path="/login" render={(props) => <LogIn />} />
 			<PublicRoute exact path="/signup" render={(props) => <SignUp />} />
-			<PublicRoute exact path="/product" render={(props) => <Product/>} />
-			<PublicRoute exact path="/supplier" render={(props) => <Supplier/>} />
-			<PublicRoute exact path="/purchase" render={(props) => <Purchase/>} />
-			<PublicRoute exact path="/customer" render={(props) => <Customer/>} />
+			<PublicRoute exact path="/product" render={(props) => <Product {...props}/>} />
+			<PublicRoute exact path="/productList" render={(props) => <ProductList {...props}/>} />
+			<PublicRoute exact path="/product/:variableName" render={(props) => <Product {...props}/>} />
+			<PublicRoute exact path="/supplier/" render={(props) => <Supplier {...props}/>} />
+			<PublicRoute exact path="/supplierList" render={(props) => <SupplierList {...props}/>} />
+			<PublicRoute exact path="/supplier/:variableName" render={(props) => <Supplier {...props}/>} />
+			<PublicRoute exact path="/purchase" render={(props) => <Purchase {...props}/>} />
+			<PublicRoute exact path="/purchaseList" render={(props) => <PurchaseList {...props}/>} />
+			<PublicRoute exact path="/purchase/:variableName" render={(props) => <Purchase {...props}/>} />
+			<PublicRoute exact path="/customer" render={(props) => <Customer {...props}/>} />
+			<PublicRoute exact path="/customerList" render={(props) => <CustomerList {...props}/>} />
+			<PublicRoute exact path="/customer/:variableName" render={(props) => <Customer {...props}/>} />
+			<PublicRoute exact path="/biddingList/" render={(props) => <BiddingList {...props}/>} />
+			<PublicRoute exact path="/adminBiddingList/" render={(props) => <AdminBiddingList {...props}/>} />
+
+			<PublicRoute exact path="/machine/" render={(props) => <Machine {...props}/>} />
+			<PublicRoute exact path="/machineList" render={(props) => <MachineList {...props}/>} />
+			<PublicRoute exact path="/createMachine/" render={(props) => <CreateMachine {...props}/>} />
+			<PublicRoute exact path="/createMachine/:variableName" render={(props) => <CreateMachine {...props}/>} />
+			<Route exact path="/jyydashboard" render={(props) => <Dashboard {...props}/>} />
 
 
 			{/* Private Routes */}
-			<PrivateRoute exact path="/dashboard" render={(props) => <Dashboard />} />
+			{/* <PrivateRoute exact path="/dashboard" render={(props) => <Dashboard />} /> */}
 			<PrivateRoute exact path="/users" render={(props) => <Users />} />
 			<PrivateRoute exact path="/profile" render={(props) => <Profile />} />
 			<PrivateRoute exact path="/inventory/categories" render={(props) => <Categories />} />

@@ -1,156 +1,168 @@
 import React from 'react';
 import styled from 'styled-components';
-import { getTypeDetails } from '../../../redux/actions/product';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../redux/actions/errors';
+import { getVariables } from '../../../redux/actions/variables';
+import Select from 'react-select';
+
 class CustomPrice extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			keys: new Map(),
-			key: new Map([
-				[ 'customer', '' ],
-				[ 'customerCurrency', '' ],
-				[ 'latestPrice', '' ],
-				[ 'customPrice', '' ],
-				[ 'lastSold', '' ]
-			]),
-			type: '',
-			counter: 0
+			list: props.list
 		};
 		this.onChange = this.onChange.bind(this);
 	}
 
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+		this.props.getVariables('Customer');
 	}
-	// componentDidMount() {
-	// 	this.props.getTypeDetails('CustomPrice');
-	// }
 
-	// static getDerivedStateFromProps(nextProps, prevState) {
-	// 	return {
-	// 		...prevState,
-	// 		type: nextProps.type[0]
-	// 	};
-	// }
-	  mapToObjectRec=(m)=> {
-		let lo = {};
-		for (let [ k, v ] of m) {
-			if (v instanceof Map) {
-				lo[k] = this.mapToObjectRec(v);
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			list: nextProps.list
+		};
+	}
+
+	onChange(e, variableName) {
+		const list = cloneDeep(this.state.list).map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
 			} else {
-				lo[k] = v;
+				return listVariable;
 			}
-		}
-		return lo;
-	}
-	
-	saveCustomPrice() {
-		this.props.sendData(this.mapToObjectRec(this.state.keys));
-	}
-	addListVariable() {
-		const addkey = cloneDeep(this.state.keys);
-		addkey.set(this.state.counter, this.state.key);
-		this.setState({
-			keys: addkey
 		});
-		this.setState((prevState) => {
-			return { counter: prevState.counter + 1 };
-		});
+		this.setState({ list: list });
+		this.props.updateCustomPrice(list);
 	}
+
+	addVariableToList() {
+		const list = cloneDeep(this.state.list);
+		list.unshift(
+			new Map([
+				[ 'variableName', String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1 )  ],
+				[
+					'values',
+					new Map([
+						[ 'customer', '' ],
+						[ 'customerCurrency', '' ],
+						[ 'latestPrice', '' ],
+						[ 'customPrice', '' ],
+						[ 'lastSold', '' ]
+					])
+				]
+			])
+		);
+		this.setState({ list: list });
+		this.props.updateCustomPrice(list);
+	}
+
+	onRemoveKey(e, variableName) {
+		const list = cloneDeep(this.state.list).filter((listVariable) => {
+			return listVariable.get('variableName') !== variableName;
+		});
+		this.setState({ list: list });
+		this.props.updateCustomPrice(list);
+	}
+
 	renderInputFields() {
 		const rows = [];
-		if (this.state.keys.size === 0) {
-			return (
-				<TableRow>
-					<TableHeader width="58px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="168px" />
-					<TableHeader width="167px" />
-					<TableHeader width="167px" />
-					<TableHeader width="58px" />
-				</TableRow>
-			);
-		} else {
-			for (let key of this.state.keys) {
-				rows.push(
-					<TableRow key={key[0]}>
-						<TableHeader width="5%" left="0px">
-							{' '}
-						</TableHeader>
-						<TableHeader width="20%" left="6%">
-							<Input
-								name="customer"
-								type="text"
-								placeholder="customer"
-								value={key[1].get('customer')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('customer', e.target.value);
-									this.setState({ keys: keys });
-								}}
-							/>
-						</TableHeader>
-						<TableHeader width="15%" left="25%">
+		this.state.list.forEach((listVariable) =>
+			rows.push(
+				<TableRow key={listVariable.get('variableName')}>
+					<TableHeader width="5%" left="0px">
+						<i
+							name={listVariable.get('variableName')}
+							className="large material-icons"
+							onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}
+						>
+							remove_circle_outline
+						</i>
+					</TableHeader>
+					<TableHeader width="20%" left="6%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('customer'),
+										label: listVariable.get('values').get('customer')
+									}}
+									onChange={(option) => {
+										this.onChange(
+											{ target: { name: 'customer', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.Customer !== undefined ? (
+											this.props.variables.Customer.map((variable) => {
+												return {
+													value: variable.variableName,
+													label: variable.variableName
+												};
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableHeader>
+
+					<TableHeader width="15%" left="25%">
+						<TableHeaderInner>
 							<Input
 								name="customerCurrency"
 								type="text"
-								placeholder="Default"
-								value={key[1].get('customerCurrency')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('customerCurrency', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('customerCurrency')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="15%" left="46%">
+						</TableHeaderInner>
+					</TableHeader>
+					<TableHeader width="15%" left="46%">
+						<TableHeaderInner>
 							<Input
 								name="latestPrice"
-								type="Decimal"
-								placeholder="latestPrice"
-								value={key[1].get('latestPrice')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('latestPrice', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								type="text"
+								value={listVariable.get('values').get('latestPrice')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="15%" left="62%">
+						</TableHeaderInner>
+					</TableHeader>
+					<TableHeader width="15%" left="62%">
+						<TableHeaderInner>
 							<Input
 								name="customPrice"
 								type="text"
-								placeholder="customPrice"
-								value={key[1].get('customPrice')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('customPrice', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								value={listVariable.get('values').get('customPrice')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-						<TableHeader width="20%" left="79%">
+						</TableHeaderInner>
+					</TableHeader>
+					<TableHeader width="20%" left="79%">
+						<TableHeaderInner>
 							<Input
 								name="lastSold"
-								type="decimal"
-								placeholder="Unit"
-								value={key[1].get('lastSold')}
-								onChange={(e) => {
-									const keys = cloneDeep(this.state.keys);
-									keys.get(key[0]).set('lastSold', e.target.value);
-									this.setState({ keys: keys });
-								}}
+								type="text"
+								value={listVariable.get('values').get('lastSold')}
+								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
-						</TableHeader>
-					</TableRow>
-				);
-			}
-			return rows;
-		}
+						</TableHeaderInner>
+					</TableHeader>
+				</TableRow>
+			)
+		);
+		return rows;
 	}
+
 	render() {
 		return (
 			<PageBlock id="customPrices">
@@ -169,7 +181,7 @@ class CustomPrice extends React.Component {
 						</FormControl>
 					</PageBarAlignLeft>
 					<PageBarAlignRight>
-						<PlusButton onClick={(e) => this.addListVariable()}>
+						<PlusButton onClick={(e) => this.addVariableToList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
 					</PageBarAlignRight>
@@ -179,42 +191,48 @@ class CustomPrice extends React.Component {
 						<TableFieldContainer>
 							<Headers>
 								<HeaderContainer>
-									<HeaderContainerInner>
-										<ColumnName width="5%" left="0px">
-											<SelectIconContainer>
-												<SelectSpan>
-													<SelectSpanInner>
-														<i className="large material-icons">create</i>
-													</SelectSpanInner>
-												</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="20%" left="6%">
-											<SelectIconContainer>
-												<SelectSpan>Customer</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="25%">
-											<SelectIconContainer>
-												<SelectSpan textAlign="right">Customer Currency</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="46%">
-											<SelectIconContainer>
-												<SelectSpan>Latest Price</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="15%" left="62%">
-											<SelectIconContainer>
-												<SelectSpan>Custom Price </SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-										<ColumnName width="20%" left="79%">
-											<SelectIconContainer>
-												<SelectSpan>Last Sold</SelectSpan>
-											</SelectIconContainer>
-										</ColumnName>
-									</HeaderContainerInner>
+									<HeaderBody>
+										<BodyTable>
+											<TableBody>
+												<TableRow>
+													<TableHeaders width="5%" left="0px">
+														<SelectIconContainer>
+															<SelectSpan>
+																<SelectSpanInner>
+																	<i className="large material-icons">create</i>
+																</SelectSpanInner>
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="20%" left="6%">
+														<SelectIconContainer>
+															<SelectSpan>Customer</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="25%">
+														<SelectIconContainer>
+															<SelectSpan textAlign="right">Customer Currency</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="46%">
+														<SelectIconContainer>
+															<SelectSpan>Latest Price</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="15%" left="62%">
+														<SelectIconContainer>
+															<SelectSpan>Custom Price </SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="20%" left="79%">
+														<SelectIconContainer>
+															<SelectSpan>Last Sold</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+												</TableRow>
+											</TableBody>
+										</BodyTable>
+									</HeaderBody>
 								</HeaderContainer>
 							</Headers>
 							<HeaderBodyContainer>
@@ -223,16 +241,20 @@ class CustomPrice extends React.Component {
 										<TableBody>{this.renderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.keys.size === 0 ? (
+								{this.state.list.length === 0 ? (
 									<EmptyRow>There are no Custom Prices at the moment.</EmptyRow>
 								) : (
 									undefined
 								)}
 							</HeaderBodyContainer>
+							<AddMoreBlock>
+								<AddMoreButton onClick={(e) => this.addVariableToList()}>
+									<i className="large material-icons">add</i>Add Custom Prices
+								</AddMoreButton>
+							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>
-				<button onClick={(e) => this.saveCustomPrice()}>save</button>
 			</PageBlock>
 		);
 	}
@@ -240,13 +262,53 @@ class CustomPrice extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	type: state.type
+	types: state.types,
+	variables: state.variables
 });
 
-export default connect(mapStateToProps, {
-	getTypeDetails
-})(CustomPrice);
+export default connect(mapStateToProps, { clearErrors, getVariables })(CustomPrice);
 
+const AddMoreBlock = styled.div`
+	flex-flow: row wrap;
+	display: flex;
+	width: 100%;
+	padding: 16px 20px;
+	align-items: center;
+	justify-content: inherit !important;
+`;
+const AddMoreButton = styled.button`
+	background-color: transparent;
+	color: #05cbbf;
+	border-color: transparent;
+	min-width: 70px;
+	padding: 0 10px;
+	height: 32px !important;
+	border-width: 1px;
+	border-style: solid;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	text-align: center;
+	text-decoration: none;
+	display: inline-flex;
+	vertical-align: middle;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
+	background: transparent;
+	height: 40px;
+	white-space: nowrap;
+	border-radius: 4px;
+	padding: 0 16px;
+	cursor: pointer;
+	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	&:hover {
+		outline: none;
+	}
+`;
 const PageBlock = styled.div`
 	display: none;
 	background: #fff;
@@ -257,9 +319,237 @@ const PageBlock = styled.div`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	align-items: center;
+`;
+
+const InputBody = styled.div.attrs((props) => ({
+	alignitem: props.alignItem || 'start',
+	borderTop: props.borderTop || '1px solid #e0e1e7'
+}))`
+  align-items: ${(props) => props.alignItem};
+  max-height: 4000px;
+  overflow: hidden;
+  animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+  -webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
+  transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+  -webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
+    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
+  border-top: ${(props) => props.borderTop};
+  -webkit-flex-flow: row wrap;
+  flex-flow: row wrap;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px 20px 0 20px;
+  padding-bottom: 20px !important;
+`;
+const SelectWrapper = styled.div`
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 100px;
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+`;
+const Input = styled.input`
+	width: inherit;
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	padding: 11px 10px 10px 10px;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	flex: 1;
+
+	min-height: 40px;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+`;
+
+const PageBar = styled.div`
+	flex-flow: row wrap;
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding: 20px 20px 0 20px;
+	border-top: 1px solid #e0e1e7;
+`;
+const PageBarAlignLeft = styled.div`
+	display: flex;
+	justify-content: flex-start !important;
+	align-items: center;
+	float: left;
+`;
+
+const RoundedBlock = styled.div.attrs((props) => ({
+	marginTop: props.marginTop || '0'
+}))`
+  border: 1px solid #b9bdce;
+  border-radius: 4px;
+  width: 100%;
+  float: left;
+  overflow: hidden;
+  margin-top: ${(props) => props.marginTop};
+`;
+
+// float: left;
+const TableFieldContainer = styled.div`
+	position: relative;
+	width: 100% !important;
+	overflow: hidden;
+
+	min-height: auto !important;
+	text-align: center;
+	top: 0 !important;
+	height: inherit !important;
+`;
+
+const SelectIconContainer = styled.div`
+	justify-content: center;
+	padding: 0 10px !important;
+
+	font-weight: bold;
+	font-size: 11px;
+	text-transform: uppercase;
+	height: 100% !important;
+	display: flex;
+	align-self: stretch;
+	width: 100%;
+`;
+const SelectSpan = styled.span.attrs((props) => ({
+	textAlign: props.textAlign || 'left'
+}))`
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-align: ${(props) => props.textAlign};
+  cursor: pointer;
+`;
+const SelectSpanInner = styled.span`white-space: nowrap;`;
+
+const HeaderBodyContainer = styled.div`
+	width: 100%;
+	height: inherit !important;
+	float: left;
+	position: relative;
+	top: 0 !important;
+	left: 0 !important;
+	overflow: hidden;
+`;
+const HeaderBody = styled.div`
+	border-width: 0px;
+	overflow: auto;
+	margin: 0px;
+	width: 100%;
+`;
+const BodyTable = styled.table`
+	width: 100%;
+	height: 1px;
+	table-layout: fixed;
+	border-collapse: separate;
+	border-spacing: 0;
+`;
+const TableBody = styled.tbody``;
+const TableRow = styled.tr`
+	cursor: pointer;
+	&:hover {
+		background-color: #f0f3fa;
+	}
+`;
+
+const TableHeaders = styled.th.attrs((props) => ({
+	width: props.width,
+	left: props.left || '0'
+}))`
+  width: ${(props) => props.width};
+  left: ${(props) => props.left};
+  font-family: inherit;
+  vertical-align: middle;
+  border-bottom: 1px solid #e7e8ec;
+  overflow: hidden;
+  padding: 5px 0;
+  height: 60px;
+  float: none !important;
+`;
+const TableHeaderInner = styled.div`
+    width:100%;
+    padding: 1px 3px;
+    color: #41454e;
+    vertical-align: middle;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+`;
+const EmptyRow = styled.div`
+	text-align: center;
+	border-bottom: 1px solid #e7e8ec;
+	min-height: 59px !important;
+	line-height: 55px;
+`;
+
+const PlusButton = styled.button`
+	margin-left: 5px;
+	color: #04beb3;
+	background-color: #05cbbf;
+	border-color: #05cbbf;
+	width: 32px !important;
+	min-width: 32px !important;
+	max-width: 32px !important;
+	justify-content: center;
+	padding: 0 !important;
+	height: 32px !important;
+	text-align: center;
+	border-width: 1px;
+	border-style: solid;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	text-decoration: none;
+	display: inline-flex;
+	vertical-align: middle;
+	flex-direction: row;
+	align-items: center;
+	background: transparent;
+	white-space: nowrap;
+	border-radius: 4px;
 `;
 
 const PageToolbar = styled.div`
@@ -289,31 +579,8 @@ const LeftItemH1 = styled.h1`
 	border: 0;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
-`;
-
-const InputBody = styled.div.attrs((props) => ({
-	alignitem: props.alignItem || 'start',
-	borderTop: props.borderTop || '1px solid #e0e1e7'
-}))`
-align-items: ${(props) => props.alignItem};
-	max-height: 4000px;
-	overflow: hidden;
-	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	-webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-		padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-	border-top:  ${(props) => props.borderTop};
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 20px 20px 0 20px;
-	padding-bottom: 20px !important;
 `;
 
 const FormControl = styled.div`
@@ -328,50 +595,6 @@ const FormControl = styled.div`
 }
 `;
 
-const Input = styled.input`
-	font-size: 13px;
-	outline: none !important;
-	border-width: 1px;
-	border-style: solid;
-	border-radius: 4px;
-	border-color: #b9bdce;
-	padding: 11px 10px 10px 10px;
-	color: #3b3b3b;
-	font-size: 13px;
-	font-weight: 400;
-	font-family: inherit;
-	flex: 1;
-
-	min-height: 40px;
-	background-color: #fff;
-	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	font-family: "IBM Plex Sans", sans-serif !important;
-	line-height: normal;
-	font-size: 100%;
-	margin: 0;
-	outline: none;
-	vertical-align: baseline;
-`;
-// width: -webkit-fill-available;
-
-const PageBar = styled.div`
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 20px 20px 0 20px;
-	border-top: 1px solid #e0e1e7;
-`;
-const PageBarAlignLeft = styled.div`
-	display: flex;
-	justify-content: flex-start !important;
-	align-items: center;
-	float: left;
-`;
 const PageBarAlignRight = styled.div`
 	display: flex;
 	justify-content: flex-end !important;
@@ -379,26 +602,6 @@ const PageBarAlignRight = styled.div`
 	float: right;
 `;
 
-const RoundedBlock = styled.div.attrs((props) => ({
-	marginTop: props.marginTop || '0'
-}))`
-	border: 1px solid #b9bdce;
-	border-radius: 4px;
-	width: 100%;
-	float: left;
-	overflow: hidden;
-	margin-top:${(props) => props.marginTop};
-`;
-const TableFieldContainer = styled.div`
-	width: 100% !important;
-	min-height: auto !important;
-	text-align: center;
-	position: relative !important;
-	top: 0 !important;
-	height: inherit !important;
-	float: left;
-	overflow: hidden !important;
-`;
 const Headers = styled.div`
 	border-width: 0px;
 	width: 100%;
@@ -423,99 +626,13 @@ const HeaderContainer = styled.div`
 	top: 0;
 `;
 
-const HeaderContainerInner = styled.div`
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 100% !important;
-	width: 100% !important;
-`;
-const ColumnName = styled.div.attrs((props) => ({
-	width: props.width,
-	left: props.left
-}))`
-width: ${(props) => props.width};
-left:${(props) => props.left};
-	border-width: 1px;    
-    height: auto;
-    margin: 0px;
-    top: 0px;
-   font-size: 11px;
-    font-weight: bold;
-    font-family: inherit;
-    color: #707887;
-    text-transform: uppercase;
-    letter-spacing: -0.4px;
-    vertical-align: middle;
-    position: absolute;
-    bottom: 0; 
-
-`;
-
-const SelectIconContainer = styled.div`
-	justify-content: center;
-	padding: 0 10px !important;
-
-	font-weight: bold;
-	font-size: 11px;
-	text-transform: uppercase;
-	height: 100% !important;
-	display: flex;
-	align-self: stretch;
-	width: 100%;
-`;
-const SelectSpan = styled.span.attrs((props) => ({
-	textAlign: props.textAlign || 'left'
-}))`
-	display: flex;
-	align-items: center;
-	overflow: hidden;
-	text-align: ${(props) => props.textAlign};
-	cursor: pointer;
-`;
-const SelectSpanInner = styled.span`white-space: nowrap;`;
-
-const HeaderBodyContainer = styled.div`
-	width: 100%;
-	height: auto;
-	height: inherit !important;
-	float: left;
-	height: auto !important;
-	position: relative;
-	top: 0 !important;
-	left: 0 !important;
-	overflow: hidden;
-`;
-const HeaderBody = styled.div`
-	border-width: 0px;
-	overflow: auto;
-	margin: 0px;
-	width: 1158px;
-`;
-const BodyTable = styled.table`
-	width: 100%;
-	height: 1px;
-	table-layout: fixed;
-	border-collapse: separate;
-	border-collapse: collapse;
-	border-spacing: 0;
-`;
-const TableBody = styled.tbody``;
-const TableRow = styled.tr``;
 const TableHeader = styled.td.attrs((props) => ({
 	width: props.width,
 	height: props.height || '0',
-	left: props.left 
+	left: props.left
 }))`
-width: ${(props) => props.width};
-left:${(props) => props.left};
-`;
-
-const EmptyRow = styled.div`
-	text-align: center;
-	border-bottom: 1px solid #e7e8ec;
-	min-height: 59px !important;
-	line-height: 55px;
+  width: ${(props) => props.width};
+  left: ${(props) => props.left};
 `;
 
 const ButtonWithOutline = styled.button`
@@ -543,31 +660,4 @@ const ButtonWithOutline = styled.button`
 	border-radius: 4px;
 	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
 		opacity 0.15s ease-in-out;
-`;
-
-const PlusButton = styled.button`
-	margin-left: 5px;
-	color: #04beb3;
-	background-color: #05cbbf;
-	border-color: #05cbbf;
-	width: 32px !important;
-	min-width: 32px !important;
-	max-width: 32px !important;
-	justify-content: center;
-	padding: 0 !important;
-	height: 32px !important;
-	text-align: center;
-	border-width: 1px;
-	border-style: solid;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	text-decoration: none;
-	display: inline-flex;
-	vertical-align: middle;
-	flex-direction: row;
-	align-items: center;
-	background: transparent;
-	white-space: nowrap;
-	border-radius: 4px;
 `;
