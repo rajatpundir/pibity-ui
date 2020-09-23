@@ -64,8 +64,7 @@ class ParentComponent extends React.Component {
         });
         
         return (
-			     <table>{allItemRows}</table>
-        );
+<hi>hi</hi>        );
     }
 }
 export default ParentComponent

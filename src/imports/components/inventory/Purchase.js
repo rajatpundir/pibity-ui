@@ -21,7 +21,7 @@ class Purchase extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'organization', 'zs' ],
+				[ 'organization', 'pibity' ],
 				[ 'typeName', 'SimplePurchase' ],
 				[ 'variableName', '' ], //supllier name is variable name
 				[

@@ -88,7 +88,7 @@ export const getVariables = (typeName: String) => async (dispatch) => {
 		await loadVariables(dispatch, typeName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: 'pibity',
+			organization: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
 			query: {
 				values: {}
@@ -183,7 +183,7 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 		await loadVariable(dispatch, typeName, variableName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: 'pibity',
+			organization: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
 			query: {
 				values: {}
@@ -211,7 +211,7 @@ export const updateVariable = (prevVariable: Map, newVariable: Map) => async (di
 	try {
 		const url = domain + '/variable/update';
 		const request = {
-			organization: prevVariable.get('organization'),
+			organization: localStorage.getItem('selectedOrganization'),
 			typeName: prevVariable.get('typeName'),
 			variableName: prevVariable.get('variableName'),
 			values: mapToObjectRec(computeUpdates(prevVariable.get('values'), newVariable.get('values')))

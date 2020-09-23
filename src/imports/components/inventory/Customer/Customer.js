@@ -423,7 +423,7 @@ const Container = styled.div`
 	width: 100%;
 	min-width: 860px;
 	border-radius: 6px;
-	margin-top: 65px;
+	// margin-top: 65px;
 	min-height: 100vh;
 	position: relative;
 	display: flex;

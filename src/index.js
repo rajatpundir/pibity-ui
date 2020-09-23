@@ -37,8 +37,15 @@ keycloak
 		}
 		localStorage.setItem('jwt-token', keycloak.token);
 		localStorage.setItem('jwt-refresh-token', keycloak.refreshToken);
-		console.log(keycloak.token)
+		console.log(keycloak.token);
 		setJWTToken(keycloak.token); //Added Authorization Header in Request With token
+		const { groups } = jwt_decode(keycloak.token);
+		const organizations = [ ...new Set(groups.map((group) => group.split('/')[1])) ];
+		console.log(organizations);
+		localStorage.setItem('organizations', JSON.stringify(organizations))
+		if (organizations.length === 1) {
+			localStorage.setItem('selectedOrganization', organizations[0]);
+		}
 
 		setTimeout(() => {
 			keycloak

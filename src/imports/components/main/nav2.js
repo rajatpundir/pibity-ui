@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
+import styled from 'styled-components';
+import Select from 'react-select';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -22,17 +24,25 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import MailIcon from '@material-ui/icons/Mail';
 import ShoppingCartRoundedIcon from '@material-ui/icons/ShoppingCartRounded';
 import menuItems from './menuItems';
-
+import InputBase from '@material-ui/core/InputBase';
+import Badge from '@material-ui/core/Badge';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import SearchIcon from '@material-ui/icons/Search';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import MoreIcon from '@material-ui/icons/MoreVert';
 const drawerWidth = 240;
 const styles = (theme) => ({
 	root: {
 		display: 'flex',
-		fontSize: '16 px'
+		fontSize: '16 px',
+		background: '#535454'
 	},
 	link: {
-		textDecoration: 'none',
-    },
-    
+		textDecoration: 'none'
+	},
+
 	appBar: {
 		zIndex: theme.zIndex.drawer + 1,
 		transition: theme.transitions.create([ 'width', 'margin' ], {
@@ -80,24 +90,36 @@ const styles = (theme) => ({
 	toolbar: {
 		display: 'flex',
 		alignItems: 'center',
-		justifyContent: 'flex-end',
+		justifyContent: 'space-between',
 		padding: theme.spacing(0, 1),
+		margin: '0 15px',
 		// necessary for content to be below app bar
 		...theme.mixins.toolbar
+	},
+	toolbarExpanded: {
+		justifyContent: 'flex-end'
 	},
 	content: {
 		flexGrow: 1,
 		padding: theme.spacing(3)
 	}
 });
+
 class MiniDrawer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			open: true
+			open: true,
+			organizations:JSON.parse(localStorage.getItem("organizations"))||[],
+			selectedOrganization:localStorage.getItem('selectedOrganization')||""
 		};
 		this.handleDrawerOpen = this.handleDrawerOpen.bind(this);
 		this.handleDrawerClose = this.handleDrawerClose.bind(this);
+		this.onChange=this.onChange.bind(this);
+	}
+
+	onChange(e) {
+		this.setState({ [e.target.name]: e.target.value });
 	}
 
 	handleDrawerOpen() {
@@ -119,6 +141,9 @@ class MiniDrawer extends React.Component {
 				return (
 					<div key={subOption.name}>
 						<ListItem button key={subOption.name}>
+							<ListItemIcon>
+								<MailIcon />
+							</ListItemIcon>
 							<Link to={subOption.url} className={classes.links}>
 								<ListItemText inset primary={subOption.name} />
 							</Link>
@@ -141,16 +166,22 @@ class MiniDrawer extends React.Component {
 	}
 
 	render() {
-		const { classes, theme } = this.props;
+		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
+				{/* page-top Navigation */}
+
 				<AppBar
 					position="fixed"
 					className={clsx(classes.appBar, {
 						[classes.appBarShift]: this.state.open
 					})}
 				>
-					<Toolbar>
+					<Toolbar
+						className={clsx(classes.toolbar, {
+							[classes.toolbarExpanded]: this.state.open
+						})}
+					>
 						<IconButton
 							color="inherit"
 							aria-label="open drawer"
@@ -162,11 +193,40 @@ class MiniDrawer extends React.Component {
 						>
 							<MenuIcon />
 						</IconButton>
-						<Typography variant="h6" noWrap>
-							Mini variant drawer
-						</Typography>
+						<ToolbarItemContainer>
+							<SelectWrapper>
+								<Select
+									value={{
+										value: this.state.selectedOrganization,
+										label: this.state.selectedOrganization
+									}}
+									onChange={(option) => {
+										this.onChange({ target: { name: 'selectedOrganization', value: option.value } });
+										localStorage.setItem('selectedOrganization',option.value)
+									}}
+									options={ 
+										this.state.organizations.map((variable) => {
+											return {
+												value: variable,
+												label: variable
+											};
+										})
+									
+									}
+								/>
+							</SelectWrapper>
+							<IconButton
+								edge="end"
+								aria-label="account of current user"
+								aria-haspopup="true"
+								color="inherit"
+							>
+								<AccountCircle />
+							</IconButton>
+						</ToolbarItemContainer>
 					</Toolbar>
 				</AppBar>
+				{/* sideBar Navigation */}
 				<Drawer
 					variant="permanent"
 					className={clsx(classes.drawer, {
@@ -182,8 +242,7 @@ class MiniDrawer extends React.Component {
 				>
 					<div className={classes.toolbar}>
 						<IconButton onClick={this.handleDrawerClose}>
-							<ChevronRightIcon />
-							{/* {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />} */}
+							{this.state.open ? <ChevronRightIcon /> : <ChevronLeftIcon />}
 						</IconButton>
 					</div>
 					<Divider />
@@ -203,15 +262,49 @@ class MiniDrawer extends React.Component {
 						{[ 'All mail', 'Trash', 'Spam' ].map((text, index) => (
 							<ListItem button key={text}>
 								<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-								<ListItemText primary={text} />
+								<Link to="/" className={classes.links}>
+									<ListItemText primary={text} />
+								</Link>
 							</ListItem>
 						))}
 						{this.handler(menuItems.data)}
 					</List>
-					
 				</Drawer>
 			</div>
 		);
 	}
 }
 export default withStyles(styles)(MiniDrawer);
+const SelectWrapper = styled.div`
+	height: max-content;
+    margin-right: 10px;
+	font-size: 13px;
+	outline: none !important;
+	border-width: 1px;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	font-family: inherit;
+	min-width: 120px;
+	flex: 1;
+	background-color: #fff;
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: "IBM Plex Sans", sans-serif !important;
+	line-height: normal;
+	font-size: 100%;
+	margin: 0;
+	outline: none;
+	vertical-align: baseline;
+`;
+
+const ToolbarItemContainer = styled.div`
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-start;
+`;
