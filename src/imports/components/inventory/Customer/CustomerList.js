@@ -22,6 +22,7 @@ class CustomerList extends React.Component {
 			rowsPerPage: 5
 		};
 		this.onChange = this.onChange.bind(this);
+		this.onClose = this.onClose.bind(this);
 	}
 
 	handleChangePage = (event, page) => {
@@ -37,10 +38,21 @@ class CustomerList extends React.Component {
 	}
 
 	componentDidMount() {
-		this.props.clearErrors();
-		this.props.getVariables('Customer');
+		if (localStorage.getItem('selectedOrganization') === null) {
+			this.setState({ isOpen: true });
+			console.log("null")
+		} else {
+			this.props.clearErrors();
+			this.props.getVariables('Customer');
+		}
 	}
 
+	onClose() {
+		this.setState({ isOpen: false }, () => {
+			this.props.clearErrors();
+			this.props.getVariables('Customer');
+		});
+	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
@@ -133,6 +145,11 @@ class CustomerList extends React.Component {
 		const emptyRows = rowsPerPage - Math.min(rowsPerPage, this.state.customer.length - page * rowsPerPage);
 		return (
 			<Container>
+				{localStorage.getItem('selectedOrganization') === null ? (
+					<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
+				) : (
+					undefined
+				)}
 				<PageWrapper>
 					<PageBody>
 						<PageToolbar>

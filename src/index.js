@@ -42,11 +42,11 @@ keycloak
 		if (app !== null) {
 			ReactDOM.render(
 				<Provider store={store}>
-					{localStorage.getItem('selectedOrganization') === null ? (
+					{/* {localStorage.getItem('selectedOrganization') === null ? (
 						<SelectorganizationModal isOpen={true} />
 					) : (
 						undefined
-					)}
+					)} */}
 					<AppRouter />
 				</Provider>,
 				app

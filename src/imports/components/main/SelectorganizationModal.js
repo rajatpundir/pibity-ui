@@ -54,13 +54,14 @@ class SelectOrganizationModal extends React.Component {
     }
     
 	onClose() {
-		this.setState({ isOpen: false });
+        this.setState({ isOpen: false });
+        this.props.onClose()
 	}
 	render() {
         console.log(this.props)
 		return (
 			<Modal
-				isOpen={this.state.isOpen}
+				isOpen={this.props.isOpen}
 				contentLabel="Place Bid"
 				onRequestClose={this.props.onClose}
 				className="boxed-view__box"
