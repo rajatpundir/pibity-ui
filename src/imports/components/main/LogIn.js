@@ -64,7 +64,7 @@ class ParentComponent extends React.Component {
         });
         
         return (
-<hi>hi</hi>        );
+<h1>hi</h1>        );
     }
 }
 export default ParentComponent

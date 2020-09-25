@@ -20,7 +20,6 @@ class Customer extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'organization', 'pibity' ],
 				[ 'typeName', 'Customer' ],
 				[ 'variableName', '' ],
 				[
@@ -422,8 +421,7 @@ const Container = styled.div`
 	padding: 0;
 	width: 100%;
 	min-width: 860px;
-	border-radius: 6px;
-	// margin-top: 65px;
+	margin-top: 65px;
 	min-height: 100vh;
 	position: relative;
 	display: flex;
@@ -437,9 +435,6 @@ const Container = styled.div`
 	@media (max-width: 1200px) {
 		flex-direction: column !important;
 		padding: 20px 20px 0 20px !important;
-	}
-	@media (min-width: 1440px) {
-		max-width: 1200px;
 	}
 `;
 
@@ -468,9 +463,10 @@ const PageBody = styled.div`
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: 1200px;
+		max-width: 80%;
 	}
 `;
+
 const PageSidebar = styled.div`
 	width: 236px;
 	min-width: 236px;

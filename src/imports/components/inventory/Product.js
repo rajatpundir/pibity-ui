@@ -23,7 +23,6 @@ class Product extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'organization', 'pibity' ],
 				[ 'typeName', 'Product' ],
 				[ 'variableName', '' ],
 				[
@@ -658,11 +657,10 @@ export default connect(mapStateToProps, {
 })(Product);
 
 const Container = styled.div`
-margin-top:65px
+    margin-top:65px
 	padding: 0;
 	width: 100%;
 	min-width: 860px;
-	border-radius: 6px;
 	position: relative;
 	display: flex;
 	flex-direction: row;
@@ -676,9 +674,7 @@ margin-top:65px
 		flex-direction: column !important;
 		padding: 20px 20px 0 20px !important;
 	}
-	@media (min-width: 1440px) {
-		max-width: 1200px;
-	}
+	
 `;
 const PageSidebar = styled.div`
 	width: 236px;
@@ -877,7 +873,7 @@ const PageBody = styled.div`
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: 1200px;
+		max-width: 90%;
 	}
 `;
 

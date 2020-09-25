@@ -110,7 +110,8 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		const request = mapToObjectRec(variable);
 		console.log('--REQUEST--');
 		console.log(request);
-		const response = await axios.post(url, request);
+		const organization = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, { ...request, ...{ organization: organization } });
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
@@ -135,7 +136,8 @@ export const createBidVariable = (variable: Object) => async (dispatch) => {
 		const request = variable;
 		console.log('--REQUEST--');
 		console.log(request);
-		const response = await axios.post(url, request);
+		const organization = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, { ...request, ...{ organization: organization } });
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
@@ -159,10 +161,12 @@ export const updateBidVariable = (variable: Object) => async (dispatch) => {
 	try {
 		const url = domain + '/variable/update';
 		const request = variable;
-		const response = await axios.post(url, request);
+		const organization = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, { ...request, ...{ organization: organization } });
+
 		if (response.status === 200) {
 			if (response.data !== undefined) {
-				console.log(response.data)
+				console.log(response.data);
 				await replaceVariable(dispatch, response.data);
 				return response.status;
 			}
@@ -222,7 +226,7 @@ export const updateVariable = (prevVariable: Map, newVariable: Map) => async (di
 		console.log(response.data);
 		if (response.status === 200) {
 			if (response.data !== undefined) {
-				console.log(response.data)
+				console.log(response.data);
 				await replaceVariable(dispatch, response.data);
 				return response.status;
 			}

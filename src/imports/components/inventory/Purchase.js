@@ -21,7 +21,6 @@ class Purchase extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'organization', 'pibity' ],
 				[ 'typeName', 'SimplePurchase' ],
 				[ 'variableName', '' ], //supllier name is variable name
 				[
@@ -410,7 +409,6 @@ const Container = styled.div`
 	padding: 0;
 	width: 100%;
 	min-width: 860px;
-	border-radius: 6px;
   position: relative;
   margin-top: 65px;
 	min-height: 100vh;
@@ -426,9 +424,7 @@ const Container = styled.div`
 		flex-direction: column !important;
 		padding: 20px 20px 0 20px !important;
 	}
-	@media (min-width: 1440px) {
-		max-width: 1200px;
-	}
+	
 `;
 
 const PageWrapper = styled.div`
@@ -442,7 +438,7 @@ const PageWrapper = styled.div`
 	vertical-align: baseline;
 	@media (min-width: 1201px) {
 		margin: 20px 20px 0 20px;
-		width: 75%;
+		width: 80%;
 
 	}
 `;
@@ -456,7 +452,7 @@ const PageBody = styled.div`
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: 1200px;
+		max-width: 90%;
 	}
 `;
 const SaveButtonContaier = styled.div`

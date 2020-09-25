@@ -20,7 +20,6 @@ class Supplier extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'organization', 'pibity' ],
 				[ 'typeName', 'Supplier' ],
 				[ 'variableName', '' ],
 				[
@@ -262,10 +261,9 @@ const Container = styled.div`
 		flex-direction: column !important;
 		padding: 20px 20px 0 20px !important;
 	}
-	@media (min-width: 1440px) {
-		max-width: 1200px;
-	}
+	
 `;
+
 
 const PageWrapper = styled.div`
 	 flex: 1;
@@ -291,7 +289,7 @@ const PageBody = styled.div`
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: 1200px;
+		max-width: 90%;
 	}
 `;
 

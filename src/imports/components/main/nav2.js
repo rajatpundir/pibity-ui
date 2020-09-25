@@ -32,6 +32,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+
+import IconDashboard from '@material-ui/icons/Dashboard';
+import Icon from '@material-ui/core/Icon'
+import IconShoppingCart from '@material-ui/icons/ShoppingCart';
+import IconPeople from '@material-ui/icons/People';
 const drawerWidth = 240;
 const styles = (theme) => ({
 	root: {
@@ -110,12 +115,12 @@ class MiniDrawer extends React.Component {
 		super(props);
 		this.state = {
 			open: true,
-			organizations:JSON.parse(localStorage.getItem("organizations"))||[],
-			selectedOrganization:localStorage.getItem('selectedOrganization')||""
+			organizations: JSON.parse(localStorage.getItem('organizations')) || [],
+			selectedOrganization: localStorage.getItem('selectedOrganization') || ''
 		};
 		this.handleDrawerOpen = this.handleDrawerOpen.bind(this);
 		this.handleDrawerClose = this.handleDrawerClose.bind(this);
-		this.onChange=this.onChange.bind(this);
+		this.onChange = this.onChange.bind(this);
 	}
 
 	onChange(e) {
@@ -141,9 +146,6 @@ class MiniDrawer extends React.Component {
 				return (
 					<div key={subOption.name}>
 						<ListItem button key={subOption.name}>
-							<ListItemIcon>
-								<MailIcon />
-							</ListItemIcon>
 							<Link to={subOption.url} className={classes.links}>
 								<ListItemText inset primary={subOption.name} />
 							</Link>
@@ -154,6 +156,7 @@ class MiniDrawer extends React.Component {
 			return (
 				<div key={subOption.name}>
 					<ListItem button onClick={() => this.handleClick(subOption.name)}>
+					<Icon className={subOption.icon}  style={{ fontSize: 20 }}></Icon>
 						<ListItemText inset primary={subOption.name} />
 						{state[subOption.name] ? <ExpandLess /> : <ExpandMore />}
 					</ListItem>
@@ -201,18 +204,17 @@ class MiniDrawer extends React.Component {
 										label: this.state.selectedOrganization
 									}}
 									onChange={(option) => {
-										this.onChange({ target: { name: 'selectedOrganization', value: option.value } });
-										localStorage.setItem('selectedOrganization',option.value)
+										this.onChange({
+											target: { name: 'selectedOrganization', value: option.value }
+										});
+										localStorage.setItem('selectedOrganization', option.value);
 									}}
-									options={ 
-										this.state.organizations.map((variable) => {
-											return {
-												value: variable,
-												label: variable
-											};
-										})
-									
-									}
+									options={this.state.organizations.map((variable) => {
+										return {
+											value: variable,
+											label: variable
+										};
+									})}
 								/>
 							</SelectWrapper>
 							<IconButton
@@ -246,27 +248,15 @@ class MiniDrawer extends React.Component {
 						</IconButton>
 					</div>
 					<Divider />
-
 					<List>
-						<Link to="/customer" className={classes.link}>
-							<ListItem button>
-								<ListItemIcon>
-									<ShoppingCartRoundedIcon />
-								</ListItemIcon>
-								<ListItemText primary={'customer'} />
-							</ListItem>
-						</Link>
-					</List>
-					<Divider />
-					<List>
-						{[ 'All mail', 'Trash', 'Spam' ].map((text, index) => (
-							<ListItem button key={text}>
-								<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-								<Link to="/" className={classes.links}>
-									<ListItemText primary={text} />
-								</Link>
-							</ListItem>
-						))}
+						<ListItem button key="Dashboard">
+							<ListItemIcon>
+								<IconDashboard />
+							</ListItemIcon>
+							<Link to="/" className={classes.links}>
+								<ListItemText primary="Dashboard" />
+							</Link>
+						</ListItem>
 						{this.handler(menuItems.data)}
 					</List>
 				</Drawer>
@@ -277,7 +267,7 @@ class MiniDrawer extends React.Component {
 export default withStyles(styles)(MiniDrawer);
 const SelectWrapper = styled.div`
 	height: max-content;
-    margin-right: 10px;
+	margin-right: 10px;
 	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;

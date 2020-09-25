@@ -8,6 +8,7 @@ import { AppRouter } from './imports/routes/AppRouter';
 import * as Keycloak from 'keycloak-js';
 import jwt_decode from 'jwt-decode';
 import setJWTToken from './imports/routes/setJwtToken';
+import SelectorganizationModal from './imports/components/main/SelectorganizationModal';
 
 let initOptions = {
 	url: 'http://localhost:8081/auth',
@@ -20,37 +21,42 @@ let keycloak = Keycloak(initOptions);
 
 keycloak
 	.init({ onLoad: initOptions.onLoad })
-	.success((auth) => {
+	.then((auth) => {
 		if (!auth) {
 			window.location.reload();
 		}
 		//React Render
-
+		localStorage.setItem('jwt-token', keycloak.token);
+		localStorage.setItem('jwt-refresh-token', keycloak.refreshToken);
+		console.log(keycloak.token);
+		console.log(jwt_decode(keycloak.token));
+		setJWTToken(keycloak.token); //Added Authorization Header in Request With token
+		const { groups } = jwt_decode(keycloak.token);
+		const organizations = [ ...new Set(groups.map((group) => group.split('/')[1])) ];
+		console.log(organizations);
+		localStorage.setItem('organizations', JSON.stringify(organizations));
+		if (organizations.length === 1) {
+			localStorage.setItem('selectedOrganization', organizations[0]);
+		}
 		const app = document.getElementById('app');
 		if (app !== null) {
 			ReactDOM.render(
 				<Provider store={store}>
+					{localStorage.getItem('selectedOrganization') === null ? (
+						<SelectorganizationModal isOpen={true} />
+					) : (
+						undefined
+					)}
 					<AppRouter />
 				</Provider>,
 				app
 			);
 		}
-		localStorage.setItem('jwt-token', keycloak.token);
-		localStorage.setItem('jwt-refresh-token', keycloak.refreshToken);
-		console.log(keycloak.token);
-		setJWTToken(keycloak.token); //Added Authorization Header in Request With token
-		const { groups } = jwt_decode(keycloak.token);
-		const organizations = [ ...new Set(groups.map((group) => group.split('/')[1])) ];
-		console.log(organizations);
-		localStorage.setItem('organizations', JSON.stringify(organizations))
-		if (organizations.length === 1) {
-			localStorage.setItem('selectedOrganization', organizations[0]);
-		}
 
 		setTimeout(() => {
 			keycloak
 				.updateToken(70)
-				.success((refreshed) => {
+				.then((refreshed) => {
 					if (refreshed) {
 						console.debug('Token refreshed' + refreshed);
 					} else {
@@ -61,12 +67,12 @@ keycloak
 						);
 					}
 				})
-				.error(() => {
+				.catch(() => {
 					console.error('Failed to refresh token');
 				});
 		}, 60000);
 	})
-	.error(() => {
+	.catch(() => {
 		console.error('Authenticated Failed');
 	});
 

@@ -1,277 +1,209 @@
 import React from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { clearErrors } from '../../../redux/actions/errors';
-import { getVariables } from '../../../redux/actions/variables';
+import Select from 'react-select';
+import Modal from 'react-modal';
+const customStyles = {
+	overlay: {
+		zIndex: 9999,
+		display: 'block',
+		overflowX: 'hidden',
+		overflowY: 'auto',
+		position: 'fixed',
+		top: 0,
+		right: 0,
+		bottom: 0,
+		left: 0,
+		width: '100%',
+		height: '100% ',
+		outline: 0,
+		margin: '0 !important',
+		backgroundColor: '#12121275 '
+	},
+	content: {
+		position: 'relative',
+		padding: 0,
+		maxWidth: '420px',
+		display: 'flex',
+		flexDirection: 'column',
+		width: '100%',
+		backgroundColor: '#fff',
+		margin: '1.75rem auto',
+		backgroundClip: 'padding-box',
+		border: '1px solid rgba(0,0,0,0.2)',
+		borderRadius: '10px',
+		boxShadow: '0 0.25rem 0.5rem rgba(0,0,0,0.2)',
+		outline: 0
+	}
+};
 
-import TableFooter from '@material-ui/core/TableFooter';
-import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from './TablePagination';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
-
-class CustomerList extends React.Component {
+class SelectOrganizationModal extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			customer: [],
-			expandedRows: [],
-			activeCustomerOnly: false,
-			isOpen: false,
-			page: 0,
-			rowsPerPage: 5
-		};
-		this.onChange = this.onChange.bind(this);
-	}
+            isOpen:props.isOpen,
+            organizations: JSON.parse(localStorage.getItem('organizations')) || [],
+            selectedOrganization:''
+        };
+        this.onChange = this.onChange.bind(this);
+		this.onClose=this.onClose.bind(this);
 
-	handleChangePage = (event, page) => {
-		this.setState({ page });
-	};
-
-	handleChangeRowsPerPage = (event) => {
-		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
-	};
-
-	onChange(e) {
+    }
+    
+    onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
+    }
+    
+	onClose() {
+		this.setState({ isOpen: false });
 	}
-
-	componentDidMount() {
-		this.props.clearErrors();
-		this.props.getVariables('Customer');
-	}
-
-
-	static getDerivedStateFromProps(nextProps, prevState) {
-		return {
-			...prevState,
-			customer:
-				nextProps.variables !== undefined
-					? nextProps.variables.Customer !== undefined
-						? nextProps.variables.Customer.map((x, i) => ({ ...x, Id: i }))
-						: []
-					: []
-		};
-	}
-
-	renderInputFields() {
-		const rows = [];
-		const list = this.state.activeCustomerOnly
-			? this.state.customer.filter((customer) => customer.values.general.values.status === 'Active')
-			: this.state.customer;
-		list.forEach((customer) => {
-			rows.push(
-				<TableRow onClick={this.handleRowClick} key={customer.variableName}>
-					<TableData width="5%" />
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Link to={'/customer/' + encodeURIComponent(customer.variableName)}>
-								{customer.variableName}
-							</Link>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>{customer.values.contacts[0].values.name}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={'tel:' + customer.values.contacts[0].values.phone}>
-								{customer.values.contacts[0].values.phone}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={'mailto:' + customer.values.contacts[0].values.email} target="_blank">
-								{customer.values.contacts[0].values.email}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={customer.values.contacts[0].values.website} target="_blank">
-								{customer.values.contacts[0].values.website}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="20%">
-						<TableHeaderInner>
-							{customer.values.addresses[0] !== undefined ? (
-								customer.values.addresses[0].values.line1 || 'no address found'
-							) : (
-								'no address found'
-							)}
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>0.00</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Span>{customer.values.general.values.status}</Span>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							{customer.values.general.values.onCreditHold === false ? 'NO' : 'Yes'}
-						</TableHeaderInner>
-					</TableData>
-				</TableRow>
-			);
-		});
-
-		return this.state.rowsPerPage > 0
-			? rows.slice(
-					this.state.page * this.state.rowsPerPage,
-					this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
-				)
-			: rows;
-	}
-
 	render() {
-		const { rowsPerPage, page } = this.state;
-		const emptyRows = rowsPerPage - Math.min(rowsPerPage, this.state.customer.length - page * rowsPerPage);
+        console.log(this.props)
 		return (
-			<Container>
-				<PageWrapper>
-					<PageBody>
-						<PageToolbar>
-							<ToolbarLeftItems>
-								<LeftItemH1>Customer</LeftItemH1>
-							</ToolbarLeftItems>
-						</PageToolbar>
-						<PageToolbar padding="6px 0 !important">
-							<PageBarAlign padding="10px 20px" float="left">
-								<LeftItemFormControl paddingBottom="0">
-									<Input
-										width="250px"
-										height="32px"
-										padding="0 10px"
-										placeholder="Type text to search"
-									/>
-								</LeftItemFormControl>
-								<LeftItemFormControl paddingBottom="0">
-									<ButtonWithOutline>Search</ButtonWithOutline>
-								</LeftItemFormControl>
-							</PageBarAlign>
-							<PageBarAlign padding="10px 20px" float="left">
-								<CheckBoxContainer>
-									<CheckBoxInput
-										type="checkbox"
-										checked={this.state.activeCustomerOnly}
-										tabindex="55"
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'activeCustomerOnly',
-													value: !this.state.activeCustomerOnly
-												}
-											});
-										}}
-									/>
-									<CheckBoxLabel>Only active customers</CheckBoxLabel>
-								</CheckBoxContainer>
-							</PageBarAlign>
-						</PageToolbar>
-						<InputBody borderTop="0" padding="0">
-							<RoundedBlock border="none">
-								<TableFieldContainer>
-									<HeaderBodyContainer>
-										<HeaderBody>
-											<BodyTable>
-												<TableBody>
-													<TableRow>
-														<TableHeaders width="5%">
-															<SelectIconContainer>
-																<SelectSpan>
-																	<SelectSpanInner>
-																		<i className="large material-icons">create</i>
-																	</SelectSpanInner>
-																</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Name</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Contact</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan textAlign="right">Phone</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Email</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="12%">
-															<SelectIconContainer>
-																<SelectSpan>Website</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="20%">
-															<SelectIconContainer>
-																<SelectSpan>Address</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Due</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Status</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>On Credit Hold</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-													</TableRow>
-													{this.renderInputFields()}
-												</TableBody>
-											</BodyTable>
-											<TablePagination
-												component="div"
-												style={{ display: 'flex', 'justifyContent': 'center' }}
-												rowsPerPageOptions={[ 5, 10, 20 ]}
-												colSpan={3}
-												count={this.state.customer.length}
-												rowsPerPage={rowsPerPage}
-												page={page}
-												SelectProps={{
-													native: true
-												}}
-												onChangePage={this.handleChangePage}
-												onChangeRowsPerPage={this.handleChangeRowsPerPage}
-												ActionsComponent={TablePaginationActions}
-											/>
-										</HeaderBody>
-									</HeaderBodyContainer>
-								</TableFieldContainer>
-							</RoundedBlock>
-						</InputBody>
-					</PageBody>
-				</PageWrapper>
-			</Container>
+			<Modal
+				isOpen={this.state.isOpen}
+				contentLabel="Place Bid"
+				onRequestClose={this.props.onClose}
+				className="boxed-view__box"
+				style={customStyles}
+				ariaHideApp={false}
+				overlayClassName="boxed-view boxed-view--modal"
+			>
+				<ModalHeader>
+					<ModalTitle>Update Status</ModalTitle>
+					<ModalHeaderCloseButton
+						onClick={(e) => {
+							this.closeModal(e);
+						}}
+					>
+						<span>X</span>
+					</ModalHeaderCloseButton>
+				</ModalHeader>{' '}
+				<ModalBody>
+					<InputFieldContainer>
+						<FormControl width="45%">
+							<SelectWrapper>
+								<Select
+									value={{
+										value: this.state.selectedOrganization,
+										label: this.state.selectedOrganization
+									}}
+									onChange={(option) => {
+										this.onChange({
+											target: { name: 'selectedOrganization', value: option.value }
+										});
+										localStorage.setItem('selectedOrganization', option.value);
+									}}
+									options={this.state.organizations.map((variable) => {
+										return {
+											value: variable,
+											label: variable
+										};
+									})}
+								/>
+							</SelectWrapper>
+							<InputLabel>Select Organization</InputLabel>
+						</FormControl>
+					</InputFieldContainer>
+				</ModalBody>
+				<ModalFooter>
+					<ModalSubmitButton
+						onClick={(e) => {
+							this.onClose(e);
+						}}
+					>
+						Save
+					</ModalSubmitButton>
+				</ModalFooter>
+			</Modal>
 		);
 	}
 }
+export default SelectOrganizationModal;
 
-const mapStateToProps = (state) => ({
-	errors: state.errors,
-	variables: state.variables
-});
+const DataOuterContainer = styled.div`width: 100%;`;
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(CustomerList);
+const FormControl = styled.div.attrs((props) => ({
+	paddingTop: props.paddingTop,
+	width: props.width || '100%'
+}))`
+	padding-bottom: 20px;
+    padding-top:${(props) => props.paddingTop};
+    width:${(props) => props.width};
+	min-height: 60px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	@media (max-width: 991px) {
+		flex-basis: calc(100% / 2 - 9px) !important;
+	}
+}
+`;
+
+const InputLabel = styled.label`
+	font-size: 13px;
+	line-height: 13px;
+	color: #3b3b3b;
+	background: transparent;
+	position: absolute;
+	top: -6px;
+	left: 7px;
+	padding: 0 3px;
+	background-color: #fff;
+	white-space: nowrap;
+	&:after {
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+
+	&:before {
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;
+	}
+`;
+const H2 = styled.h2.attrs((props) => ({
+	padding: props.padding || 'none',
+	color: props.color,
+	fontWeight: props.fontWeight || 'bold',
+	fontSize: props.fontSize || '1em'
+}))`
+	padding: ${(props) => props.padding};
+	color: ${(props) => props.color};
+	font-weight:${(props) => props.fontWeight};
+	text-transform: none;
+	font-size: ${(props) => props.fontSize};
+	letter-spacing: 0;
+	line-height: 1.1;
+	display: inline;
+`;
+const Button = styled.button.attrs((props) => ({
+	marginleft: props.marginleft,
+	backgroundColor: props.backgroundColor
+}))`
+	height: 40px;
+	margin-left:${(props) => props.marginleft};
+	background-color:${(props) => props.backgroundColor};
+	outline: none !important;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #151617;
+	padding: 10px;
+`;
+
+const InputFieldContainer = styled.div`
+	height: -webkit-fill-available;
+	width: -webkit-fill-available;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	display: -ms-flexbox;
+	justify-content: space-evenly;
+	flex-wrap: wrap;
+	width: 100%;
+`;
 
 const DataContainer = styled.div`
 	height: auto;
@@ -304,12 +236,10 @@ const RightItem = styled.div`
 
 //different Style
 const Container = styled.div`
-	min-height: 100vh;
-	margin-top: 65px;
 	padding: 0;
 	width: 100%;
-	min-width: 860px;
-	border-left: 1px solid;
+	min-width: 700px;
+	margin: 1px 0px;
 	position: relative;
 	display: flex;
 	flex-direction: row;
@@ -318,11 +248,14 @@ const Container = styled.div`
 	font: inherit;
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
+	padding: 0 40px;
 	@media (max-width: 1200px) {
 		flex-direction: column !important;
 	}
+	@media (min-width: 1440px) {
+		max-width: 1200px;
+	}
 `;
-// padding: 20px 20px 0 20px !important;
 
 const PageToolbar = styled.div.attrs((props) => ({
 	padding: props.padding || '16px 20px'
@@ -412,17 +345,21 @@ const ButtonWithOutline = styled.button`
 `;
 
 const PageWrapper = styled.div`
-	 flex: 1;
-    overflow: hidde
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    font-family: 'IBM Plex Sans', sans-serif;
+	flex: 1;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
+	background: white;
+	min-height: 500px;
+	overflow: scroll;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 	@media (min-width: 1201px) {
 		width: 75%;
-
 	}
 `;
 
@@ -435,7 +372,7 @@ const PageBody = styled.div`
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: 90%;
+		max-width: 1200px;
 	}
 `;
 
@@ -779,6 +716,7 @@ const TD = styled.td`
 	// 	pointer-events: none;
 	// }
 `;
+
 const CheckBoxInput = styled.input`
 	width: 16px;
 	height: 16px;
@@ -808,4 +746,135 @@ const CheckBoxContainer = styled.div`
 	margin-right: 10px !important;
 	position: relative;
 	display: flex;
+`;
+
+const ModalHeader = styled.div`
+	display: flex;
+	-ms-flex-align: start;
+	align-items: flex-start;
+	-ms-flex-pack: justify;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 18px 20px 18px 20px;
+	height: 63px;
+	border-bottom: 1px solid #e0e1e7;
+	border-top-left-radius: 10px;
+	border-top-right-radius: 10px;
+`;
+
+const ModalTitle = styled.h4`
+	margin-bottom: 0;
+	color: #3b3b3b;
+	line-height: 16px;
+	font-weight: bold;
+	font-size: 18px;
+`;
+
+const ModalHeaderCloseButton = styled.button`
+	padding: 0;
+	opacity: 0.75;
+	font-weight: 300;
+	font-size: 1.8rem;
+	background-color: transparent;
+	border: 0;
+	cursor: pointer;
+	text-transform: none;
+	line-height: normal;
+	margin: 0;
+	outline: none;
+	transition: opacity 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+	-webkit-transition: opacity 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+`;
+
+const ModalFooter = styled.div`
+	display: flex;
+	-ms-flex-align: center;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 0 20px 20px 20px;
+	width: 100%;
+`;
+const ModalSubmitButton = styled.button`
+	margin-right: 8px;
+	min-width: 70px;
+	background-color: #05cbbf;
+	border-color: #05cbbf;
+	border-width: 1px;
+	border-style: solid;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	text-align: center;
+	text-decoration: none;
+	display: inline-flex;
+	vertical-align: middle;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
+	height: 40px;
+	white-space: nowrap;
+	border-radius: 4px;
+	padding: 0 16px;
+	cursor: pointer;
+	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+
+	&:active {
+		background-color: #00afa5 !important;
+		border-color: #00afa5 !important;
+	}
+	&:hover {
+		outline: none;
+		background-color: #04beb3;
+		border-color: #04beb3;
+		color: #fff;
+	}
+	&:focus {
+		background-color: #04beb3;
+		border-color: #04beb3;
+		color: #fff;
+		outline: none;
+	}
+`;
+
+const ModalCloseButton = styled.button`
+	min-width: 70px;
+	border-color: #b9bdce;
+	border-width: 1px;
+	border-style: solid;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	text-align: center;
+	text-decoration: none;
+	display: inline-flex;
+	vertical-align: middle;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
+	background: transparent;
+	color: #3b3b3b;
+	height: 40px;
+	white-space: nowrap;
+	border-radius: 4px;
+	padding: 0 16px;
+	cursor: pointer;
+	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	outline: none;
+`;
+
+const ModalBody = styled.div`
+	width: 100%;
+	position: relative;
+	flex-direction: column;
+	display: flex;
+	padding: 20px;
+	font-size: 13px;
+	color: #3b3b3b;
 `;

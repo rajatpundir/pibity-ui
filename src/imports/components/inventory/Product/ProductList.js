@@ -248,7 +248,6 @@ const Container = styled.div`
 	min-width: 860px;
 	margin-top: 65px;
 	min-height: 100vh;
-	border-radius: 6px;
 	border-left: 1px solid;
 	position: relative;
 	display: flex;
@@ -261,9 +260,7 @@ const Container = styled.div`
 	@media (max-width: 1200px) {
 		flex-direction: column !important;
 	}
-	@media (min-width: 1440px) {
-		max-width: 1200px;
-	}
+	
 `;
 // padding: 20px 20px 0 20px !important;
 
@@ -378,7 +375,7 @@ const PageBody = styled.div`
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: 1200px;
+		max-width: 90%;
 	}
 `;
 
