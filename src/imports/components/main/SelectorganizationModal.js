@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Modal from 'react-modal';
+import { connect } from 'react-redux';
+import {updateToken} from '../../redux/actions/auth'
 const customStyles = {
 	overlay: {
 		zIndex: 9999,
@@ -92,7 +94,8 @@ class SelectOrganizationModal extends React.Component {
 										this.onChange({
 											target: { name: 'selectedOrganization', value: option.value }
 										});
-										localStorage.setItem('selectedOrganization', option.value);
+										localStorage.setItem('selectedOrganization', option.value)
+										this.props.updateToken(option.value);
 									}}
 									options={this.state.organizations.map((variable) => {
 										return {
@@ -119,7 +122,15 @@ class SelectOrganizationModal extends React.Component {
 		);
 	}
 }
-export default SelectOrganizationModal;
+
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	auth: state.auth
+});
+
+export default connect(mapStateToProps, {
+	updateToken
+})(SelectOrganizationModal);
 
 const DataOuterContainer = styled.div`width: 100%;`;
 

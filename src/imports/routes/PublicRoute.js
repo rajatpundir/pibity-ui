@@ -13,7 +13,14 @@ export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => 
 		{...rest}
 		render={(props) =>
 			isAuthenticated ? (
-				<Redirect to="/dashboard" />
+				<MainContainer>
+					<MiniDrawer />
+					<Body>
+						{/* <Header/> */}
+						<Component {...props} />
+						<Footer />
+					</Body>
+				</MainContainer>
 			) : (
 				<MainContainer>
 					<MiniDrawer />

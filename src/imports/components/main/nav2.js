@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import {updateToken} from '../../redux/actions/auth'
+import { connect } from 'react-redux';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import styled from 'styled-components';
@@ -11,7 +13,6 @@ import List from '@material-ui/core/List';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -20,23 +21,27 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
-import ShoppingCartRoundedIcon from '@material-ui/icons/ShoppingCartRounded';
 import menuItems from './menuItems';
-import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
-import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import MoreIcon from '@material-ui/icons/MoreVert';
-
 import IconDashboard from '@material-ui/icons/Dashboard';
 import Icon from '@material-ui/core/Icon'
-import IconShoppingCart from '@material-ui/icons/ShoppingCart';
-import IconPeople from '@material-ui/icons/People';
+
+// import InboxIcon from '@material-ui/icons/MoveToInbox';
+// import MailIcon from '@material-ui/icons/Mail';
+// import ShoppingCartRoundedIcon from '@material-ui/icons/ShoppingCartRounded';
+// import InputBase from '@material-ui/core/InputBase';
+// import Badge from '@material-ui/core/Badge';
+// import MenuItem from '@material-ui/core/MenuItem';
+// import Menu from '@material-ui/core/Menu';
+// import SearchIcon from '@material-ui/icons/Search';
+// import NotificationsIcon from '@material-ui/icons/Notifications';
+// import MoreIcon from '@material-ui/icons/MoreVert';
+// import IconShoppingCart from '@material-ui/icons/ShoppingCart';
+// import IconPeople from '@material-ui/icons/People';
+// import Typography from '@material-ui/core/Typography';
+
+
+
 const drawerWidth = 240;
 const styles = (theme) => ({
 	root: {
@@ -49,6 +54,7 @@ const styles = (theme) => ({
 	},
 
 	appBar: {
+		background:"#05cbbf",
 		zIndex: theme.zIndex.drawer + 1,
 		transition: theme.transitions.create([ 'width', 'margin' ], {
 			easing: theme.transitions.easing.sharp,
@@ -76,12 +82,15 @@ const styles = (theme) => ({
 	},
 	drawerOpen: {
 		width: drawerWidth,
+		background:"#308882",
+
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.enteringScreen
 		})
 	},
 	drawerClose: {
+		background:"#308882",
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen
@@ -112,15 +121,22 @@ const styles = (theme) => ({
 
 class MiniDrawer extends React.Component {
 	constructor(props) {
-		super(props);
+		super();
 		this.state = {
 			open: true,
 			organizations: JSON.parse(localStorage.getItem('organizations')) || [],
-			selectedOrganization: localStorage.getItem('selectedOrganization') || ''
+			selectedOrganization: props.auth.selectedOrganization 
 		};
 		this.handleDrawerOpen = this.handleDrawerOpen.bind(this);
 		this.handleDrawerClose = this.handleDrawerClose.bind(this);
 		this.onChange = this.onChange.bind(this);
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			selctedOrganization: nextProps.auth.selectedOrganization,
+		};
 	}
 
 	onChange(e) {
@@ -169,6 +185,7 @@ class MiniDrawer extends React.Component {
 	}
 
 	render() {
+		console.log(this.props)
 		const { classes } = this.props;
 		return (
 			<div className={classes.root}>
@@ -200,13 +217,14 @@ class MiniDrawer extends React.Component {
 							<SelectWrapper>
 								<Select
 									value={{
-										value: this.state.selectedOrganization,
-										label: this.state.selectedOrganization
+										value: this.props.auth.selectedOrganization,
+										label: this.props.auth.selectedOrganization
 									}}
 									onChange={(option) => {
 										this.onChange({
 											target: { name: 'selectedOrganization', value: option.value }
 										});
+										this.props.updateToken(option.value)
 										localStorage.setItem('selectedOrganization', option.value);
 									}}
 									options={this.state.organizations.map((variable) => {
@@ -264,7 +282,15 @@ class MiniDrawer extends React.Component {
 		);
 	}
 }
-export default withStyles(styles)(MiniDrawer);
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	auth: state.auth
+});
+
+export default connect(mapStateToProps,{
+	updateToken
+})(withStyles(styles)(MiniDrawer));
+
 const SelectWrapper = styled.div`
 	height: max-content;
 	margin-right: 10px;

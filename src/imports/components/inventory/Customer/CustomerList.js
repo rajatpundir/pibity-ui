@@ -326,7 +326,6 @@ const Container = styled.div`
 	padding: 0;
 	width: 100%;
 	min-width: 860px;
-	border-left: 1px solid;
 	position: relative;
 	display: flex;
 	flex-direction: row;

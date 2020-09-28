@@ -8,7 +8,9 @@ import { AppRouter } from './imports/routes/AppRouter';
 import * as Keycloak from 'keycloak-js';
 import jwt_decode from 'jwt-decode';
 import setJWTToken from './imports/routes/setJwtToken';
+import { UPDATE_TOKEN} from './imports/redux/actions/actions'
 import SelectorganizationModal from './imports/components/main/SelectorganizationModal';
+
 
 let initOptions = {
 	url: 'http://localhost:8081/auth',
@@ -29,24 +31,22 @@ keycloak
 		localStorage.setItem('jwt-token', keycloak.token);
 		localStorage.setItem('jwt-refresh-token', keycloak.refreshToken);
 		console.log(keycloak.token);
-		console.log(jwt_decode(keycloak.token));
 		setJWTToken(keycloak.token); //Added Authorization Header in Request With token
 		const { groups } = jwt_decode(keycloak.token);
 		const organizations = [ ...new Set(groups.map((group) => group.split('/')[1])) ];
-		console.log(organizations);
 		localStorage.setItem('organizations', JSON.stringify(organizations));
 		if (organizations.length === 1) {
 			localStorage.setItem('selectedOrganization', organizations[0]);
 		}
+		store.dispatch({
+			type: UPDATE_TOKEN,
+			payload: jwt_decode(keycloak.token),
+			selectedOrganization:organizations.length === 1 ? organizations[0] :localStorage.getItem('selectedOrganization')
+		});
 		const app = document.getElementById('app');
 		if (app !== null) {
 			ReactDOM.render(
 				<Provider store={store}>
-					{/* {localStorage.getItem('selectedOrganization') === null ? (
-						<SelectorganizationModal isOpen={true} />
-					) : (
-						undefined
-					)} */}
 					<AppRouter />
 				</Provider>,
 				app
@@ -55,7 +55,7 @@ keycloak
 
 		setTimeout(() => {
 			keycloak
-				.updateToken(70)
+				.updateToken(7200)
 				.then((refreshed) => {
 					if (refreshed) {
 						console.debug('Token refreshed' + refreshed);
