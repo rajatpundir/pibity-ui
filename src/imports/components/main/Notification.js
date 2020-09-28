@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export const customErrorMessage = function(message) {
-    toast.success(message, {
+    toast.error(message, {
         position: 'bottom-right',
         autoClose: 6000,
         hideProgressBar: false,

@@ -130,57 +130,7 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		}
 	}
 };
-export const createBidVariable = (variable: Object) => async (dispatch) => {
-	try {
-		const url = domain + '/variable/create';
-		const request = variable;
-		console.log('--REQUEST--');
-		console.log(request);
-		const organization = localStorage.getItem('selectedOrganization');
-		const response = await axios.post(url, { ...request, ...{ organization: organization } });
-		console.log('--RESPONSE--');
-		console.log(response);
-		if (response.status === 200) {
-			if (response.data !== undefined) {
-				await replaceVariable(dispatch, response.data);
-				return response.status;
-			}
-		} else {
-			updateErrors(dispatch, response.data);
-			return response.status;
-		}
-	} catch (error) {
-		if (error.response) {
-			updateErrors(dispatch, error.response.data);
-			return false;
-		}
-	}
-};
 
-export const updateBidVariable = (variable: Object) => async (dispatch) => {
-	try {
-		const url = domain + '/variable/update';
-		const request = variable;
-		const organization = localStorage.getItem('selectedOrganization');
-		const response = await axios.post(url, { ...request, ...{ organization: organization } });
-
-		if (response.status === 200) {
-			if (response.data !== undefined) {
-				console.log(response.data);
-				await replaceVariable(dispatch, response.data);
-				return response.status;
-			}
-		} else {
-			updateErrors(dispatch, response.data);
-			return response.status;
-		}
-	} catch (error) {
-		if (error.response) {
-			updateErrors(dispatch, error.response.data);
-			return false;
-		}
-	}
-};
 
 export const getVariable = (typeName: String, variableName: String) => async (dispatch) => {
 	try {

@@ -55,7 +55,7 @@ keycloak
 
 		setTimeout(() => {
 			keycloak
-				.updateToken(7200)
+				.updateToken(70)
 				.then((refreshed) => {
 					if (refreshed) {
 						console.debug('Token refreshed' + refreshed);
