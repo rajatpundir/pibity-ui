@@ -13,7 +13,6 @@ import NotFound from '../components/main/NotFound';
 // import Dashboard from '../components/main/Dashboard';
 import Users from '../components/accounts/Users';
 import Profile from '../components/accounts/Profile';
-import Categories from '../components/inventory/categories/Categories';
 import Product from "../components/inventory/Product"
 import Supplier from '../components/inventory/Supplier/Supplier';
 import Purchase from '../components/inventory/Purchase';
@@ -22,13 +21,8 @@ import CustomerList from '../components/inventory/Customer/CustomerList';
 import ProductList from '../components/inventory/Product/ProductList';
 import PurchaseList from "../components/inventory/Purchase/PurchaseList";
 import SupplierList from '../components/inventory/Supplier/SupplierList';
-import BiddingList from '../components/inventory/Jyy/BiddingList';
-import AdminBiddingList from '../components/inventory/Jyy/AdminBiddingList';
 
-import Machine from '../components/inventory/Jyy/Machine';
-import CreateMachine from '../components/inventory/Jyy/CreateMachine';
-import MachineList from '../components/inventory/Jyy/MachineList';
-import Dashboard from '../components/inventory/Jyy/Dashboard';
+
 
 
 
@@ -71,21 +65,20 @@ export const AppRouter = () => (
 			<PublicRoute exact path="/customer" render={(props) => <Customer {...props}/>} />
 			<PublicRoute exact path="/customerList" render={(props) => <CustomerList {...props}/>} />
 			<PublicRoute exact path="/customer/:variableName" render={(props) => <Customer {...props}/>} />
-			<PublicRoute exact path="/biddingList/" render={(props) => <BiddingList {...props}/>} />
+			
+			{/* <PublicRoute exact path="/biddingList/" render={(props) => <BiddingList {...props}/>} />
 			<PublicRoute exact path="/adminBiddingList/" render={(props) => <AdminBiddingList {...props}/>} />
-
 			<PublicRoute exact path="/machine/" render={(props) => <Machine {...props}/>} />
 			<PublicRoute exact path="/machineList" render={(props) => <MachineList {...props}/>} />
 			<PublicRoute exact path="/createMachine/" render={(props) => <CreateMachine {...props}/>} />
 			<PublicRoute exact path="/createMachine/:variableName" render={(props) => <CreateMachine {...props}/>} />
 			<Route exact path="/jyydashboard" render={(props) => <Dashboard {...props}/>} />
-
-
 			{/* Private Routes */}
 			{/* <PrivateRoute exact path="/dashboard" render={(props) => <Dashboard />} /> */}
-			<PrivateRoute exact path="/users" render={(props) => <Users />} />
+			{/* <PrivateRoute exact path="/users" render={(props) => <Users />} />
 			<PrivateRoute exact path="/profile" render={(props) => <Profile />} />
-			<PrivateRoute exact path="/inventory/categories" render={(props) => <Categories />} />
+			<PrivateRoute exact path="/inventory/categories" render={(props) => <Categories />} /> */} 
+
 			<PrivateRoute exact path="/inventory/createProduct" render={(props) => <Product />} />
 			<PrivateRoute exact path="/inventory/createSupplier" render={(props) => <Supplier />} />
 			<PrivateRoute exact path="/inventory/simplePurchase" render={(props) => <Purchase />} />

@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {customErrorMessage} from '../main/Notification';
+import { customErrorMessage } from '../main/Notification';
 import { clearErrors } from '../../redux/actions/errors';
-import { createVariable, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
+import { createVariable, getVariables, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
 import ProductDimension from './Product/ProductDimension';
 import CustomPrice from './Product/CustomPrice';
 import Stock from './Product/Stock';
@@ -14,11 +14,13 @@ import ReorderLevels from './Product/ReorderLevels';
 import SupplierProduct from './Product/SupplierProduct';
 import ProductGeneralDetails from './Product/ProductGeneralDetails';
 import CheckIcon from '@material-ui/icons/Check';
+import SelectorganizationModal from './../main/SelectorganizationModal';
 
 class Product extends React.Component {
 	constructor(props) {
-		super(props);
+		super();
 		this.state = {
+			isOpen: false,
 			createProduct: true,
 			prevPropVariable: {},
 			prevVariable: new Map(),
@@ -85,6 +87,7 @@ class Product extends React.Component {
 		this.updateSupplierLocation = this.updateSupplierLocation.bind(this);
 		this.updateSupplierProduct = this.updateSupplierProduct.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
+		this.onClose = this.onClose.bind(this);
 		// this.customErrorMessage = this.customErrorMessage.bind(this);
 	}
 
@@ -146,7 +149,44 @@ class Product extends React.Component {
 		return prevState;
 	}
 
+	getData() {
+		this.props.clearErrors();
+		this.props.getVariables('Customer');
+		this.props.getVariables('UnitForWeights');
+		this.props.getVariables('UnitForDimensions');
+		this.props.getVariables('BOM');
+		this.props.getVariables('ProductStatus');
+		this.props.getVariables('DropShip');
+		this.props.getVariables('ProductType');
+		this.props.getVariables('ProductDiscount');
+		this.props.getVariables('PurchaseTaxRule');
+		this.props.getVariables('AttributeSet');
+		this.props.getVariables('Brand');
+		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('UnitOfMeasure');
+		this.props.getVariables('CostingMethod');
+		this.props.getVariables('Location');
+		this.props.getVariables('Supplier');
+		this.props.getVariables('Currency');
+	}
+
 	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			if (this.props.match.params.variableName) {
+				this.props
+					.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+					.then((variable) => {
+						this.setState({ prevVariable: objToMapRec(variable) });
+					});
+			}
+			this.getData();
+		}
+	}
+
+	onClose() {
+		this.setState({ isOpen: false });
 		if (this.props.match.params.variableName) {
 			this.props
 				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
@@ -154,6 +194,7 @@ class Product extends React.Component {
 					this.setState({ prevVariable: variable });
 				});
 		}
+		this.getData();
 	}
 
 	checkRequiredField(variable) {
@@ -223,6 +264,7 @@ class Product extends React.Component {
 	render() {
 		return (
 			<Container>
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<ToastContainer />
 				<PageSidebar>
 					<VerticalWrapper>
@@ -646,13 +688,15 @@ class Product extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
 	getVariable,
+	getVariables,
 	updateVariable
 })(Product);
 
@@ -1188,6 +1232,5 @@ const SaveButton = styled.button`
 	align-items: center;
 	justify-content: center;
 	transition: background-color 0.15s ease-in-out;
-	outline: none; 
-
+	outline: none;
 `;

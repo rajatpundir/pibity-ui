@@ -4,21 +4,40 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
+import TablePagination from '@material-ui/core/TablePagination';
+import TablePaginationActions from '../../main/TablePagination';
+import SelectorganizationModal from '../../main/SelectorganizationModal';
+
 class ProductList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			product: [],
-			expandedRows : [],
-			activeProductOnly: false
+			expandedRows: [],
+			activeProductOnly: false,
+			isOpen: false,
+			page: 0,
+			rowsPerPage: 5
 		};
 		this.onChange = this.onChange.bind(this);
+		this.onClose = this.onClose.bind(this);
 	}
 
 	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
 	}
+
 	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			this.props.clearErrors();
+			this.props.getVariables('Product');
+		}
+	}
+
+	onClose() {
+		this.setState({ isOpen: false });
 		this.props.clearErrors();
 		this.props.getVariables('Product');
 	}
@@ -35,38 +54,33 @@ class ProductList extends React.Component {
 		};
 	}
 
-
 	renderInputFields() {
 		const rows = [];
 		const list = this.state.activeProductOnly
 			? this.state.product.filter((product) => product.values.general.values.productStatus === 'Active')
 			: this.state.product;
-       list.forEach((product) =>{
+		list.forEach((product) => {
 			rows.push(
 				<TableRow onClick={this.handleRowClick} key={product.variableName}>
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Link to={'/product/' + product.variableName}>{product.values.general.values.productSKU}</Link>
+							<Link to={'/product/' + product.variableName}>
+								{product.values.general.values.productSKU}
+							</Link>
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>{product.variableName}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>
-								{product.values.general.values.unitOfMeasure}
-						</TableHeaderInner>
+						<TableHeaderInner>{product.values.general.values.unitOfMeasure}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>
-								{product.values.general.values.productType}
-						</TableHeaderInner>
+						<TableHeaderInner>{product.values.general.values.productType}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>
-								{product.values.general.values.categorey}
-						</TableHeaderInner>
+						<TableHeaderInner>{product.values.general.values.categorey}</TableHeaderInner>
 					</TableData>
 					<TableData width="15%">
 						<TableHeaderInner>
@@ -82,19 +96,24 @@ class ProductList extends React.Component {
 							<Span>{product.values.general.values.productStatus}</Span>
 						</TableHeaderInner>
 					</TableData>
-			
 				</TableRow>
-			)		
-		}
-		);
+			);
+		});
 
-		return rows;
+		return this.state.rowsPerPage > 0
+			? rows.slice(
+					this.state.page * this.state.rowsPerPage,
+					this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
+				)
+			: rows;
 	}
 
 	render() {
-        console.log(this.state.product)
+		const { rowsPerPage, page } = this.state;
 		return (
 			<Container>
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
+
 				<PageWrapper>
 					<PageBody>
 						<PageToolbar>
@@ -182,17 +201,31 @@ class ProductList extends React.Component {
 																<SelectSpan>Last Supplier</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														
+
 														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan>Status</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														
 													</TableRow>
-												{this.renderInputFields()}
+													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
+											<TablePagination
+												component="div"
+												style={{ display: 'flex', justifyContent: 'center' }}
+												rowsPerPageOptions={[ 5, 10, 20 ]}
+												colSpan={3}
+												count={this.state.product.length}
+												rowsPerPage={rowsPerPage}
+												page={page}
+												SelectProps={{
+													native: true
+												}}
+												onChangePage={this.handleChangePage}
+												onChangeRowsPerPage={this.handleChangeRowsPerPage}
+												ActionsComponent={TablePaginationActions}
+											/>
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</TableFieldContainer>
@@ -207,7 +240,8 @@ class ProductList extends React.Component {
 
 const mapStateToProps = (state) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(ProductList);
@@ -260,7 +294,6 @@ const Container = styled.div`
 	@media (max-width: 1200px) {
 		flex-direction: column !important;
 	}
-	
 `;
 // padding: 20px 20px 0 20px !important;
 

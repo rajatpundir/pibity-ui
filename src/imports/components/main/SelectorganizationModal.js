@@ -56,26 +56,25 @@ class SelectOrganizationModal extends React.Component {
     }
     
 	onClose() {
-        this.setState({ isOpen: false });
-        this.props.onClose()
+        this.props.onClose();
+		this.props.updateToken(this.state.selectedOrganization);
 	}
 	render() {
-        console.log(this.props)
 		return (
 			<Modal
 				isOpen={this.props.isOpen}
 				contentLabel="Place Bid"
-				onRequestClose={this.props.onClose}
+				onRequestClose={this.onClose}
 				className="boxed-view__box"
 				style={customStyles}
 				ariaHideApp={false}
 				overlayClassName="boxed-view boxed-view--modal"
 			>
 				<ModalHeader>
-					<ModalTitle>Update Status</ModalTitle>
+					<ModalTitle>Select Organization</ModalTitle>
 					<ModalHeaderCloseButton
 						onClick={(e) => {
-							this.closeModal(e);
+							this.onClose();
 						}}
 					>
 						<span>X</span>
@@ -95,7 +94,6 @@ class SelectOrganizationModal extends React.Component {
 											target: { name: 'selectedOrganization', value: option.value }
 										});
 										localStorage.setItem('selectedOrganization', option.value)
-										this.props.updateToken(option.value);
 									}}
 									options={this.state.organizations.map((variable) => {
 										return {
@@ -105,18 +103,18 @@ class SelectOrganizationModal extends React.Component {
 									})}
 								/>
 							</SelectWrapper>
-							<InputLabel>Select Organization</InputLabel>
+							<InputLabel>Organizations</InputLabel>
 						</FormControl>
 					</InputFieldContainer>
 				</ModalBody>
 				<ModalFooter>
-					<ModalSubmitButton
+					{/* <ModalSubmitButton
 						onClick={(e) => {
 							this.onClose(e);
 						}}
 					>
 						Save
-					</ModalSubmitButton>
+					</ModalSubmitButton> */}
 				</ModalFooter>
 			</Modal>
 		);

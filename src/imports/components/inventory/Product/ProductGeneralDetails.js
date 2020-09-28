@@ -19,18 +19,6 @@ class ProductGeneralDetails extends React.Component {
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables('BOM');
-		this.props.getVariables('ProductStatus');
-		this.props.getVariables('DropShip');
-		this.props.getVariables('ProductType');
-		this.props.getVariables('ProductDiscount');
-		this.props.getVariables('PurchaseTaxRule');
-		this.props.getVariables('AttributeSet');
-		this.props.getVariables('Brand');
-		this.props.getVariables('SalesTaxRule');
-		this.props.getVariables('UnitOfMeasure');
-		this.props.getVariables('CostingMethod');
-		this.props.getVariables('Location');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {

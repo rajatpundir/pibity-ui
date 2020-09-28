@@ -4,13 +4,20 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
+import TablePagination from '@material-ui/core/TablePagination';
+import TablePaginationActions from '../../main/TablePagination';
+import SelectorganizationModal from '../../main/SelectorganizationModal';
+
 class SupplierList extends React.Component {
 	constructor(props) {
-		super(props);
+		super();
 		this.state = {
 			supplier: [],
 			expandedRows : [],
-			activeSupplierOnly: false
+			activeSupplierOnly: false,
+			isOpen: false,
+			page: 0,
+			rowsPerPage: 5
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -19,7 +26,19 @@ class SupplierList extends React.Component {
 		this.setState({ [e.target.name]: e.target.value });
     }
     
+	
 	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			this.props.clearErrors();
+			this.props.getVariables('Supplier');
+		}
+	}
+
+	onClose() {
+		console.log('calling');
+		this.setState({ isOpen: false });
 		this.props.clearErrors();
 		this.props.getVariables('Supplier');
 	}
@@ -101,18 +120,24 @@ class SupplierList extends React.Component {
 			)		
 		}
 		);
-
-		return rows;
+		return this.state.rowsPerPage > 0
+			? rows.slice(
+					this.state.page * this.state.rowsPerPage,
+					this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
+				)
+			: rows;
 	}
 
 	render() {
+		const { rowsPerPage, page } = this.state;
 		return (
 			<Container>
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<PageWrapper>
 					<PageBody>
 						<PageToolbar>
 							<ToolbarLeftItems>
-								<LeftItemH1>supplier</LeftItemH1>
+								<LeftItemH1>Suppliers</LeftItemH1>
 							</ToolbarLeftItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important">
@@ -214,6 +239,21 @@ class SupplierList extends React.Component {
 													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
+											<TablePagination
+												component="div"
+												style={{ display: 'flex', justifyContent: 'center' }}
+												rowsPerPageOptions={[ 5, 10, 20 ]}
+												colSpan={3}
+												count={this.state.supplier.length}
+												rowsPerPage={rowsPerPage}
+												page={page}
+												SelectProps={{
+													native: true
+												}}
+												onChangePage={this.handleChangePage}
+												onChangeRowsPerPage={this.handleChangeRowsPerPage}
+												ActionsComponent={TablePaginationActions}
+											/>
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</TableFieldContainer>
@@ -228,7 +268,8 @@ class SupplierList extends React.Component {
 
 const mapStateToProps = (state) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth:state.auth
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(SupplierList);

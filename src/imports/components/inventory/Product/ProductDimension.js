@@ -18,8 +18,6 @@ class ProductDimension extends React.Component {
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables('UnitForWeights');
-		this.props.getVariables('UnitForDimensions');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {

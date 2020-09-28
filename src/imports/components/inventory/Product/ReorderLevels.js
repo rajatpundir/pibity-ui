@@ -18,7 +18,6 @@ class ReorderLevels extends React.Component {
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables('Customer');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {

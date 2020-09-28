@@ -4,18 +4,26 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {customErrorMessage} from '../../main/Notification';
+import { customErrorMessage } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
-import { createVariable, getVariable, updateVariable, objToMapRec } from '../../../redux/actions/variables';
+import {
+	createVariable,
+	getVariables,
+	getVariable,
+	updateVariable,
+	objToMapRec
+} from '../../../redux/actions/variables';
 import SupplierDetails from './SupplierDetails';
 import SupplierAddresses from './SupplierAddresses';
 import SupplierContacts from './SupplierContacts';
 import CheckIcon from '@material-ui/icons/Check';
+import SelectorganizationModal from '../../main/SelectorganizationModal';
 
 class Supplier extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			isOpen: false,
 			createSupplier: true,
 			prevPropVariable: {},
 			prevVariable: new Map(),
@@ -56,6 +64,7 @@ class Supplier extends React.Component {
 		this.updateAddresses = this.updateAddresses.bind(this);
 		this.updateContacts = this.updateContacts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
+		this.onClose = this.onClose.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -80,7 +89,36 @@ class Supplier extends React.Component {
 		return prevState;
 	}
 
+	getData(){
+		this.props.clearErrors();
+			this.props.getVariables('Country');
+			this.props.getVariables('Currency');
+			this.props.getVariables('CarrierService');
+			this.props.getVariables('PaymentTerm');
+			this.props.getVariables('Status');
+			this.props.getVariables('SalesTaxRule');
+			this.props.getVariables('AttributeSet');
+			this.props.getVariables('PriceTierName');
+			this.props.getVariables('Location');
+	}
+
 	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			if (this.props.match.params.variableName) {
+				this.props
+					.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+					.then((variable) => {
+						this.setState({ prevVariable: objToMapRec(variable) });
+					});
+			}
+			this.getData()
+		}
+	}
+
+	onClose() {
+		this.setState({ isOpen: false });
 		if (this.props.match.params.variableName) {
 			this.props
 				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
@@ -88,6 +126,7 @@ class Supplier extends React.Component {
 					this.setState({ prevVariable: objToMapRec(variable) });
 				});
 		}
+		this.getData()
 	}
 
 	checkRequiredField(variable) {
@@ -157,6 +196,7 @@ class Supplier extends React.Component {
 	render() {
 		return (
 			<Container>
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<ToastContainer limit={3} rtl />
 				<PageWrapper>
 					<PageBody>
@@ -231,13 +271,15 @@ class Supplier extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
 	getVariable,
+	getVariables,
 	updateVariable
 })(Supplier);
 
@@ -261,9 +303,7 @@ const Container = styled.div`
 		flex-direction: column !important;
 		padding: 20px 20px 0 20px !important;
 	}
-	
 `;
-
 
 const PageWrapper = styled.div`
 	 flex: 1;
@@ -402,6 +442,5 @@ const SaveButton = styled.button`
 	align-items: center;
 	justify-content: center;
 	transition: background-color 0.15s ease-in-out;
-	outline: none; 
-
+	outline: none;
 `;

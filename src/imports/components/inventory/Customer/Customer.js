@@ -4,18 +4,20 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {customErrorMessage,successMessage} from '../../main/Notification';
+import { customErrorMessage, successMessage } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
-import { createVariable, getVariable, updateVariable, objToMapRec } from '../../../redux/actions/variables';
+import { createVariable, getVariable, updateVariable, objToMapRec,getVariables } from '../../../redux/actions/variables';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
+import SelectorganizationModal from '../../main/SelectorganizationModal';
 
 class Customer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			isOpen: false,
 			createCustomer: true,
 			prevPropVariable: {},
 			prevVariable: new Map(),
@@ -60,6 +62,7 @@ class Customer extends React.Component {
 		this.updateAddresses = this.updateAddresses.bind(this);
 		this.updateContacts = this.updateContacts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
+		this.onClose = this.onClose.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -69,7 +72,7 @@ class Customer extends React.Component {
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
-				const prevVariableMap=objToMapRec(prevState.prevPropVariable)
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
 				const general = values.get('general');
 				general.set('variableName', variableMap.get('variableName'));
@@ -79,28 +82,49 @@ class Customer extends React.Component {
 					...prevState,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable:prevVariableMap
+					prevVariable: prevVariableMap
 				};
 			}
 		}
 		return prevState;
 	}
 
-	componentDidMount() {
-		if (this.props.match.params.variableName) {
-			const variable=decodeURIComponent(this.props.match.params.variableName)
-			console.log(variable)
-			this.props
-				.getVariable(this.state.variable.get('typeName'),variable )
-				// .then((updated) => {
-				// 	if(updated){
-				// 		this.setState({ prevVariable: this.state.variable });
+	getData(){
+		this.props.clearErrors();
+			this.props.getVariables('Country');
+			this.props.getVariables('Currency');
+			this.props.getVariables('CarrierService');
+			this.props.getVariables('PaymentTerm');
+			this.props.getVariables('Status');
+			this.props.getVariables('SalesTaxRule');
+			this.props.getVariables('AttributeSet');
+			this.props.getVariables('PriceTierName');
+			this.props.getVariables('Location');
+	}
 
-				// 	}
-				// });
+	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			if (this.props.match.params.variableName) {
+				const variable = decodeURIComponent(this.props.match.params.variableName);
+				this.props.getVariable(this.state.variable.get('typeName'), variable);
+			}
+			this.getData();
 		}
 	}
 
+	onClose() {
+		this.setState({ isOpen: false });
+		if (this.props.match.params.variableName) {
+			const variable = decodeURIComponent(this.props.match.params.variableName);
+			console.log(variable);
+			this.props.getVariable(this.state.variable.get('typeName'), variable);
+		}
+		this.getData();
+
+	}
+	
 	checkRequiredField(variable) {
 		let message = '';
 		if (variable.get('general').get('variableName') === '') {
@@ -171,76 +195,12 @@ class Customer extends React.Component {
 		variable.set('values', values);
 		this.setState({ variable: variable });
 	}
+
 	render() {
 		return (
 			<Container>
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<StyledContainer limit={2} />
-				{/* <PageSidebar> */}
-					{/* <VerticalWrapper>
-						<NavList>
-							<NavListItems>
-								<NavButton
-									onClick={(e) => {
-										this.setState({ visibleSection: 'addresses' });
-									}}
-								>
-									<ButtonText>General</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton
-									onClick={(e) => {
-										this.setState({ visibleSection: 'addresses' });
-									}}
-								>
-									<ButtonText>Addresses</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton
-									onClick={(e) => {
-										this.setState({ visibleSection: 'contacts' });
-									}}
-								>
-									<ButtonText>Contact</ButtonText>
-								</NavButton>
-							</NavListItems>
-						</NavList>
-					</VerticalWrapper>
-					<HorizontalNavWrapper>
-						<HorizontalNav>
-							<NavList>
-								<NavListItems>
-									<NavButton
-										onClick={(e) => {
-											this.setState({ visibleSection: 'customer' });
-										}}
-									>
-										<ButtonText>General</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton
-										onClick={(e) => {
-											this.setState({ visibleSection: 'addresses' });
-										}}
-									>
-										<ButtonText>Addresses</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton
-										onClick={(e) => {
-											this.setState({ visibleSection: 'contacts' });
-										}}
-									>
-										<ButtonText>Contact</ButtonText>
-									</NavButton>
-								</NavListItems>
-							</NavList>
-						</HorizontalNav>
-					</HorizontalNavWrapper> */}
-				{/* </PageSidebar> */}
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -254,9 +214,9 @@ class Customer extends React.Component {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
 											if (this.state.createCustomer) {
-												this.props.createVariable(this.state.variable).then((status)=>{
-													if(status===200){
-														successMessage("created customer");
+												this.props.createVariable(this.state.variable).then((status) => {
+													if (status === 200) {
+														successMessage('created customer');
 													}
 												});
 											}
@@ -272,7 +232,7 @@ class Customer extends React.Component {
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
 						/>
-							<HorizontaListPageBlock>
+						<HorizontaListPageBlock>
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList>
@@ -318,14 +278,16 @@ class Customer extends React.Component {
 }
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
 	getVariable,
-	updateVariable
+	updateVariable,
+	getVariables
 })(Customer);
 
 export const HorizontalistPageBlock = styled.div`
@@ -645,8 +607,7 @@ const StyledContainer = styled(ToastContainer).attrs(
 	.Toastify__progress-bar {}
   `;
 
-
-  export const HorizontaListPageBlock = styled.div`
+export const HorizontaListPageBlock = styled.div`
 	width: 100%;
 	height: 60px;
 	padding: 10px 10px;

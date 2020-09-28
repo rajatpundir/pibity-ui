@@ -4,19 +4,21 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {customErrorMessage} from '../main/Notification';
+import { customErrorMessage } from '../main/Notification';
 import { clearErrors } from '../../redux/actions/errors';
-import { createVariable, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
+import { createVariable, getVariables, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
 import PurchaseGeneralDetails from './Purchase/PurchaseGeneralDetails';
 import PurchaseOrderDetails from './Purchase/PurchaseOrderDetails';
 import PurchaseInvoiceDetails from './Purchase/PurchaseInvoiceDetails';
 import PurchaseStockReceived from './Purchase/PurchaseStockReceived';
 import CheckIcon from '@material-ui/icons/Check';
+import SelectorganizationModal from './../main/SelectorganizationModal';
 
 class Purchase extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			isOpen: false,
 			createPurchaseOrder: true,
 			prevPropVariable: {},
 			prevVariable: new Map(),
@@ -38,10 +40,7 @@ class Purchase extends React.Component {
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
 										[ 'date', '' ],
-										[ 'contact', new Map([
-											["context",''],
-											['variableName','']
-										]) ],
+										[ 'contact', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
 										[ 'stockOrInvoice', 'Stock First' ],
 										[ 'phone', '' ],
 										[ 'taxInclusive', false ],
@@ -105,6 +104,7 @@ class Purchase extends React.Component {
 		this.updateInvoice = this.updateInvoice.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
 		this.updateStock = this.updateStock.bind(this);
+		this.onClose = this.onClose.bind(this);
 	}
 
 	divVisibility(divId) {
@@ -131,7 +131,32 @@ class Purchase extends React.Component {
 		}
 	}
 
+	getData() {
+		this.props.clearErrors();
+		this.props.getVariables('Supplier');
+		this.props.getVariables('Location');
+		this.props.getVariables('PaymentTerm');
+		this.props.getVariables('PurchaseTaxRule');
+		this.props.getVariables('Product');
+	}
+
 	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			if (this.props.match.params.variableName) {
+				this.props
+					.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+					.then((variable) => {
+						this.setState({ prevVariable: objToMapRec(variable) });
+					});
+			}
+			this.getData();
+		}
+	}
+
+	onClose() {
+		this.setState({ isOpen: false });
 		if (this.props.match.params.variableName) {
 			this.props
 				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
@@ -139,6 +164,7 @@ class Purchase extends React.Component {
 					this.setState({ prevVariable: variable });
 				});
 		}
+		this.getData();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -218,6 +244,7 @@ class Purchase extends React.Component {
 	render() {
 		return (
 			<Container>
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<ToastContainer limit={3} />
 				<PageWrapper>
 					<PageBody>
@@ -307,13 +334,15 @@ class Purchase extends React.Component {
 }
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
 	getVariable,
+	getVariables,
 	updateVariable
 })(Purchase);
 
@@ -409,8 +438,8 @@ const Container = styled.div`
 	padding: 0;
 	width: 100%;
 	min-width: 860px;
-  position: relative;
-  margin-top: 65px;
+	position: relative;
+	margin-top: 65px;
 	min-height: 100vh;
 	display: flex;
 	flex-direction: row;
@@ -424,7 +453,6 @@ const Container = styled.div`
 		flex-direction: column !important;
 		padding: 20px 20px 0 20px !important;
 	}
-	
 `;
 
 const PageWrapper = styled.div`
@@ -474,7 +502,6 @@ const SaveButton = styled.button`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-  transition: background-color 0.15s ease-in-out;
-  outline: none; 
-
+	transition: background-color 0.15s ease-in-out;
+	outline: none;
 `;

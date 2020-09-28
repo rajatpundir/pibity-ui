@@ -27,8 +27,6 @@ class PurchaseInvoiceDetails extends React.Component {
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables("PurchaseTaxRule")
-		this.props.getVariables("Product")
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -37,6 +35,7 @@ class PurchaseInvoiceDetails extends React.Component {
 			variable: nextProps.variable
 		})
 	}
+
 	onChange(e) {
 		const variable = cloneDeep(this.state.variable)
 		const values = variable.get('values')
@@ -45,6 +44,7 @@ class PurchaseInvoiceDetails extends React.Component {
 		this.setState({ variable: variable })
 		this.props.updateInvoice(variable)
 	}
+
 	onAdditionalCostChange(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');

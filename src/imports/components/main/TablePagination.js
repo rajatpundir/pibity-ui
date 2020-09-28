@@ -70,14 +70,14 @@ class TablePaginationActions extends React.Component {
 	}
 }
 
-TablePaginationActions.propTypes = {
-	classes: PropTypes.object.isRequired,
-	count: PropTypes.number.isRequired,
-	onChangePage: PropTypes.func.isRequired,
-	page: PropTypes.number.isRequired,
-	rowsPerPage: PropTypes.number.isRequired,
-	theme: PropTypes.object.isRequired
-};
+// TablePaginationActions.propTypes = {
+// 	classes: PropTypes.object.isRequired,
+// 	count: PropTypes.number.isRequired,
+// 	onChangePage: PropTypes.func.isRequired,
+// 	page: PropTypes.number.isRequired,
+// 	rowsPerPage: PropTypes.number.isRequired,
+// 	theme: PropTypes.object.isRequired
+// };
 
 export default  withStyles(actionsStyles, { withTheme: true })(TablePaginationActions);
 

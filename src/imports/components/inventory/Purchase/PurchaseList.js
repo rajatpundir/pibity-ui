@@ -4,13 +4,20 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
+import TablePagination from '@material-ui/core/TablePagination';
+import TablePaginationActions from '../../main/TablePagination';
+import SelectorganizationModal from '../../main/SelectorganizationModal';
+
 class PurchaseOrderList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			purchaseOrder: [],
-			expandedRows : [],
-			activeCustomerOnly: false
+			expandedRows: [],
+			activeCustomerOnly: false,
+			isOpen: false,
+			page: 0,
+			rowsPerPage: 5
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -18,7 +25,18 @@ class PurchaseOrderList extends React.Component {
 	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
 	}
+
 	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			this.props.clearErrors();
+			this.props.getVariables('purchaseOrder');
+		}
+	}
+
+	onClose() {
+		this.setState({ isOpen: false });
 		this.props.clearErrors();
 		this.props.getVariables('purchaseOrder');
 	}
@@ -35,19 +53,22 @@ class PurchaseOrderList extends React.Component {
 		};
 	}
 
-
 	renderInputFields() {
 		const rows = [];
-		// const list = this.state.activeCustomerOnly
-		// 	? this.state.purchaseOrder.filter((purchaseOrder) => purchaseOrder.values.general.values.status === 'Active')
-		// 	: this.state.purchaseOrder;
-        this.state.purchaseOrder.forEach((purchaseOrder) =>{
+		const list = this.state.activeCustomerOnly
+			? this.state.purchaseOrder.filter(
+					(purchaseOrder) => purchaseOrder.values.general.values.status === 'Active'
+				)
+			: this.state.purchaseOrder;
+		list.forEach((purchaseOrder) => {
 			rows.push(
 				<TableRow onClick={this.handleRowClick} key={purchaseOrder.variableName}>
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Link to={'/purchaseOrder/' + purchaseOrder.variableName}>{purchaseOrder.variableName}</Link>
+							<Link to={'/purchaseOrder/' + purchaseOrder.variableName}>
+								{purchaseOrder.variableName}
+							</Link>
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
@@ -97,16 +118,22 @@ class PurchaseOrderList extends React.Component {
 						</TableHeaderInner>
 					</TableData>
 				</TableRow>
-			)		
-		}
-		);
+			);
+		});
 
-		return rows;
+		return this.state.rowsPerPage > 0
+			? rows.slice(
+					this.state.page * this.state.rowsPerPage,
+					this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
+				)
+			: rows;
 	}
 
 	render() {
+		const { rowsPerPage, page } = this.state;
 		return (
 			<Container>
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<PageWrapper>
 					<PageBody>
 						<PageToolbar>
@@ -200,10 +227,25 @@ class PurchaseOrderList extends React.Component {
 															</SelectIconContainer>
 														</TableHeaders>
 													</TableRow>
-												
-													{/* {this.renderInputFields()} */}
+
+													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
+											<TablePagination
+												component="div"
+												style={{ display: 'flex', justifyContent: 'center' }}
+												rowsPerPageOptions={[ 5, 10, 20 ]}
+												colSpan={3}
+												count={this.state.purchaseOrder.length}
+												rowsPerPage={rowsPerPage}
+												page={page}
+												SelectProps={{
+													native: true
+												}}
+												onChangePage={this.handleChangePage}
+												onChangeRowsPerPage={this.handleChangeRowsPerPage}
+												ActionsComponent={TablePaginationActions}
+											/>
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</TableFieldContainer>
@@ -218,7 +260,8 @@ class PurchaseOrderList extends React.Component {
 
 const mapStateToProps = (state) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseOrderList);
@@ -271,7 +314,6 @@ const Container = styled.div`
 	@media (max-width: 1200px) {
 		flex-direction: column !important;
 	}
-	
 `;
 // padding: 20px 20px 0 20px !important;
 

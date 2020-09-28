@@ -19,17 +19,7 @@ class CustomerGeneralDetails extends React.Component {
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables('Country');
-		this.props.getVariables('Currency');
-		this.props.getVariables('CarrierService');
-		this.props.getVariables('PaymentTerm');
-		this.props.getVariables('Status');
-		this.props.getVariables('SalesTaxRule');
-		this.props.getVariables('AttributeSet');
-		this.props.getVariables('PriceTierName');
-		this.props.getVariables('Location');
 	}
-
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,

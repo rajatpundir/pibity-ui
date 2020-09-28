@@ -4,10 +4,8 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
-
-import TableFooter from '@material-ui/core/TableFooter';
 import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from './TablePagination';
+import TablePaginationActions from '../../main/TablePagination';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
 
 class CustomerList extends React.Component {
@@ -38,9 +36,8 @@ class CustomerList extends React.Component {
 	}
 
 	componentDidMount() {
-		if (localStorage.getItem('selectedOrganization') === null) {
+		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
-			console.log("null")
 		} else {
 			this.props.clearErrors();
 			this.props.getVariables('Customer');
@@ -48,10 +45,9 @@ class CustomerList extends React.Component {
 	}
 
 	onClose() {
-		this.setState({ isOpen: false }, () => {
-			this.props.clearErrors();
-			this.props.getVariables('Customer');
-		});
+		this.setState({ isOpen: false });
+		this.props.clearErrors();
+		this.props.getVariables('Customer');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -142,14 +138,9 @@ class CustomerList extends React.Component {
 
 	render() {
 		const { rowsPerPage, page } = this.state;
-		const emptyRows = rowsPerPage - Math.min(rowsPerPage, this.state.customer.length - page * rowsPerPage);
 		return (
 			<Container>
-				{localStorage.getItem('selectedOrganization') === null ? (
-					<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				) : (
-					undefined
-				)}
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<PageWrapper>
 					<PageBody>
 						<PageToolbar>
@@ -258,7 +249,7 @@ class CustomerList extends React.Component {
 											</BodyTable>
 											<TablePagination
 												component="div"
-												style={{ display: 'flex', 'justifyContent': 'center' }}
+												style={{ display: 'flex', justifyContent: 'center' }}
 												rowsPerPageOptions={[ 5, 10, 20 ]}
 												colSpan={3}
 												count={this.state.customer.length}
@@ -285,7 +276,8 @@ class CustomerList extends React.Component {
 
 const mapStateToProps = (state) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(CustomerList);

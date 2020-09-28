@@ -19,12 +19,6 @@ class SupplierDetails extends React.Component {
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables("Currency")
-		this.props.getVariables("PaymentTerm")
-		this.props.getVariables("SalesTaxRule")
-		this.props.getVariables("Status")
-		this.props.getVariables("CarrierService")
-		this.props.getVariables("AttributeSet")
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
