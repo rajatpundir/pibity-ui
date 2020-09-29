@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {updateToken} from '../../redux/actions/auth'
+import { updateToken } from '../../redux/actions/auth';
 import { connect } from 'react-redux';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
+import cx from 'classnames';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Drawer from '@material-ui/core/Drawer';
@@ -24,7 +25,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import menuItems from './menuItems';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import IconDashboard from '@material-ui/icons/Dashboard';
-import Icon from '@material-ui/core/Icon'
+import Icon from '@material-ui/core/Icon';
 
 // import InboxIcon from '@material-ui/icons/MoveToInbox';
 // import MailIcon from '@material-ui/icons/Mail';
@@ -40,27 +41,44 @@ import Icon from '@material-ui/core/Icon'
 // import IconPeople from '@material-ui/icons/People';
 // import Typography from '@material-ui/core/Typography';
 
-
-
 const drawerWidth = 240;
 const styles = (theme) => ({
+	'@global': { //styling scrollbar using material Ui
+		'*::-webkit-scrollbar': {
+		  width: '0.5em'
+		},
+		'*::-webkit-scrollbar-track': {
+		  '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
+		},
+		'*::-webkit-scrollbar-thumb': {
+		  backgroundColor: 'rgba(0,0,0,.1)',
+		  outline: '1px solid slategrey',
+		  borderRadius:'10%'
+		}
+	  },
+	
 	root: {
 		display: 'flex',
 		fontSize: '16 px',
 		background: '#535454'
 	},
-	link: {
-		textDecoration: 'none'
+
+	links: {
+		width:'100%',
+		textDecoration: 'none',
+		'&:hover,&:focus,&:active': { textDecoration: 'none' },
+		color :'red'
 	},
 
 	appBar: {
-		background:"#05cbbf",
+		background: '#05cbbf',
 		zIndex: theme.zIndex.drawer + 1,
 		transition: theme.transitions.create([ 'width', 'margin' ], {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen
 		})
 	},
+
 	appBarShift: {
 		marginLeft: drawerWidth,
 		width: `calc(100% - ${drawerWidth}px)`,
@@ -69,28 +87,32 @@ const styles = (theme) => ({
 			duration: theme.transitions.duration.enteringScreen
 		})
 	},
+
 	menuButton: {
 		marginRight: 36
 	},
+
 	hide: {
 		display: 'none'
 	},
+
 	drawer: {
 		width: drawerWidth,
 		flexShrink: 0,
 		whiteSpace: 'nowrap'
 	},
+
 	drawerOpen: {
 		width: drawerWidth,
-		background:"#308882",
-
+		background: '#41bb66',
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.enteringScreen
 		})
 	},
+
 	drawerClose: {
-		background:"#308882",
+		background: '#41bb66',
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen
@@ -101,6 +123,7 @@ const styles = (theme) => ({
 			width: theme.spacing(9) + 1
 		}
 	},
+
 	toolbar: {
 		display: 'flex',
 		alignItems: 'center',
@@ -110,13 +133,27 @@ const styles = (theme) => ({
 		// necessary for content to be below app bar
 		...theme.mixins.toolbar
 	},
+
 	toolbarExpanded: {
 		justifyContent: 'flex-end'
 	},
+
 	content: {
 		flexGrow: 1,
 		padding: theme.spacing(3)
-	}
+	},
+
+	itemText: {
+		fontSize: '95%',
+		fontWeight: '400',
+		color: 'black',
+		'&$textDense': {
+			fontSize: '95%',
+			fontWeight: '400',
+			color: 'black'
+		}
+	},
+	textDense: {}
 });
 
 class MiniDrawer extends React.Component {
@@ -125,7 +162,7 @@ class MiniDrawer extends React.Component {
 		this.state = {
 			open: true,
 			organizations: JSON.parse(localStorage.getItem('organizations')) || [],
-			selectedOrganization: props.auth.selectedOrganization 
+			selectedOrganization: props.auth.selectedOrganization
 		};
 		this.handleDrawerOpen = this.handleDrawerOpen.bind(this);
 		this.handleDrawerClose = this.handleDrawerClose.bind(this);
@@ -135,7 +172,7 @@ class MiniDrawer extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			selctedOrganization: nextProps.auth.selectedOrganization,
+			selctedOrganization: nextProps.auth.selectedOrganization
 		};
 	}
 
@@ -163,7 +200,14 @@ class MiniDrawer extends React.Component {
 					<div key={subOption.name}>
 						<ListItem button key={subOption.name}>
 							<Link to={subOption.url} className={classes.links}>
-								<ListItemText inset primary={subOption.name} />
+								<ListItemText
+									inset //to align item within the list
+									classes={{
+										primary: classes.itemText
+									}}
+								>
+									{subOption.name}
+								</ListItemText>
 							</Link>
 						</ListItem>
 					</div>
@@ -172,8 +216,15 @@ class MiniDrawer extends React.Component {
 			return (
 				<div key={subOption.name}>
 					<ListItem button onClick={() => this.handleClick(subOption.name)}>
-					<Icon className={subOption.icon}  style={{ fontSize: 20 }}></Icon>
-						<ListItemText inset primary={subOption.name} />
+						<Icon className={subOption.icon} />
+						<ListItemText
+							inset //to align item within the list
+							classes={{
+								primary: classes.itemText
+							}}
+						>
+							{subOption.name}
+						</ListItemText>{' '}
 						{state[subOption.name] ? <ExpandLess /> : <ExpandMore />}
 					</ListItem>
 					<Collapse in={state[subOption.name]} timeout="auto" unmountOnExit>
@@ -223,7 +274,7 @@ class MiniDrawer extends React.Component {
 										this.onChange({
 											target: { name: 'selectedOrganization', value: option.value }
 										});
-										this.props.updateToken(option.value)
+										this.props.updateToken(option.value);
 										localStorage.setItem('selectedOrganization', option.value);
 									}}
 									options={this.state.organizations.map((variable) => {
@@ -266,14 +317,6 @@ class MiniDrawer extends React.Component {
 					</div>
 					<Divider />
 					<List>
-						<ListItem button key="Dashboard">
-							<ListItemIcon>
-								<IconDashboard />
-							</ListItemIcon>
-							<Link to="/" className={classes.links}>
-								<ListItemText primary="Dashboard" />
-							</Link>
-						</ListItem>
 						{this.handler(menuItems.data)}
 					</List>
 				</Drawer>
@@ -286,7 +329,7 @@ const mapStateToProps = (state, ownProps) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps,{
+export default connect(mapStateToProps, {
 	updateToken
 })(withStyles(styles)(MiniDrawer));
 

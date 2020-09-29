@@ -189,7 +189,7 @@ class SupplierAddresses extends React.Component {
 						</PlusButton>
 					</PageBarAlignLeft>
 				</PageBar>
-				<InputBody borderTop="0">
+				<InputBody borderTop="0" overflow='visible'>
 					<RoundedBlock>
 						<TableFieldContainer>
 							<HeaderBodyContainer>
@@ -329,14 +329,14 @@ const PageBlock = styled.div`
 	vertical-align: baseline;
 	align-items: center;
 `;
-
 const InputBody = styled.div.attrs((props) => ({
 	alignitem: props.alignItem || 'start',
-	borderTop: props.borderTop || '1px solid #e0e1e7'
+	borderTop: props.borderTop || '1px solid #e0e1e7',
+	overflow: props.overflow || 'hidden'
 }))`
-align-items: ${(props) => props.alignItem};
+    align-items: ${(props) => props.alignItem};
 	max-height: 4000px;
-	overflow: hidden;
+	overflow: ${(props) => props.overflow};
 	animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 	-webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
 	transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
@@ -353,7 +353,7 @@ align-items: ${(props) => props.alignItem};
 	padding-bottom: 20px !important;
 `;
 const SelectWrapper = styled.div`
-font-size: 13px;
+	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
 	border-radius: 4px;
@@ -362,7 +362,7 @@ font-size: 13px;
 	font-size: 13px;
 	font-weight: 400;
 	font-family: inherit;
-	min-width: 100px;
+	min-width: inherit;
 	flex: 1;
 	min-height: 40px;
 	background-color: #fff;
@@ -377,8 +377,7 @@ font-size: 13px;
 	margin: 0;
 	outline: none;
 	vertical-align: baseline;
-
-`
+`;
 const Input = styled.input`
 	width: inherit;
 	font-size: 13px;
@@ -431,7 +430,7 @@ const RoundedBlock = styled.div.attrs((props) => ({
 	border-radius: 4px;
 	width: 100%;
 	float: left;
-	overflow: hidden;
+    overflow: visible;
 	margin-top:${(props) => props.marginTop};
 `;
 
@@ -439,8 +438,7 @@ const RoundedBlock = styled.div.attrs((props) => ({
 const TableFieldContainer = styled.div`
 	position: relative;
 	width: 100% !important;
-	overflow: hidden;
-
+	overflow: visible;
 	min-height: auto !important;
 	text-align: center;
 	top: 0 !important;
@@ -477,11 +475,11 @@ const HeaderBodyContainer = styled.div`
 	position: relative;
 	top: 0 !important;
 	left: 0 !important;
-	overflow: hidden;
+	overflow: visible;
 `;
 const HeaderBody = styled.div`
 	border-width: 0px;
-	overflow: auto;
+	overflow: visible;
 	margin: 0px;
 	width: 100%;
 `;
@@ -509,7 +507,6 @@ left:${(props) => props.left};
 	font-family: inherit;
 	vertical-align: middle;
 	border-bottom: 1px solid #e7e8ec;
-	overflow: hidden;
 	padding: 5px 0;
 	height: 60px;
 	float: none !important;
@@ -519,7 +516,7 @@ const TableData = styled.td`
 	font-family: inherit;
 	vertical-align: middle;
 	border-bottom: 1px solid #e7e8ec;
-	overflow: hidden;
+	overflow: visible;
 	padding: 5px 0;
 	height: 60px;
 	float: none !important;
@@ -532,7 +529,6 @@ const TableHeaderInner = styled.div`
     vertical-align: middle;
     font-size: 13px;
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
 }
 `;

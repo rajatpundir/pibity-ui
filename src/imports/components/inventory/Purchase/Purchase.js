@@ -1,18 +1,35 @@
 import React from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage } from '../main/Notification';
-import { clearErrors } from '../../redux/actions/errors';
-import { createVariable, getVariables, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
-import PurchaseGeneralDetails from './Purchase/PurchaseGeneralDetails';
-import PurchaseOrderDetails from './Purchase/PurchaseOrderDetails';
-import PurchaseInvoiceDetails from './Purchase/PurchaseInvoiceDetails';
-import PurchaseStockReceived from './Purchase/PurchaseStockReceived';
+import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
+import { clearErrors } from '../../../redux/actions/errors';
+import {
+	createVariable,
+	getVariables,
+	getVariable,
+	updateVariable,
+	objToMapRec
+} from '../../../redux/actions/variables';
+import PurchaseGeneralDetails from './PurchaseGeneralDetails';
+import PurchaseOrderDetails from './PurchaseOrderDetails';
+import PurchaseInvoiceDetails from './PurchaseInvoiceDetails';
+import PurchaseStockReceived from './PurchaseStockReceived';
+import SelectorganizationModal from '../../main/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from './../main/SelectorganizationModal';
+import {
+	Container,
+	PageWrapper,
+	PageBody,
+	SaveButtonContaier,
+	SaveButton,
+	HorizontalistPageBlock,
+	HorizontalBlockListOuter,
+	HorizontalBlockListInnerWrapper,
+	HoizontalBlockList,
+	HoizontalBlockListItems,
+	BlockListItemBUtton
+} from './Style';
 
 class Purchase extends React.Component {
 	constructor(props) {
@@ -98,37 +115,13 @@ class Purchase extends React.Component {
 					])
 				]
 			]),
-			visibleSection: 'addresses'
+			visibleSection: 'order'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateInvoice = this.updateInvoice.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
 		this.updateStock = this.updateStock.bind(this);
 		this.onClose = this.onClose.bind(this);
-	}
-
-	divVisibility(divId) {
-		var visibleDivId = null;
-		if (visibleDivId !== divId) {
-			visibleDivId = divId;
-		}
-		this.hideNonVisibleDivs(visibleDivId);
-	}
-
-	hideNonVisibleDivs(visibleDivId) {
-		var divs = [ 'purchase', 'order', 'invoice', 'stockReceived' ];
-		var i, divId, div;
-		for (i = 0; i < divs.length; i++) {
-			divId = divs[i];
-			div = document.getElementById(divId);
-			if (div != null) {
-				if (visibleDivId === divId) {
-					div.style.display = 'block';
-				} else if (divId !== 'purchase') {
-					div.style.display = 'none';
-				}
-			}
-		}
 	}
 
 	getData() {
@@ -245,7 +238,7 @@ class Purchase extends React.Component {
 		return (
 			<Container>
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<ToastContainer limit={3} />
+				<CustomNotification limit={3} />
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -262,7 +255,11 @@ class Purchase extends React.Component {
 											);
 										}).then(() => {
 											if (this.state.createPurchaseOrder) {
-												this.props.createVariable(this.state.variable);
+												this.props.createVariable(this.state.variable).then((status) => {
+													if (status === 200) {
+														successMessage(' Purchase Order Created');
+													}
+												});
 											}
 											this.setState({ createPurchaseOrder: true });
 										});
@@ -281,32 +278,56 @@ class Purchase extends React.Component {
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList style={{ justifyContent: 'space-evenly' }}>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton onClick={(e) => this.divVisibility('order')}>
+											<BlockListItemBUtton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'order' });
+												}}
+											>
 												Order
 											</BlockListItemBUtton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton onClick={(e) => this.divVisibility('invoice')}>
+											<BlockListItemBUtton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'invoice' });
+												}}
+											>
 												Invoice
 											</BlockListItemBUtton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton onClick={(e) => this.divVisibility('stockReceived')}>
+											<BlockListItemBUtton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'stockReceived' });
+												}}
+											>
 												Stock Received
 											</BlockListItemBUtton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton onClick={(e) => this.divVisibility('creditNote')}>
+											<BlockListItemBUtton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'creditNote' });
+												}}
+											>
 												Credit Note
 											</BlockListItemBUtton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton onClick={(e) => this.divVisibility('unStock')}>
+											<BlockListItemBUtton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'unStock' });
+												}}
+											>
 												Unstock
 											</BlockListItemBUtton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton onClick={(e) => this.divVisibility('manualJournals')}>
+											<BlockListItemBUtton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'manualJournals' });
+												}}
+											>
 												Manual Journals
 											</BlockListItemBUtton>
 										</HoizontalBlockListItems>
@@ -314,18 +335,24 @@ class Purchase extends React.Component {
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
 						</HorizontalistPageBlock>
-						<PurchaseOrderDetails
-							variable={this.state.variable.get('values').get('orderDetails')[0]}
-							updateInvoice={this.updateOrder}
-						/>
-						<PurchaseInvoiceDetails
-							variable={this.state.variable.get('values').get('invoiceDetails')[0]}
-							updateInvoice={this.updateInvoice}
-						/>
-						<PurchaseStockReceived
-							list={this.state.variable.get('values').get('stockReceived')}
-							updateStock={this.updateStock}
-						/>
+						{this.state.visibleSection === 'order' && (
+							<PurchaseOrderDetails
+								variable={this.state.variable.get('values').get('orderDetails')[0]}
+								updateInvoice={this.updateOrder}
+							/>
+						)}
+						{this.state.visibleSection === 'stockReceived' && (
+							<PurchaseStockReceived
+								list={this.state.variable.get('values').get('stockReceived')}
+								updateStock={this.updateStock}
+							/>
+						)}
+						{this.state.visibleSection === 'invoice' && (
+							<PurchaseInvoiceDetails
+								variable={this.state.variable.get('values').get('invoiceDetails')[0]}
+								updateInvoice={this.updateInvoice}
+							/>
+						)}
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -345,163 +372,3 @@ export default connect(mapStateToProps, {
 	getVariables,
 	updateVariable
 })(Purchase);
-
-export const HorizontalistPageBlock = styled.div`
-	width: 100%;
-	height: 60px;
-	padding: 10px 10px;
-	background: #fff;
-	float: left;
-	border-radius: 6px;
-	overflow: hidden;
-	display: flex;
-	flex-direction: row;
-	position: relative;
-	margin-bottom: 20px !important;
-`;
-
-export const HorizontalBlockListOuter = styled.div`
-	width: 100%;
-	position: relative;
-	display: block;
-`;
-export const HorizontalBlockListInnerWrapper = styled.div`
-	width: 100%;
-	overflow: hidden;
-	position: relative;
-`;
-export const HoizontalBlockList = styled.ul`
-	width: 212px;
-	height: 40px;
-	padding-bottom: 0%;
-	transform: translate3d(0px, 0px, 0px);
-	display: flex;
-	flex-direction: row;
-	flex: 1;
-	position: relative;
-	z-index: 1;
-	min-width: 100%;
-	padding-left: 0;
-	list-style: none outside none;
-	transition: all 1s;
-	transition-property: transform, height;
-	justify-content: start;
-	float: left;
-`;
-
-export const HoizontalBlockListItems = styled.li`
-	margin-right: 0px;
-	display: flex;
-	white-space: nowrap;
-	height: 40px;
-	float: left;
-	margin-right: 10px;
-	text-align: -webkit-match-parent;
-	list-style: none outside none;
-	color: #3b3b3b;
-	letter-spacing: -0.2px;
-`;
-
-export const BlockListItemBUtton = styled.button`
-	height: 40px;
-	width: 100%;
-	border-radius: 4px;
-	font-size: 13px;
-	font-size: 13px;
-	font-weight: 600;
-	color: #3b3b3b;
-	padding: 0 10px;
-	display: flex;
-	align-items: center;
-	cursor: pointer;
-	border: 0;
-	background: transparent;
-	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-	-webkit-appearance: button;
-	cursor: pointer;
-	text-transform: none;
-	line-height: normal;
-	margin: 0;
-	outline: none;
-	vertical-align: baseline;
-	vertical-align: middle;
-
-	&:before,
-	&:after {
-		-moz-box-sizing: border-box;
-		-webkit-box-sizing: border-box;
-		box-sizing: border-box;
-	}
-`;
-const Container = styled.div`
-	padding: 0;
-	width: 100%;
-	min-width: 860px;
-	position: relative;
-	margin-top: 65px;
-	min-height: 100vh;
-	display: flex;
-	flex-direction: row;
-	flex-grow: 1;
-	font-size: 100%;
-	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
-	vertical-align: baseline;
-	background-color: #e3e4e8;
-	@media (max-width: 1200px) {
-		flex-direction: column !important;
-		padding: 20px 20px 0 20px !important;
-	}
-`;
-
-const PageWrapper = styled.div`
-	 flex: 1;
-    overflow: hidde
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    font-family: 'IBM Plex Sans', sans-serif;
-	vertical-align: baseline;
-	@media (min-width: 1201px) {
-		margin: 20px 20px 0 20px;
-		width: 80%;
-
-	}
-`;
-
-const PageBody = styled.div`
-	margin: 0 auto !important;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
-	vertical-align: baseline;
-	@media (min-width: 1440px) {
-		max-width: 90%;
-	}
-`;
-const SaveButtonContaier = styled.div`
-	position: fixed;
-	bottom: 50px;
-	right: 50px;
-	bottom: 37px;
-	right: 37px;
-	z-index: 300;
-`;
-const SaveButton = styled.button`
-	border-radius: 50%;
-	width: 40px;
-	height: 40px;
-	background-color: #05cbbf;
-	border: 0;
-	color: #fff;
-	text-align: center;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: background-color 0.15s ease-in-out;
-	outline: none;
-`;

@@ -2,19 +2,18 @@ import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage } from '../main/Notification';
-import { clearErrors } from '../../redux/actions/errors';
-import { createVariable, getVariables, getVariable, updateVariable, objToMapRec } from '../../redux/actions/variables';
-import ProductDimension from './Product/ProductDimension';
-import CustomPrice from './Product/CustomPrice';
-import Stock from './Product/Stock';
-import ReorderLevels from './Product/ReorderLevels';
-import SupplierProduct from './Product/SupplierProduct';
-import ProductGeneralDetails from './Product/ProductGeneralDetails';
+import { customErrorMessage,CustomNotification,successMessage } from '../../main/Notification';
+import { clearErrors } from '../../../redux/actions/errors';
+import { createVariable, getVariables, getVariable, updateVariable, objToMapRec } from '../../../redux/actions/variables';
+import ProductDimension from './ProductDimension';
+import CustomPrice from './CustomPrice';
+import Stock from './Stock';
+import ReorderLevels from './ReorderLevels';
+import SupplierProduct from './SupplierProduct';
+import ProductGeneralDetails from './ProductGeneralDetails';
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from './../main/SelectorganizationModal';
+import SelectorganizationModal from '../../main/SelectorganizationModal';
 
 class Product extends React.Component {
 	constructor(props) {
@@ -265,7 +264,7 @@ class Product extends React.Component {
 		return (
 			<Container>
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<ToastContainer />
+				<CustomNotification limit="2" />
 				<PageSidebar>
 					<VerticalWrapper>
 						<NavList>
@@ -412,7 +411,11 @@ class Product extends React.Component {
 											);
 										}).then(() => {
 											if (this.state.createProduct) {
-												this.props.createVariable(this.state.variable);
+												this.props.createVariable(this.state.variable).then((status) => {
+													if (status === 200) {
+														successMessage(' Product Created');
+													}
+												});
 											}
 											this.setState({ createProduct: true });
 										});
@@ -701,25 +704,27 @@ export default connect(mapStateToProps, {
 })(Product);
 
 const Container = styled.div`
-    margin-top:65px
 	padding: 0;
 	width: 100%;
+	margin-top: 65px;
+	min-height: 100vh;
 	min-width: 860px;
+	border-radius: 6px;
 	position: relative;
 	display: flex;
 	flex-direction: row;
 	flex-grow: 1;
 	font-size: 100%;
 	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
+	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 	background-color: #e3e4e8;
 	@media (max-width: 1200px) {
 		flex-direction: column !important;
 		padding: 20px 20px 0 20px !important;
 	}
-	
 `;
+
 const PageSidebar = styled.div`
 	width: 236px;
 	min-width: 236px;

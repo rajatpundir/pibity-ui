@@ -10,12 +10,12 @@ import PrivateRoute from './PrivateRoute';
 import LogIn from '../components/main/LogIn';
 import SignUp from '../components/main/SignUp';
 import NotFound from '../components/main/NotFound';
-// import Dashboard from '../components/main/Dashboard';
-import Users from '../components/accounts/Users';
-import Profile from '../components/accounts/Profile';
-import Product from "../components/inventory/Product"
+import Dashboard from '../components/main/Dashboard';
+// import Users from '../components/accounts/Users';
+// import Profile from '../components/accounts/Profile';
+import Product from "../components/inventory/Product/Product"
 import Supplier from '../components/inventory/Supplier/Supplier';
-import Purchase from '../components/inventory/Purchase';
+import Purchase from '../components/inventory/Purchase/Purchase';
 import Customer from '../components/inventory/Customer/Customer';
 import CustomerList from '../components/inventory/Customer/CustomerList';
 import ProductList from '../components/inventory/Product/ProductList';

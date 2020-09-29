@@ -2,9 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage } from '../../main/Notification';
+import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
 import {
 	createVariable,
@@ -89,17 +88,17 @@ class Supplier extends React.Component {
 		return prevState;
 	}
 
-	getData(){
+	getData() {
 		this.props.clearErrors();
-			this.props.getVariables('Country');
-			this.props.getVariables('Currency');
-			this.props.getVariables('CarrierService');
-			this.props.getVariables('PaymentTerm');
-			this.props.getVariables('Status');
-			this.props.getVariables('SalesTaxRule');
-			this.props.getVariables('AttributeSet');
-			this.props.getVariables('PriceTierName');
-			this.props.getVariables('Location');
+		this.props.getVariables('Country');
+		this.props.getVariables('Currency');
+		this.props.getVariables('CarrierService');
+		this.props.getVariables('PaymentTerm');
+		this.props.getVariables('Status');
+		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('AttributeSet');
+		this.props.getVariables('PriceTierName');
+		this.props.getVariables('Location');
 	}
 
 	componentDidMount() {
@@ -113,7 +112,7 @@ class Supplier extends React.Component {
 						this.setState({ prevVariable: objToMapRec(variable) });
 					});
 			}
-			this.getData()
+			this.getData();
 		}
 	}
 
@@ -126,7 +125,7 @@ class Supplier extends React.Component {
 					this.setState({ prevVariable: objToMapRec(variable) });
 				});
 		}
-		this.getData()
+		this.getData();
 	}
 
 	checkRequiredField(variable) {
@@ -197,7 +196,7 @@ class Supplier extends React.Component {
 		return (
 			<Container>
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<ToastContainer limit={3} rtl />
+				<CustomNotification limit={3} rtl />
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -210,7 +209,11 @@ class Supplier extends React.Component {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
 											if (this.state.createSupplier) {
-												this.props.createVariable(this.state.variable);
+												this.props.createVariable(this.state.variable).then((status) => {
+													if (status === 200) {
+														successMessage(' Supplier Created');
+													}
+												});
 											}
 											this.setState({ createSupplier: true });
 										});

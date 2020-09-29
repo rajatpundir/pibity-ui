@@ -1,60 +1,65 @@
 {
-    "data" : [
-      {
-          "name": "Product",
-          "icon": "fa fa-adobe",
-          "children": [
-            {
-              "name": "Products",
-              "url": "/productList"
-            },
-            {
-              "name": "Create Product",
-              "url": "/product"
-            }
-          ]
-      },
-      {
-        "name": "Customer",
-        "icon": "fa fa-shopping-cart",
-        "children": [
-          {
-            "name": "Customers",
-            "url": "/customerList"
-          },
-          {
-            "name": "New Customer",
-            "url": "/customer"
-          }
-        ]
-      },
-      {
-        "name": "Supplier",
-        "icon": "fa fa-user-friends",
-        "children": [
-          {
-            "name": "Suppliers",
-            "url": "/SupplierList"
-          },
-          {
-            "name": "New Supplier",
-            "url": "/supplier"
-          }
-        ]
-      },
-      {
-        "name": "Purchase Order",
-        "icon": "fa fa-shopping-cart",
-        "children": [
-          {
-            "name": "Purchase Orders",
-            "url": "/purchaseList"
-          },
-          {
-            "name": "New Purchase Order",
-            "url": "/purchase"
-          }
-        ]
-      }
-    ]
-  }
+	"data": [
+		{
+			"name": "Dashboard",
+			"icon": "fa fa-adobe",
+			"url": "/"
+		},
+		{
+			"name": "Product",
+			"icon": "fa fa-adobe",
+			"children": [
+				{
+					"name": "Products",
+					"url": "/productList"
+				},
+				{
+					"name": "Create Product",
+					"url": "/product"
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"icon": "fa fa-shopping-cart",
+			"children": [
+				{
+					"name": "Customers",
+					"url": "/customerList"
+				},
+				{
+					"name": "New Customer",
+					"url": "/customer"
+				}
+			]
+		},
+		{
+			"name": "Supplier",
+			"icon": "fa fa-user-friends",
+			"children": [
+				{
+					"name": "Suppliers",
+					"url": "/SupplierList"
+				},
+				{
+					"name": "New Supplier",
+					"url": "/supplier"
+				}
+			]
+		},
+		{
+			"name": "Purchase Order",
+			"icon": "fa fa-shopping-cart",
+			"children": [
+				{
+					"name": "Purchase Orders",
+					"url": "/purchaseList"
+				},
+				{
+					"name": "New Purchase Order",
+					"url": "/purchase"
+				}
+			]
+		}
+	]
+}

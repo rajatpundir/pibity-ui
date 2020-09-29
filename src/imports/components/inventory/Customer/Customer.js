@@ -2,9 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage, successMessage } from '../../main/Notification';
+import { customErrorMessage, successMessage ,CustomNotification} from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
 import { createVariable, getVariable, updateVariable, objToMapRec,getVariables } from '../../../redux/actions/variables';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
@@ -129,46 +128,44 @@ class Customer extends React.Component {
 		let message = '';
 		if (variable.get('general').get('variableName') === '') {
 			message = message + ' Please provide a Customer Name  \n';
-			// customErrorMessage(' Customer Name is missing');
+			 customErrorMessage(' Customer Name is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('status') === '') {
 			message = message + ' Please choose the Status \n';
 
-			// customErrorMessage('status is missing');
+			 customErrorMessage('status is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('taxRule') === '') {
 			message = message + ' Please choose the TaxRule  \n';
-			// customErrorMessage('taxRule is missing');
+			 customErrorMessage('taxRule is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('paymentTerm') === '') {
 			message = message + ' Please choose the Payment Term \n';
-			// customErrorMessage('paymentTerm is missing');
+			 customErrorMessage('paymentTerm is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('currency') === '') {
 			message = message + 'Please choose a Currency  \n';
 
-			// customErrorMessage('currency is missing');
+			 customErrorMessage('currency is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('contacts').length === 0) {
 			message = message + ' Add at least One Contact field \n';
 
-			// customErrorMessage('Add at least One Contact field');
+		 customErrorMessage('Add at least One Contact field');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('addresses').length === 0) {
 			message = message + ' Add at least One Address field \n';
 
-			// customErrorMessage('Add at least One Address field');
+			 customErrorMessage('Add at least One Address field');
 			this.setState({ createCustomer: false });
 		}
-		if (message !== '') {
-			customErrorMessage(message);
-		}
+		
 	}
 
 	updateDetails(details) {
@@ -197,10 +194,11 @@ class Customer extends React.Component {
 	}
 
 	render() {
+		console.log(this.props.match)
 		return (
 			<Container>
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<StyledContainer limit={2} />
+				<CustomNotification limit={2} />
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -216,7 +214,7 @@ class Customer extends React.Component {
 											if (this.state.createCustomer) {
 												this.props.createVariable(this.state.variable).then((status) => {
 													if (status === 200) {
-														successMessage('created customer');
+														successMessage(' Customer Created');
 													}
 												});
 											}
@@ -565,47 +563,7 @@ const SaveButton = styled.button`
 	transition: background-color 0.15s ease-in-out;
 	outline: none;
 `;
-// styling Toast container
-const StyledContainer = styled(ToastContainer).attrs(
-	{
-		// custom props
-	}
-)`
-	.Toastify__toast-container {}
-	.Toastify__toast {}
-	.Toastify__toast--error {
-		margin: 0 0 6px;
-		padding: 10px 15px;
-		-moz-border-radius: 6px;
-		-webkit-border-radius: 6px;
-		border-radius: 6px;
-		background-repeat: no-repeat;
-		background-color: #fd4a4a;
-	}
-	.Toastify__toast--warning {
-		margin: 0 0 6px;
-		padding: 16px 42px 16px 55px;
-		-moz-border-radius: 6px;
-		-webkit-border-radius: 6px;
-		border-radius: 6px;
-		background-repeat: no-repeat;
-		background-color: #fd4a4a;
-	}
-	.Toastify__toast--success {
-		margin: 0 0 6px;
-		padding: 16px 42px 16px 55px;
-		-moz-border-radius: 6px;
-		-webkit-border-radius: 6px;
-		border-radius: 6px;
-		background-repeat: no-repeat;
-		background-color: #fd4a4a;
-	}
-	.Toastify__toast-body {
-		white-space: pre-line;
 
-	}
-	.Toastify__progress-bar {}
-  `;
 
 export const HorizontaListPageBlock = styled.div`
 	width: 100%;
