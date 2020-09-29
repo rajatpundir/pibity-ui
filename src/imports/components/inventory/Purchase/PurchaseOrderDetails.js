@@ -26,7 +26,7 @@ import {
 	LeftBlock,
 	LeftItemH1,
 	PageBar,
-	PageBarAlignLeft,
+	PageBarAlign,
 	PageBlock,
 	PageToolbar,
 	PlusButton,
@@ -472,11 +472,11 @@ class PurchaseOrderDetails extends React.Component {
 				</PageToolbar>
 
 				<PageBar>
-					<PageBarAlignLeft>
+					<PageBarAlign>
 						<PlusButton onClick={(e) => this.addVariableToProductOrderInputList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
-					</PageBarAlignLeft>
+					</PageBarAlign>
 				</PageBar>
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
@@ -569,11 +569,11 @@ class PurchaseOrderDetails extends React.Component {
 					</RoundedBlock>
 
 					<H3 style={{ paddingTop: '20px' }}>Additional Cost</H3>
-					<PageBarAlignLeft style={{ paddingBottom: '20px' }}>
+					<PageBarAlign style={{ paddingBottom: '20px' }}>
 						<PlusButton onClick={(e) => this.addAdditionalCostListVariable()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
-					</PageBarAlignLeft>
+					</PageBarAlign>
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
 							<Headers>

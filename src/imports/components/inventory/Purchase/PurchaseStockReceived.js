@@ -16,7 +16,7 @@ import {
 	InputBody,
 	LeftItemH1,
 	PageBar,
-	PageBarAlignLeft,
+	PageBarAlign,
 	PageBlock,
 	PageToolbar,
 	PlusButton,
@@ -250,11 +250,11 @@ class PurchaseStockReceived extends React.Component {
 					<AuthorizeButton>Authorize</AuthorizeButton>
 				</PageToolbar>
 				<PageBar>
-					<PageBarAlignLeft>
+					<PageBarAlign>
 						<PlusButton onClick={(e) => this.addVariableToList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
-					</PageBarAlignLeft>
+					</PageBarAlign>
 				</PageBar>
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
