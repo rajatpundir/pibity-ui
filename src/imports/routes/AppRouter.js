@@ -64,7 +64,7 @@ export const AppRouter = () => (
 			<PublicRoute exact path="/purchase/:variableName" render={(props) => <Purchase {...props}/>} />
 			<PublicRoute exact path="/customer" render={(props) => <Customer {...props}/>} />
 			<PublicRoute exact path="/customerList" render={(props) => <CustomerList {...props}/>} />
-			<PublicRoute exact path="/customer/:variableName" render={(props) => <Customer {...props}/>} />
+			<PublicRoute exact path="/customerList/:variableName" render={(props) => <Customer {...props}/>} />
 			
 			{/* <PublicRoute exact path="/biddingList/" render={(props) => <BiddingList {...props}/>} />
 			<PublicRoute exact path="/adminBiddingList/" render={(props) => <AdminBiddingList {...props}/>} />

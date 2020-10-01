@@ -11,10 +11,11 @@ import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
+import Header from '../../main/Header'
 
 class Customer extends React.Component {
 	constructor(props) {
-		super(props);
+		super();
 		this.state = {
 			isOpen: false,
 			createCustomer: true,
@@ -194,9 +195,9 @@ class Customer extends React.Component {
 	}
 
 	render() {
-		console.log(this.props.match)
 		return (
 			<Container>
+				<Header match={this.props.match}></Header>
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit={2} />
 				<PageWrapper>
@@ -385,7 +386,7 @@ const Container = styled.div`
 	min-height: 100vh;
 	position: relative;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	flex-grow: 1;
 	font-size: 100%;
 	font: inherit;
@@ -409,8 +410,6 @@ const PageWrapper = styled.div`
 	vertical-align: baseline;
 	@media (min-width: 1201px) {
 		margin: 20px 20px 0 20px;
-		width: 75%;
-
 	}
 `;
 

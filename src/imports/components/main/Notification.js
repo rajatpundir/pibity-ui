@@ -6,7 +6,7 @@ import styled from 'styled-components';
 export const customErrorMessage = function(message) {
     toast.error(message, {
         position: 'bottom-right',
-        autoClose: 60000000,
+        autoClose: 6000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -19,7 +19,7 @@ export const customErrorMessage = function(message) {
 export const successMessage = function(message) {
     toast.success(message, {
         position: "top-right",
-        autoClose: 60000000,
+        autoClose: 6000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,

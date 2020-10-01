@@ -3,7 +3,7 @@ import styled from 'styled-components';
 //------------------------------Containers--------------------------//
 
 export const Container = styled.div.attrs((props) => ({
-	mediaPadding: props.mediaPadding ||' 20px 20px 0 20px',
+	mediaPadding: props.mediaPadding ,
 	backgroundColor: props.backgroundColor || '#e3e4e8'
 }))`
 	padding: 0;
@@ -13,7 +13,7 @@ export const Container = styled.div.attrs((props) => ({
 	margin-top: 65px;
 	min-height: 100vh;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	flex-grow: 1;
 	font-size: 100%;
 	font: inherit;
@@ -21,13 +21,12 @@ export const Container = styled.div.attrs((props) => ({
 	vertical-align: baseline;
 	background-color:${(props) => props.backgroundColor};
 	@media (max-width: 1200px) {
-		flex-direction: column !important;
-		padding: ${(props) => props.mediaPadding} 
+		padding: ${(props) => props.mediaPadding};
 	}
 `;
 
 export const PageWrapper = styled.div.attrs((props)=>({
-	mediaMargin:props.mediaMargin ||"20px 20px 0 20px"
+	mediaMargin:props.mediaMargin ||"20px auto"
 }))`
 	 flex: 1;
     overflow: hidde
@@ -38,7 +37,7 @@ export const PageWrapper = styled.div.attrs((props)=>({
     font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1201px) {
-		margin: ${(props)=>props.mediaMargin}
+		margin: ${(props)=>props.mediaMargin};
 		width: 80%;
 
 	}
@@ -107,6 +106,7 @@ export const PageBlock = styled.div`
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 	align-items: center;
+	padding-bottom: 20px;
 `;
 
 //    align-items: center;
@@ -131,6 +131,15 @@ export const ToolbarLeftItems = styled.div`
 	align-items: center;
 	float: left;
 `;
+
+export const InputFieldContainer = styled.div`
+	display: flex;
+	display: -ms-flexbox;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	width: 100%;
+`;
+
 
 export const InputBody = styled.div.attrs((props) => ({
 	alignitem: props.alignItem || 'start',
@@ -237,7 +246,13 @@ export const HeaderContainer = styled.div`
 	left: 0;
 	top: 0;
 `;
-
+export const HeaderContainerInner = styled.div`
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	height: 100% !important;
+	width: 100% !important;
+`;
 export const HeaderBodyContainer = styled.div`
 	width: 100%;
 	height: inherit !important;
@@ -439,6 +454,11 @@ export const InputColumnWrapper = styled.div`
 }
 `;
 
+export const InputRowWrapper = styled.div.attrs((props) => ({
+	flexBasis: props.flexBasis || '100%'
+}))`
+flex-basis: ${(props) => props.flexBasis};`;
+
 export const FormControl = styled.div.attrs((props) => ({
 	minHeight: props.minHeight || '60px',
 	paddingBottom: props.paddingBottom || '20px'
@@ -473,6 +493,24 @@ export const LeftItemFormControl = styled.div`
 	position: relative;
 	display: flex;
 	align-items: start;
+`;
+
+export const LeftItemWrapper = styled.div.attrs((props) => ({
+	backgroundColor: props.backgroundColor,
+	color: props.color || ' #f1f6fb'
+}))`
+	background-color: ${(props) => props.backgroundColor};
+	border: 1px solid ${(props) => props.backgroundColor};
+	color:  ${(props) => props.color};
+	padding: 4px 10px 4px 10px;
+	border-radius: 3px;
+	display: inline-block;
+	font-weight: 500;
+	margin-right: 10px;
+	font-size: 100%;
+	font: inherit;
+	font-family: 'IBM Plex Sans', sans-serif;
+	vertical-align: baseline;
 `;
 
 export const LeftItemH1 = styled.h1`
@@ -519,11 +557,10 @@ export const SelectWrapper = styled.div`
 
 export const Input = styled.input.attrs((props) => ({
 	width: props.width || 'inherit',
-	height: props.height || '40px',
+	height: props.height || '38px',
 	padding: props.padding || '11px 10px 10px 10px'
 }))`
 	width: ${(props) => props.width};
-	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
 	border-style: solid;
@@ -546,7 +583,6 @@ export const Input = styled.input.attrs((props) => ({
 	line-height: normal;
 	font-size: 100%;
 	margin: 0;
-	outline: none;
 	vertical-align: baseline;
 `;
 
@@ -801,7 +837,7 @@ export const SaveButton = styled.button`
 	outline: none;
 `;
 
-//------------------------Horizontal Nav------------//
+//------------------------Horizontal Navigation-------------------------//
 export const HorizontalistPageBlock = styled.div`
 	width: 100%;
 	height: 60px;
@@ -892,3 +928,12 @@ export const BlockListItemBUtton = styled.button`
 		box-sizing: border-box;
 	}
 `;
+
+
+
+
+
+
+
+
+

@@ -470,7 +470,6 @@ class PurchaseOrderDetails extends React.Component {
 						<LeftItemH1>Order</LeftItemH1>
 					</ToolbarLeftItems>
 				</PageToolbar>
-
 				<PageBar>
 					<PageBarAlign>
 						<PlusButton onClick={(e) => this.addVariableToProductOrderInputList()}>

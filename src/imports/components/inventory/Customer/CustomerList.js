@@ -8,6 +8,19 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TablePaginationActions from '../../main/TablePagination';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
 
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import Table from '@material-ui/core/Table';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import CollapseData from './CollapseData'
 class CustomerList extends React.Component {
 	constructor(props) {
 		super();
@@ -17,7 +30,8 @@ class CustomerList extends React.Component {
 			activeCustomerOnly: false,
 			isOpen: false,
 			page: 0,
-			rowsPerPage: 5
+			rowsPerPage: 5,
+			open: false
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
@@ -69,62 +83,85 @@ class CustomerList extends React.Component {
 			: this.state.customer;
 		list.forEach((customer) => {
 			rows.push(
-				<TableRow onClick={this.handleRowClick} key={customer.variableName}>
-					<TableData width="5%" />
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Link to={'/customer/' + encodeURIComponent(customer.variableName)}>
-								{customer.variableName}
-							</Link>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>{customer.values.contacts[0].values.name}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={'tel:' + customer.values.contacts[0].values.phone}>
-								{customer.values.contacts[0].values.phone}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={'mailto:' + customer.values.contacts[0].values.email} target="_blank">
-								{customer.values.contacts[0].values.email}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={customer.values.contacts[0].values.website} target="_blank">
-								{customer.values.contacts[0].values.website}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="20%">
-						<TableHeaderInner>
-							{customer.values.addresses[0] !== undefined ? (
-								customer.values.addresses[0].values.line1 || 'no address found'
-							) : (
-								'no address found'
-							)}
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>0.00</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Span>{customer.values.general.values.status}</Span>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							{customer.values.general.values.onCreditHold === false ? 'NO' : 'Yes'}
-						</TableHeaderInner>
-					</TableData>
-				</TableRow>
+				<CollapseData data={customer} key={customer.variableName}></CollapseData>
+				// <React.Fragment key={customer.variableName}>
+				// 	<TableRow onClick={this.handleRowClick} key={customer.variableName}>
+				// 		<TableData width="5%">
+				// 			<IconButton
+				// 				aria-label="expand row"
+				// 				size="small"
+				// 				onClick={() => this.setState({ open: !this.state.open })}
+				// 			>
+				// 				{this.state.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+				// 			</IconButton>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>
+				// 				<Link to={'/customer/' + encodeURIComponent(customer.variableName)}>
+				// 					{customer.variableName}
+				// 				</Link>
+				// 			</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>{customer.values.contacts[0].values.name}</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>
+				// 				<Anchor href={'tel:' + customer.values.contacts[0].values.phone}>
+				// 					{customer.values.contacts[0].values.phone}
+				// 				</Anchor>
+				// 			</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>
+				// 				<Anchor href={'mailto:' + customer.values.contacts[0].values.email} target="_blank">
+				// 					{customer.values.contacts[0].values.email}
+				// 				</Anchor>
+				// 			</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>
+				// 				<Anchor href={customer.values.contacts[0].values.website} target="_blank">
+				// 					{customer.values.contacts[0].values.website}
+				// 				</Anchor>
+				// 			</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="20%">
+				// 			<TableHeaderInner>
+				// 				{customer.values.addresses[0] !== undefined ? (
+				// 					customer.values.addresses[0].values.line1 || 'no address found'
+				// 				) : (
+				// 					'no address found'
+				// 				)}
+				// 			</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>0.00</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>
+				// 				<Span>{customer.values.general.values.status}</Span>
+				// 			</TableHeaderInner>
+				// 		</TableData>
+				// 		<TableData width="10%">
+				// 			<TableHeaderInner>
+				// 				{customer.values.general.values.onCreditHold === false ? 'NO' : 'Yes'}
+				// 			</TableHeaderInner>
+				// 		</TableData>
+				// 	</TableRow>
+
+				// 	<TableRow>
+				// 		<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} >
+				// 			<Collapse in={this.state.open} timeout="auto" unmountOnExit>
+				// 				<Box margin={1}>
+				// 					<Typography variant="h6" gutterBottom component="div">
+				// 						History
+				// 					</Typography>
+				// 				</Box>
+				// 			</Collapse>
+				// 		</TableCell>
+				// 	</TableRow>
+				// </React.Fragment>
 			);
 		});
 

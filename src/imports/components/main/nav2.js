@@ -4,7 +4,6 @@ import { updateToken } from '../../redux/actions/auth';
 import { connect } from 'react-redux';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
-import cx from 'classnames';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Drawer from '@material-ui/core/Drawer';

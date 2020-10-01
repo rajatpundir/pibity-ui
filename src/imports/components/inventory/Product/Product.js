@@ -3,9 +3,15 @@ import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage,CustomNotification,successMessage } from '../../main/Notification';
+import { customErrorMessage, CustomNotification, successMessage } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
-import { createVariable, getVariables, getVariable, updateVariable, objToMapRec } from '../../../redux/actions/variables';
+import {
+	createVariable,
+	getVariables,
+	getVariable,
+	updateVariable,
+	objToMapRec
+} from '../../../redux/actions/variables';
 import ProductDimension from './ProductDimension';
 import CustomPrice from './CustomPrice';
 import Stock from './Stock';
@@ -14,6 +20,17 @@ import SupplierProduct from './SupplierProduct';
 import ProductGeneralDetails from './ProductGeneralDetails';
 import CheckIcon from '@material-ui/icons/Check';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
+import {
+	PageWrapper,
+	PageBody,
+	PageBlock,
+	PageToolbar,
+	ToolbarLeftItems,
+	LeftItemH1,
+	InputBody,
+	SaveButtonContaier,
+	SaveButton
+} from '../Purchase/Style';
 
 class Product extends React.Component {
 	constructor(props) {
@@ -262,139 +279,10 @@ class Product extends React.Component {
 
 	render() {
 		return (
-			<Container>
+			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit="2" />
-				<PageSidebar>
-					<VerticalWrapper>
-						<NavList>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('product')}>
-									<ButtonText>General</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('price')}>
-									<ButtonText>Price</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('stock')}>
-									<ButtonText>Stock</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('dimensions')}>
-									<ButtonText>Dimension</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('suppliers')}>
-									<ButtonText>Supplier</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('customPrices')}>
-									<ButtonText>Custom Price</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('reorderLevel')}>
-									<ButtonText>Reorder Levels</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('discounts')}>
-									<ButtonText>Discount</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('additionalUnitOfMeasure')}>
-									<ButtonText>Additional Units of Measure</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('additionalDescription')}>
-									<ButtonText>Additional Descriptions</ButtonText>
-								</NavButton>
-							</NavListItems>
-							<NavListItems>
-								<NavButton onClick={(e) => this.divVisibility('channels')}>
-									<ButtonText>Channels</ButtonText>
-								</NavButton>
-							</NavListItems>
-						</NavList>
-					</VerticalWrapper>
-					<HorizontalNavWrapper>
-						<HorizontalNav>
-							<NavList>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('product')}>
-										<ButtonText>General</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('price')}>
-										<ButtonText>Price</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('stock')}>
-										<ButtonText>Stock</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('dimensions')}>
-										<ButtonText>Dimension</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('suppliers')}>
-										<ButtonText>Supplier</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('customPrices')}>
-										<ButtonText>Custom Price</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('reorderLevel')}>
-										<ButtonText>Reorder Levels</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('discounts')}>
-										<ButtonText>Discount</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('additionalUnitOfMeasure')}>
-										<ButtonText>Additional Units of Measure</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('additionalDescription')}>
-										<ButtonText>Additional Descriptions</ButtonText>
-									</NavButton>
-								</NavListItems>
-								<NavListItems>
-									<NavButton onClick={(e) => this.divVisibility('channels')}>
-										<ButtonText>Channels</ButtonText>
-									</NavButton>
-								</NavListItems>
-							</NavList>
-						</HorizontalNav>
-						<HorizontalNavActionWrapper>
-							<Arrow>
-								<i className="large material-icons">arrow_back</i>
-							</Arrow>
-							<RightArrow>
-								<i className="large material-icons">arrow_forward</i>
-							</RightArrow>
-						</HorizontalNavActionWrapper>
-					</HorizontalNavWrapper>
-				</PageSidebar>
+
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -425,234 +313,113 @@ class Product extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
+						<PageSidebar>
+							<HorizontalNavWrapper>
+								<HorizontalNav>
+									<NavList>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('product')}>
+												<ButtonText>General</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('price')}>
+												<ButtonText>Price</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('stock')}>
+												<ButtonText>Stock</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('dimensions')}>
+												<ButtonText>Dimension</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('suppliers')}>
+												<ButtonText>Supplier</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('customPrices')}>
+												<ButtonText>Custom Price</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('reorderLevel')}>
+												<ButtonText>Reorder Levels</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('discounts')}>
+												<ButtonText>Discount</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('additionalUnitOfMeasure')}>
+												<ButtonText>Additional Units of Measure</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('additionalDescription')}>
+												<ButtonText>Additional Descriptions</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('channels')}>
+												<ButtonText>Channels</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('channels')}>
+												<ButtonText>Channels</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('channels')}>
+												<ButtonText>Channels</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('channels')}>
+												<ButtonText>Channels</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('channels')}>
+												<ButtonText>Channels</ButtonText>
+											</NavButton>
+										</NavListItems>
+										<NavListItems>
+											<NavButton onClick={(e) => this.divVisibility('channels')}>
+												<ButtonText>Channels</ButtonText>
+											</NavButton>
+										</NavListItems>
+									</NavList>
+								</HorizontalNav>
+								<HorizontalNavActionWrapper>
+									<Arrow>
+										<i className="large material-icons">arrow_back</i>
+									</Arrow>
+									<RightArrow>
+										<i className="large material-icons">arrow_forward</i>
+									</RightArrow>
+								</HorizontalNavActionWrapper>
+							</HorizontalNavWrapper>
+						</PageSidebar>
 						<ProductGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
 						/>
-						<PageBlock id="price">
-							<PageToolbar>
-								<ToolbarLeftItems>
-									<LeftItemH1>PRICES</LeftItemH1>
-								</ToolbarLeftItems>
-							</PageToolbar>
-							<PageBar>
-								<PageBarAlignLeft>
-									<Label>Current Average 0.00000</Label>
-								</PageBarAlignLeft>
-							</PageBar>
-							<InputBody borderTop="0">
-								<RoundedBlock>
-									<TableFieldContainer>
-										<Headers>
-											<HeaderContainer>
-												<HeaderContainerInner>
-													<ColumnName width="58px" left="0">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="267px" left="58px">
-														<SelectIconContainer>
-															<SelectSpan>Price Tier</SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="100px" left="286px">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Price</SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="100px" left="386px">
-														<SelectIconContainer>
-															<SelectSpan>Calculated </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="228px" left="486px">
-														<SelectIconContainer>
-															<SelectSpan>Type </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="228px" left="714px">
-														<SelectIconContainer>
-															<SelectSpan>Use </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="100px" left="924px">
-														<SelectIconContainer>
-															<SelectSpan>Value </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-												</HeaderContainerInner>
-											</HeaderContainer>
-										</Headers>
-									</TableFieldContainer>
-								</RoundedBlock>
-							</InputBody>
-						</PageBlock>
+
 						<ProductDimension variable={this.state.variable} updateDimensions={this.updateDimensions} />
 						<ReorderLevels
 							list={this.state.variable.get('values').get('productReorderLevels')}
 							updateProductReorderLevels={this.updateProductReorderLevels}
 						/>
-						<PageBlock id="discounts">
-							<PageToolbar>
-								<ToolbarLeftItems>
-									<LeftItemH1>Discounts</LeftItemH1>
-								</ToolbarLeftItems>
-							</PageToolbar>
-							<PageBar>
-								<PageBarAlignLeft>
-									<PlusButton>
-										<i className="large material-icons">add</i>
-									</PlusButton>
-								</PageBarAlignLeft>
-							</PageBar>
-							<InputBody borderTop="0">
-								<RoundedBlock>
-									<TableFieldContainer>
-										<Headers>
-											<HeaderContainer>
-												<HeaderContainerInner>
-													<ColumnName width="5%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="30%" left="5%">
-														<SelectIconContainer>
-															<SelectSpan>Customer </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="30%" left="30%">
-														<SelectIconContainer>
-															<SelectSpan>Customer Tag </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="30%" left="65%">
-														<SelectIconContainer>
-															<SelectSpan>Discount </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-												</HeaderContainerInner>
-											</HeaderContainer>
-										</Headers>
-										<HeaderBodyContainer>
-											<HeaderBody>
-												<BodyTable>
-													<TableBody>
-														<TableRow>
-															<TableHeader width="58px" />
-															<TableHeader width="168px" />
-															<TableHeader width="168px" />
-															<TableHeader width="168px" />
-															<TableHeader width="167px" />
-															<TableHeader width="167px" />
-															<TableHeader width="58px" />
-														</TableRow>
-													</TableBody>
-												</BodyTable>
-											</HeaderBody>
-											<EmptyRow>
-												You do not have any Customer Specific Discount for this Product
-											</EmptyRow>
-										</HeaderBodyContainer>
-										<AddMoreBlock>
-											<AddMoreButton>
-												<i className="large material-icons">add</i>Add More Discounts
-											</AddMoreButton>
-										</AddMoreBlock>
-									</TableFieldContainer>
-								</RoundedBlock>
-							</InputBody>
-						</PageBlock>
-						<PageBlock id="additionalUnitOfMeasure">
-							<PageToolbar>
-								<ToolbarLeftItems>
-									<LeftItemH1>Additional Unit Of Measure</LeftItemH1>
-								</ToolbarLeftItems>
-							</PageToolbar>
-							<PageBar>
-								<PageBarAlignLeft>
-									<PlusButton>
-										<i className="large material-icons">add</i>
-									</PlusButton>
-								</PageBarAlignLeft>
-							</PageBar>
-							<InputBody borderTop="0">
-								<RoundedBlock>
-									<TableFieldContainer>
-										<Headers>
-											<HeaderContainer>
-												<HeaderContainerInner>
-													<ColumnName width="5%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="20%" left="3%">
-														<SelectIconContainer>
-															<SelectSpan>Product</SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="15%" left="24%">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Unit of Measure</SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="15%" left="40%">
-														<SelectIconContainer>
-															<SelectSpan>Conversion Rate </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="15%" left="55%">
-														<SelectIconContainer>
-															<SelectSpan>I am Selling This Product </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-													<ColumnName width="20%" left="65%">
-														<SelectIconContainer>
-															<SelectSpan>Tier 1 </SelectSpan>
-														</SelectIconContainer>
-													</ColumnName>
-												</HeaderContainerInner>
-											</HeaderContainer>
-										</Headers>
-										<HeaderBodyContainer>
-											<HeaderBody>
-												<BodyTable>
-													<TableBody>
-														<TableRow>
-															<TableHeader width="58px" />
-															<TableHeader width="168px" />
-															<TableHeader width="168px" />
-															<TableHeader width="168px" />
-															<TableHeader width="167px" />
-															<TableHeader width="167px" />
-															<TableHeader width="58px" />
-														</TableRow>
-													</TableBody>
-												</BodyTable>
-											</HeaderBody>
-											<EmptyRow>
-												{' '}
-												You do not have any additional Unit of Measure for this Product
-											</EmptyRow>
-										</HeaderBodyContainer>
-									</TableFieldContainer>
-								</RoundedBlock>
-							</InputBody>
-						</PageBlock>
+
 						<CustomPrice
 							id="customPrices"
 							list={this.state.variable.get('values').get('productCustomPrice')}
@@ -703,51 +470,62 @@ export default connect(mapStateToProps, {
 	updateVariable
 })(Product);
 
-const Container = styled.div`
+export const Container = styled.div.attrs((props) => ({
+	mediaPadding: props.mediaPadding,
+	backgroundColor: props.backgroundColor || '#e3e4e8'
+}))`
 	padding: 0;
 	width: 100%;
+	min-width: 860px;
+	position: relative;
 	margin-top: 65px;
 	min-height: 100vh;
-	min-width: 860px;
-	border-radius: 6px;
-	position: relative;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	flex-grow: 1;
 	font-size: 100%;
 	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
+	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
-	background-color: #e3e4e8;
+	background-color:${(props) => props.backgroundColor};
 	@media (max-width: 1200px) {
-		flex-direction: column !important;
-		padding: 20px 20px 0 20px !important;
+		padding: ${(props) => props.mediaPadding};
 	}
 `;
 
 const PageSidebar = styled.div`
-	width: 236px;
-	min-width: 236px;
-	padding: 20px 20px 0 20px;
+	width: 100%;
+	height: auto;
+	padding: 10px;
+	margin-bottom: 20px;
 	background: #fff;
-	border-right: 1px solid #e0e1e7;
+	border-right: 0 !important;
+	border-radius: 6px;
+	position: static;
+	overflow: hidden;
+
+	// width: 236px;
+	// min-width: 236px;
+	// padding: 20px 20px 0 20px;
+	// background: #fff;
+	// border-right: 1px solid #e0e1e7;
 	color: #3b3b3b;
 	text-align: left;
 	letter-spacing: -0.2px;
-	@media (max-width: 1200px) {
-		width: 100%;
-		height: auto;
-		padding: 10px;
-		margin-bottom: 20px;
-		background: #fff;
-		border-right: 0 !important;
-		border-radius: 6px;
-		position: static;
-		overflow: hidden;
-	}
-	@media (min-width: 1201px) {
-		margin: 20px 0 20px 5px;
-	}
+	// @media (max-width: 1200px) {
+	// 	width: 100%;
+	// 	height: auto;
+	// 	padding: 10px;
+	// 	margin-bottom: 20px;
+	// 	background: #fff;
+	// 	border-right: 0 !important;
+	// 	border-radius: 6px;
+	// 	position: static;
+	// 	overflow: hidden;
+	// }
+	// @media (min-width: 1201px) {
+	// 	margin: 20px 0 20px 5px;
+	// }
 `;
 
 const VerticalWrapper = styled.div`
@@ -758,22 +536,21 @@ const VerticalWrapper = styled.div`
 	}
 `;
 
-const NavList = styled.ul`
+const NavList = styled.div`
 	width: 100%;
-	float: left;
 	margin-bottom: 20px;
 	list-style: none;
 	height: 40px;
-
 	@media (max-width: 1200px) {
-		width: max-content;
+		width: inherit;
 		padding: 0px 32px;
 		transform: translate3d(0px, 0px, 0px);
-		overflow: hidden;
+		overflow: auto;
 		margin-bottom: 0;
 	}
 `;
-const NavListItems = styled.li`
+const NavListItems = styled.div`
+	display: inline-block;
 	width: 100%;
 	float: left;
 	white-space: nowrap;
@@ -824,9 +601,6 @@ const HorizontalNavWrapper = styled.div`
 	position: relative;
 	overflow: hidden;
 	display: block;
-	@media (min-width: 1201px) {
-		display: none;
-	}
 `;
 const HorizontalNav = styled.div`
 	width: calc(100% - 80px);
@@ -897,345 +671,14 @@ const RightArrow = styled.a`
 	}
 `;
 
-const PageWrapper = styled.div`
-	 flex: 1;
-    overflow: hidde
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    font-family: 'IBM Plex Sans', sans-serif;
-	vertical-align: baseline;
-	@media (min-width: 1201px) {
-		margin: 20px 20px 0 20px;
-		width: 75%;
-
-	}
-`;
-
-const PageBody = styled.div`
-	margin: 0 auto !important;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
-	vertical-align: baseline;
-	@media (min-width: 1440px) {
-		max-width: 90%;
-	}
-`;
-
-const PageBlock = styled.div`
-	display: none;
-	background: #fff;
-	width: 100%;
+const Label = styled.div`
 	float: left;
-	border-radius: 6px;
-	margin-bottom: 20px;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
-	vertical-align: baseline;
-	align-items: center;
+	margin-right: 10px;
 `;
 
-const PageToolbar = styled.div`
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 16px 20px;
-`;
-
-const ToolbarLeftItems = styled.div`
-	display: flex;
-	justify-content: flex-start !important;
-	align-items: center;
-	float: left;
-`;
-
-const LeftItemH1 = styled.h1`
-	font-size: 16px;
-	text-transform: uppercase;
-	font-weight: bold;
-	padding-right: 20px;
-	display: flex;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
-	vertical-align: baseline;
-`;
-
-const InputBody = styled.div.attrs((props) => ({
-	alignitem: props.alignItem || 'start',
-	borderTop: props.borderTop || '1px solid #e0e1e7'
-}))`
-  align-items: ${(props) => props.alignItem};
-  max-height: 4000px;
-  overflow: hidden;
-  animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-  -webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-  transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-  -webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-  border-top: ${(props) => props.borderTop};
-  -webkit-flex-flow: row wrap;
-  flex-flow: row wrap;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 20px 20px 0 20px;
-  padding-bottom: 20px !important;
-`;
-
-const PageBar = styled.div`
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 20px 20px 0 20px;
-	border-top: 1px solid #e0e1e7;
-`;
 const PageBarAlignLeft = styled.div`
 	display: flex;
 	justify-content: flex-start !important;
 	align-items: center;
 	float: left;
-`;
-
-const Label = styled.div`
-	float: left;
-	margin-right: 10px;
-`;
-const RoundedBlock = styled.div.attrs((props) => ({
-	marginTop: props.marginTop || '0'
-}))`
-  border: 1px solid #b9bdce;
-  border-radius: 4px;
-  width: 100%;
-  float: left;
-  overflow: hidden;
-  margin-top: ${(props) => props.marginTop};
-`;
-const TableFieldContainer = styled.div`
-	width: 100% !important;
-	min-height: auto !important;
-	text-align: center;
-	position: relative !important;
-	top: 0 !important;
-	height: inherit !important;
-	float: left;
-	overflow: hidden !important;
-`;
-const Headers = styled.div`
-	border-width: 0px;
-	width: 100%;
-	left: 0px;
-	top: 0px;
-	border-top: 0 !important;
-	zoom: 1;
-	cursor: default;
-	background-color: #fff;
-	border-bottom: 1px solid #e7e8ec !important;
-	border-top: 1px solid #e7e8ec !important;
-	height: 60px;
-	overflow: hidden;
-`;
-const HeaderContainer = styled.div`
-	width: 100%;
-	height: 100% !important;
-	overflow: hidden;
-	zoom: 1;
-	position: relative;
-	left: 0;
-	top: 0;
-`;
-
-const HeaderContainerInner = styled.div`
-	position: absolute;
-	left: 0px;
-	top: 0px;
-	height: 100% !important;
-	width: 100% !important;
-`;
-const ColumnName = styled.div.attrs((props) => ({
-	width: props.width,
-	left: props.left
-}))`
-  width: ${(props) => props.width};
-  left: ${(props) => props.left};
-  border-width: 1px;
-  height: auto;
-  margin: 0px;
-  top: 0px;
-  font-size: 11px;
-  font-weight: bold;
-  font-family: inherit;
-  color: #707887;
-  text-transform: uppercase;
-  letter-spacing: -0.4px;
-  vertical-align: middle;
-  position: absolute;
-  bottom: 0;
-`;
-
-const SelectIconContainer = styled.div`
-	justify-content: center;
-	padding: 0 10px !important;
-
-	font-weight: bold;
-	font-size: 11px;
-	text-transform: uppercase;
-	height: 100% !important;
-	display: flex;
-	align-self: stretch;
-	width: 100%;
-`;
-const SelectSpan = styled.span.attrs((props) => ({
-	textAlign: props.textAlign || 'left'
-}))`
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  text-align: ${(props) => props.textAlign};
-  cursor: pointer;
-`;
-const SelectSpanInner = styled.span`white-space: nowrap;`;
-
-const HeaderBodyContainer = styled.div`
-	width: 100%;
-	height: auto;
-	height: inherit !important;
-	float: left;
-	height: auto !important;
-	position: relative;
-	top: 0 !important;
-	left: 0 !important;
-	overflow: hidden;
-`;
-const HeaderBody = styled.div`
-	border-width: 0px;
-	overflow: auto;
-	margin: 0px;
-	width: 1158px;
-`;
-const BodyTable = styled.table`
-	width: 100%;
-	height: 1px;
-	table-layout: fixed;
-	border-collapse: separate;
-	border-collapse: collapse;
-	border-spacing: 0;
-`;
-const TableBody = styled.tbody``;
-const TableRow = styled.tr``;
-const TableHeader = styled.th.attrs((props) => ({
-	width: props.width,
-	height: props.height || '0'
-}))`
-  width: ${(props) => props.width};
-`;
-
-const EmptyRow = styled.div`
-	text-align: center;
-	border-bottom: 1px solid #e7e8ec;
-	min-height: 59px !important;
-	line-height: 55px;
-`;
-const AddMoreBlock = styled.div`
-	flex-flow: row wrap;
-	display: flex;
-	width: 100%;
-	padding: 16px 20px;
-	align-items: center;
-	justify-content: inherit !important;
-`;
-const AddMoreButton = styled.button`
-	background-color: transparent;
-	color: #05cbbf;
-	border-color: transparent;
-	min-width: 70px;
-	padding: 0 10px;
-	height: 32px !important;
-	border-width: 1px;
-	border-style: solid;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	text-align: center;
-	text-decoration: none;
-	display: inline-flex;
-	vertical-align: middle;
-	justify-content: center;
-	flex-direction: row;
-	align-items: center;
-	background: transparent;
-	height: 40px;
-	white-space: nowrap;
-	border-radius: 4px;
-	padding: 0 16px;
-	cursor: pointer;
-	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
-		opacity 0.15s ease-in-out;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
-		opacity 0.15s ease-in-out;
-	&:hover {
-		outline: none;
-	}
-`;
-
-const PlusButton = styled.button`
-	margin-left: 5px;
-	color: #04beb3;
-	background-color: #05cbbf;
-	border-color: #05cbbf;
-	width: 32px !important;
-	min-width: 32px !important;
-	max-width: 32px !important;
-	justify-content: center;
-	padding: 0 !important;
-	height: 32px !important;
-	text-align: center;
-	border-width: 1px;
-	border-style: solid;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	text-decoration: none;
-	display: inline-flex;
-	vertical-align: middle;
-	flex-direction: row;
-	align-items: center;
-	background: transparent;
-	white-space: nowrap;
-	border-radius: 4px;
-`;
-const SaveButtonContaier = styled.div`
-	position: fixed;
-	bottom: 50px;
-	right: 50px;
-	bottom: 37px;
-	right: 37px;
-	z-index: 300;
-`;
-const SaveButton = styled.button`
-	border-radius: 50%;
-	width: 40px;
-	height: 40px;
-	background-color: #05cbbf;
-	border: 0;
-	color: #fff;
-	text-align: center;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: background-color 0.15s ease-in-out;
-	outline: none;
 `;

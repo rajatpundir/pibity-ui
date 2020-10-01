@@ -5,6 +5,38 @@ import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
 import Select from 'react-select';
+import {
+	AddMoreBlock,
+	AddMoreButton,
+	BodyTable,
+	EmptyRow,
+	HeaderBody,
+	HeaderBodyContainer,
+	HeaderContainer,
+	Headers,
+	Input,
+	InputBody,
+	LeftItemH1,
+	PageBar,
+	PageBarAlign,
+	PageBlock,
+	PageToolbar,
+	RoundedBlock,
+	SelectIconContainer,
+	SelectSpan,
+	SelectSpanInner,
+	SelectWrapper,
+	TableBody,
+	TableData,
+	TableFieldContainer,
+	TableHeaderInner,
+	TableHeaders,
+	TableRow,
+	ToolbarLeftItems,
+	FormControl,
+	ButtonWithOutline
+} from '../Purchase/Style';
+
 
 class ReorderLevels extends React.Component {
 	constructor(props) {
@@ -75,7 +107,7 @@ class ReorderLevels extends React.Component {
 		this.state.list.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableHeader width="5%" left="0px">
+					<TableData width="5%" left="0px">
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -83,8 +115,8 @@ class ReorderLevels extends React.Component {
 						>
 							remove_circle_outline
 						</i>
-					</TableHeader>
-					<TableHeader width="10%" left="7%">
+					</TableData>
+					<TableData width="20%" left="3%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -113,8 +145,8 @@ class ReorderLevels extends React.Component {
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
-					</TableHeader>
-					<TableHeader width="8%" left="15%">
+					</TableData>
+					<TableData width="15%" left="24%">
 						<TableHeaderInner>
 							<Input
 								name="minimumBeforeReorder"
@@ -123,8 +155,8 @@ class ReorderLevels extends React.Component {
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-					</TableHeader>
-					<TableHeader width="8%" left="23%">
+					</TableData>
+					<TableData width="15%" left="40%">
 						<TableHeaderInner>
 							<Input
 								name="reorderQuantity"
@@ -133,8 +165,8 @@ class ReorderLevels extends React.Component {
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-					</TableHeader>
-					<TableHeader width="8%" left="34%">
+					</TableData>
+					<TableData width="15%" left="55%">
 						<TableHeaderInner>
 							<Input
 								name="stockLocator"
@@ -143,7 +175,15 @@ class ReorderLevels extends React.Component {
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-					</TableHeader>
+					</TableData>
+					<TableData  width="20%" left="65%">
+						<TableHeaderInner>
+							<Input
+								name="stockLocator"
+								type="text"
+							/>
+						</TableHeaderInner>
+					</TableData>
 				</TableRow>
 			)
 		);
@@ -159,18 +199,18 @@ class ReorderLevels extends React.Component {
 					</ToolbarLeftItems>
 				</PageToolbar>
 				<PageBar>
-					<PageBarAlignLeft>
+					<PageBarAlign>
 						<FormControl>
 							<Input placeholder="Type text to search" />
 						</FormControl>
 						<FormControl>
 							<ButtonWithOutline>Search</ButtonWithOutline>
 						</FormControl>
-					</PageBarAlignLeft>
+					</PageBarAlign>
 				</PageBar>
-				<InputBody borderTop="0">
-					<RoundedBlock>
-						<TableFieldContainer>
+				<InputBody borderTop="0" overflow="visible">
+					<RoundedBlock overflow="visible">
+						<TableFieldContainer overflow="visible">
 							<Headers>
 								<HeaderContainer>
 									<HeaderBody>
@@ -247,362 +287,3 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(ReorderLevels);
-const AddMoreBlock = styled.div`
-	flex-flow: row wrap;
-	display: flex;
-	width: 100%;
-	padding: 16px 20px;
-	align-items: center;
-	justify-content: inherit !important;
-`;
-const AddMoreButton = styled.button`
-	background-color: transparent;
-	color: #05cbbf;
-	border-color: transparent;
-	min-width: 70px;
-	padding: 0 10px;
-	height: 32px !important;
-	border-width: 1px;
-	border-style: solid;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	text-align: center;
-	text-decoration: none;
-	display: inline-flex;
-	vertical-align: middle;
-	justify-content: center;
-	flex-direction: row;
-	align-items: center;
-	background: transparent;
-	height: 40px;
-	white-space: nowrap;
-	border-radius: 4px;
-	padding: 0 16px;
-	cursor: pointer;
-	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
-		opacity 0.15s ease-in-out;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
-		opacity 0.15s ease-in-out;
-	&:hover {
-		outline: none;
-	}
-`;
-const PageBlock = styled.div`
-	display: none;
-	background: #fff;
-	width: 100%;
-	float: left;
-	border-radius: 6px;
-	margin-bottom: 20px;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
-	vertical-align: baseline;
-	align-items: center;
-`;
-
-const InputBody = styled.div.attrs((props) => ({
-	alignitem: props.alignItem || 'start',
-	borderTop: props.borderTop || '1px solid #e0e1e7'
-}))`
-  align-items: ${(props) => props.alignItem};
-  max-height: 4000px;
-  overflow: hidden;
-  animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-  -webkit-animation: expand 0.5s cubic-bezier(0.6, 0.04, 0.98, 0.335) forwards;
-  transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-  -webkit-transition: padding-top 0.5s cubic-bezier(0.39, 0.575, 0.565, 1),
-    padding-bottom 0.5s cubic-bezier(0.39, 0.575, 0.565, 1);
-  border-top: ${(props) => props.borderTop};
-  -webkit-flex-flow: row wrap;
-  flex-flow: row wrap;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  padding: 20px 20px 0 20px;
-  padding-bottom: 20px !important;
-`;
-const SelectWrapper = styled.div`
-	font-size: 13px;
-	outline: none !important;
-	border-width: 1px;
-	border-radius: 4px;
-	border-color: #b9bdce;
-	color: #3b3b3b;
-	font-size: 13px;
-	font-weight: 400;
-	font-family: inherit;
-	min-width: 100px;
-	flex: 1;
-	min-height: 40px;
-	background-color: #fff;
-	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	font-family: "IBM Plex Sans", sans-serif !important;
-	line-height: normal;
-	font-size: 100%;
-	margin: 0;
-	outline: none;
-	vertical-align: baseline;
-`;
-const Input = styled.input`
-	width: inherit;
-	font-size: 13px;
-	outline: none !important;
-	border-width: 1px;
-	border-style: solid;
-	border-radius: 4px;
-	border-color: #b9bdce;
-	padding: 11px 10px 10px 10px;
-	color: #3b3b3b;
-	font-size: 13px;
-	font-weight: 400;
-	font-family: inherit;
-	flex: 1;
-
-	min-height: 40px;
-	background-color: #fff;
-	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	font-family: "IBM Plex Sans", sans-serif !important;
-	line-height: normal;
-	font-size: 100%;
-	margin: 0;
-	outline: none;
-	vertical-align: baseline;
-`;
-
-const PageBar = styled.div`
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 20px 20px 0 20px;
-	border-top: 1px solid #e0e1e7;
-`;
-const PageBarAlignLeft = styled.div`
-	display: flex;
-	justify-content: flex-start !important;
-	align-items: center;
-	float: left;
-`;
-
-const RoundedBlock = styled.div.attrs((props) => ({
-	marginTop: props.marginTop || '0'
-}))`
-  border: 1px solid #b9bdce;
-  border-radius: 4px;
-  width: 100%;
-  float: left;
-  overflow: hidden;
-  margin-top: ${(props) => props.marginTop};
-`;
-
-// float: left;
-const TableFieldContainer = styled.div`
-	position: relative;
-	width: 100% !important;
-	overflow: hidden;
-
-	min-height: auto !important;
-	text-align: center;
-	top: 0 !important;
-	height: inherit !important;
-`;
-
-const SelectIconContainer = styled.div`
-	justify-content: center;
-	padding: 0 10px !important;
-
-	font-weight: bold;
-	font-size: 11px;
-	text-transform: uppercase;
-	height: 100% !important;
-	display: flex;
-	align-self: stretch;
-	width: 100%;
-`;
-const SelectSpan = styled.span.attrs((props) => ({
-	textAlign: props.textAlign || 'left'
-}))`
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  text-align: ${(props) => props.textAlign};
-  cursor: pointer;
-`;
-const SelectSpanInner = styled.span`white-space: nowrap;`;
-
-const HeaderBodyContainer = styled.div`
-	width: 100%;
-	height: inherit !important;
-	float: left;
-	position: relative;
-	top: 0 !important;
-	left: 0 !important;
-	overflow: hidden;
-`;
-const HeaderBody = styled.div`
-	border-width: 0px;
-	overflow: auto;
-	margin: 0px;
-	width: 100%;
-`;
-const BodyTable = styled.table`
-	width: 100%;
-	height: 1px;
-	table-layout: fixed;
-	border-collapse: separate;
-	border-spacing: 0;
-`;
-const TableBody = styled.tbody``;
-const TableRow = styled.tr`
-	cursor: pointer;
-	&:hover {
-		background-color: #f0f3fa;
-	}
-`;
-
-const TableHeaders = styled.th.attrs((props) => ({
-	width: props.width,
-	left: props.left || '0'
-}))`
-  width: ${(props) => props.width};
-  left: ${(props) => props.left};
-  font-family: inherit;
-  vertical-align: middle;
-  border-bottom: 1px solid #e7e8ec;
-  overflow: hidden;
-  padding: 5px 0;
-  height: 60px;
-  float: none !important;
-`;
-const TableHeaderInner = styled.div`
-    width:100%;
-    padding: 1px 3px;
-    color: #41454e;
-    vertical-align: middle;
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-`;
-const EmptyRow = styled.div`
-	text-align: center;
-	border-bottom: 1px solid #e7e8ec;
-	min-height: 59px !important;
-	line-height: 55px;
-`;
-
-const PageToolbar = styled.div`
-	-webkit-flex-flow: row wrap;
-	flex-flow: row wrap;
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding: 16px 20px;
-`;
-
-const ToolbarLeftItems = styled.div`
-	display: flex;
-	justify-content: flex-start !important;
-	align-items: center;
-	float: left;
-`;
-
-const LeftItemH1 = styled.h1`
-	font-size: 16px;
-	text-transform: uppercase;
-	font-weight: bold;
-	padding-right: 20px;
-	display: flex;
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: "IBM Plex Sans", sans-serif;
-	vertical-align: baseline;
-`;
-
-const FormControl = styled.div`
-	padding-bottom: 20px;
-	min-height: 60px;
-	position: relative;
-	display: flex;
-	align-items: start;
-	@media (max-width: 991px) {
-		flex-basis: calc(100% / 2 - 9px) !important;
-	}
-}
-`;
-
-const Headers = styled.div`
-	border-width: 0px;
-	width: 100%;
-	left: 0px;
-	top: 0px;
-	border-top: 0 !important;
-	zoom: 1;
-	cursor: default;
-	background-color: #fff;
-	border-bottom: 1px solid #e7e8ec !important;
-	border-top: 1px solid #e7e8ec !important;
-	height: 60px;
-	overflow: hidden;
-`;
-const HeaderContainer = styled.div`
-	width: 100%;
-	height: 100% !important;
-	overflow: hidden;
-	zoom: 1;
-	position: relative;
-	left: 0;
-	top: 0;
-`;
-
-const TableHeader = styled.td.attrs((props) => ({
-	width: props.width,
-	height: props.height || '0',
-	left: props.left
-}))`
-  width: ${(props) => props.width};
-  left: ${(props) => props.left};
-`;
-
-const ButtonWithOutline = styled.button`
-	background-color: transparent !important;
-	color: #05cbbf;
-	border-color: #05cbbf;
-	margin-left: 5px;
-	min-width: 70px;
-	padding: 0 10px;
-	height: 32px !important;
-	border-width: 1px;
-	border-style: solid;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 500;
-	text-align: center;
-	text-decoration: none;
-	display: inline-flex;
-	vertical-align: middle;
-	justify-content: center;
-	flex-direction: row;
-	align-items: center;
-	align-self: center;
-	white-space: nowrap;
-	border-radius: 4px;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
-		opacity 0.15s ease-in-out;
-`;

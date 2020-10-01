@@ -236,7 +236,7 @@ class Purchase extends React.Component {
 
 	render() {
 		return (
-			<Container>
+			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit={3} />
 				<PageWrapper>

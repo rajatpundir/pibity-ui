@@ -12,12 +12,14 @@ const customStyles = {
 
 	}),
 	option: styles => ({ ...styles,                 
-		overflow: 'ellipsis'
+		textOverflow: 'ellipsis',
+		overflow:'hidden'
+		
 	}),
-	menu: styles => ({ ...styles,                 
-	  width: 'auto'
+// 	menu: styles => ({ ...styles,                 
+// 	  width: 'auto'
 
-})                 
+// })                 
 
   };
 
