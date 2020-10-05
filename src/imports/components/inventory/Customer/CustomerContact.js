@@ -264,8 +264,6 @@ class CustomerContact extends React.Component {
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>
-
-				<button onClick={(e) => this.saveSupplierContact()}>save</button>
 			</PageBlock>
 		);
 	}

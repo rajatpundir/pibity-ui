@@ -165,12 +165,12 @@ class PurchaseOrderList extends React.Component {
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<PageWrapper mediaMargin="0">
 					<PageBody>
-						<PageToolbar>
+						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarLeftItems>
 								<LeftItemH1>PurchaseOrder</LeftItemH1>
 							</ToolbarLeftItems>
 						</PageToolbar>
-						<PageToolbar padding="6px 0 !important">
+						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="left">
 								<LeftItemFormControl paddingBottom="0">
 									<Input

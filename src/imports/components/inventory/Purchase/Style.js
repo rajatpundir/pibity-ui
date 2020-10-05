@@ -3,7 +3,7 @@ import styled from 'styled-components';
 //------------------------------Containers--------------------------//
 
 export const Container = styled.div.attrs((props) => ({
-	mediaPadding: props.mediaPadding ,
+	mediaPadding: props.mediaPadding,
 	backgroundColor: props.backgroundColor || '#e3e4e8'
 }))`
 	padding: 0;
@@ -25,8 +25,8 @@ export const Container = styled.div.attrs((props) => ({
 	}
 `;
 
-export const PageWrapper = styled.div.attrs((props)=>({
-	mediaMargin:props.mediaMargin ||"20px auto"
+export const PageWrapper = styled.div.attrs((props) => ({
+	mediaMargin: props.mediaMargin || '20px auto'
 }))`
 	 flex: 1;
     overflow: hidde
@@ -37,7 +37,7 @@ export const PageWrapper = styled.div.attrs((props)=>({
     font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1201px) {
-		margin: ${(props)=>props.mediaMargin};
+		margin: ${(props) => props.mediaMargin};
 		width: 80%;
 
 	}
@@ -93,7 +93,9 @@ export const ButtonWithOutline = styled.button`
 		opacity 0.15s ease-in-out;
 `;
 
-export const PageBlock = styled.div`
+export const PageBlock = styled.div.attrs((props)=>({
+	paddingBottom:props.paddingBottom ||'20px'
+}))`
 	display: block;
 	background: #fff;
 	width: 100%;
@@ -106,7 +108,7 @@ export const PageBlock = styled.div`
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 	align-items: center;
-	padding-bottom: 20px;
+	padding-bottom:${(props)=>props.paddingBottom} ;
 `;
 
 //    align-items: center;
@@ -139,7 +141,6 @@ export const InputFieldContainer = styled.div`
 	flex-wrap: wrap;
 	width: 100%;
 `;
-
 
 export const InputBody = styled.div.attrs((props) => ({
 	alignitem: props.alignItem || 'start',
@@ -211,7 +212,7 @@ export const ListTableFieldContainer = styled.div`
 `;
 export const TableFieldContainer = styled.div.attrs((props) => ({
 	overflow: props.overflow || 'hidden',
-	float:props.float || 'left'
+	float: props.float || 'left'
 }))`
 	width: 100% !important;
 	min-height: auto !important;
@@ -432,14 +433,6 @@ color: ${(props) => props.color};
 margin-left: ${(props) => props.marginLeft};
 `;
 
-
-
-
-
-
-
-
-
 // --------------------------Input-------------------------------//
 
 export const InputColumnWrapper = styled.div`
@@ -497,7 +490,7 @@ export const LeftItemFormControl = styled.div`
 
 export const LeftItemWrapper = styled.div.attrs((props) => ({
 	backgroundColor: props.backgroundColor,
-	color: props.color || ' #f1f6fb'
+	color: props.color || '#f1f6fb'
 }))`
 	background-color: ${(props) => props.backgroundColor};
 	border: 1px solid ${(props) => props.backgroundColor};
@@ -622,8 +615,68 @@ export const SelectIconContainer = styled.div`
 	width: 100%;
 `;
 
+//----checkBox Input------//
+export const CheckBoxWapper = styled.div`
+	float: left;
+	width: 16px;
+`;
+export const CheckBoxTable = styled.table`
+	width: 35% !important;
+	table-layout: auto !important;
+	border-collapse: inherit !important;
+	border-spacing: 0;
+`;
 
-
+export const TBody = styled.tbody``;
+export const TR = styled.tr``;
+export const TD = styled.td`
+	width: 100% !important;
+	height: 16px;
+	line-height: 1px;
+	position: relative;
+	font-weight: normal;
+	overflow: hidden;
+	cursor: pointer;
+	vertical-align: top;
+	// &:before {
+	// 	border-width: 1px;
+	// 	border-style: solid;
+	// 	border-radius: 4px;
+	// 	border-color: #b9bdce;
+	// 	content: '';
+	// 	width: 16px;
+	// 	height: 16px;
+	// 	position: absolute;
+	// 	left: 0;
+	// 	top: 0;
+	// 	text-align: center;
+	// 	font-size: 21px;
+	// 	display: flex;
+	// 	background-color: transparent;
+	// 	justify-content: center;
+	// 	-webkit-transition: all 0.15s ease-in-out;
+	// 	pointer-events: none;
+	// }
+	// &:after {
+	// 	content: '\e81a';
+	// 	line-height: 18px;
+	// 	font-style: normal;
+	// 	color: transparent;
+	// 	font-family: 'icons_2019';
+	// 	width: 16px;
+	// 	height: 16px;
+	// 	position: absolute;
+	// 	left: 0;
+	// 	top: 0;
+	// 	text-align: center;
+	// 	font-size: 21px;
+	// 	display: flex;
+	// 	background-color: transparent;
+	// 	justify-content: center;
+	// 	transition: all 0.15s ease-in-out;
+	// 	pointer-events: none;
+	// }
+`;
 
 
 export const CheckBoxInput = styled.input`
@@ -648,7 +701,7 @@ export const CheckBoxInput = styled.input`
 	text-align: center;
 `;
 
-export const CheckBoxLabel = styled.label`padding-left: 5px;`;
+//  export const CheckBoxLabel = styled.label`padding-left: 5px;`;
 export const CheckBoxContainer = styled.div`
 	margin: 5px 0px;
 	align-items: center;
@@ -656,6 +709,29 @@ export const CheckBoxContainer = styled.div`
 	position: relative;
 	display: flex;
 `;
+
+
+export const CheckBoxLabel = styled.label`
+	position: static;
+	padding: 0 0 0 10px;
+	pointer-events: all !important;
+	cursor: pointer;
+	top: -6px;
+	left: 7px;
+	background-color: #fff;
+	white-space: nowrap;
+	font-size: 13px;
+	line-height: 13px;
+	color: #3b3b3b;
+	background: transparent;
+	z-index: 20;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+`;
+
+
+
+
 
 export const SelectSpan = styled.span.attrs((props) => ({
 	textAlign: props.textAlign || 'left'
@@ -838,7 +914,7 @@ export const SaveButton = styled.button`
 `;
 
 //------------------------Horizontal Navigation-------------------------//
-export const HorizontalistPageBlock = styled.div`
+export const HorizontalListPageBlock = styled.div`
 	width: 100%;
 	height: 60px;
 	padding: 10px 10px;
@@ -858,16 +934,22 @@ export const HorizontalBlockListOuter = styled.div`
 	display: block;
 `;
 
-export const HorizontalBlockListInnerWrapper = styled.div`
+export const HorizontalBlockListInnerWrapper = styled.div.attrs((props) => ({
+	padding: props.padding
+}))`
 	width: 100%;
+	height:100%;
 	overflow: hidden;
 	position: relative;
+	padding: ${(props) => props.padding};
+
 `;
 
-export const HoizontalBlockList = styled.ul`
+export const HoizontalBlockList = styled.ul.attrs((props) => ({
+	height: props.height || '40px'
+}))`
 	width: 212px;
-	height: 40px;
-	padding-bottom: 0%;
+	height: ${(props) => props.height};
 	transform: translate3d(0px, 0px, 0px);
 	display: flex;
 	flex-direction: row;
@@ -881,6 +963,8 @@ export const HoizontalBlockList = styled.ul`
 	transition-property: transform, height;
 	justify-content: start;
 	float: left;
+	overflow-x:auto;	
+	scroll-behavior: smooth;s
 `;
 
 export const HoizontalBlockListItems = styled.li`
@@ -896,19 +980,21 @@ export const HoizontalBlockListItems = styled.li`
 	letter-spacing: -0.2px;
 `;
 
-export const BlockListItemBUtton = styled.button`
+export const BlockListItemButton = styled.button`
 	height: 40px;
 	width: 100%;
+    border: 1px solid #e0e1e7;
+	1px solid;
+    min-width: 90px;
+    justify-content: center;
 	border-radius: 4px;
 	font-size: 13px;
-	font-size: 13px;
-	font-weight: 600;
+	font-weight: 300;
 	color: #3b3b3b;
 	padding: 0 10px;
 	display: flex;
 	align-items: center;
 	cursor: pointer;
-	border: 0;
 	background: transparent;
 	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
 	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
@@ -921,6 +1007,10 @@ export const BlockListItemBUtton = styled.button`
 	vertical-align: baseline;
 	vertical-align: middle;
 
+	&:hover{
+		background-color: #25c99f;
+	}
+
 	&:before,
 	&:after {
 		-moz-box-sizing: border-box;
@@ -928,12 +1018,3 @@ export const BlockListItemBUtton = styled.button`
 		box-sizing: border-box;
 	}
 `;
-
-
-
-
-
-
-
-
-

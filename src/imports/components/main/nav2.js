@@ -103,7 +103,7 @@ const styles = (theme) => ({
 
 	drawerOpen: {
 		width: drawerWidth,
-		background: '#41bb66',
+		background: '#25c99f',
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.enteringScreen
@@ -111,7 +111,7 @@ const styles = (theme) => ({
 	},
 
 	drawerClose: {
-		background: '#41bb66',
+		background: '#25c99f',
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen

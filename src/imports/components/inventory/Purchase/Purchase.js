@@ -23,12 +23,12 @@ import {
 	PageBody,
 	SaveButtonContaier,
 	SaveButton,
-	HorizontalistPageBlock,
+	HorizontalListPageBlock,
 	HorizontalBlockListOuter,
 	HorizontalBlockListInnerWrapper,
 	HoizontalBlockList,
 	HoizontalBlockListItems,
-	BlockListItemBUtton
+	BlockListItemButton
 } from './Style';
 
 class Purchase extends React.Component {
@@ -273,68 +273,68 @@ class Purchase extends React.Component {
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
 						/>
-						<HorizontalistPageBlock>
+						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList style={{ justifyContent: 'space-evenly' }}>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
+											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'order' });
 												}}
 											>
 												Order
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
+											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'invoice' });
 												}}
 											>
 												Invoice
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
+											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'stockReceived' });
 												}}
 											>
 												Stock Received
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
+											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'creditNote' });
 												}}
 											>
 												Credit Note
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
+											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'unStock' });
 												}}
 											>
 												Unstock
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
+											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'manualJournals' });
 												}}
 											>
 												Manual Journals
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
-						</HorizontalistPageBlock>
+						</HorizontalListPageBlock>
 						{this.state.visibleSection === 'order' && (
 							<PurchaseOrderDetails
 								variable={this.state.variable.get('values').get('orderDetails')[0]}
