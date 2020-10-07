@@ -39,7 +39,7 @@ import {
 	HorizontalBlockListInnerWrapper,
 	HoizontalBlockList,
 	HoizontalBlockListItems
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class Product extends React.Component {
 	constructor(props) {

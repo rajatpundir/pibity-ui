@@ -16,7 +16,7 @@ export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => 
 				<MainContainer>
 					<MiniDrawer />
 					<Body>
-						{/* <Header/> */}
+						 <Header match={props.match}/> 
 						<Component {...props} />
 						<Footer />
 					</Body>
@@ -25,7 +25,7 @@ export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => 
 				<MainContainer>
 					<MiniDrawer />
 					<Body>
-						{/* <Header/> */}
+					<Header match={props.match}/> 
 						<Component {...props} />
 						<Footer />
 					</Body>

@@ -10,7 +10,6 @@ import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
-import Header from '../../main/Header'
 import {
 	Container,
 	PageWrapper,
@@ -23,7 +22,7 @@ import {
 	HorizontalBlockListInnerWrapper,
 	HoizontalBlockList,
 	HoizontalBlockListItems
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class Customer extends React.Component {
 	constructor(props) {
@@ -112,6 +111,7 @@ class Customer extends React.Component {
 			this.props.getVariables('AttributeSet');
 			this.props.getVariables('PriceTierName');
 			this.props.getVariables('Location');
+			this.props.getVariables('AddressType')
 	}
 
 	componentDidMount() {
@@ -209,7 +209,6 @@ class Customer extends React.Component {
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
-				<Header match={this.props.match}></Header>
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit={2} />
 				<PageWrapper>

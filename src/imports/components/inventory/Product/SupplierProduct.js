@@ -33,7 +33,7 @@ import {
 	TableHeaders,
 	TableRow,
 	ToolbarLeftItems
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class SupplierProducts extends React.Component {
 	constructor(props) {

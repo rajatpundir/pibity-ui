@@ -21,6 +21,8 @@ let initOptions = {
 
 let keycloak = Keycloak(initOptions);
 
+
+
 keycloak
 	.init({ onLoad: initOptions.onLoad })
 	.then((auth) => {
@@ -75,6 +77,13 @@ keycloak
 	.catch(() => {
 		console.error('Authenticated Failed');
 	});
+
+
+
+
+
+
+
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

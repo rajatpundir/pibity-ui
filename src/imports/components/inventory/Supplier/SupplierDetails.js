@@ -22,7 +22,7 @@ import {
 	SelectWrapper,
 	ToolbarLeftItems,
 	FormControl
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class SupplierDetails extends React.Component {
 	constructor(props) {

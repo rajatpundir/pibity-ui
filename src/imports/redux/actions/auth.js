@@ -4,6 +4,7 @@ import { domain } from '../config';
 import { updateErrors } from './errors';
 import { UPDATE_TOKEN } from './actions';
 import { HTTP_STATUS_CODE } from './../config.js';
+import * as Keycloak from 'keycloak-js';
 
 export function setTokenForAxios(token: String) {
 	if (token) {
@@ -48,10 +49,27 @@ export function setTokenForAxios(token: String) {
 // 	}
 // };
 
+// export const logout = (now = true) => {
+// 	return function (getState) {
+// 		const { authContext } = getState() || {}
+// 		const { keycloak,  logout } = authContext || {}
+
+// 		if (now) {
+// 			if (keycloak && keycloak.authenticated) {
+// 				logout({ redirectUri: 'http://localhost:3000/' })
+// 			}
+// 		} else {
+// 			setTimeout(() => {
+// 				logout({ redirectUri: 'http://localhost:3000/' })
+// 			}, 5000);
+// 		}
+// 	}
+// }
 export const logout = () => async (dispatch) => {
-	const token = localStorage.getItem('jwtToken');
+	console.log("hello")
+	const token = localStorage.getItem('jwt-token');
 	if (token) {
-		localStorage.removeItem('jwtToken');
+		localStorage.clear();
 		window.location.reload();
 	}
 };

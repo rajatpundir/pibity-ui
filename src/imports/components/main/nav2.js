@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { updateToken } from '../../redux/actions/auth';
+import { updateToken , logout} from '../../redux/actions/auth';
 import { connect } from 'react-redux';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
@@ -19,43 +19,31 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import menuItems from './menuItems';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import IconDashboard from '@material-ui/icons/Dashboard';
 import Icon from '@material-ui/core/Icon';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
 
-// import InboxIcon from '@material-ui/icons/MoveToInbox';
-// import MailIcon from '@material-ui/icons/Mail';
-// import ShoppingCartRoundedIcon from '@material-ui/icons/ShoppingCartRounded';
-// import InputBase from '@material-ui/core/InputBase';
-// import Badge from '@material-ui/core/Badge';
-// import MenuItem from '@material-ui/core/MenuItem';
-// import Menu from '@material-ui/core/Menu';
-// import SearchIcon from '@material-ui/icons/Search';
-// import NotificationsIcon from '@material-ui/icons/Notifications';
-// import MoreIcon from '@material-ui/icons/MoreVert';
-// import IconShoppingCart from '@material-ui/icons/ShoppingCart';
-// import IconPeople from '@material-ui/icons/People';
-// import Typography from '@material-ui/core/Typography';
 
 const drawerWidth = 240;
 const styles = (theme) => ({
-	'@global': { //styling scrollbar using material Ui
+	'@global': {
+		//styling scrollbar using material Ui
 		'*::-webkit-scrollbar': {
-		  width: '0.5em'
+			width: '0.5em'
 		},
 		'*::-webkit-scrollbar-track': {
-		  '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
+			'-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.00)'
 		},
 		'*::-webkit-scrollbar-thumb': {
-		  backgroundColor: 'rgba(0,0,0,.1)',
-		  outline: '1px solid slategrey',
-		  borderRadius:'10%'
+			backgroundColor: 'rgba(0,0,0,.1)',
+			outline: '1px solid slategrey',
+			borderRadius: '10%'
 		}
-	  },
-	
+	},
+
 	root: {
 		display: 'flex',
 		fontSize: '16 px',
@@ -63,12 +51,14 @@ const styles = (theme) => ({
 	},
 
 	links: {
-		width:'100%',
+		width: '100%',
 		textDecoration: 'none',
 		'&:hover,&:focus,&:active': { textDecoration: 'none' },
-		color :'red'
+		color: 'red'
 	},
-
+	menuButton: {
+		marginRight: theme.spacing(2)
+	},
 	appBar: {
 		background: '#05cbbf',
 		zIndex: theme.zIndex.drawer + 1,
@@ -87,8 +77,9 @@ const styles = (theme) => ({
 		})
 	},
 
-	menuButton: {
-		marginRight: 36
+	profileButton: {
+		marginRight: '36px',
+		marginLeft: '10px'
 	},
 
 	hide: {
@@ -152,20 +143,28 @@ const styles = (theme) => ({
 			color: 'black'
 		}
 	},
-	textDense: {}
+	textDense: {},
+	profileMenuItem: {
+		height: '3rem',
+		fontSize: '1.3rem'
+	}
 });
 
 class MiniDrawer extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
+			anchorEl: null,
 			open: true,
+			openProfileMenu: false,
 			organizations: JSON.parse(localStorage.getItem('organizations')) || [],
 			selectedOrganization: props.auth.selectedOrganization
 		};
 		this.handleDrawerOpen = this.handleDrawerOpen.bind(this);
 		this.handleDrawerClose = this.handleDrawerClose.bind(this);
 		this.onChange = this.onChange.bind(this);
+		this.handleMenu = this.handleMenu.bind(this);
+		this.handleClose = this.handleClose.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -177,6 +176,21 @@ class MiniDrawer extends React.Component {
 
 	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
+	}
+
+	handleClose() {
+		this.setState({
+			anchorEl: null,
+			openProfileMenu: false
+		});
+	}
+
+	handleMenu(e) {
+		console.log(e);
+		this.setState({
+			anchorEl: e.currentTarget,
+			openProfileMenu: true
+		});
 	}
 
 	handleDrawerOpen() {
@@ -289,9 +303,31 @@ class MiniDrawer extends React.Component {
 								aria-label="account of current user"
 								aria-haspopup="true"
 								color="inherit"
+								className={classes.profileButton}
+								onClick={(e) => this.handleMenu(e)}
 							>
-								<AccountCircle />
+								<AccountCircle fontSize="large" />
 							</IconButton>
+							<Menu
+								id="menu-appbar"
+								anchorEl={this.state.anchorEl}
+								anchorOrigin={{
+									vertical: 'top',
+									horizontal: 'right'
+								}}
+								keepMounted
+								transformOrigin={{
+									vertical: 'top',
+									horizontal: 'right'
+								}}
+								open={this.state.openProfileMenu}
+								onClose={this.handleClose}
+							>
+								<MenuItem className={classes.profileMenuItem}>Profile</MenuItem>
+								<MenuItem className={classes.profileMenuItem}>My account</MenuItem>
+								<MenuItem className={classes.profileMenuItem} onClick={this.props.logout}>LogOut</MenuItem>
+
+							</Menu>
 						</ToolbarItemContainer>
 					</Toolbar>
 				</AppBar>
@@ -315,9 +351,7 @@ class MiniDrawer extends React.Component {
 						</IconButton>
 					</div>
 					<Divider />
-					<List>
-						{this.handler(menuItems.data)}
-					</List>
+					<List>{this.handler(menuItems.data)}</List>
 				</Drawer>
 			</div>
 		);
@@ -329,7 +363,8 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, {
-	updateToken
+	updateToken,
+	logout
 })(withStyles(styles)(MiniDrawer));
 
 const SelectWrapper = styled.div`
@@ -364,4 +399,5 @@ const ToolbarItemContainer = styled.div`
 	display: flex;
 	flex-direction: row;
 	justify-content: flex-start;
+	align-items: center;
 `;

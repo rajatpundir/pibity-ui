@@ -10,7 +10,7 @@ export const Container = styled.div.attrs((props) => ({
 	width: 100%;
 	min-width: 860px;
 	position: relative;
-	margin-top: 65px;
+	// margin-top: 65px;
 	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
@@ -26,7 +26,8 @@ export const Container = styled.div.attrs((props) => ({
 `;
 
 export const PageWrapper = styled.div.attrs((props) => ({
-	mediaMargin: props.mediaMargin || '20px auto'
+	mediaMargin: props.mediaMargin || '20px auto',
+	mediaWidth: props.mediaWidth || '80%'
 }))`
 	 flex: 1;
     overflow: hidde
@@ -38,12 +39,14 @@ export const PageWrapper = styled.div.attrs((props) => ({
 	vertical-align: baseline;
 	@media (min-width: 1201px) {
 		margin: ${(props) => props.mediaMargin};
-		width: 80%;
+		width: ${(props) => props.mediaWidth};
 
 	}
 `;
 
-export const PageBody = styled.div`
+export const PageBody = styled.div.attrs((props) => ({
+	mediaWidth: props.mediaWidth || '90%'
+}))`
 	margin: 0 auto !important;
 	padding: 0;
 	border: 0;
@@ -52,7 +55,7 @@ export const PageBody = styled.div`
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: 90%;
+		max-width: width: ${(props) => props.mediaWidth};
 		border: 1px solid #e0e1e7;
 	}
 `;
@@ -322,7 +325,8 @@ export const TableHeaderInner = styled.div`
     font-size: 13px;
     white-space: nowrap;
 	text-overflow: ellipsis;
-	
+	overflow: hidden;
+
 }
 `;
 
@@ -520,6 +524,19 @@ export const LeftItemH1 = styled.h1`
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 `;
+
+export const RactSelectCustomStyles = {
+	control: styles => ({ ...styles,                 
+	}),
+	option: styles => ({ ...styles,                 
+		whiteSpace: 'normal',
+		overflow:'hidden'
+		
+	}),
+	menu: styles => ({ ...styles,                 
+	  width: 'auto'
+     })                 
+  };
 
 export const SelectWrapper = styled.div`
 	font-size: 13px;
@@ -955,7 +972,6 @@ export const HoizontalBlockList = styled.ul.attrs((props) => ({
 	flex-direction: row;
 	flex: 1;
 	position: relative;
-	z-index: 1;
 	min-width: 100%;
 	padding-left: 0;
 	list-style: none outside none;

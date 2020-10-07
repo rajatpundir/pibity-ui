@@ -36,7 +36,8 @@ import {
 	HeaderContainerInner,
 	FormControl,
 	ButtonWithOutline
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
+
 class AdditionalUnitOfMeasure extends React.Component {
 	constructor(props) {
 		super();

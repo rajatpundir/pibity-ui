@@ -52,7 +52,7 @@ import {
 	TextArea,
 	TextAreaContainer,
 	ToolbarLeftItems
-} from './Style';
+} from '../../../styles/inventory/Style';
 
 class PurchaseInvoiceDetails extends React.Component {
 	constructor(props) {

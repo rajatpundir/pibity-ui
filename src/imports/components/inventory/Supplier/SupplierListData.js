@@ -15,7 +15,7 @@ const styles = (theme) => ({
 	}
 });
 
-class CollapseData extends React.Component {
+class SupplierListData extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -39,7 +39,7 @@ class CollapseData extends React.Component {
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Link to={'/customerList/' + encodeURIComponent(this.state.data.variableName)}>
+							<Link to={'/supplier/' + encodeURIComponent(this.state.data.variableName)}>
 								{this.state.data.variableName}
 							</Link>
 						</TableHeaderInner>
@@ -110,7 +110,7 @@ class CollapseData extends React.Component {
 	}
 }
 
-export default withStyles(styles)(CollapseData);
+export default withStyles(styles)(SupplierListData);
 
 const TableRow = styled.tr`
 	cursor: pointer;

@@ -20,7 +20,7 @@ import {
 	SelectWrapper,
 	InputLabel,
 	Required
-} from './Style';
+} from '../../../styles/inventory/Style';
 
 class PurchaseGeneralDetails extends React.Component {
 	constructor(props) {

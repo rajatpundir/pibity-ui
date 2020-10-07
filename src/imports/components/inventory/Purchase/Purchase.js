@@ -29,7 +29,7 @@ import {
 	HoizontalBlockList,
 	HoizontalBlockListItems,
 	BlockListItemButton
-} from './Style';
+} from '../../../styles/inventory/Style';
 
 class Purchase extends React.Component {
 	constructor(props) {

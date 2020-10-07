@@ -29,7 +29,7 @@ import {
 	TR,
 	TD,
 	TBody
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class CustomerGeneralDetails extends React.Component {
 	constructor(props) {
@@ -85,7 +85,7 @@ class CustomerGeneralDetails extends React.Component {
 					</IconButton>
 				</PageToolbar>
 				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
-					<InputBody>
+					<InputBody overflow="visible">
 						<InputFieldContainer>
 							<InputColumnWrapper>
 								<FormControl>

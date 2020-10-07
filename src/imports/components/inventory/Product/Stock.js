@@ -34,7 +34,7 @@ import {
 	ToolbarLeftItems,
 	FormControl,
 	ButtonWithOutline
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class Stock extends React.Component {
 	constructor(props) {

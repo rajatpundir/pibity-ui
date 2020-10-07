@@ -34,8 +34,10 @@ import {
 	Anchor,
 	CheckBoxInput,
 	CheckBoxLabel,
-	CheckBoxContainer
-} from './Style';
+	CheckBoxContainer,
+	TableHeaderInner,
+	Span
+} from '../../../styles/inventory/Style';
 
 class PurchaseOrderList extends React.Component {
 	constructor(props) {
@@ -163,8 +165,8 @@ class PurchaseOrderList extends React.Component {
 		return (
 			<Container mediaPadding="0" backgroundColor="white">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<PageWrapper mediaMargin="0">
-					<PageBody>
+				<PageWrapper mediaMargin="0" mediaWidth="100%">
+					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarLeftItems>
 								<LeftItemH1>PurchaseOrder</LeftItemH1>
@@ -294,23 +296,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseOrderList);
-
-const TableHeaderInner = styled.div`
-	width: 100%;
-	padding: 0 3px;
-	color: #41454e;
-	vertical-align: middle;
-	font-size: 13px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	text-align: center;
-`;
-const Span = styled.span`
-	background-color: #d6f3e3;
-	margin-right: 0 !important;
-	padding: 4px 10px 4px 10px;
-	border-radius: 3px;
-	display: inline-block;
-	font-weight: 500;
-`;

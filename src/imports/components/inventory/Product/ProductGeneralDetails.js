@@ -23,7 +23,7 @@ import {
 	SelectWrapper,
 	ToolbarLeftItems,
 	FormControl
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class ProductGeneralDetails extends React.Component {
 	constructor(props) {

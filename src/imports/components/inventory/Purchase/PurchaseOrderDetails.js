@@ -49,7 +49,7 @@ import {
 	TextArea,
 	TextAreaContainer,
 	ToolbarLeftItems
-} from './Style';
+} from '../../../styles/inventory/Style';
 
 class PurchaseOrderDetails extends React.Component {
 	constructor(props) {

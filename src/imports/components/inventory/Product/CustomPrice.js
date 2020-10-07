@@ -35,7 +35,7 @@ import {
 	ToolbarLeftItems,
 	FormControl,
 	ButtonWithOutline
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class CustomPrice extends React.Component {
 	constructor(props) {

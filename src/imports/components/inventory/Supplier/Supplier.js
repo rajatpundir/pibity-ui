@@ -29,7 +29,7 @@ import {
 	HorizontalBlockListInnerWrapper,
 	HoizontalBlockList,
 	HoizontalBlockListItems
-} from '../Purchase/Style';
+} from '../../../styles/inventory/Style';
 
 class Supplier extends React.Component {
 	constructor(props) {
@@ -52,13 +52,13 @@ class Supplier extends React.Component {
 								[
 									'values',
 									new Map([
-										[ 'currency', 'INR - India Rupee' ],
+										[ 'currency', '' ],
 										[ 'paymentTerm', '' ],
 										[ 'taxRule', '' ],
 										[ 'status', '' ],
 										[ 'defaultCarrier', '' ],
 										[ 'taxNumber', '' ],
-										[ 'discount', '' ],
+										[ 'discount', '0' ],
 										[ 'attributeSet', '' ],
 										[ 'comments', '' ]
 									])
@@ -112,6 +112,7 @@ class Supplier extends React.Component {
 		this.props.getVariables('AttributeSet');
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
+		this.props.getVariables('AddressType');
 	}
 
 	componentDidMount() {
@@ -207,7 +208,7 @@ class Supplier extends React.Component {
 
 	render() {
 		return (
-			<Container>
+			<Container  mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit={3} rtl />
 				<PageWrapper>
