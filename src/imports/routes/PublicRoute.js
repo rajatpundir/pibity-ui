@@ -1,12 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Route, Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../components/main/Header';
 import styled from 'styled-components';
-import MiniDrawer from '../components/main/nav2';
+import MiniDrawer from '../components/main/Navigation';
 import Footer from '../components/main/Footer';
-import SelectorganizationModal from '../components/main/SelectorganizationModal';
 
 export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => (
 	<Route
@@ -16,7 +15,7 @@ export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => 
 				<MainContainer>
 					<MiniDrawer />
 					<Body>
-						 <Header match={props.match}/> 
+						<Header match={props.match} />
 						<Component {...props} />
 						<Footer />
 					</Body>
@@ -25,7 +24,7 @@ export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => 
 				<MainContainer>
 					<MiniDrawer />
 					<Body>
-					<Header match={props.match}/> 
+						<Header match={props.match} />
 						<Component {...props} />
 						<Footer />
 					</Body>

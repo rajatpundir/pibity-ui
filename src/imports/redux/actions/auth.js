@@ -4,7 +4,6 @@ import { domain } from '../config';
 import { updateErrors } from './errors';
 import { UPDATE_TOKEN } from './actions';
 import { HTTP_STATUS_CODE } from './../config.js';
-import * as Keycloak from 'keycloak-js';
 
 export function setTokenForAxios(token: String) {
 	if (token) {

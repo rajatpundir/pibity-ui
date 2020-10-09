@@ -9,7 +9,6 @@ import SelectorganizationModal from '../../main/SelectorganizationModal';
 
 import {
 	Container,
-	ListTableFieldContainer,
 	PageWrapper,
 	PageBody,
 	Input,
@@ -31,7 +30,6 @@ import {
 	TableRow,
 	TableHeaders,
 	TableData,
-	Anchor,
 	CheckBoxInput,
 	CheckBoxLabel,
 	CheckBoxContainer,
@@ -39,7 +37,6 @@ import {
 	TableFieldContainer,
 	Span
 } from '../../../styles/inventory/Style';
-
 
 class ProductList extends React.Component {
 	constructor(props) {
@@ -56,6 +53,14 @@ class ProductList extends React.Component {
 		this.onClose = this.onClose.bind(this);
 	}
 
+	handleChangePage = (event, page) => {
+		this.setState({ page });
+	};
+
+	handleChangeRowsPerPage = (event) => {
+		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+	};
+	
 	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
 	}

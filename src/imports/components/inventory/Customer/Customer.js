@@ -2,9 +2,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage, successMessage ,CustomNotification} from '../../main/Notification';
+import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
-import { createVariable, getVariable, updateVariable, objToMapRec,getVariables } from '../../../redux/actions/variables';
+import {
+	createVariable,
+	getVariable,
+	updateVariable,
+	objToMapRec,
+	getVariables
+} from '../../../redux/actions/variables';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
@@ -100,18 +106,18 @@ class Customer extends React.Component {
 		return prevState;
 	}
 
-	getData(){
+	getData() {
 		this.props.clearErrors();
-			this.props.getVariables('Country');
-			this.props.getVariables('Currency');
-			this.props.getVariables('CarrierService');
-			this.props.getVariables('PaymentTerm');
-			this.props.getVariables('Status');
-			this.props.getVariables('SalesTaxRule');
-			this.props.getVariables('AttributeSet');
-			this.props.getVariables('PriceTierName');
-			this.props.getVariables('Location');
-			this.props.getVariables('AddressType')
+		this.props.getVariables('Country');
+		this.props.getVariables('Currency');
+		this.props.getVariables('CarrierService');
+		this.props.getVariables('PaymentTerm');
+		this.props.getVariables('Status');
+		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('AttributeSet');
+		this.props.getVariables('PriceTierName');
+		this.props.getVariables('Location');
+		this.props.getVariables('AddressType');
 	}
 
 	componentDidMount() {
@@ -134,51 +140,45 @@ class Customer extends React.Component {
 			this.props.getVariable(this.state.variable.get('typeName'), variable);
 		}
 		this.getData();
-
 	}
-	
+
 	checkRequiredField(variable) {
-		let message = '';
+		// let message = ''; // To show error in one popUp
 		if (variable.get('general').get('variableName') === '') {
-			message = message + ' Please provide a Customer Name  \n';
-			 customErrorMessage(' Customer Name is missing');
+			// message = message + ' Please provide a Customer Name  \n';
+			customErrorMessage(' Customer Name is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('status') === '') {
-			message = message + ' Please choose the Status \n';
-
-			 customErrorMessage('status is missing');
+			// message = message + ' Please choose the Status \n';
+			customErrorMessage('status is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('taxRule') === '') {
-			message = message + ' Please choose the TaxRule  \n';
-			 customErrorMessage('taxRule is missing');
+			// message = message + ' Please choose the TaxRule  \n';
+			customErrorMessage('taxRule is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('paymentTerm') === '') {
-			message = message + ' Please choose the Payment Term \n';
-			 customErrorMessage('paymentTerm is missing');
+			// message = message + ' Please choose the Payment Term \n';
+			customErrorMessage('paymentTerm is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('currency') === '') {
-			message = message + 'Please choose a Currency  \n';
-
-			 customErrorMessage('currency is missing');
+			// message = message + 'Please choose a Currency  \n';
+			customErrorMessage('currency is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('contacts').length === 0) {
-			message = message + ' Add at least One Contact field \n';
-
-		 customErrorMessage('Add at least One Contact field');
+			// message = message + ' Add at least One Contact field \n';
+			customErrorMessage('Add at least One Contact field');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('addresses').length === 0) {
-			message = message + ' Add at least One Address field \n';
-
-			 customErrorMessage('Add at least One Address field');
+			// message = message + ' Add at least One Address field \n';
+			customErrorMessage('Add at least One Address field');
 			this.setState({ createCustomer: false });
 		}
-		
 	}
 
 	updateDetails(details) {

@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-
 import IconButton from '@material-ui/core/IconButton';
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
@@ -12,13 +10,13 @@ const actionsStyles = (theme) => ({
 	root: {
 		flexShrink: 0,
 		color: theme.palette.text.secondary,
-        marginLeft: theme.spacing(2.5),
-        fontSize:"2rem"
-    },
-    icon:{
-        fontSize:"2rem"
-
-    }
+		marginLeft: theme.spacing(2.5),
+		fontSize: '2rem'
+	},
+	icon: {
+		fontSize: '25px',
+		color: 'black'
+	}
 });
 
 class TablePaginationActions extends React.Component {
@@ -38,47 +36,60 @@ class TablePaginationActions extends React.Component {
 		this.props.onChangePage(event, parseInt(Math.max(0, Math.ceil(this.props.count / this.props.rowsPerPage) - 1)));
 	};
 
-	render() {
+	render() {    
 		const { classes, count, page, rowsPerPage, theme } = this.props;
-
 		return (
 			<div className={classes.root}>
-				<IconButton onClick={this.handleFirstPageButtonClick} disabled={page === 0} aria-label="First Page" className={classes.icon}>
-					{theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
+				<IconButton
+					onClick={this.handleFirstPageButtonClick}
+					disabled={page === 0}
+					aria-label="First Page"
+					className={classes.icon}
+				>
+					{theme.direction === 'rtl' ? (
+						<LastPageIcon fontSize="inherit" />
+					) : (
+						<FirstPageIcon fontSize="inherit" />
+					)}
 				</IconButton>
-				<IconButton onClick={this.handleBackButtonClick} disabled={page === 0} aria-label="Previous Page" size="medium">
-					{theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
+				<IconButton
+					onClick={this.handleBackButtonClick}
+					disabled={page === 0}
+					aria-label="Previous Page"
+					className={classes.icon}
+				>
+					{theme.direction === 'rtl' ? (
+						<KeyboardArrowRight fontSize="inherit" />
+					) : (
+						<KeyboardArrowLeft fontSize="inherit" />
+					)}
 				</IconButton>
 				<IconButton
 					onClick={this.handleNextButtonClick}
 					disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                    aria-label="Next Page"
-                    size="medium"
+					aria-label="Next Page"
+					className={classes.icon}
 				>
-					{theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
+					{theme.direction === 'rtl' ? (
+						<KeyboardArrowLeft fontSize="inherit" />
+					) : (
+						<KeyboardArrowRight fontSize="inherit" />
+					)}
 				</IconButton>
 				<IconButton
 					onClick={this.handleLastPageButtonClick}
 					disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-                    aria-label="Last Page"
-                    size="medium"
+					aria-label="Last Page"
+					className={classes.icon}
 				>
-					{theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
+					{theme.direction === 'rtl' ? (
+						<FirstPageIcon fontSize="inherit" />
+					) : (
+						<LastPageIcon fontSize="inherit" />
+					)}
 				</IconButton>
 			</div>
 		);
 	}
 }
-
-// TablePaginationActions.propTypes = {
-// 	classes: PropTypes.object.isRequired,
-// 	count: PropTypes.number.isRequired,
-// 	onChangePage: PropTypes.func.isRequired,
-// 	page: PropTypes.number.isRequired,
-// 	rowsPerPage: PropTypes.number.isRequired,
-// 	theme: PropTypes.object.isRequired
-// };
-
-export default  withStyles(actionsStyles, { withTheme: true })(TablePaginationActions);
-
-
+export default withStyles(actionsStyles, { withTheme: true })(TablePaginationActions);

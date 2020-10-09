@@ -1,9 +1,9 @@
+/* eslint-disable no-useless-concat */
 import React from 'react';
-import styled from 'styled-components';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
+import { HeaderContainer } from '../../styles/main/HeaderAndFooter';
 
 const styles = (theme) => ({
 	links: {
@@ -26,7 +26,7 @@ class Header extends React.Component {
 		const { classes } = this.props;
 		return (
 			<HeaderContainer>
-				<Breadcrumbs aria-label="breadcrumb">
+				<Breadcrumbs aria-label="breadcrumb" >
 					<Link color="inherit" href="/" className={classes.links}>
 						Home{' '}
 					</Link>
@@ -43,8 +43,6 @@ class Header extends React.Component {
 							{this.props.match.params.variableName}
 						</Link>
 					}
-					  {/* <Typography color="textPrimary">Breadcrumb</Typography> */}
-
 				</Breadcrumbs>
 			</HeaderContainer>
 		);
@@ -52,23 +50,3 @@ class Header extends React.Component {
 }
 
 export default withStyles(styles)(Header);
-
-const HeaderContainer = styled.div`
-margin-top:70px;
-    width: 100%;
-    height: 45px;
-    padding: 10px 10px;
-    background: #fff;
-    float: left;
-    overflow: hidden;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
-	position: relative;
-	border-bottom: 1px solid #e0e1e7;
-}
-`;

@@ -96,8 +96,8 @@ export const ButtonWithOutline = styled.button`
 		opacity 0.15s ease-in-out;
 `;
 
-export const PageBlock = styled.div.attrs((props)=>({
-	paddingBottom:props.paddingBottom ||'20px'
+export const PageBlock = styled.div.attrs((props) => ({
+	paddingBottom: props.paddingBottom || '20px'
 }))`
 	display: block;
 	background: #fff;
@@ -111,7 +111,7 @@ export const PageBlock = styled.div.attrs((props)=>({
 	font-family: 'IBM Plex Sans', sans-serif;
 	vertical-align: baseline;
 	align-items: center;
-	padding-bottom:${(props)=>props.paddingBottom} ;
+	padding-bottom:${(props) => props.paddingBottom} ;
 `;
 
 //    align-items: center;
@@ -325,7 +325,7 @@ export const TableHeaderInner = styled.div`
     font-size: 13px;
     white-space: nowrap;
 	text-overflow: ellipsis;
-	overflow: hidden;
+	overflow: visible;
 
 }
 `;
@@ -526,19 +526,23 @@ export const LeftItemH1 = styled.h1`
 `;
 
 export const RactSelectCustomStyles = {
-	control: styles => ({ ...styles,                 
+	control: (styles) => ({
+		...styles
 	}),
-	option: styles => ({ ...styles,                 
+	option: (styles) => ({
+		...styles,
 		whiteSpace: 'normal',
-		overflow:'hidden'
-		
+		overflow: 'hidden'
 	}),
-	menu: styles => ({ ...styles,                 
-	  width: 'auto'
-     })                 
-  };
+	menu: (styles) => ({
+		...styles,
+		width: 'auto'
+	})
+};
 
-export const SelectWrapper = styled.div`
+export const SelectWrapper = styled.div.attrs((props) => ({
+	minWidth: props.minWidth || 'inherit'
+}))`
 	font-size: 13px;
 	outline: none !important;
 	border-width: 1px;
@@ -548,7 +552,7 @@ export const SelectWrapper = styled.div`
 	font-size: 13px;
 	font-weight: 400;
 	font-family: inherit;
-	min-width: inherit;
+	min-width: ${(props) => props.minWidth};
 	flex: 1;
 	min-height: 40px;
 	background-color: #fff;
@@ -557,11 +561,8 @@ export const SelectWrapper = styled.div`
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	font-family: "IBM Plex Sans", sans-serif !important;
 	line-height: normal;
-	font-size: 100%;
 	margin: 0;
-	outline: none;
 	vertical-align: baseline;
 `;
 
@@ -695,7 +696,6 @@ export const TD = styled.td`
 	// }
 `;
 
-
 export const CheckBoxInput = styled.input`
 	width: 16px;
 	height: 16px;
@@ -727,7 +727,6 @@ export const CheckBoxContainer = styled.div`
 	display: flex;
 `;
 
-
 export const CheckBoxLabel = styled.label`
 	position: static;
 	padding: 0 0 0 10px;
@@ -745,10 +744,6 @@ export const CheckBoxLabel = styled.label`
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 `;
-
-
-
-
 
 export const SelectSpan = styled.span.attrs((props) => ({
 	textAlign: props.textAlign || 'left'

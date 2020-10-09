@@ -5,8 +5,6 @@ import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
 import Select from 'react-select';
 import {
-	AddMoreBlock,
-	AddMoreButton,
 	BodyTable,
 	EmptyRow,
 	HeaderBody,
@@ -32,10 +30,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarLeftItems,
-	HeaderContainerInner,
-	FormControl,
-	ButtonWithOutline
+	ToolbarLeftItems
 } from '../../../styles/inventory/Style';
 
 class AdditionalUnitOfMeasure extends React.Component {

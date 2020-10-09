@@ -2,12 +2,12 @@
 	"data": [
 		{
 			"name": "Dashboard",
-			"icon": "fa fa-adobe",
+			"icon": "dashboard",
 			"url": "/"
 		},
 		{
 			"name": "Product",
-			"icon": "fa fa-adobe",
+			"icon": "storefront",
 			"children": [
 				{
 					"name": "Products",
@@ -21,7 +21,7 @@
 		},
 		{
 			"name": "Customer",
-			"icon": "fa fa-shopping-cart",
+			"icon": "person",
 			"children": [
 				{
 					"name": "Customers",
@@ -35,7 +35,7 @@
 		},
 		{
 			"name": "Supplier",
-			"icon": "fa fa-user-friends",
+			"icon": "assignment_ind",
 			"children": [
 				{
 					"name": "Suppliers",
@@ -49,7 +49,7 @@
 		},
 		{
 			"name": "Purchase Order",
-			"icon": "fa fa-shopping-cart",
+			"icon": "shopping_cart",
 			"children": [
 				{
 					"name": "Purchase Orders",

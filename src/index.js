@@ -9,7 +9,6 @@ import * as Keycloak from 'keycloak-js';
 import jwt_decode from 'jwt-decode';
 import setJWTToken from './imports/routes/setJwtToken';
 import { UPDATE_TOKEN} from './imports/redux/actions/actions'
-import SelectorganizationModal from './imports/components/main/SelectorganizationModal';
 
 
 let initOptions = {

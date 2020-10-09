@@ -5,6 +5,10 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import {
 	Input,
 	PageBlock,
@@ -26,7 +30,8 @@ class PurchaseGeneralDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable
+			variable: props.variable,
+			open: true
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onVariableNameChange = this.onVariableNameChange.bind(this);
@@ -77,7 +82,7 @@ class PurchaseGeneralDetails extends React.Component {
 
 	render() {
 		return (
-			<PageBlock style={{ display: 'block' }} id="purchase">
+			<PageBlock style={{ display: 'block' }} paddingBottom="0">
 				<PageToolbar>
 					<ToolbarLeftItems>
 						<LeftItemWrapper backgroundColor="#f9e491" color="black">
@@ -85,7 +90,15 @@ class PurchaseGeneralDetails extends React.Component {
 						</LeftItemWrapper>
 						<LeftItemH1>New Purchase</LeftItemH1>
 					</ToolbarLeftItems>
+					<IconButton
+						aria-label="expand row"
+						size="small"
+						onClick={() => this.setState({ open: !this.state.open })}
+					>
+						{this.state.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+					</IconButton>
 				</PageToolbar>
+				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
 				<InputBody>
 					<InputFieldContainer>
 						<InputColumnWrapper>
@@ -402,6 +415,7 @@ class PurchaseGeneralDetails extends React.Component {
 						</InputRowWrapper>
 					</InputFieldContainer>
 				</InputBody>
+				</Collapse>
 			</PageBlock>
 		);
 	}

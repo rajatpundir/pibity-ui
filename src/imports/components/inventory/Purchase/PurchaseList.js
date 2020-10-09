@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { clearErrors } from '../../../redux/actions/errors';
@@ -38,6 +37,7 @@ import {
 	TableHeaderInner,
 	Span
 } from '../../../styles/inventory/Style';
+import { TablePaginationStyle } from '../../../styles/main/TablePagination';
 
 class PurchaseOrderList extends React.Component {
 	constructor(props) {
@@ -52,6 +52,14 @@ class PurchaseOrderList extends React.Component {
 		};
 		this.onChange = this.onChange.bind(this);
 	}
+
+	handleChangePage = (event, page) => {
+		this.setState({ page });
+	};
+
+	handleChangeRowsPerPage = (event) => {
+		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+	};
 
 	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
@@ -262,27 +270,27 @@ class PurchaseOrderList extends React.Component {
 													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
-											<TablePagination
-												component="div"
-												style={{ display: 'flex', justifyContent: 'center' }}
-												rowsPerPageOptions={[ 5, 10, 20 ]}
-												colSpan={3}
-												count={this.state.purchaseOrder.length}
-												rowsPerPage={rowsPerPage}
-												page={page}
-												SelectProps={{
-													native: true
-												}}
-												onChangePage={this.handleChangePage}
-												onChangeRowsPerPage={this.handleChangeRowsPerPage}
-												ActionsComponent={TablePaginationActions}
-											/>
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</ListTableFieldContainer>
 							</RoundedBlock>
 						</InputBody>
 					</PageBody>
+					<TablePagination
+						component="div"
+						style={TablePaginationStyle}
+						rowsPerPageOptions={[ 5, 10, 20 ]}
+						colSpan={3}
+						count={this.state.purchaseOrder.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						onChangePage={this.handleChangePage}
+						onChangeRowsPerPage={this.handleChangeRowsPerPage}
+						ActionsComponent={TablePaginationActions}
+						SelectProps={{
+							native: true
+						}}
+					/>
 				</PageWrapper>
 			</Container>
 		);

@@ -1,11 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { updateToken , logout} from '../../redux/actions/auth';
+import { updateToken, logout } from '../../redux/actions/auth';
 import { connect } from 'react-redux';
+import Select from 'react-select';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
-import styled from 'styled-components';
-import Select from 'react-select';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -25,7 +24,8 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import Icon from '@material-ui/core/Icon';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-
+import Tooltip from '@material-ui/core/Tooltip';
+import { SelectWrapper, ToolbarItemContainer } from '../../styles/main/Navigation';
 
 const drawerWidth = 240;
 const styles = (theme) => ({
@@ -47,20 +47,19 @@ const styles = (theme) => ({
 	root: {
 		display: 'flex',
 		fontSize: '16 px',
-		background: '#535454'
+		background: '#3e525d'
 	},
 
 	links: {
 		width: '100%',
 		textDecoration: 'none',
-		'&:hover,&:focus,&:active': { textDecoration: 'none' },
-		color: 'red'
+		'&:hover,&:focus,&:active': { textDecoration: 'none' }
 	},
 	menuButton: {
 		marginRight: theme.spacing(2)
 	},
 	appBar: {
-		background: '#05cbbf',
+		background: '#3e525d',
 		zIndex: theme.zIndex.drawer + 1,
 		transition: theme.transitions.create([ 'width', 'margin' ], {
 			easing: theme.transitions.easing.sharp,
@@ -94,7 +93,7 @@ const styles = (theme) => ({
 
 	drawerOpen: {
 		width: drawerWidth,
-		background: '#25c99f',
+		background: '#3e525d',
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.enteringScreen
@@ -102,7 +101,7 @@ const styles = (theme) => ({
 	},
 
 	drawerClose: {
-		background: '#25c99f',
+		background: '#3e525d',
 		transition: theme.transitions.create('width', {
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen
@@ -136,11 +135,11 @@ const styles = (theme) => ({
 	itemText: {
 		fontSize: '95%',
 		fontWeight: '400',
-		color: 'black',
+		color: 'white',
 		'&$textDense': {
 			fontSize: '95%',
 			fontWeight: '400',
-			color: 'black'
+			color: 'white'
 		}
 	},
 	textDense: {},
@@ -210,26 +209,29 @@ class MiniDrawer extends React.Component {
 		return children.map((subOption) => {
 			if (!subOption.children) {
 				return (
-					<div key={subOption.name}>
-						<ListItem button key={subOption.name}>
-							<Link to={subOption.url} className={classes.links}>
-								<ListItemText
-									inset //to align item within the list
-									classes={{
-										primary: classes.itemText
-									}}
-								>
-									{subOption.name}
-								</ListItemText>
-							</Link>
-						</ListItem>
-					</div>
+					<Tooltip title={subOption.name} arrow placement="right" key={subOption.name} >
+						<div key={subOption.name}>
+							<ListItem button key={subOption.name}>
+								<Icon style={{ color: 'white', fontSize: '28px' }}>{subOption.icon}</Icon>
+								<Link to={subOption.url} className={classes.links}>
+									<ListItemText
+										inset //to align item within the list
+										classes={{
+											primary: classes.itemText
+										}}
+									>
+										{subOption.name}
+									</ListItemText>
+								</Link>
+							</ListItem>
+						</div>
+					</Tooltip>
 				);
 			}
 			return (
 				<div key={subOption.name}>
 					<ListItem button onClick={() => this.handleClick(subOption.name)}>
-						<Icon className={subOption.icon} />
+						<Icon style={{ color: 'white', fontSize: '28px' }}>{subOption.icon}</Icon>
 						<ListItemText
 							inset //to align item within the list
 							classes={{
@@ -277,7 +279,10 @@ class MiniDrawer extends React.Component {
 							<MenuIcon />
 						</IconButton>
 						<ToolbarItemContainer>
-							<SelectWrapper>
+							<SelectWrapper
+								minWidth="120px"
+								style={{ height: 'max-content', marginRight: '10px', minHeight: 0 }}
+							>
 								<Select
 									value={{
 										value: this.props.auth.selectedOrganization,
@@ -325,8 +330,9 @@ class MiniDrawer extends React.Component {
 							>
 								<MenuItem className={classes.profileMenuItem}>Profile</MenuItem>
 								<MenuItem className={classes.profileMenuItem}>My account</MenuItem>
-								<MenuItem className={classes.profileMenuItem} onClick={this.props.logout}>LogOut</MenuItem>
-
+								<MenuItem className={classes.profileMenuItem} onClick={this.props.logout}>
+									LogOut
+								</MenuItem>
 							</Menu>
 						</ToolbarItemContainer>
 					</Toolbar>
@@ -366,38 +372,3 @@ export default connect(mapStateToProps, {
 	updateToken,
 	logout
 })(withStyles(styles)(MiniDrawer));
-
-const SelectWrapper = styled.div`
-	height: max-content;
-	margin-right: 10px;
-	font-size: 13px;
-	outline: none !important;
-	border-width: 1px;
-	border-radius: 4px;
-	border-color: #b9bdce;
-	color: #3b3b3b;
-	font-size: 13px;
-	font-weight: 400;
-	font-family: inherit;
-	min-width: 120px;
-	flex: 1;
-	background-color: #fff;
-	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	appearance: none;
-	font-family: "IBM Plex Sans", sans-serif !important;
-	line-height: normal;
-	font-size: 100%;
-	margin: 0;
-	outline: none;
-	vertical-align: baseline;
-`;
-
-const ToolbarItemContainer = styled.div`
-	display: flex;
-	flex-direction: row;
-	justify-content: flex-start;
-	align-items: center;
-`;

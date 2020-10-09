@@ -5,7 +5,7 @@ import { getVariables } from '../../../redux/actions/variables';
 import TablePagination from '@material-ui/core/TablePagination';
 import TablePaginationActions from '../../main/TablePagination';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
-import CollapseData from './CollapseData'
+import CollapseData from './CollapseData';
 import {
 	Container,
 	PageWrapper,
@@ -33,7 +33,7 @@ import {
 	CheckBoxContainer,
 	TableFieldContainer
 } from '../../../styles/inventory/Style';
-
+import { TablePaginationStyle } from '../../../styles/main/TablePagination';
 
 class CustomerList extends React.Component {
 	constructor(props) {
@@ -96,9 +96,7 @@ class CustomerList extends React.Component {
 			? this.state.customer.filter((customer) => customer.values.general.values.status === 'Active')
 			: this.state.customer;
 		list.forEach((customer) => {
-			rows.push(
-				<CollapseData data={customer} key={customer.variableName}></CollapseData>
-			);
+			rows.push(<CollapseData data={customer} key={customer.variableName} />);
 		});
 
 		return this.state.rowsPerPage > 0
@@ -220,27 +218,27 @@ class CustomerList extends React.Component {
 													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
-											<TablePagination
-												component="div"
-												style={{ display: 'flex', justifyContent: 'center' }}
-												rowsPerPageOptions={[ 5, 10, 20 ]}
-												colSpan={3}
-												count={this.state.customer.length}
-												rowsPerPage={rowsPerPage}
-												page={page}
-												SelectProps={{
-													native: true
-												}}
-												onChangePage={this.handleChangePage}
-												onChangeRowsPerPage={this.handleChangeRowsPerPage}
-												ActionsComponent={TablePaginationActions}
-											/>
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</TableFieldContainer>
 							</RoundedBlock>
 						</InputBody>
 					</PageBody>
+					<TablePagination
+						component="div"
+						style={TablePaginationStyle}
+						rowsPerPageOptions={[ 5, 10, 20 ]}
+						colSpan={3}
+						count={this.state.customer.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						SelectProps={{
+							native: true
+						}}
+						onChangePage={this.handleChangePage}
+						onChangeRowsPerPage={this.handleChangeRowsPerPage}
+						ActionsComponent={TablePaginationActions}
+					/>					
 				</PageWrapper>
 			</Container>
 		);
@@ -254,4 +252,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(CustomerList);
-
