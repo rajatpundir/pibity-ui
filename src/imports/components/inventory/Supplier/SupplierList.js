@@ -34,6 +34,7 @@ import {
 	TableFieldContainer
 } from '../../../styles/inventory/Style';
 import { TablePaginationStyle } from '../../../styles/main/TablePagination';
+import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
 
 class SupplierList extends React.Component {
 	constructor(props) {
@@ -216,6 +217,14 @@ class SupplierList extends React.Component {
 													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
+											{this.state.supplier.length === 0 ? (
+											<EmptyRowImageContainer>
+												<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
+											<EmptyRowTag>No Suppliers</EmptyRowTag>
+                                            </EmptyRowImageContainer>
+										) : (
+											undefined
+										)}
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</TableFieldContainer>

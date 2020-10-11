@@ -34,7 +34,7 @@ import {
 	TableFieldContainer
 } from '../../../styles/inventory/Style';
 import { TablePaginationStyle } from '../../../styles/main/TablePagination';
-
+import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
 class CustomerList extends React.Component {
 	constructor(props) {
 		super();
@@ -218,6 +218,14 @@ class CustomerList extends React.Component {
 													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
+											{this.state.customer.length === 0 ? (
+												<EmptyRowImageContainer>
+													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
+													<EmptyRowTag>No Customers</EmptyRowTag>
+												</EmptyRowImageContainer>
+											) : (
+												undefined
+											)}
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</TableFieldContainer>
@@ -238,7 +246,7 @@ class CustomerList extends React.Component {
 						onChangePage={this.handleChangePage}
 						onChangeRowsPerPage={this.handleChangeRowsPerPage}
 						ActionsComponent={TablePaginationActions}
-					/>					
+					/>
 				</PageWrapper>
 			</Container>
 		);

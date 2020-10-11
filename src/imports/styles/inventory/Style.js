@@ -883,7 +883,7 @@ export const PlusButton = styled.button`
 `;
 
 export const AuthorizeButton = styled.button`
-	min-width: 70px;
+	min-width: 80px;
 	color: #fff;
 	background-color: #05cbbf;
 	border-color: #05cbbf;
@@ -907,6 +907,10 @@ export const AuthorizeButton = styled.button`
 		opacity 0.15s ease-in-out;
 	&:focus {
 		outline: none;
+	}
+	&:hover{
+		background-color:#00afa5;
+	border-color:#00afa5;
 	}
 `;
 

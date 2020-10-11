@@ -41,7 +41,7 @@ class SelectOrganizationModal extends React.Component {
 		return (
 			<Modal
 				isOpen={this.props.isOpen}
-				contentLabel="Place Bid"
+				contentLabel="Select Organization"
 				onRequestClose={this.onClose}
 				className="boxed-view__box"
 				style={ModalCustomStyles}

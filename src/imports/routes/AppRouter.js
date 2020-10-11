@@ -7,7 +7,7 @@ import PublicRoute from './PublicRoute';
 import LogIn from '../components/main/LogIn';
 import SignUp from '../components/main/SignUp';
 import NotFound from '../components/main/NotFound';
-import Dashboard from '../components/main/Dashboard';
+import Dashboard from '../components/main/Dashboard/Dashboard';
 // import Users from '../components/accounts/Users';
 // import Profile from '../components/accounts/Profile';
 import Product from '../components/inventory/Product/Product';

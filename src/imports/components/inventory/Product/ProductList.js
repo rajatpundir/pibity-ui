@@ -6,7 +6,6 @@ import { getVariables } from '../../../redux/actions/variables';
 import TablePagination from '@material-ui/core/TablePagination';
 import TablePaginationActions from '../../main/TablePagination';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
-
 import {
 	Container,
 	PageWrapper,
@@ -37,6 +36,8 @@ import {
 	TableFieldContainer,
 	Span
 } from '../../../styles/inventory/Style';
+import { TablePaginationStyle } from '../../../styles/main/TablePagination';
+import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
 
 class ProductList extends React.Component {
 	constructor(props) {
@@ -60,7 +61,7 @@ class ProductList extends React.Component {
 	handleChangeRowsPerPage = (event) => {
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
 	};
-	
+
 	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
 	}
@@ -149,9 +150,9 @@ class ProductList extends React.Component {
 	render() {
 		const { rowsPerPage, page } = this.state;
 		return (
-			<Container  mediaPadding="0" backgroundColor="white">
+			<Container mediaPadding="0" backgroundColor="white">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<PageWrapper mediaMargin="0"  mediaWidth="100%">
+				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarLeftItems>
@@ -248,27 +249,36 @@ class ProductList extends React.Component {
 													{this.renderInputFields()}
 												</TableBody>
 											</BodyTable>
-											<TablePagination
-												component="div"
-												style={{ display: 'flex', justifyContent: 'center' }}
-												rowsPerPageOptions={[ 5, 10, 20 ]}
-												colSpan={3}
-												count={this.state.product.length}
-												rowsPerPage={rowsPerPage}
-												page={page}
-												SelectProps={{
-													native: true
-												}}
-												onChangePage={this.handleChangePage}
-												onChangeRowsPerPage={this.handleChangeRowsPerPage}
-												ActionsComponent={TablePaginationActions}
-											/>
+
+											{this.state.product.length === 0 ? (
+												<EmptyRowImageContainer>
+													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
+													<EmptyRowTag>No Products</EmptyRowTag>
+												</EmptyRowImageContainer>
+											) : (
+												undefined
+											)}
 										</HeaderBody>
 									</HeaderBodyContainer>
 								</TableFieldContainer>
 							</RoundedBlock>
 						</InputBody>
 					</PageBody>
+					<TablePagination
+						component="div"
+						style={TablePaginationStyle}
+						rowsPerPageOptions={[ 5, 10, 20 ]}
+						colSpan={3}
+						count={this.state.product.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						SelectProps={{
+							native: true
+						}}
+						onChangePage={this.handleChangePage}
+						onChangeRowsPerPage={this.handleChangeRowsPerPage}
+						ActionsComponent={TablePaginationActions}
+					/>
 				</PageWrapper>
 			</Container>
 		);

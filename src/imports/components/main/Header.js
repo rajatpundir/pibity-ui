@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-concat */
 import React from 'react';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { withStyles } from '@material-ui/core/styles';
 import { HeaderContainer } from '../../styles/main/HeaderAndFooter';
@@ -26,24 +27,29 @@ class Header extends React.Component {
 		const { classes } = this.props;
 		return (
 			<HeaderContainer>
-				<Breadcrumbs aria-label="breadcrumb" >
-					<Link color="inherit" href="/" className={classes.links}>
-						Home{' '}
-					</Link>
-					<Link color="inherit" href={'/' + `${url}`} className={classes.links}>
-						{url}{' '}
-					</Link>
-					if(this.match.params.variableName){
-						<Link
-							color="textPrimary"
-							href={this.props.match.params.url}
-							aria-current="page"
-							className={classes.links}
-						>
-							{this.props.match.params.variableName}
+				{this.props.match.params.variableName ? (
+					<Breadcrumbs aria-label="breadcrumb">
+						<Link color="inherit" href="/" className={classes.links}>
+							Home{' '}
 						</Link>
-					}
-				</Breadcrumbs>
+						<Link color="inherit" href={'/' + `${url}`} className={classes.links}>
+							{url}{' '}
+						</Link>
+						<Typography color="textPrimary" aria-current="page">
+							{this.props.match.params.variableName}
+						</Typography>
+					</Breadcrumbs>
+				) : (
+					<Breadcrumbs aria-label="breadcrumb">
+						<Link color="inherit" href="/" className={classes.links}>
+							Home{' '}
+						</Link>
+
+						<Typography color="textPrimary" aria-current="page">
+							{url}{' '}
+						</Typography>
+					</Breadcrumbs>
+				)}
 			</HeaderContainer>
 		);
 	}
