@@ -9,9 +9,6 @@ import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
-import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -26,6 +23,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import { SelectWrapper, ToolbarItemContainer } from '../../styles/main/Navigation';
+import SideDrawer from './SideDrawer';
 
 const drawerWidth = 240;
 const styles = (theme) => ({
@@ -146,6 +144,9 @@ const styles = (theme) => ({
 	profileMenuItem: {
 		height: '3rem',
 		fontSize: '1.3rem'
+	},
+	sideDrawer: {
+		left: '73px'
 	}
 });
 
@@ -155,7 +156,11 @@ class MiniDrawer extends React.Component {
 		this.state = {
 			anchorEl: null,
 			open: true,
+			openSideDrawer: false,
 			openProfileMenu: false,
+			prevtitle: '',
+			title: '',
+			childData: [],
 			organizations: JSON.parse(localStorage.getItem('organizations')) || [],
 			selectedOrganization: props.auth.selectedOrganization
 		};
@@ -164,6 +169,7 @@ class MiniDrawer extends React.Component {
 		this.onChange = this.onChange.bind(this);
 		this.handleMenu = this.handleMenu.bind(this);
 		this.handleClose = this.handleClose.bind(this);
+		this.handleSideDrawer = this.handleSideDrawer.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -197,23 +203,42 @@ class MiniDrawer extends React.Component {
 	}
 
 	handleDrawerClose() {
-		this.setState({ open: !this.state.open });
+		this.setState({
+			open: !this.state.open,
+			openSideDrawer: false
+		});
 	}
-	handleClick(item) {
+
+	handleSideDrawer() {
+		this.setState({ openSideDrawer: !this.state.openSideDrawer });
+	}
+
+	handleClick(item, children) {
 		this.setState((prevState) => ({ [item]: !prevState[item] }));
+		if (this.state.prevtitle === item) {
+			this.setState({ openSideDrawer: !this.state.openSideDrawer });
+		} else {
+			this.setState({
+				openSideDrawer: true,
+				childData: children,
+				title: item,
+				prevtitle: item
+			});
+		}
 	}
+
 	// if the menu item doesn't have any child, this method simply returns a clickable menu item that redirects to any location and if there is no child this method uses recursion to go until the last level of children and then returns the item by the first condition.
 	handler(children) {
 		const { classes } = this.props;
-		const { state } = this;
 		return children.map((subOption) => {
 			if (!subOption.children) {
 				return (
-					<Tooltip title={subOption.name} arrow placement="right" key={subOption.name} >
+					<Tooltip title={subOption.name} arrow placement="right" key={subOption.name}>
 						<div key={subOption.name}>
-							<ListItem button key={subOption.name}>
-								<Icon style={{ color: 'white', fontSize: '28px' }}>{subOption.icon}</Icon>
-								<Link to={subOption.url} className={classes.links}>
+							<Link to={subOption.url} className={classes.links}>
+								<ListItem button key={subOption.name}>
+									<Icon style={{ color: 'white', fontSize: '28px' }}>{subOption.icon}</Icon>
+
 									<ListItemText
 										inset //to align item within the list
 										classes={{
@@ -222,15 +247,15 @@ class MiniDrawer extends React.Component {
 									>
 										{subOption.name}
 									</ListItemText>
-								</Link>
-							</ListItem>
+								</ListItem>
+							</Link>
 						</div>
 					</Tooltip>
 				);
 			}
 			return (
 				<div key={subOption.name}>
-					<ListItem button onClick={() => this.handleClick(subOption.name)}>
+					<ListItem button onClick={() => this.handleClick(subOption.name, subOption.children)}>
 						<Icon style={{ color: 'white', fontSize: '28px' }}>{subOption.icon}</Icon>
 						<ListItemText
 							inset //to align item within the list
@@ -240,11 +265,10 @@ class MiniDrawer extends React.Component {
 						>
 							{subOption.name}
 						</ListItemText>{' '}
-						{state[subOption.name] ? <ExpandLess /> : <ExpandMore />}
+						<IconButton aria-label="expand" size="medium">
+							<ChevronRightIcon />
+						</IconButton>
 					</ListItem>
-					<Collapse in={state[subOption.name]} timeout="auto" unmountOnExit>
-						{this.handler(subOption.children)}
-					</Collapse>
 				</div>
 			);
 		});
@@ -359,6 +383,15 @@ class MiniDrawer extends React.Component {
 					<Divider />
 					<List>{this.handler(menuItems.data)}</List>
 				</Drawer>
+				{this.state.openSideDrawer ? (
+					<SideDrawer
+						left={this.state.open ? '240px' : '73px'}
+						data={this.state.childData}
+						title={this.state.title}
+					/>
+				) : (
+					undefined
+				)}
 			</div>
 		);
 	}

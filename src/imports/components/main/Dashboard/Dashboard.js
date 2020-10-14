@@ -76,11 +76,11 @@ class Dashboard extends React.Component {
 						</div>
 					</PageSubTitleContainer>
 				</PageLabelContainer>
-				<Container mediaPadding="20px 20px 0 20px" backgroundColor="#F0F2F4">
+				<Container mediaPadding="20px 20px 0 20px" backgroundColor="#F0F2F4" >
 					<PageWrapper>
 						<PageBody>
 							<Quicklinks />
-							{this.state.customer ? <CustoemrBlock /> : undefined}
+							{this.state.customer ? <CustoemrBlock  /> : undefined}
 							{this.state.supplier ? <SupplierBlock /> : undefined}
 							{this.state.product ? <ProductBlock /> : undefined}
 						</PageBody>
