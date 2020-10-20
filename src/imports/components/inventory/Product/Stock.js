@@ -4,6 +4,9 @@ import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
 import Select from 'react-select';
+import { customErrorMessage, CustomNotification, successMessage } from '../../main/Notification';
+import 'react-toastify/dist/ReactToastify.css';
+
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -43,6 +46,7 @@ class Stock extends React.Component {
 			list: props.list
 		};
 		this.onChange = this.onChange.bind(this);
+		this.onLocationChange=this.onLocationChange.bind(this);
 	}
 
 	// clear form errors
@@ -55,6 +59,29 @@ class Stock extends React.Component {
 			...prevState,
 			list: nextProps.list
 		};
+	}
+
+	onLocationChange(e, variableName) {
+	if (this.state.list.filter((variable)=>{
+		return	variable.get("values").get("location")===e.target.value
+		}).length ===0){
+			const list = cloneDeep(this.state.list).map((listVariable) => {
+				if (listVariable.get('variableName') === variableName) {
+					const values = listVariable.get('values');
+					values.set(e.target.name, e.target.value);
+					listVariable.set('values', values);
+					return listVariable;
+				} else {
+					return listVariable;
+				}
+			});
+			this.setState({ list: list });
+			this.props.updateProductStock(list);
+		}else{
+			customErrorMessage('Location Can nO');
+
+		}
+		
 	}
 
 	onChange(e, variableName) {
@@ -132,7 +159,7 @@ class Stock extends React.Component {
 										label: listVariable.get('values').get('location')
 									}}
 									onChange={(option) => {
-										this.onChange(
+										this.onLocationChange(
 											{ target: { name: 'location', value: option.value } },
 											listVariable.get('variableName')
 										);
@@ -268,9 +295,9 @@ class Stock extends React.Component {
 						</FormControl>
 					</PageBarAlign>
 				</PageBar>
-				<InputBody borderTop="0">
-					<RoundedBlock>
-						<TableFieldContainer>
+				<InputBody borderTop="0" overflow="visible">
+					<RoundedBlock overflow="visible">
+						<TableFieldContainer overflow="visible">
 							<Headers>
 								<HeaderContainer>
 									<HeaderBody>

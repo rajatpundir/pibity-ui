@@ -136,7 +136,6 @@ class Customer extends React.Component {
 		this.setState({ isOpen: false });
 		if (this.props.match.params.variableName) {
 			const variable = decodeURIComponent(this.props.match.params.variableName);
-			console.log(variable);
 			this.props.getVariable(this.state.variable.get('typeName'), variable);
 		}
 		this.getData();

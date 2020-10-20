@@ -16,6 +16,10 @@
 				{
 					"name": "Create Product",
 					"url": "/product"
+				},
+				{
+					"name":"Stock Adjustment",
+					"url":"/StockAdjustment"
 				}
 			]
 		},

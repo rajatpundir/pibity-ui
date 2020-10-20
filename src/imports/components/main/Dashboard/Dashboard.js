@@ -28,6 +28,7 @@ import {
 	ModalSubmitButton
 } from '../../../styles/main/Modal';
 import { getVariables } from '../../../redux/actions/variables';
+import SelectorganizationModal from '../SelectorganizationModal';
 
 class Dashboard extends React.Component {
 	constructor(props) {
@@ -36,17 +37,27 @@ class Dashboard extends React.Component {
 			isOpen: false,
 			supplier: true,
 			customer: true,
-			product: true
+			product: true,
+			isOrganizationModalOpen: false,
+
 		};
 		this.handleChnage = this.handleChnage.bind(this);
 		this.openModal=this.openModal.bind(this);
 		this.onClose=this.onClose.bind(this);
+		this.onOrganizationModalClose=this.onOrganizationModalClose.bind(this);
 	}
 
-	componentDidMount() {
+	getData() {
 		this.props.getVariables('Customer');
 		this.props.getVariables('Product');
 		this.props.getVariables('Supplier');
+	}
+	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOrganizationModalOpen: true });
+		} else {
+			this.getData();
+		}
 	}
 
 	handleChnage(e){
@@ -61,10 +72,17 @@ class Dashboard extends React.Component {
 		this.setState({ isOpen: false });
 	}
 
+	onOrganizationModalClose() {
+		this.setState({ isOrganizationModalOpen: false });
+		this.getData();
+	}
+
+
 	render() {
 		return (
 			<React.Fragment>
 				<PageLabelContainer>
+				<SelectorganizationModal isOpen={this.state.isOrganizationModalOpen} onClose={this.onOrganizationModalClose} />
 					<PageTitle>Overview Dashboard</PageTitle>
 					<PageSubTitleContainer>
 						<div style={{ marginTop: '8px', display: 'contents' }}>
@@ -161,7 +179,8 @@ class Dashboard extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, { getVariables })(Dashboard);
