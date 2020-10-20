@@ -43,10 +43,11 @@ class Stock extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			list: props.list
+			list: props.list,
+			selectedlocation: []
 		};
 		this.onChange = this.onChange.bind(this);
-		this.onLocationChange=this.onLocationChange.bind(this);
+		this.onLocationChange = this.onLocationChange.bind(this);
 	}
 
 	// clear form errors
@@ -62,9 +63,11 @@ class Stock extends React.Component {
 	}
 
 	onLocationChange(e, variableName) {
-	if (this.state.list.filter((variable)=>{
-		return	variable.get("values").get("location")===e.target.value
-		}).length ===0){
+		if (
+			this.state.list.filter((variable) => {
+				return variable.get('values').get('location') === e.target.value;
+			}).length === 0
+		) {
 			const list = cloneDeep(this.state.list).map((listVariable) => {
 				if (listVariable.get('variableName') === variableName) {
 					const values = listVariable.get('values');
@@ -77,11 +80,9 @@ class Stock extends React.Component {
 			});
 			this.setState({ list: list });
 			this.props.updateProductStock(list);
-		}else{
-			customErrorMessage('Location Can nO');
-
+		} else {
+			customErrorMessage('Location Can not be same Add another location');
 		}
-		
 	}
 
 	onChange(e, variableName) {
@@ -159,19 +160,27 @@ class Stock extends React.Component {
 										label: listVariable.get('values').get('location')
 									}}
 									onChange={(option) => {
-										this.onLocationChange(
+										this.onChange(
 											{ target: { name: 'location', value: option.value } },
 											listVariable.get('variableName')
 										);
 									}}
 									options={
 										this.props.variables.Location !== undefined ? (
-											this.props.variables.Location.map((variable) => {
-												return {
-													value: variable.variableName,
-													label: variable.variableName
-												};
-											})
+											this.props.variables.Location
+												.filter((location) => {
+													return !this.state.list
+														.map((list) => {
+															return list.get('values').get('location');
+														})
+														.includes(location.variableName);
+												})
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
