@@ -85,6 +85,7 @@ class Supplier extends React.Component {
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
 				const general = values.get('general');
 				general.set('variableName', variableMap.get('variableName'));
@@ -93,7 +94,8 @@ class Supplier extends React.Component {
 				return {
 					...prevState,
 					variable: variableMap,
-					prevPropVariable: variable
+					prevPropVariable: variable,
+					prevVariable: prevVariableMap
 				};
 			}
 		}

@@ -127,6 +127,7 @@ class Product extends React.Component {
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
 				const general = values.get('general');
 				general.set('variableName', variableMap.get('variableName'));
@@ -135,7 +136,8 @@ class Product extends React.Component {
 				return {
 					...prevState,
 					variable: variableMap,
-					prevPropVariable: variable
+					prevPropVariable: variable,
+					prevVariable: prevVariableMap
 				};
 			}
 		}
@@ -170,9 +172,6 @@ class Product extends React.Component {
 			if (this.props.match.params.variableName) {
 				this.props
 					.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
-					.then((variable) => {
-						this.setState({ prevVariable: objToMapRec(variable) });
-					});
 			}
 			this.getData();
 		}
@@ -183,9 +182,6 @@ class Product extends React.Component {
 		if (this.props.match.params.variableName) {
 			this.props
 				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
-				.then((variable) => {
-					this.setState({ prevVariable: variable });
-				});
 		}
 		this.getData();
 	}

@@ -189,7 +189,7 @@ class Stock extends React.Component {
 						<TableHeaderInner>
 							<Input
 								name="expiryDate"
-								type="text"
+								type="date"
 								value={listVariable.get('values').get('expiryDate')}
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>

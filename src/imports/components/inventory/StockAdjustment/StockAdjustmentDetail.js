@@ -31,6 +31,7 @@ class StockAdjustmentDetails extends React.Component {
 			variable: props.variable,
 			selectedProduct: '',
 			selectedProductStockLocations: [],
+			selectedLocationVariable:{},
 			open: true
 		};
 		this.onChange = this.onChange.bind(this);
@@ -64,25 +65,27 @@ class StockAdjustmentDetails extends React.Component {
 		variable.set(e.target.name, e.target.value);
 		variable.set('unit', selectedProduct.values.general.values.unitOfMeasure);
 		this.setState({ variable: variable });
-		this.props.updateDetails(variable);
+		this.props.updateDetails(variable,selectedProduct,this.state.selectedLocationVariable);
 	}
 
 	onSelectLocation(e){
 		const variable = cloneDeep(this.state.variable);
-		const onHand = this.state.selectedProduct.values.productStock.filter((stock) => {
+		const selectedLocationVariable = this.state.selectedProduct.values.productStock.filter((stock) => {
 			return stock.values.location === e.target.value;
-		})[0].values.onHand;
+		})[0]
+		const onHand=selectedLocationVariable.values.onHand
 		variable.set(e.target.name, e.target.value);
 		variable.set("onHand",onHand)
-		this.setState({ variable: variable });
-		this.props.updateDetails(variable);
+		this.setState({ variable: variable,
+			selectedLocationVariable:selectedLocationVariable });
+		this.props.updateDetails(variable,this.state.selectedProduct,selectedLocationVariable);
 	}
 
 	onChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		variable.set(e.target.name, e.target.value);
 		this.setState({ variable: variable });
-		this.props.updateDetails(variable);
+		this.props.updateDetails(variable,this.state.selectedProduct,this.state.selectedLocationVariable);
 	}
 
 	render() {

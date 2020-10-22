@@ -5,7 +5,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
 import CheckIcon from '@material-ui/icons/Check';
-import { createVariable, getVariable, objToMapRec, getVariables } from '../../../redux/actions/variables';
+import {
+	createVariable,
+	getVariable,
+	objToMapRec,
+	getVariables,
+	updateProductStockVariable
+} from '../../../redux/actions/variables';
 import StockAdjustmentDetail from './StockAdjustmentDetail';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
 import { Container, PageWrapper, PageBody, SaveButtonContaier, SaveButton } from '../../../styles/inventory/Style';
@@ -15,8 +21,10 @@ class StockAdjustment extends React.Component {
 		super();
 		this.state = {
 			isOpen: false,
-			createCustomer: true,
+			adjustStock: true,
 			prevPropVariable: {},
+			selectedProduct: {},
+			selectedLocationVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
 				[ 'typeName', 'StockAdjustment' ],
@@ -38,6 +46,7 @@ class StockAdjustment extends React.Component {
 			])
 		};
 		this.updateDetails = this.updateDetails.bind(this);
+		this.updateProductVariabe = this.updateProductVariabe.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
@@ -96,25 +105,51 @@ class StockAdjustment extends React.Component {
 		if (variable.get('product') === '') {
 			// message = message + ' Please provide a Customer Name  \n';
 			customErrorMessage(' Product Name is missing');
-			this.setState({ createCustomer: false });
+			this.setState({ adjustStock: false });
 		}
 		if (variable.get('location') === '') {
 			// message = message + ' Please choose the Status \n';
 			customErrorMessage('location is missing');
-			this.setState({ createCustomer: false });
+			this.setState({ adjustStock: false });
 		}
 		if (variable.get('newQuantity') === '') {
 			// message = message + ' Please choose the TaxRule  \n';
 			customErrorMessage(' Add New Quantity is missing');
-			this.setState({ createCustomer: false });
+			this.setState({ adjustStock: false });
 		}
 	}
 
-	updateDetails(details) {
+	updateDetails(details, selectedProduct, selectedLocationVariable) {
 		const variable = cloneDeep(this.state.variable);
 		variable.set('values', details);
-		variable.set('variableName', details.get('product'));
-		this.setState({ variable: variable });
+		this.setState({
+			variable: variable,
+			selectedProduct: selectedProduct,
+			selectedLocationVariable: selectedLocationVariable
+		});
+	}
+
+	updateProductVariabe() {
+		const variable = {
+			organization: this.state.selectedProduct.organization,
+			typeName: this.state.selectedProduct.typeName,
+			variableName: this.state.selectedProduct.variableName,
+			values: {
+				productStock: {
+					update: [
+						{
+							variableName: this.state.selectedLocationVariable.variableName,
+							values: {
+								onHand: this.state.variable.get('values').get('newQuantity'),
+								stockValue: this.state.variable.get('values').get('newQuantity'),
+								available: this.state.variable.get('values').get('newQuantity')
+							}
+						}
+					]
+				}
+			}
+		};
+		this.props.updateProductStockVariable(variable);
 	}
 
 	render() {
@@ -133,14 +168,15 @@ class StockAdjustment extends React.Component {
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
-											if (this.state.createCustomer) {
+											if (this.state.adjustStock) {
 												this.props.createVariable(this.state.variable).then((status) => {
 													if (status === 200) {
+														this.updateProductVariabe();
 														successMessage(' Stock Updated');
 													}
 												});
 											}
-											this.setState({ createCustomer: true });
+											this.setState({ adjustStock: true });
 										});
 									}}
 								>
@@ -151,8 +187,8 @@ class StockAdjustment extends React.Component {
 
 						<StockAdjustmentDetail
 							variable={this.state.variable.get('values')}
-                            updateDetails={this.updateDetails}
-                            isdisabled={this.props.match.params.variableName?true:false}
+							updateDetails={this.updateDetails}
+							isdisabled={this.props.match.params.variableName ? true : false}
 						/>
 					</PageBody>
 				</PageWrapper>
@@ -171,5 +207,6 @@ export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
 	getVariable,
-	getVariables
+	getVariables,
+	updateProductStockVariable
 })(StockAdjustment);

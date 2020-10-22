@@ -163,6 +163,7 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 
 export const updateVariable = (prevVariable: Map, newVariable: Map) => async (dispatch) => {
 	try {
+		console.log(prevVariable)
 		const url = domain + '/variable/update';
 		const request = {
 			organization: localStorage.getItem('selectedOrganization'),
@@ -172,6 +173,31 @@ export const updateVariable = (prevVariable: Map, newVariable: Map) => async (di
 		};
 		console.log(JSON.stringify(request));
 		const response = await axios.post(url, request);
+		console.log('--RESPONSE--');
+		console.log(response.data);
+		if (response.status === 200) {
+			if (response.data !== undefined) {
+				console.log(response.data);
+				await replaceVariable(dispatch, response.data);
+				return response.status;
+			}
+		} else {
+			updateErrors(dispatch, response.data);
+			return response.status;
+		}
+	} catch (error) {
+		if (error.response) {
+			updateErrors(dispatch, error.response.data);
+			return false;
+		}
+	}
+};
+
+export const updateProductStockVariable = (variable: Map) => async (dispatch) => {
+	try {
+		const url = domain + '/variable/update';
+		console.log(JSON.stringify(variable));
+		const response = await axios.post(url, variable);
 		console.log('--RESPONSE--');
 		console.log(response.data);
 		if (response.status === 200) {
@@ -239,5 +265,7 @@ function computeUpdates(prevValues: Map, newValues: Map) {
 			map.set(key, newValues.get(key));
 		}
 	}
+	console.log(map)
 	return map;
+
 }
