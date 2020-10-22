@@ -5,56 +5,43 @@ import 'react-toastify/dist/ReactToastify.css';
 import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
 import CheckIcon from '@material-ui/icons/Check';
-import {
-    createVariable,
-    getVariable,
-    objToMapRec,
-    getVariables
-} from '../../../redux/actions/variables';
-import StockAdjustmentDetail from './StockAdjustmentDetail'
+import { createVariable, getVariable, objToMapRec, getVariables } from '../../../redux/actions/variables';
+import StockAdjustmentDetail from './StockAdjustmentDetail';
 import SelectorganizationModal from '../../main/SelectorganizationModal';
-import {
-    Container,
-    PageWrapper,
-    PageBody,
-    SaveButtonContaier,
-    SaveButton,
-} from '../../../styles/inventory/Style';
+import { Container, PageWrapper, PageBody, SaveButtonContaier, SaveButton } from '../../../styles/inventory/Style';
 
 class StockAdjustment extends React.Component {
-    constructor(props) {
-        super();
-        this.state = {
-            isOpen: false,
-            createCustomer: true,
-            prevPropVariable: {},
-            prevVariable: new Map(),
-            variable: new Map([
-                ['typeName', 'StockAdjustment'],
-                ['variableName', ''],
-                [
-                    'values',
-                    new Map([
-                        ['product', ''],
-                        ['date', ''],
-                        ['unit', ''],
-                        ['location', ''],
-                        ['onHand', ''],
-                        ['newQuantity', 0],
-                        ['variance', 0],
-                        ['account', ''],
-                        ['comments', '']
-                    ])
-                ]
-            ])
-        }
-        this.updateDetails=this.updateDetails.bind(this);
-        this.onClose=this.onClose.bind(this);
+	constructor(props) {
+		super();
+		this.state = {
+			isOpen: false,
+			createCustomer: true,
+			prevPropVariable: {},
+			prevVariable: new Map(),
+			variable: new Map([
+				[ 'typeName', 'StockAdjustment' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'product', '' ],
+						[ 'date', '' ],
+						[ 'unit', '' ],
+						[ 'location', '' ],
+						[ 'onHand', '' ],
+						[ 'newQuantity', 0 ],
+						[ 'variance', 0 ],
+						[ 'account', '' ],
+						[ 'comments', '' ]
+					])
+				]
+			])
+		};
+		this.updateDetails = this.updateDetails.bind(this);
+		this.onClose = this.onClose.bind(this);
+	}
 
-    }
-
-
-    static getDerivedStateFromProps(nextProps, prevState) {
+	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.match.params.variableName && nextProps.variables.StockAdjustment) {
 			const variable = nextProps.variables.StockAdjustment.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
@@ -130,47 +117,48 @@ class StockAdjustment extends React.Component {
 		this.setState({ variable: variable });
 	}
 
+	render() {
+		return (
+			<Container mediaPadding="20px 20px 0 20px">
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
+				<CustomNotification limit={2} />
+				<PageWrapper>
+					<PageBody>
+						{this.props.match.params.variableName ? (
+							undefined
+						) : (
+							<SaveButtonContaier>
+								<SaveButton
+									onClick={(e) => {
+										new Promise((resolve) => {
+											resolve(this.checkRequiredField(this.state.variable.get('values')));
+										}).then(() => {
+											if (this.state.createCustomer) {
+												this.props.createVariable(this.state.variable).then((status) => {
+													if (status === 200) {
+														successMessage(' Stock Updated');
+													}
+												});
+											}
+											this.setState({ createCustomer: true });
+										});
+									}}
+								>
+									<CheckIcon />
+								</SaveButton>
+							</SaveButtonContaier>
+						)}
 
-    render() {
-        return (<Container mediaPadding="20px 20px 0 20px">
-            <SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-            <CustomNotification limit={2} />
-            <PageWrapper>
-                <PageBody>
-                    <SaveButtonContaier>
-                        <SaveButton
-                            onClick={(e) => {
-                                if (this.props.match.params.variableName) {
-                                    this.props.updateVariable(this.state.prevVariable, this.state.variable);
-                                    console.log('update me gya ');
-                                } else {
-                                    new Promise((resolve) => {
-                                        resolve(this.checkRequiredField(this.state.variable.get('values')));
-                                    }).then(() => {
-                                        if (this.state.createCustomer) {
-                                            this.props.createVariable(this.state.variable).then((status) => {
-                                                if (status === 200) {
-                                                    successMessage(' Customer Created');
-                                                }
-                                            });
-                                        }
-                                        this.setState({ createCustomer: true });
-                                    });
-                                }
-                            }}
-                        >
-                            <CheckIcon />
-                        </SaveButton>
-                    </SaveButtonContaier>
-                    <StockAdjustmentDetail
-                        variable={this.state.variable.get('values')}
-                        updateDetails={this.updateDetails}
-                    />
-                </PageBody>
-            </PageWrapper>
-        </Container>
-        )
-    }
+						<StockAdjustmentDetail
+							variable={this.state.variable.get('values')}
+                            updateDetails={this.updateDetails}
+                            isdisabled={this.props.match.params.variableName?true:false}
+						/>
+					</PageBody>
+				</PageWrapper>
+			</Container>
+		);
+	}
 }
 
 const mapStateToProps = (state, ownProps) => ({
@@ -185,4 +173,3 @@ export default connect(mapStateToProps, {
 	getVariable,
 	getVariables
 })(StockAdjustment);
-

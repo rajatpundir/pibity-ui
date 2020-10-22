@@ -4,7 +4,6 @@ import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
 import Select from 'react-select';
-import { customErrorMessage, CustomNotification, successMessage } from '../../main/Notification';
 import 'react-toastify/dist/ReactToastify.css';
 
 import {
@@ -47,7 +46,6 @@ class Stock extends React.Component {
 			selectedlocation: []
 		};
 		this.onChange = this.onChange.bind(this);
-		this.onLocationChange = this.onLocationChange.bind(this);
 	}
 
 	// clear form errors
@@ -60,29 +58,6 @@ class Stock extends React.Component {
 			...prevState,
 			list: nextProps.list
 		};
-	}
-
-	onLocationChange(e, variableName) {
-		if (
-			this.state.list.filter((variable) => {
-				return variable.get('values').get('location') === e.target.value;
-			}).length === 0
-		) {
-			const list = cloneDeep(this.state.list).map((listVariable) => {
-				if (listVariable.get('variableName') === variableName) {
-					const values = listVariable.get('values');
-					values.set(e.target.name, e.target.value);
-					listVariable.set('values', values);
-					return listVariable;
-				} else {
-					return listVariable;
-				}
-			});
-			this.setState({ list: list });
-			this.props.updateProductStock(list);
-		} else {
-			customErrorMessage('Location Can not be same Add another location');
-		}
 	}
 
 	onChange(e, variableName) {
