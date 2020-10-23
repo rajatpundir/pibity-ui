@@ -18,8 +18,12 @@
 					"url": "/product"
 				},
 				{
-					"name":"Stock Adjustment",
-					"url":"/StockAdjustment"
+					"name":"Adjust Stock",
+					"url":"/stockAdjustment"
+				},
+				{
+					"name":"Stock Adjustment Record",
+					"url":"/stockAdjustmentList"
 				}
 			]
 		},

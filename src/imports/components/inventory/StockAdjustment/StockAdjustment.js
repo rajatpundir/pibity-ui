@@ -59,9 +59,6 @@ class StockAdjustment extends React.Component {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
-				const general = values.get('general');
-				general.set('variableName', variableMap.get('variableName'));
-				values.set('general', general);
 				variableMap.set('values', values);
 				return {
 					...prevState,
@@ -113,6 +110,11 @@ class StockAdjustment extends React.Component {
 			this.setState({ adjustStock: false });
 		}
 		if (variable.get('newQuantity') === '') {
+			// message = message + ' Please choose the TaxRule  \n';
+			customErrorMessage(' Add New Quantity is missing');
+			this.setState({ adjustStock: false });
+		}
+		if (variable.get('date') === '') {
 			// message = message + ' Please choose the TaxRule  \n';
 			customErrorMessage(' Add New Quantity is missing');
 			this.setState({ adjustStock: false });

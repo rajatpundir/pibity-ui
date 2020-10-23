@@ -37,6 +37,7 @@ class StockAdjustmentDetails extends React.Component {
 		this.onChange = this.onChange.bind(this);
 		this.onProductChange = this.onProductChange.bind(this);
 		this.onSelectLocation=this.onSelectLocation.bind(this);
+		this.onNewQuantityChange=this.onNewQuantityChange.bind(this);
 	}
 
 	// clear form errors
@@ -79,6 +80,14 @@ class StockAdjustmentDetails extends React.Component {
 		this.setState({ variable: variable,
 			selectedLocationVariable:selectedLocationVariable });
 		this.props.updateDetails(variable,this.state.selectedProduct,selectedLocationVariable);
+	}
+
+	onNewQuantityChange(e) {
+		const variable = cloneDeep(this.state.variable);
+		variable.set(e.target.name, e.target.value);
+		variable.set("variance",e.target.value - this.state.variable.get('onHand'))
+		this.setState({ variable: variable });
+		this.props.updateDetails(variable,this.state.selectedProduct,this.state.selectedLocationVariable);
 	}
 
 	onChange(e) {
@@ -218,7 +227,7 @@ class StockAdjustmentDetails extends React.Component {
 										type="number"
 										placeholder="0"
 										value={this.state.variable.get('newQuantity')}
-										onChange={this.onChange}
+										onChange={this.onNewQuantityChange}
 									/>
 									<InputLabel>New Quantity</InputLabel>
 								</FormControl>
@@ -230,7 +239,6 @@ class StockAdjustmentDetails extends React.Component {
 										value={
 											this.state.variable.get('newQuantity') - this.state.variable.get('onHand')
 										}
-										onChange={this.onChange}
 										disabled
 									/>
 									<InputLabel>Variance</InputLabel>

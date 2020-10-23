@@ -19,7 +19,7 @@ import ProductList from '../components/inventory/Product/ProductList';
 import PurchaseList from '../components/inventory/Purchase/PurchaseList';
 import SupplierList from '../components/inventory/Supplier/SupplierList';
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment'
-
+import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList'
 // Set token for Axios requests
 if (localStorage.getItem('jwtToken')) {
 	setTokenForAxios(localStorage.getItem('jwtToken'));
@@ -60,6 +60,8 @@ export const AppRouter = () => (
 			<PublicRoute exact path="/customerList" render={(props) => <CustomerList {...props} />} />
 			<PublicRoute exact path="/customerList/:variableName" render={(props) => <Customer {...props} />} />
 			<PublicRoute exact path="/stockAdjustment" render={(props) => <StockAdjustment {...props} />} />
+			<PublicRoute exact path="/stockAdjustmentList" render={(props) => <StockAdjustmentList {...props} />} />
+			<PublicRoute exact path="/stockAdjustmentList/:variableName" render={(props) => <StockAdjustment {...props} />} />
 
 			{/* Page Not Found */}
 			<Route exact path="*" render={(props) => <NotFound />} />
