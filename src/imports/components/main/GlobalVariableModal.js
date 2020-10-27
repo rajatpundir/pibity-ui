@@ -23,7 +23,6 @@ class GlobalVariableModal extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			isOpen: props.isOpen,
 			typeVariable: new Map([ [ 'typeName', props.typeName ], [ 'variableName', '' ], [ 'values', new Map([]) ] ])
 		};
 		this.onChange = this.onChange.bind(this);
@@ -39,9 +38,10 @@ class GlobalVariableModal extends React.Component {
 	}
 
 	render() {
+		console.log(this.props)
 		return (
 			<Modal
-				isOpen={this.state.isOpen}
+				isOpen={this.props.isOpen}
 				contentLabel="create Type"
 				onRequestClose={this.onClose}
 				className="boxed-view__box"

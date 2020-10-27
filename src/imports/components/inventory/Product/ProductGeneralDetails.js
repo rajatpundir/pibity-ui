@@ -73,21 +73,22 @@ class ProductGeneralDetails extends React.Component {
 
 	openCreateVariableModal(typeName){
 		console.log(typeName)
-		this.setState({ createGlobalVariableTypeName: typeName });
-		console.log(this.state)
+		this.setState({ createGlobalVariableTypeName : typeName },()=>{
+			this.setState({isCreateTypeVariableModalOpen:true})
+		});
 	}
 
 	onCloseModal() {
-		this.setState({ isCreateTypeVariableModalOpen: false });
+		this.setState({ isCreateTypeVariableModalOpen : false });
 	}
 
 	render() {
 		return (
 			<React.Fragment>
 				<GlobalVariableModal
-					onClose={this.onClose}
+					onClose={this.onCloseModal}
 					isOpen={this.state.isCreateTypeVariableModalOpen}
-					tyepName={this.state.createGlobalVariableTypeName}
+					typeName={this.state.createGlobalVariableTypeName}
 				/>
 				<PageBlock paddingBottom="0">
 					<PageToolbar>
