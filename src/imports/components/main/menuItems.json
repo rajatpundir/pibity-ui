@@ -18,12 +18,16 @@
 					"url": "/product"
 				},
 				{
-					"name":"Adjust Stock",
-					"url":"/stockAdjustment"
+					"name": "Adjust Stock",
+					"url": "/stockAdjustment"
 				},
 				{
-					"name":"Stock Adjustment Record",
-					"url":"/stockAdjustmentList"
+					"name": "Stock Adjustment Record",
+					"url": "/stockAdjustmentList"
+				},
+				{
+					"name":"QuickBooks",
+					"url":"/expence"
 				}
 			]
 		},

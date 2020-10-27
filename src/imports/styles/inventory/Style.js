@@ -566,6 +566,49 @@ export const SelectWrapper = styled.div.attrs((props) => ({
 	vertical-align: baseline;
 `;
 
+/*
+Button to add new select option,
+To create a variable fot a type
+*/
+export const SelectAddButton = styled.button`
+	color: #b9bdce;
+	height: 38px;
+	margin-left: 5px;
+	border-color: #b9bdce;
+	width: 40px !important;
+	min-width: 40px !important;
+	max-width: 40px !important;
+	padding: 0 !important;
+	text-align: center;
+	border-width: 1px;
+	border-style: solid;
+	font-family: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	text-decoration: none;
+	display: inline-flex;
+	vertical-align: middle;
+	justify-content: center;
+	flex-direction: row;
+	align-items: center;
+	background: transparent;
+	white-space: nowrap;
+	border-radius: 4px;
+	cursor: pointer;
+	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		opacity 0.15s ease-in-out;
+	&:focus {
+		outline: none;
+	}
+	&:hover {
+		color: #04beb3;
+		border-color: #00afa5 !important;
+	}
+`;
+
+
 export const Input = styled.input.attrs((props) => ({
 	width: props.width || 'inherit',
 	height: props.height || '38px',
@@ -620,6 +663,8 @@ export const InputLabel = styled.label`
 		box-sizing: border-box;
 	}
 `;
+
+
 
 export const SelectIconContainer = styled.div`
 	justify-content: center;

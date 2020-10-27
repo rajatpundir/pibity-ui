@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-export { SelectWrapper, InputFieldContainer, InputLabel, FormControl } from '../inventory/Style';
+export { SelectWrapper, InputFieldContainer, InputLabel, FormControl,Input,InputRowWrapper,Required } from '../inventory/Style';
 
 export const ModalCustomStyles = {
 	overlay: {
