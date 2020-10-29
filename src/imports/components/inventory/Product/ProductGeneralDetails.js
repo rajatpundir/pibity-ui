@@ -39,8 +39,8 @@ class ProductGeneralDetails extends React.Component {
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onVariableNameChange = this.onVariableNameChange.bind(this);
-		this.openCreateVariableModal=this.openCreateVariableModal.bind(this);
-		this.onCloseModal=this.onCloseModal.bind(this);
+		this.openCreateVariableModal = this.openCreateVariableModal.bind(this);
+		this.onCloseModal = this.onCloseModal.bind(this);
 	}
 
 	// clear form errors
@@ -71,15 +71,14 @@ class ProductGeneralDetails extends React.Component {
 		this.props.updateDetails(variable);
 	}
 
-	openCreateVariableModal(typeName){
-		console.log(typeName)
-		this.setState({ createGlobalVariableTypeName : typeName },()=>{
-			this.setState({isCreateTypeVariableModalOpen:true})
+	openCreateVariableModal(typeName) {
+		this.setState({ createGlobalVariableTypeName: typeName }, () => {
+			this.setState({ isCreateTypeVariableModalOpen: true });
 		});
 	}
 
 	onCloseModal() {
-		this.setState({ isCreateTypeVariableModalOpen : false });
+		this.setState({ isCreateTypeVariableModalOpen: false });
 	}
 
 	render() {
@@ -202,7 +201,7 @@ class ProductGeneralDetails extends React.Component {
 										<InputLabel>Brand</InputLabel>
 										<SelectAddButton
 											onClick={(e) => {
-												this.openCreateVariableModal("Brand")
+												this.openCreateVariableModal('Brand');
 											}}
 										>
 											<AddIcon fontSize="large" />{' '}
@@ -272,6 +271,13 @@ class ProductGeneralDetails extends React.Component {
 											Unit of Measure
 											<Required>*</Required>
 										</InputLabel>
+										<SelectAddButton
+											onClick={(e) => {
+												this.openCreateVariableModal('UnitOfMeasure');
+											}}
+										>
+											<AddIcon fontSize="large" />{' '}
+										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<SelectWrapper>
@@ -427,6 +433,13 @@ class ProductGeneralDetails extends React.Component {
 											/>
 										</SelectWrapper>
 										<InputLabel>Product Discount</InputLabel>
+										<SelectAddButton
+											onClick={(e) => {
+												this.openCreateVariableModal('ProductDiscount');
+											}}
+										>
+											<AddIcon fontSize="large" />{' '}
+										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<Input
@@ -505,6 +518,13 @@ class ProductGeneralDetails extends React.Component {
 											/>
 										</SelectWrapper>
 										<InputLabel>Default Location</InputLabel>
+										<SelectAddButton
+											onClick={(e) => {
+												this.openCreateVariableModal('Location');
+											}}
+										>
+											<AddIcon fontSize="large" />{' '}
+										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<SelectWrapper>

@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { connect } from 'react-redux';
+import { cloneDeep } from 'lodash';
 import { createVariable } from '../../redux/actions/variables';
 import {
 	InputRowWrapper,
@@ -23,14 +24,29 @@ class GlobalVariableModal extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			typeVariable: new Map([ [ 'typeName', props.typeName ], [ 'variableName', '' ], [ 'values', new Map([]) ] ])
+			typeVariable: new Map([ [ 'typeName', '' ], [ 'variableName', '' ], [ 'values', new Map([]) ] ])
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.typeName !== prevState.typeVariable.get('typeName')) {
+			const typeVariable = cloneDeep(prevState.typeVariable);
+			typeVariable.set('typeName', nextProps.typeName);
+			typeVariable.set('variableName', "");
+			return {
+				...prevState,
+				typeVariable: typeVariable
+			};
+		}
+		return prevState;
+	}
+
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		const typeVariable = cloneDeep(this.state.typeVariable);
+		typeVariable.set('variableName', e.target.value);
+		this.setState({ typeVariable: typeVariable });
 	}
 
 	onClose() {
@@ -38,7 +54,6 @@ class GlobalVariableModal extends React.Component {
 	}
 
 	render() {
-		console.log(this.props)
 		return (
 			<Modal
 				isOpen={this.props.isOpen}
@@ -65,7 +80,7 @@ class GlobalVariableModal extends React.Component {
 							<FormControl>
 								<Input
 									name="variableName"
-									type="textArea"
+									type="text"
 									placeholder=""
 									value={this.state.typeVariable.get('variableName')}
 									onChange={(e) => {
