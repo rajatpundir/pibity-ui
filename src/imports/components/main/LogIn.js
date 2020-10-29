@@ -1,71 +1,77 @@
 import React from 'react';
-import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-import { Container, Image, Title, Form, Input, Button, Error } from '../../styles/main/LogIn';
-import { clearErrors } from '../../redux/actions/errors';
-import { login } from '../../redux/actions/auth';
-import image from '../../styles/main/images/User.png';
-class ParentComponent extends React.Component {
-    constructor() {
-        super();
-        
-        this.state = {
-            data : [
-                {id : 1, date : "2014-04-18", total : 121.0, status : "Shipped", name : "A", points: 5, percent : 50},
-                {id : 2, date : "2014-04-21", total : 121.0, status : "Not Shipped", name : "B", points: 10, percent: 60},
-                {id : 3, date : "2014-08-09", total : 121.0, status : "Not Shipped", name : "C", points: 15, percent: 70},
-                {id : 4, date : "2014-04-24", total : 121.0, status : "Shipped", name : "D", points: 20, percent : 80},
-                {id : 5, date : "2014-04-26", total : 121.0, status : "Shipped", name : "E", points: 25, percent : 90},
-            ],
-            expandedRows : []
-        };
-    } 
+// import { connect } from 'react-redux';
+// import PropTypes from 'prop-types';
+// import { Container, Image, Title, Form, Input, Button, Error } from '../../styles/main/LogIn';
+// import { clearErrors } from '../../redux/actions/errors';
+// import { login } from '../../redux/actions/auth';
+// import image from '../../styles/main/images/User.png';
+class LogIn extends React.Component {
+	constructor(props) {
+		super();
+		this.state = {
+			username: '',
+			password: ''
+		};
+		this.onChange = this.onChange.bind(this);
+		this.onSubmit = this.onSubmit.bind(this);
+	}
 
-    handleRowClick(rowId) {
-        const currentExpandedRows = this.state.expandedRows;
-        const isRowCurrentlyExpanded = currentExpandedRows.includes(rowId);
-        
-        const newExpandedRows = isRowCurrentlyExpanded ? 
-			currentExpandedRows.filter(id => id !== rowId) : 
-			currentExpandedRows.concat(rowId);
-        
-        this.setState({expandedRows : newExpandedRows});
-    }
-    
-    renderItem(item) {
-        const clickCallback = () => this.handleRowClick(item.id);
-        const itemRows = [
-			<tr onClick={clickCallback} key={"row-data-" + item.id}>
-			    <td>{item.date}</td>
-			    <td>{item.total}</td>
-			    <td>{item.status}</td>			
-			</tr>
-        ];
-         
-        if(this.state.expandedRows.includes(item.id)) {
-            itemRows.push(
-                <tr key={"row-expanded-" + item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.points}</td>
-                    <td>{item.percent}</td>
-                </tr>
-            );
-        }
-        
-        return itemRows;    
-    }
-    
-    render() {
-        let allItemRows = [];
-        
-        this.state.data.forEach(item => {
-            const perItemRows = this.renderItem(item);
-            allItemRows = allItemRows.concat(perItemRows);
-        });
-        
-        return (
-			     <table>{allItemRows}</table>
-        );
-    }
+	// componentDidMount() {
+	// 	this.props.clearErrors();
+	// }
+
+	// onChange(e) {
+	// 	this.setState({ [e.target.name]: e.target.value });
+	// }
+
+	// onSubmit(e) {
+	// 	e.preventDefault();
+	// 	this.props.login(this.state.username, this.state.password);
+	// }
+
+	render() {
+		return (
+			// <Container>
+			// 	<Image src={image} />
+			// 	<Title>LogIn</Title>
+			// 	<Form onSubmit={this.onSubmit}>
+			// 		{this.props.errors.username ? <Error>{this.props.errors.username}</Error> : undefined}
+			// 		<Input
+			// 			name="username"
+			// 			type="email"
+			// 			placeholder="Email"
+			// 			value={this.state.username}
+			// 			onChange={this.onChange}
+			// 			required
+			// 			autoFocus
+			// 		/>
+
+			// 		<Input
+			// 			name="password"
+			// 			type="password"
+			// 			placeholder="Password"
+			// 			value={this.state.password}
+			// 			onChange={this.onChange}
+			// 			required
+			// 			autoFocus
+			// 		/>
+			// 		<Button type="submit">Login</Button>
+			// 	</Form>
+            // </Container>
+            <h1>login</h1>
+		);
+	}
 }
-export default ParentComponent
+
+// LogIn.propTypes = {
+// 	errors: PropTypes.object.isRequired,
+// 	login: PropTypes.func.isRequired
+// };
+
+// const mapStateToProps = (state, ownProps) => ({
+// 	errors: state.errors
+// });
+
+// export default connect(mapStateToProps, { clearErrors, login })(LogIn);
+
+export default LogIn

@@ -13,46 +13,74 @@ export function setTokenForAxios(token: String) {
 	}
 }
 
-function updateToken(dispatch, payload) {
-	dispatch({
-		type: UPDATE_TOKEN,
-		payload: payload
-	});
-}
+// function updateToken(dispatch, payload) {
+// 	dispatch({
+// 		type: UPDATE_TOKEN,
+// 		payload: payload
+// 	});
+// }
 
-export const login = (username: String, password: String) => async (dispatch) => {
-	try {
-		const url = domain + '/user/login';
-		const request = {
-			username: username,
-			password: password
-		};
-		const response = await axios.post(url, request);
-		const { statusCode, data } = JSON.parse(response.data.entity);
-		if (statusCode === HTTP_STATUS_CODE.OK) {
-			if (data !== undefined) {
-				await setTokenForAxios(data);
-				await localStorage.setItem('jwtToken', data);
-				await updateToken(dispatch, jwt_decode(data));
-				return true;
-			}
-		} else {
-			updateErrors(dispatch, data);
-			return false;
-		}
-	} catch (error) {
-		if (error.response) {
-			updateErrors(dispatch, error.response.data);
-			return false;
-		}
+// export const login = (username: String, password: String) => async (dispatch) => {
+// 	try {
+// 		const url = domain + '/user/login';
+// 		const request = {
+// 			username: username,
+// 			password: password
+// 		};
+// 		const response = await axios.post(url, request);
+// 		const { statusCode, data } = JSON.parse(response.data.entity);
+// 		if (statusCode === HTTP_STATUS_CODE.OK) {
+// 			if (data !== undefined) {
+// 				await setTokenForAxios(data);
+// 				await localStorage.setItem('jwtToken', data);
+// 				await updateToken(dispatch, jwt_decode(data));
+// 				return true;
+// 			}
+// 		} else {
+// 			updateErrors(dispatch, data);
+// 			return false;
+// 		}
+// 	} catch (error) {
+// 		if (error.response) {
+// 			updateErrors(dispatch, error.response.data);
+// 			return false;
+// 		}
+// 	}
+// };
+
+// export const logout = (now = true) => {
+// 	return function (getState) {
+// 		const { authContext } = getState() || {}
+// 		const { keycloak,  logout } = authContext || {}
+
+// 		if (now) {
+// 			if (keycloak && keycloak.authenticated) {
+// 				logout({ redirectUri: 'http://localhost:3000/' })
+// 			}
+// 		} else {
+// 			setTimeout(() => {
+// 				logout({ redirectUri: 'http://localhost:3000/' })
+// 			}, 5000);
+// 		}
+// 	}
+// }
+export const logout = () => async (dispatch) => {
+	console.log("hello")
+	const token = localStorage.getItem('jwt-token');
+	if (token) {
+		localStorage.clear();
+		window.location.reload();
 	}
 };
 
-export const logout = () => async (dispatch) => {
-	const token = localStorage.getItem('jwtToken');
+export const updateToken = (selectedOrganization:String) => async (dispatch) => {
+	const token = localStorage.getItem('jwt-token');
 	if (token) {
-		localStorage.removeItem('jwtToken');
-		window.location.reload();
+		dispatch({
+					type: UPDATE_TOKEN,
+					payload: jwt_decode(token),
+					selectedOrganization:selectedOrganization
+		});
 	}
 };
 

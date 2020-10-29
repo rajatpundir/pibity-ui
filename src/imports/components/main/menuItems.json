@@ -1,56 +1,77 @@
 {
-    "data" : [
-      {
-          "name": "Product",
-          "children": [
-            {
-              "name": "Products",
-              "url": "/productList"
-            },
-            {
-              "name": "Create Product",
-              "url": "/product"
-            }
-          ]
-      },
-      {
-        "name": "Customer",
-        "children": [
-          {
-            "name": "Customers",
-            "url": "/customerList"
-          },
-          {
-            "name": "New Customer",
-            "url": "/customer"
-          }
-        ]
-      },
-      {
-        "name": "Supplier",
-        "children": [
-          {
-            "name": "Suppliers",
-            "url": "/SupplierList"
-          },
-          {
-            "name": "New Supplier",
-            "url": "/supplier"
-          }
-        ]
-      },
-      {
-        "name": "Purchase Order",
-        "children": [
-          {
-            "name": "Purchase Orders",
-            "url": "/purchaseList"
-          },
-          {
-            "name": "New Purchase Order",
-            "url": "/purchase"
-          }
-        ]
-      }
-    ]
-  }
+	"data": [
+		{
+			"name": "Dashboard",
+			"icon": "dashboard",
+			"url": "/"
+		},
+		{
+			"name": "Product",
+			"icon": "storefront",
+			"children": [
+				{
+					"name": "Products",
+					"url": "/productList"
+				},
+				{
+					"name": "Create Product",
+					"url": "/product"
+				},
+				{
+					"name": "Adjust Stock",
+					"url": "/stockAdjustment"
+				},
+				{
+					"name": "Stock Adjustment Record",
+					"url": "/stockAdjustmentList"
+				},
+				{
+					"name":"QuickBooks",
+					"url":"/expence"
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"icon": "person",
+			"children": [
+				{
+					"name": "Customers",
+					"url": "/customerList"
+				},
+				{
+					"name": "New Customer",
+					"url": "/customer"
+				}
+			]
+		},
+		{
+			"name": "Supplier",
+			"icon": "assignment_ind",
+			"children": [
+				{
+					"name": "Suppliers",
+					"url": "/SupplierList"
+				},
+				{
+					"name": "New Supplier",
+					"url": "/supplier"
+				}
+			]
+		},
+		{
+			"name": "Purchase Order",
+			"icon": "shopping_cart",
+			"children": [
+				{
+					"name": "Purchase Orders",
+					"url": "/purchaseList"
+				},
+				{
+					"name": "New Purchase Order",
+					"url": "/purchase"
+				}
+			]
+		}
+	]
+}

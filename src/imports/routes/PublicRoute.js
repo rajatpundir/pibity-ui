@@ -1,21 +1,33 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Route, Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
-// import Navigator from '../components/main/Navigator';
+import Header from '../components/main/Header';
 import styled from 'styled-components';
-import MiniDrawer from '../components/main/nav2';
+import MiniDrawer from '../components/main/Navigation';
+import Footer from '../components/main/Footer';
 
 export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => (
 	<Route
 		{...rest}
 		render={(props) =>
 			isAuthenticated ? (
-				<Redirect to="/dashboard" />
+				<MainContainer>
+					<MiniDrawer />
+					<Body>
+						<Header match={props.match} />
+						<Component {...props} />
+						<Footer />
+					</Body>
+				</MainContainer>
 			) : (
 				<MainContainer>
 					<MiniDrawer />
-					<Component {...props} />
+					<Body>
+						<Header match={props.match} />
+						<Component {...props} />
+						<Footer />
+					</Body>
 				</MainContainer>
 			)}
 	/>
@@ -31,5 +43,10 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps)(PublicRoute);
 
-const MainContainer = styled.div`
-display: flex;`;
+const MainContainer = styled.div`display: flex;`;
+
+const Body = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+`;

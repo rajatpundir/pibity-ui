@@ -88,11 +88,10 @@ export const getVariables = (typeName: String) => async (dispatch) => {
 		await loadVariables(dispatch, typeName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: 'zs',
+			organization: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
 			query: {
-				operation: 'query',
-				query: {}
+				values: {}
 			}
 		};
 		const response = await axios.post(url, request);
@@ -111,32 +110,8 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		const request = mapToObjectRec(variable);
 		console.log('--REQUEST--');
 		console.log(request);
-		const response = await axios.post(url, request);
-		console.log('--RESPONSE--');
-		console.log(response);
-		if (response.status === 200) {
-			if (response.data !== undefined) {
-				await replaceVariable(dispatch, response.data);
-				return response.status;
-			}
-		} else {
-			updateErrors(dispatch, response.data);
-			return response.status;
-		}
-	} catch (error) {
-		if (error.response) {
-			updateErrors(dispatch, error.response.data);
-			return false;
-		}
-	}
-};
-export const createBidVariable = (variable: Object) => async (dispatch) => {
-	try {
-		const url = domain + '/variable/create';
-		const request = variable;
-		console.log('--REQUEST--');
-		console.log(request);
-		const response = await axios.post(url, request);
+		const organization = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, { ...request, ...{ organization: organization } });
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
@@ -156,40 +131,16 @@ export const createBidVariable = (variable: Object) => async (dispatch) => {
 	}
 };
 
-export const updateBidVariable = (variable: Object) => async (dispatch) => {
-	try {
-		const url = domain + '/variable/update';
-		const request = variable;
-		const response = await axios.post(url, request);
-		if (response.status === 200) {
-			if (response.data !== undefined) {
-				console.log(response.data)
-				await replaceVariable(dispatch, response.data);
-				return response.status;
-			}
-		} else {
-			updateErrors(dispatch, response.data);
-			return response.status;
-		}
-	} catch (error) {
-		if (error.response) {
-			updateErrors(dispatch, error.response.data);
-			return false;
-		}
-	}
-};
 
 export const getVariable = (typeName: String, variableName: String) => async (dispatch) => {
 	try {
 		await loadVariable(dispatch, typeName, variableName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: 'zs',
+			organization: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
-			variableName: variableName,
 			query: {
-				operation: 'query',
-				query: {}
+				values: {}
 			}
 		};
 		const response = await axios.post(url, request);
@@ -212,9 +163,10 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 
 export const updateVariable = (prevVariable: Map, newVariable: Map) => async (dispatch) => {
 	try {
+		console.log(prevVariable)
 		const url = domain + '/variable/update';
 		const request = {
-			organization: prevVariable.get('organization'),
+			organization: localStorage.getItem('selectedOrganization'),
 			typeName: prevVariable.get('typeName'),
 			variableName: prevVariable.get('variableName'),
 			values: mapToObjectRec(computeUpdates(prevVariable.get('values'), newVariable.get('values')))
@@ -225,7 +177,32 @@ export const updateVariable = (prevVariable: Map, newVariable: Map) => async (di
 		console.log(response.data);
 		if (response.status === 200) {
 			if (response.data !== undefined) {
-				console.log(response.data)
+				console.log(response.data);
+				await replaceVariable(dispatch, response.data);
+				return response.status;
+			}
+		} else {
+			updateErrors(dispatch, response.data);
+			return response.status;
+		}
+	} catch (error) {
+		if (error.response) {
+			updateErrors(dispatch, error.response.data);
+			return false;
+		}
+	}
+};
+
+export const updateProductStockVariable = (variable: Map) => async (dispatch) => {
+	try {
+		const url = domain + '/variable/update';
+		console.log(JSON.stringify(variable));
+		const response = await axios.post(url, variable);
+		console.log('--RESPONSE--');
+		console.log(response.data);
+		if (response.status === 200) {
+			if (response.data !== undefined) {
+				console.log(response.data);
 				await replaceVariable(dispatch, response.data);
 				return response.status;
 			}
@@ -288,5 +265,7 @@ function computeUpdates(prevValues: Map, newValues: Map) {
 			map.set(key, newValues.get(key));
 		}
 	}
+	console.log(map)
 	return map;
+
 }

@@ -1,5 +1,5 @@
-import { LOAD_TYPES, REPLACE_ALL_TYPES, REPLACE_TYPES, REPLACE_TYPE } from '../actions/actions';
-
+import { LOAD_TYPES,  REPLACE_TYPE } from '../actions/actions';
+// REPLACE_ALL_TYPES, REPLACE_TYPES,
 const initialState = [];
 
 export default function (state = initialState, action) {

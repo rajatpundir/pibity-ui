@@ -1,26 +1,38 @@
 import React from 'react';
-import styled from 'styled-components';
+import {
+	Container,
+	OuterBox,
+	InnerBox,
+	ErrorCodeContainer,
+	H1Container,
+	H1,
+	H2,
+	P,
+	Link
+} from '../../styles/main/NotFound';
 
 class NotFound extends React.PureComponent {
 	render() {
 		return (
 			<Container>
-				<h1>[404] Not Found</h1>
+				<OuterBox>
+					<InnerBox class="notfound">
+						<ErrorCodeContainer>
+							<H1Container />
+							<H1>404</H1>
+						</ErrorCodeContainer>
+
+						<H2>Page not found</H2>
+						<P>
+							The page you are looking for might have been removed had its name changed or is temporarily
+							unavailable.
+						</P>
+						<Link href="/">home page</Link>
+					</InnerBox>
+				</OuterBox>
 			</Container>
 		);
 	}
 }
 
 export default NotFound;
-
-// Styled Components
-
-const Container = styled.div`
-	width: 100%;
-	position: center;
-	margin-top: 150px;
-	margin-bottom: 50px;
-	text-align: center;
-	color: #343434;
-`;
-
