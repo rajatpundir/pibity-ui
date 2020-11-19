@@ -2,35 +2,33 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
-import { clearErrors } from '../../../redux/actions/errors';
+import { customErrorMessage, successMessage, CustomNotification } from '../../../main/Notification';
+import { clearErrors } from '../../../../redux/actions/errors';
+import InvoiceGeneralDetails from './InvoiceGeneralDetails';
+import InvoiceItems from './InvoiceItems'
+
 import {
 	createVariable,
 	getVariable,
 	updateVariable,
 	objToMapRec,
 	getVariables
-} from '../../../redux/actions/variables';
-import CustomerGeneralDetails from './CustomerGeneralDetails';
-import CustomerAddresses from './CustomerAddresses';
-import CustomerContact from './CustomerContact';
+} from '../../../../redux/actions/variables';
+
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../../main/SelectorganizationModal';
 import {
 	Container,
 	PageWrapper,
 	PageBody,
-	BlockListItemButton,
+
 	SaveButtonContaier,
 	SaveButton,
-	HorizontalListPageBlock,
-	HorizontalBlockListOuter,
-	HorizontalBlockListInnerWrapper,
-	HoizontalBlockList,
-	HoizontalBlockListItems
-} from '../../../styles/inventory/Style';
 
-class Customer extends React.Component {
+} from '../../../../styles/inventory/Style';
+
+
+class Invoice extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -39,37 +37,33 @@ class Customer extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'typeName', 'Customer' ],
-				[ 'variableName', '' ],
+				['typeName', 'Customer'],
+				['variableName', ''],
 				[
 					'values',
 					new Map([
 						[
 							'general',
 							new Map([
-								[ 'variableName', '' ],
+								['variableName', ''],
 								[
 									'values',
 									new Map([
-										[ 'currency', '' ],
-										[ 'paymentTerm', '' ],
-										[ 'taxRule', '' ],
-										[ 'status', '' ],
-										[ 'defaultCarrier', '' ],
-										[ 'taxNumber', '' ],
-										[ 'discount', 0 ],
-										[ 'attributeSet', '' ],
-										[ 'comments', '' ],
-										[ 'salesPriceTier', '' ],
-										[ 'defaultLocation', '' ],
-										[ 'creditLimit', 0 ],
-										[ 'onCreditHold', false ]
+										['currency', ''],
+										['to', ''],
+										['reference', ''],
+										['invoiceNumber', ''],
+										['issueDate', ''],
+										['dueDate', ''],
+										['onlinePayment', ''],
+										['brandingTheme', ''],
+
 									])
 								]
 							])
 						],
-						[ 'addresses', [] ],
-						[ 'contacts', [] ]
+						['invoiceItem', []],
+						['InvoiceTotalAmount',[]]
 					])
 				]
 			]),
@@ -77,7 +71,7 @@ class Customer extends React.Component {
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateAddresses = this.updateAddresses.bind(this);
-		this.updateContacts = this.updateContacts.bind(this);
+		
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
@@ -188,24 +182,21 @@ class Customer extends React.Component {
 		variable.set('variableName', details.get('variableName'));
 		this.setState({ variable: variable });
 	}
+	
 
-	updateAddresses(addresses) {
+	updateAddresses(invoiceItem) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		values.set('addresses', addresses);
-		variable.set('values', values);
-		// this.setState({ variable: variable });
-	}
-
-	updateContacts(contacts) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('contacts', contacts);
+		values.set('invoiceItem', invoiceItem);
 		variable.set('values', values);
 		this.setState({ variable: variable });
 	}
 
+	
+
 	render() {
+		// console.log(this.state.variable.get('values').get('general'));
+		
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
@@ -237,48 +228,20 @@ class Customer extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
-						<CustomerGeneralDetails
+						
+						<InvoiceGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
 						/>
-						<HorizontalListPageBlock>
-							<HorizontalBlockListOuter>
-								<HorizontalBlockListInnerWrapper>
-									<HoizontalBlockList>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'addresses' });
-												}}
-											>
-												Addresess
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'contacts' });
-												}}
-											>
-												Contacts
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-									</HoizontalBlockList>
-								</HorizontalBlockListInnerWrapper>
-							</HorizontalBlockListOuter>
-						</HorizontalListPageBlock>
-						{this.state.visibleSection === 'contacts' && (
-							<CustomerContact
-								list={this.state.variable.get('values').get('contacts')}
-								updateContacts={this.updateContacts}
-							/>
-						)}
-						{this.state.visibleSection === 'addresses' && (
-							<CustomerAddresses
-								list={this.state.variable.get('values').get('addresses')}
-								updateAddresses={this.updateAddresses}
-							/>
-						)}
+
+
+						<InvoiceItems
+							list={this.state.variable.get('values').get('invoiceItem')}
+							updateAddresses={this.updateAddresses}
+						/>
+						
+
+
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -297,4 +260,4 @@ export default connect(mapStateToProps, {
 	getVariable,
 	updateVariable,
 	getVariables
-})(Customer);
+})(Invoice);

@@ -18,9 +18,18 @@ import CustomerList from '../components/inventory/Customer/CustomerList';
 import ProductList from '../components/inventory/Product/ProductList';
 import PurchaseList from '../components/inventory/Purchase/PurchaseList';
 import SupplierList from '../components/inventory/Supplier/SupplierList';
-import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment'
-import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList'
-import QuickbooksExpence from '../components/inventory/QuickBooksExpence'
+import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
+import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
+import QuickbooksExpence from '../components/inventory/QuickBooksExpence';
+import Invoice from '../components/inventory/Accounting/Invoice/Invoice';
+import Quotes from '../components/inventory/Accounting/Quotes/Quotes';
+import Bill from '../components/inventory/Accounting/Bill/Bill';
+import CreditNote from '../components/inventory/Accounting/CreditNote/CreditNote';
+import PurchaseOrder from '../components/inventory/Accounting/PurchaseOrder/PurchaseOrder'
+
+
+
+
 // Set token for Axios requests
 if (localStorage.getItem('jwtToken')) {
 	setTokenForAxios(localStorage.getItem('jwtToken'));
@@ -62,8 +71,16 @@ export const AppRouter = () => (
 			<PublicRoute exact path="/customerList/:variableName" render={(props) => <Customer {...props} />} />
 			<PublicRoute exact path="/stockAdjustment" render={(props) => <StockAdjustment {...props} />} />
 			<PublicRoute exact path="/stockAdjustmentList" render={(props) => <StockAdjustmentList {...props} />} />
+			<PublicRoute exact path="/Invoice" render={(props) => <Invoice {...props} />} />
+			<PublicRoute exact path="/Quotes" render={(props) => <Quotes {...props} />} />
+			<PublicRoute exact path="/Bill" render={(props) => <Bill {...props} />} />
+			<PublicRoute exact path="/PurchaseOrder" render={(props) => <PurchaseOrder {...props} />} />
+			<PublicRoute exact path="/CreditNote" render={(props) => <CreditNote {...props} />} />
+
 			<PublicRoute exact path="/stockAdjustmentList/:variableName" render={(props) => <StockAdjustment {...props} />} />
 			<Route exact path="/expence" render={(props) => <QuickbooksExpence {...props} />} />
+			
+			
 
 			{/* Page Not Found */}
 			<Route exact path="*" render={(props) => <NotFound />} />

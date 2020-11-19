@@ -98,6 +98,7 @@ class StockAdjustmentDetails extends React.Component {
 	}
 
 	render() {
+		console.log(this.state.variable);
 		return (
 			<PageBlock paddingBottom="0">
 				<PageToolbar>

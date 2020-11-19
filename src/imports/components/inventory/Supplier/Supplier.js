@@ -57,7 +57,7 @@ class Supplier extends React.Component {
 										[ 'status', '' ],
 										[ 'defaultCarrier', '' ],
 										[ 'taxNumber', '' ],
-										[ 'discount', '0' ],
+										[ 'discount', '' ],
 										[ 'attributeSet', '' ],
 										[ 'comments', '' ]
 									])

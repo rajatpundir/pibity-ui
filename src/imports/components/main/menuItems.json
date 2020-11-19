@@ -26,8 +26,8 @@
 					"url": "/stockAdjustmentList"
 				},
 				{
-					"name":"QuickBooks",
-					"url":"/expence"
+					"name": "QuickBooks",
+					"url": "/expence"
 				}
 			]
 		},
@@ -70,6 +70,32 @@
 				{
 					"name": "New Purchase Order",
 					"url": "/purchase"
+				}
+			]
+		},
+		{
+			"name": "Accounting",
+			"icon": "AccountBalance",
+			"children": [
+				{
+					"name": "Invoice",
+					"url": "/Invoice"
+				},
+				{
+					"name": "Quotes",
+					"url": "/Quotes"
+				},
+				{
+					"name": "Bill",
+					"url": "/Bill"
+				},
+				{
+					"name": "PurchaseOrder",
+					"url": "/PurchaseOrder"
+				},
+				{
+					"name": "CreditNote",
+					"url": "/CreditNote"
 				}
 			]
 		}
