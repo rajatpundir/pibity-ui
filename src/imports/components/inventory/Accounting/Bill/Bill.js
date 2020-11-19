@@ -2,35 +2,33 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
-import { clearErrors } from '../../../redux/actions/errors';
+import { customErrorMessage, successMessage, CustomNotification } from '../../../main/Notification';
+import { clearErrors } from '../../../../redux/actions/errors';
+import BillGeneralDetails from './BillGeneralDetails';
+import ItemBill from './ItemBill'
+
+
 import {
 	createVariable,
 	getVariable,
 	updateVariable,
-	objToMapRec,
-	getVariables
-} from '../../../redux/actions/variables';
-import CustomerGeneralDetails from './CustomerGeneralDetails';
-import CustomerAddresses from './CustomerAddresses';
-import CustomerContact from './CustomerContact';
+	
+} from '../../../../redux/actions/variables';
+
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../../main/SelectorganizationModal';
 import {
 	Container,
 	PageWrapper,
 	PageBody,
-	BlockListItemButton,
+
 	SaveButtonContaier,
 	SaveButton,
-	HorizontalListPageBlock,
-	HorizontalBlockListOuter,
-	HorizontalBlockListInnerWrapper,
-	HoizontalBlockList,
-	HoizontalBlockListItems
-} from '../../../styles/inventory/Style';
 
-class Customer extends React.Component {
+} from '../../../../styles/inventory/Style';
+
+
+class Bill extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -39,37 +37,28 @@ class Customer extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'typeName', 'Customer' ],
-				[ 'variableName', '' ],
+				['typeName', 'Customer'],
+				['variableName', ''],
 				[
 					'values',
 					new Map([
 						[
 							'general',
 							new Map([
-								[ 'variableName', '' ],
+								['variableName', ''],
 								[
 									'values',
 									new Map([
-										[ 'currency', '' ],
-										[ 'paymentTerm', '' ],
-										[ 'taxRule', '' ],
-										[ 'status', '' ],
-										[ 'defaultCarrier', '' ],
-										[ 'taxNumber', '' ],
-										[ 'discount', 0 ],
-										[ 'attributeSet', '' ],
-										[ 'comments', '' ],
-										[ 'salesPriceTier', '' ],
-										[ 'defaultLocation', '' ],
-										[ 'creditLimit', 0 ],
-										[ 'onCreditHold', false ]
+										['from', ''],
+										['reference', 'q'],
+										['issueDate', ''],
+			                            ['dueDate', ''],
 									])
 								]
 							])
 						],
-						[ 'addresses', [] ],
-						[ 'contacts', [] ]
+						['itemBill', []],
+						['billTotalAmount',[]]
 					])
 				]
 			]),
@@ -77,47 +66,46 @@ class Customer extends React.Component {
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateAddresses = this.updateAddresses.bind(this);
-		this.updateContacts = this.updateContacts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Customer) {
-			const variable = nextProps.variables.Customer.filter(
-				(variable) => variable.variableName === nextProps.match.params.variableName
-			)[0];
-			if (variable && prevState.prevPropVariable !== variable) {
-				const variableMap = objToMapRec(variable);
-				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
-				const values = variableMap.get('values');
-				const general = values.get('general');
-				general.set('variableName', variableMap.get('variableName'));
-				values.set('general', general);
-				variableMap.set('values', values);
-				return {
-					...prevState,
-					variable: variableMap,
-					prevPropVariable: variable,
-					prevVariable: prevVariableMap
-				};
-			}
-		}
-		return prevState;
+		// if (nextProps.match.params.variableName && nextProps.variables.Customer) {
+		// 	const variable = nextProps.variables.Customer.filter(
+		// 		(variable) => variable.variableName === nextProps.match.params.variableName
+		// 	)[0];
+		// 	if (variable && prevState.prevPropVariable !== variable) {
+		// 		const variableMap = objToMapRec(variable);
+		// 		const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+		// 		const values = variableMap.get('values');
+		// 		const general = values.get('general');
+		// 		general.set('variableName', variableMap.get('variableName'));
+		// 		values.set('general', general);
+		// 		variableMap.set('values', values);
+		// 		return {
+		// 			...prevState,
+		// 			variable: variableMap,
+		// 			prevPropVariable: variable,
+		// 			prevVariable: prevVariableMap
+		// 		};
+		// 	}
+		// }
+		// return prevState;
 	}
 
 	getData() {
-		this.props.clearErrors();
-		this.props.getVariables('Country');
-		this.props.getVariables('Currency');
-		this.props.getVariables('CarrierService');
-		this.props.getVariables('PaymentTerm');
-		this.props.getVariables('Status');
-		this.props.getVariables('SalesTaxRule');
-		this.props.getVariables('AttributeSet');
-		this.props.getVariables('PriceTierName');
-		this.props.getVariables('Location');
-		this.props.getVariables('AddressType');
+		// this.props.clearErrors();
+		// this.props.getVariables('Country');
+		// this.props.getVariables('Currency');
+		// this.props.getVariables('CarrierService');
+		// this.props.getVariables('PaymentTerm');
+		// this.props.getVariables('Status');
+		// this.props.getVariables('SalesTaxRule');
+		// this.props.getVariables('AttributeSet');
+		// this.props.getVariables('PriceTierName');
+		// this.props.getVariables('Location');
+		// this.props.getVariables('AddressType');
 	}
 
 	componentDidMount() {
@@ -189,23 +177,17 @@ class Customer extends React.Component {
 		this.setState({ variable: variable });
 	}
 
-	updateAddresses(addresses) {
+	updateAddresses(itemBill) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		values.set('addresses', addresses);
-		variable.set('values', values);
-		// this.setState({ variable: variable });
-	}
-
-	updateContacts(contacts) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('contacts', contacts);
+		values.set('itemBill', itemBill);
 		variable.set('values', values);
 		this.setState({ variable: variable });
 	}
 
+	
 	render() {
+		 console.log(this.state.variable.get('values').get('general'));
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
@@ -237,48 +219,19 @@ class Customer extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
-						<CustomerGeneralDetails
+
+						<BillGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
-							updateDetails={this.updateDetails}
+							updateContacts={this.updateContacts}
 						/>
-						<HorizontalListPageBlock>
-							<HorizontalBlockListOuter>
-								<HorizontalBlockListInnerWrapper>
-									<HoizontalBlockList>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'addresses' });
-												}}
-											>
-												Addresess
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'contacts' });
-												}}
-											>
-												Contacts
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-									</HoizontalBlockList>
-								</HorizontalBlockListInnerWrapper>
-							</HorizontalBlockListOuter>
-						</HorizontalListPageBlock>
-						{this.state.visibleSection === 'contacts' && (
-							<CustomerContact
-								list={this.state.variable.get('values').get('contacts')}
-								updateContacts={this.updateContacts}
-							/>
-						)}
-						{this.state.visibleSection === 'addresses' && (
-							<CustomerAddresses
-								list={this.state.variable.get('values').get('addresses')}
-								updateAddresses={this.updateAddresses}
-							/>
-						)}
+
+						<ItemBill
+							list={this.state.variable.get('values').get('itemBill')}
+							updateAddresses={this.updateAddresses}
+						/>
+						
+
+
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -296,5 +249,5 @@ export default connect(mapStateToProps, {
 	createVariable,
 	getVariable,
 	updateVariable,
-	getVariables
-})(Customer);
+	// getVariables
+})(Bill);

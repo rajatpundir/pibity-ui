@@ -82,6 +82,7 @@ class ProductGeneralDetails extends React.Component {
 	}
 
 	render() {
+		// console.log(this.state.variable.get('values').get('productSKU'));
 		return (
 			<React.Fragment>
 				<GlobalVariableModal
@@ -114,7 +115,7 @@ class ProductGeneralDetails extends React.Component {
 											placeholder="Product SKU"
 											value={this.state.variable.get('values').get('productSKU')}
 											onChange={this.onChange}
-											required
+											
 										/>
 										<InputLabel>
 											SKU

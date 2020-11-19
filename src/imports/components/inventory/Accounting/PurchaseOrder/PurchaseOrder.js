@@ -2,35 +2,33 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
-import { clearErrors } from '../../../redux/actions/errors';
+import { customErrorMessage, successMessage, CustomNotification } from '../../../main/Notification';
+import { clearErrors } from '../../../../redux/actions/errors';
+import PurchaseOrderDetailsItem from './PurchaseOrderDetailsItem';
+import PurchaseOrderItem from './PurchaseOrderItem'
+
 import {
 	createVariable,
 	getVariable,
 	updateVariable,
 	objToMapRec,
 	getVariables
-} from '../../../redux/actions/variables';
-import CustomerGeneralDetails from './CustomerGeneralDetails';
-import CustomerAddresses from './CustomerAddresses';
-import CustomerContact from './CustomerContact';
+} from '../../../../redux/actions/variables';
+
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../../main/SelectorganizationModal';
 import {
 	Container,
 	PageWrapper,
 	PageBody,
-	BlockListItemButton,
+
 	SaveButtonContaier,
 	SaveButton,
-	HorizontalListPageBlock,
-	HorizontalBlockListOuter,
-	HorizontalBlockListInnerWrapper,
-	HoizontalBlockList,
-	HoizontalBlockListItems
-} from '../../../styles/inventory/Style';
 
-class Customer extends React.Component {
+} from '../../../../styles/inventory/Style';
+
+
+class PurchaseOrder extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -39,37 +37,32 @@ class Customer extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'typeName', 'Customer' ],
-				[ 'variableName', '' ],
+				['typeName', 'Customer'],
+				['variableName', ''],
 				[
 					'values',
 					new Map([
 						[
 							'general',
 							new Map([
-								[ 'variableName', '' ],
+								['variableName', ''],
 								[
 									'values',
 									new Map([
-										[ 'currency', '' ],
-										[ 'paymentTerm', '' ],
-										[ 'taxRule', '' ],
-										[ 'status', '' ],
-										[ 'defaultCarrier', '' ],
-										[ 'taxNumber', '' ],
-										[ 'discount', 0 ],
-										[ 'attributeSet', '' ],
-										[ 'comments', '' ],
-										[ 'salesPriceTier', '' ],
-										[ 'defaultLocation', '' ],
-										[ 'creditLimit', 0 ],
-										[ 'onCreditHold', false ]
+										['customer', ''],
+										['reference', ''],
+										['date', ''],
+										['dueDate', ''],
+										['orderNumber', ''],
+										['brandingTheme', ''],
+										
 									])
 								]
 							])
 						],
-						[ 'addresses', [] ],
-						[ 'contacts', [] ]
+						['purchaseorderItem', []],
+						
+					
 					])
 				]
 			]),
@@ -189,12 +182,12 @@ class Customer extends React.Component {
 		this.setState({ variable: variable });
 	}
 
-	updateAddresses(addresses) {
+	updateAddresses(purchaseorderItem) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		values.set('addresses', addresses);
+		values.set('purchaseorderItem', purchaseorderItem);
 		variable.set('values', values);
-		// this.setState({ variable: variable });
+		this.setState({ variable: variable });
 	}
 
 	updateContacts(contacts) {
@@ -206,6 +199,7 @@ class Customer extends React.Component {
 	}
 
 	render() {
+		
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
@@ -237,48 +231,15 @@ class Customer extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
-						<CustomerGeneralDetails
-							variable={this.state.variable.get('values').get('general')}
-							updateDetails={this.updateDetails}
+						<PurchaseOrderDetailsItem
+							list={this.state.variable.get('values').get('general')}
+							updateContacts={this.updateContacts}
 						/>
-						<HorizontalListPageBlock>
-							<HorizontalBlockListOuter>
-								<HorizontalBlockListInnerWrapper>
-									<HoizontalBlockList>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'addresses' });
-												}}
-											>
-												Addresess
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'contacts' });
-												}}
-											>
-												Contacts
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-									</HoizontalBlockList>
-								</HorizontalBlockListInnerWrapper>
-							</HorizontalBlockListOuter>
-						</HorizontalListPageBlock>
-						{this.state.visibleSection === 'contacts' && (
-							<CustomerContact
-								list={this.state.variable.get('values').get('contacts')}
-								updateContacts={this.updateContacts}
-							/>
-						)}
-						{this.state.visibleSection === 'addresses' && (
-							<CustomerAddresses
-								list={this.state.variable.get('values').get('addresses')}
-								updateAddresses={this.updateAddresses}
-							/>
-						)}
+						<PurchaseOrderItem
+							list={this.state.variable.get('values').get('purchaseorderItem')}
+							updateAddresses={this.updateAddresses}
+						/>
+
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -297,4 +258,4 @@ export default connect(mapStateToProps, {
 	getVariable,
 	updateVariable,
 	getVariables
-})(Customer);
+})(PurchaseOrder);

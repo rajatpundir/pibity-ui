@@ -81,6 +81,7 @@ class PurchaseGeneralDetails extends React.Component {
 	}
 
 	render() {
+		
 		return (
 			<PageBlock style={{ display: 'block' }} paddingBottom="0">
 				<PageToolbar>
