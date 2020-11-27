@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { updateToken, logout } from '../../redux/actions/auth';
 import { connect } from 'react-redux';
 import Select from 'react-select';
+import styled from 'styled-components';
 import clsx from 'clsx';
 import { withStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
@@ -22,6 +22,8 @@ import Icon from '@material-ui/core/Icon';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
+import { updateToken } from '../../redux/actions/auth';
+import { keycloak,login } from '../../routes/Keycloak';
 import { SelectWrapper, ToolbarItemContainer } from '../../styles/main/Navigation';
 import SideDrawer from './SideDrawer';
 
@@ -147,6 +149,14 @@ const styles = (theme) => ({
 	},
 	sideDrawer: {
 		left: '73px'
+	},
+	tooltip: {
+		minwidth:'40px',
+		backgroundColor:'#020202e0',
+		fontSize:'1.1rem'
+	},
+	tooltipArrow:{
+		color:'#020202e0'
 	}
 });
 
@@ -233,7 +243,11 @@ class MiniDrawer extends React.Component {
 		return children.map((subOption) => {
 			if (!subOption.children) {
 				return (
-					<Tooltip title={subOption.name} arrow placement="right" key={subOption.name}>
+					<Tooltip title={subOption.name} arrow placement="right" key={subOption.name}
+					classes={{ tooltip: classes.tooltip ,
+						arrow:classes.tooltipArrow
+					}}
+					>
 						<div key={subOption.name}>
 							<Link to={subOption.url} className={classes.links}>
 								<ListItem button key={subOption.name}>
@@ -254,22 +268,30 @@ class MiniDrawer extends React.Component {
 				);
 			}
 			return (
-				<div key={subOption.name}>
-					<ListItem button onClick={() => this.handleClick(subOption.name, subOption.children)}>
-						<Icon style={{ color: 'white', fontSize: '28px' }}>{subOption.icon}</Icon>
-						<ListItemText
-							inset //to align item within the list
-							classes={{
-								primary: classes.itemText
-							}}
-						>
-							{subOption.name}
-						</ListItemText>{' '}
-						<IconButton aria-label="expand" size="medium">
-							<ChevronRightIcon />
-						</IconButton>
-					</ListItem>
-				</div>
+				<Tooltip
+					title={subOption.name}
+					arrow
+					placement="right"
+					key={subOption.name}
+					classes={{ tooltip: classes.tooltip ,
+						arrow:classes.tooltipArrow
+					}}
+					
+				>
+					<div key={subOption.name}>
+						<ListItem button onClick={() => this.handleClick(subOption.name, subOption.children)}>
+							<Icon style={{ color: 'white', fontSize: '28px' }}>{subOption.icon}</Icon>
+							<ListItemText
+								inset //to align item within the list
+								classes={{
+									primary: classes.itemText
+								}}
+							>
+								{subOption.name}
+							</ListItemText>{' '}
+						</ListItem>
+					</div>
+				</Tooltip>
 			);
 		});
 	}
@@ -352,9 +374,10 @@ class MiniDrawer extends React.Component {
 								open={this.state.openProfileMenu}
 								onClose={this.handleClose}
 							>
-								<MenuItem className={classes.profileMenuItem}>Profile</MenuItem>
-								<MenuItem className={classes.profileMenuItem}>My account</MenuItem>
-								<MenuItem className={classes.profileMenuItem} onClick={this.props.logout}>
+								<MenuItem className={classes.profileMenuItem}>
+									<LinkTo to={'/user/' + encodeURIComponent(this.props.auth.userName)}>Profile</LinkTo>
+								</MenuItem>
+								<MenuItem className={classes.profileMenuItem} onClick={keycloak.logout}>
 									LogOut
 								</MenuItem>
 							</Menu>
@@ -402,6 +425,15 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, {
-	updateToken,
-	logout
+	updateToken
 })(withStyles(styles)(MiniDrawer));
+
+const LS = {};
+const LinkTo = styled(Link)`
+	text-decoration: none;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+	width:100%;
+`;

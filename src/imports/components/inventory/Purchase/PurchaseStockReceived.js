@@ -7,7 +7,7 @@ import Select from 'react-select';
 import {
 	AddMoreBlock,
 	AddMoreButton,
-	AuthorizeButton,
+	Custombutton,
 	HeaderBody,
 	HeaderBodyContainer,
 	BodyTable,
@@ -31,7 +31,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarLeftItems
+	ToolbarItems
 } from '../../../styles/inventory/Style';
 
 class PurchaseStockReceived extends React.Component {
@@ -244,10 +244,10 @@ class PurchaseStockReceived extends React.Component {
 		return (
 			<PageBlock id="stockReceived">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>STOCK RECEIVED</LeftItemH1>
-					</ToolbarLeftItems>
-					<AuthorizeButton>Authorize</AuthorizeButton>
+					</ToolbarItems>
+					<Custombutton>Authorize</Custombutton>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlign>

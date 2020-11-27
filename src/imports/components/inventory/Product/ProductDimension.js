@@ -14,7 +14,7 @@ import {
 	PageBlock,
 	PageToolbar,
 	SelectWrapper,
-	ToolbarLeftItems,
+	ToolbarItems,
 	FormControl
 } from '../../../styles/inventory/Style';
 
@@ -52,9 +52,9 @@ class ProductDimension extends React.Component {
 		return (
 			<PageBlock id="dimensions">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>Dimensions</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<InputBody alignItem="flex-end">
 					<InputColumnWrapper>

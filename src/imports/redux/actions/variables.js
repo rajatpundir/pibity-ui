@@ -4,7 +4,7 @@ import { domain } from '../config';
 import { updateErrors } from './errors';
 import { REPLACE_VARIABLES, REPLACE_VARIABLE } from './actions';
 
-async function loadVariables(dispatch, typeName) {
+export async function loadVariables(dispatch, typeName) {
 	await db.variables.where('typeName').equals(typeName).toArray().then((variables) => {
 		dispatch({
 			type: REPLACE_VARIABLES,
@@ -14,7 +14,7 @@ async function loadVariables(dispatch, typeName) {
 	});
 }
 
-async function loadVariable(dispatch, typeName: String, variableName: String) {
+export async function loadVariable(dispatch, typeName: String, variableName: String) {
 	await db.variables
 		.where('[typeName+variableName]')
 		.equals([ typeName, variableName ])
@@ -29,7 +29,7 @@ async function loadVariable(dispatch, typeName: String, variableName: String) {
 		});
 }
 
-async function replaceVariables(dispatch, payload, typeName: String) {
+export async function replaceVariables(dispatch, payload, typeName: String) {
 	await db.variables.where('typeName').equals(typeName).delete();
 	await db.variables.bulkAdd(payload).then(() => {
 		dispatch({
@@ -40,7 +40,7 @@ async function replaceVariables(dispatch, payload, typeName: String) {
 	});
 }
 
-async function replaceVariable(dispatch, payload) {
+export async function replaceVariable(dispatch, payload) {
 	await db.variables.where('[typeName+variableName]').equals([ payload.typeName, payload.variableName ]).delete();
 	await db.variables.add(payload).then(() => {
 		dispatch({
@@ -50,7 +50,7 @@ async function replaceVariable(dispatch, payload) {
 	});
 }
 
-function mapToObjectRec(m) {
+export function mapToObjectRec(m) {
 	let lo = {};
 	if (!(m instanceof Map)) {
 		return m;
@@ -83,13 +83,15 @@ export function objToMapRec(obj) {
 	return map;
 }
 
-export const getVariables = (typeName: String) => async (dispatch) => {
+export const getVariables = (typeName: String, limit: Number = 500, offset: Number = 0) => async (dispatch) => {
 	try {
 		await loadVariables(dispatch, typeName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: localStorage.getItem('selectedOrganization'),
+			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
+			limit: limit,
+			offset: offset,
 			query: {
 				values: {}
 			}
@@ -110,8 +112,8 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		const request = mapToObjectRec(variable);
 		console.log('--REQUEST--');
 		console.log(request);
-		const organization = localStorage.getItem('selectedOrganization');
-		const response = await axios.post(url, { ...request, ...{ organization: organization } });
+		const orgId = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, { ...request, ...{ orgId: orgId } });
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
@@ -131,14 +133,16 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 	}
 };
 
-
 export const getVariable = (typeName: String, variableName: String) => async (dispatch) => {
 	try {
 		await loadVariable(dispatch, typeName, variableName);
 		const url = domain + '/variable/query';
 		const request = {
-			organization: localStorage.getItem('selectedOrganization'),
+			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
+			variableName:variableName,
+			limit:1,
+			offset:0,
 			query: {
 				values: {}
 			}
@@ -163,10 +167,10 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 
 export const updateVariable = (prevVariable: Map, newVariable: Map) => async (dispatch) => {
 	try {
-		console.log(prevVariable)
+		console.log(prevVariable);
 		const url = domain + '/variable/update';
 		const request = {
-			organization: localStorage.getItem('selectedOrganization'),
+			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: prevVariable.get('typeName'),
 			variableName: prevVariable.get('variableName'),
 			values: mapToObjectRec(computeUpdates(prevVariable.get('values'), newVariable.get('values')))
@@ -265,7 +269,6 @@ function computeUpdates(prevValues: Map, newValues: Map) {
 			map.set(key, newValues.get(key));
 		}
 	}
-	console.log(map)
+	console.log(map);
 	return map;
-
 }

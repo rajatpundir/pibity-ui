@@ -32,7 +32,7 @@
 // 	TableHeaderInner,
 // 	TableHeaders,
 // 	TableRow,
-// 	ToolbarLeftItems,
+// 	ToolbarItems,
 // 	HeaderContainerInner,
 // 	FormControl,
 // 	ButtonWithOutline
@@ -221,9 +221,9 @@
 // 		return (
 // 			<PageBlock id="price">
 // 				<PageToolbar>
-// 					<ToolbarLeftItems>
+// 					<ToolbarItems>
 // 						<LeftItemH1>PRICES</LeftItemH1>
-// 					</ToolbarLeftItems>
+// 					</ToolbarItems>
 // 				</PageToolbar>
 // 				<PageBar>
 // 					<PageBarAlign>

@@ -51,7 +51,7 @@ import {
 	TableRow,
 	TextArea,
 	TextAreaContainer,
-	ToolbarLeftItems
+	ToolbarItems
 } from '../../../styles/inventory/Style';
 
 class PurchaseInvoiceDetails extends React.Component {
@@ -470,9 +470,9 @@ class PurchaseInvoiceDetails extends React.Component {
 		return (
 			<PageBlock id="invoice">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>Invoice</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<InputColumnWrapper>

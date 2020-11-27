@@ -32,7 +32,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarLeftItems
+	ToolbarItems
 } from '../../../styles/inventory/Style';
 
 class SupplierProducts extends React.Component {
@@ -261,9 +261,9 @@ class SupplierProducts extends React.Component {
 		return (
 			<PageBlock id="suppliers">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>Suppliers</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlign>

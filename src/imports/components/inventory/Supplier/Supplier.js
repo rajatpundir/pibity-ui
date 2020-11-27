@@ -15,7 +15,7 @@ import SupplierDetails from './SupplierDetails';
 import SupplierAddresses from './SupplierAddresses';
 import SupplierContacts from './SupplierContacts';
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
 	PageWrapper,

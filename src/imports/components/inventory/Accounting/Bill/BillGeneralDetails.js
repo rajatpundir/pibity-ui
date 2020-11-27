@@ -19,7 +19,7 @@ import {
 	PageBlock,
 	PageToolbar,
 	SelectWrapper,
-	ToolbarLeftItems,
+	ToolbarItems,
 	FormControl,
 } from '../../../../styles/inventory/Style';
 
@@ -67,9 +67,9 @@ class BillGeneralDetails extends React.Component {
 		return (
 			<PageBlock paddingBottom="0">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>New Bill</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 					<IconButton
 						aria-label="expand row"
 						size="small"

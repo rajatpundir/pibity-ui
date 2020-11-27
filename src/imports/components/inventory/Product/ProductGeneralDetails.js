@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
-import GlobalVariableModal from '../../main/GlobalVariableModal';
+import GlobalVariableModal from '../../main/Modal/GlobalVariableModal';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import AddIcon from '@material-ui/icons/Add';
@@ -24,7 +24,7 @@ import {
 	PageToolbar,
 	SelectWrapper,
 	SelectAddButton,
-	ToolbarLeftItems,
+	ToolbarItems,
 	FormControl
 } from '../../../styles/inventory/Style';
 
@@ -92,10 +92,10 @@ class ProductGeneralDetails extends React.Component {
 				/>
 				<PageBlock paddingBottom="0">
 					<PageToolbar>
-						<ToolbarLeftItems>
+						<ToolbarItems>
 							<LeftItemWrapper backgroundColor="#25c99f">Active</LeftItemWrapper>
 							<LeftItemH1>New Product</LeftItemH1>
-						</ToolbarLeftItems>
+						</ToolbarItems>
 						<IconButton
 							aria-label="expand row"
 							size="small"

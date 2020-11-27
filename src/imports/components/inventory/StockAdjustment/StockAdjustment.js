@@ -13,7 +13,7 @@ import {
 	updateProductStockVariable
 } from '../../../redux/actions/variables';
 import StockAdjustmentDetail from './StockAdjustmentDetail';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import { Container, PageWrapper, PageBody, SaveButtonContaier, SaveButton } from '../../../styles/inventory/Style';
 
 class StockAdjustment extends React.Component {

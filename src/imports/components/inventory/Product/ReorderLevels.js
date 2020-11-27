@@ -31,7 +31,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarLeftItems,
+	ToolbarItems,
 	FormControl,
 	ButtonWithOutline
 } from '../../../styles/inventory/Style';
@@ -192,9 +192,9 @@ class ReorderLevels extends React.Component {
 		return (
 			<PageBlock id="reorderLevel">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>REORDER LEVELS</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlign>

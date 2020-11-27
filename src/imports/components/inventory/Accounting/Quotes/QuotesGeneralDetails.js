@@ -21,7 +21,7 @@ import {
     PageBlock,
     PageToolbar,
     SelectWrapper,
-    ToolbarLeftItems,
+    ToolbarItems,
     FormControl,
 
 } from '../../../../styles/inventory/Style';
@@ -70,9 +70,9 @@ class QuotesGeneralDetails extends React.Component {
         return (
             <PageBlock paddingBottom="0">
                 <PageToolbar>
-                    <ToolbarLeftItems>
+                    <ToolbarItems>
                         <LeftItemH1>New Quotes</LeftItemH1>
-                    </ToolbarLeftItems>
+                    </ToolbarItems>
                     <IconButton
                         aria-label="expand row"
                         size="small"

@@ -13,7 +13,7 @@ import {
 	Input,
 	PageBlock,
 	PageToolbar,
-	ToolbarLeftItems,
+	ToolbarItems,
 	LeftItemWrapper,
 	LeftItemH1,
 	InputBody,
@@ -85,12 +85,12 @@ class PurchaseGeneralDetails extends React.Component {
 		return (
 			<PageBlock style={{ display: 'block' }} paddingBottom="0">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemWrapper backgroundColor="#f9e491" color="black">
 							Draft
 						</LeftItemWrapper>
 						<LeftItemH1>New Purchase</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 					<IconButton
 						aria-label="expand row"
 						size="small"

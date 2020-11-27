@@ -2,20 +2,27 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Route, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import Header from '../components/main/Header';
 import styled from 'styled-components';
-import Navigator from '../components/main/Navigator';
+import MiniDrawer from '../components/navigation/Navigation';
+import Footer from '../components/main/Footer';
+import { login } from './Keycloak';
 
 export const PrivateRoute = ({ isAuthenticated, render: Component, ...rest }) => (
 	<Route
 		{...rest}
 		render={(props) =>
 			isAuthenticated ? (
-				<Container>
-					<Navigator />
-					<Component {...props} />
-				</Container>
+				<MainContainer>
+					<MiniDrawer keycloak={props.keycloak} />
+					<Body>
+						<Header match={props.match} />
+						<Component {...props} />
+						<Footer />
+					</Body>
+				</MainContainer>
 			) : (
-				<Redirect to="/" />
+				login()
 			)}
 	/>
 );
@@ -30,6 +37,10 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps)(PrivateRoute);
 
-// Styled Components
+const MainContainer = styled.div`display: flex;`;
 
-const Container = styled.div`display: flex;`;
+const Body = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+`;

@@ -15,7 +15,7 @@ import PurchaseGeneralDetails from './PurchaseGeneralDetails';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
 import PurchaseInvoiceDetails from './PurchaseInvoiceDetails';
 import PurchaseStockReceived from './PurchaseStockReceived';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
 import {
 	Container,
