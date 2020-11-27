@@ -30,7 +30,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarLeftItems
+	ToolbarItems
 } from '../../../styles/inventory/Style';
 
 class AdditionalUnitOfMeasure extends React.Component {
@@ -216,9 +216,9 @@ class AdditionalUnitOfMeasure extends React.Component {
 		return (
 			<PageBlock id="additionalUnitOfMeasure">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>Additional Unit Of Measure</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlign>

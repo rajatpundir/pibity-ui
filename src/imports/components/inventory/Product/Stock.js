@@ -33,7 +33,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarLeftItems,
+	ToolbarItems,
 	FormControl,
 	ButtonWithOutline
 } from '../../../styles/inventory/Style';
@@ -265,9 +265,9 @@ class Stock extends React.Component {
 		return (
 			<PageBlock id="stock">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>Stock</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlign>

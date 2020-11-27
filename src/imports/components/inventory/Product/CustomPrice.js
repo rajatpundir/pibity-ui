@@ -32,7 +32,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarLeftItems,
+	ToolbarItems,
 	FormControl,
 	ButtonWithOutline
 } from '../../../styles/inventory/Style';
@@ -220,9 +220,9 @@ class CustomPrice extends React.Component {
 		return (
 			<PageBlock id="customPrices">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>Custom Prices</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlign>

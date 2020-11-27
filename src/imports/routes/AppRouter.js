@@ -3,13 +3,11 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import jwt_decode from 'jwt-decode';
 import { setTokenForAxios } from '../redux/actions/auth';
 import PublicRoute from './PublicRoute';
-
-import LogIn from '../components/main/LogIn';
-import SignUp from '../components/main/SignUp';
+import PrivateRoute from './PrivateRoute'
 import NotFound from '../components/main/NotFound';
 import Dashboard from '../components/main/Dashboard/Dashboard';
-// import Users from '../components/accounts/Users';
-// import Profile from '../components/accounts/Profile';
+import ManageUsers from '../components/accounts/ManageUsers';
+import Profile from '../components/accounts/Profile';
 import Product from '../components/inventory/Product/Product';
 import Supplier from '../components/inventory/Supplier/Supplier';
 import Purchase from '../components/inventory/Purchase/Purchase';
@@ -20,68 +18,43 @@ import PurchaseList from '../components/inventory/Purchase/PurchaseList';
 import SupplierList from '../components/inventory/Supplier/SupplierList';
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
 import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
-import QuickbooksExpence from '../components/inventory/QuickBooksExpence';
 import Invoice from '../components/inventory/Accounting/Invoice/Invoice';
 import Quotes from '../components/inventory/Accounting/Quotes/Quotes';
 import Bill from '../components/inventory/Accounting/Bill/Bill';
 import CreditNote from '../components/inventory/Accounting/CreditNote/CreditNote';
 import PurchaseOrder from '../components/inventory/Accounting/PurchaseOrder/PurchaseOrder'
 
-
-
-
-// Set token for Axios requests
-if (localStorage.getItem('jwtToken')) {
-	setTokenForAxios(localStorage.getItem('jwtToken'));
-}
-
-// Validate token, if present in LocalStorage
-function validateToken() {
-	const token = localStorage.getItem('jwtToken');
-	if (token) {
-		const data = jwt_decode(token);
-		const current_time = Math.floor(Date.now() / 1000);
-		const expiry_time = data.exp;
-		if (current_time > expiry_time) {
-			localStorage.removeItem('jwtToken');
-			window.location.reload();
-		}
-	}
-}
-setInterval(validateToken, 1000);
-
 export const AppRouter = () => (
 	<BrowserRouter>
 		<Switch>
 			{/* Public Routes */}
-			<PublicRoute exact path="/" render={(props) => <Dashboard />} />
-			<PublicRoute exact path="/login" render={(props) => <LogIn />} />
-			<PublicRoute exact path="/signup" render={(props) => <SignUp />} />
-			<PublicRoute exact path="/product" render={(props) => <Product {...props} />} />
-			<PublicRoute exact path="/productList" render={(props) => <ProductList {...props} />} />
-			<PublicRoute exact path="/product/:variableName" render={(props) => <Product {...props} />} />
-			<PublicRoute exact path="/supplier/" render={(props) => <Supplier {...props} />} />
-			<PublicRoute exact path="/supplierList" render={(props) => <SupplierList {...props} />} />
-			<PublicRoute exact path="/supplier/:variableName" render={(props) => <Supplier {...props} />} />
-			<PublicRoute exact path="/purchase" render={(props) => <Purchase {...props} />} />
-			<PublicRoute exact path="/purchaseList" render={(props) => <PurchaseList {...props} />} />
-			<PublicRoute exact path="/purchase/:variableName" render={(props) => <Purchase {...props} />} />
-			<PublicRoute exact path="/customer" render={(props) => <Customer {...props} />} />
-			<PublicRoute exact path="/customerList" render={(props) => <CustomerList {...props} />} />
-			<PublicRoute exact path="/customerList/:variableName" render={(props) => <Customer {...props} />} />
-			<PublicRoute exact path="/stockAdjustment" render={(props) => <StockAdjustment {...props} />} />
-			<PublicRoute exact path="/stockAdjustmentList" render={(props) => <StockAdjustmentList {...props} />} />
-			<PublicRoute exact path="/Invoice" render={(props) => <Invoice {...props} />} />
-			<PublicRoute exact path="/Quotes" render={(props) => <Quotes {...props} />} />
-			<PublicRoute exact path="/Bill" render={(props) => <Bill {...props} />} />
-			<PublicRoute exact path="/PurchaseOrder" render={(props) => <PurchaseOrder {...props} />} />
-			<PublicRoute exact path="/CreditNote" render={(props) => <CreditNote {...props} />} />
-
-			<PublicRoute exact path="/stockAdjustmentList/:variableName" render={(props) => <StockAdjustment {...props} />} />
-			<Route exact path="/expence" render={(props) => <QuickbooksExpence {...props} />} />
-			
-			
-
+			<PublicRoute exact path="/" render={(props) => <ManageUsers {...props} />}/>
+			{/* Private Routes */}
+			<PrivateRoute exact path="/dashboard" render={(props) => <Dashboard />} />
+			<PrivateRoute exact path="/product" render={(props) => <Product {...props} />} />
+			<PrivateRoute exact path="/productList" render={(props) => <ProductList {...props} />} />
+			<PrivateRoute exact path="/product/:variableName" render={(props) => <Product {...props} />} />
+			<PrivateRoute exact path="/supplier/" render={(props) => <Supplier {...props} />} />
+			<PrivateRoute exact path="/supplierList" render={(props) => <SupplierList {...props} />} />
+			<PrivateRoute exact path="/supplier/:variableName" render={(props) => <Supplier {...props} />} />
+			<PrivateRoute exact path="/purchase" render={(props) => <Purchase {...props} />} />
+			<PrivateRoute exact path="/purchaseList" render={(props) => <PurchaseList {...props} />} />
+			<PrivateRoute exact path="/purchase/:variableName" render={(props) => <Purchase {...props} />} />
+			<PrivateRoute exact path="/customer" render={(props) => <Customer {...props} />} />
+			<PrivateRoute exact path="/customerList" render={(props) => <CustomerList {...props} />} />
+			<PrivateRoute exact path="/customerList/:variableName" render={(props) => <Customer {...props} />} />
+			<PrivateRoute exact path="/stockAdjustment" render={(props) => <StockAdjustment {...props} />} />
+			<PrivateRoute exact path="/stockAdjustmentList" render={(props) => <StockAdjustmentList {...props} />} />
+			<PrivateRoute exact path="/Invoice" render={(props) => <Invoice {...props} />} />
+			<PrivateRoute exact path="/Quotes" render={(props) => <Quotes {...props} />} />
+			<PrivateRoute exact path="/Bill" render={(props) => <Bill {...props} />} />
+			<PrivateRoute exact path="/PurchaseOrder" render={(props) => <PurchaseOrder {...props} />} />
+			<PrivateRoute exact path="/CreditNote" render={(props) => <CreditNote {...props} />} />
+			<PrivateRoute exact path="/stockAdjustmentList/:variableName" render={(props) => <StockAdjustment {...props} />} />
+			<PrivateRoute exact path="/addNewUser" render={(props) => <Profile {...props} />} />
+			{/* <PrivateRoute exact path="/users" render={(props) => <UserList {...props} />} /> */}
+			<PrivateRoute exact path="/users/:variableName" render={(props) => <Profile {...props} />} />
+			<PrivateRoute exact path="/user/:userId" render={(props) => <Profile {...props} />} />
 			{/* Page Not Found */}
 			<Route exact path="*" render={(props) => <NotFound />} />
 		</Switch>

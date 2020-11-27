@@ -3,7 +3,7 @@
 		{
 			"name": "Dashboard",
 			"icon": "dashboard",
-			"url": "/"
+			"url": "/dashboard"
 		},
 		{
 			"name": "Product",

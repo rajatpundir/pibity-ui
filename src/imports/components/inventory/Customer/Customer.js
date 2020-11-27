@@ -15,7 +15,7 @@ import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
 	PageWrapper,
@@ -194,7 +194,7 @@ class Customer extends React.Component {
 		const values = variable.get('values');
 		values.set('addresses', addresses);
 		variable.set('values', values);
-		// this.setState({ variable: variable });
+		this.setState({ variable: variable });
 	}
 
 	updateContacts(contacts) {
@@ -207,7 +207,7 @@ class Customer extends React.Component {
 
 	render() {
 		return (
-			<Container mediaPadding="20px 20px 0 20px">
+			<Container mediaPadding="20px 20px 0 20px" onscroll="extJS_realign()">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit={2} />
 				<PageWrapper>
@@ -217,7 +217,6 @@ class Customer extends React.Component {
 								onClick={(e) => {
 									if (this.props.match.params.variableName) {
 										this.props.updateVariable(this.state.prevVariable, this.state.variable);
-										console.log('update me gya ');
 									} else {
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));

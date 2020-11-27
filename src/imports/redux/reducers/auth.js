@@ -5,7 +5,8 @@ const initialState = {
 	isAuthenticated: localStorage.getItem('jwtToken') ? true : false,
 	token: localStorage.getItem('jwtToken') ? jwt_decode(localStorage.getItem('jwtToken')) : {},
 	organizations:[],
-	selectedOrganization:''
+	selectedOrganization:'',
+	userName:''
 };
 
 export default function(state = initialState, action) {
@@ -16,7 +17,8 @@ export default function(state = initialState, action) {
 				isAuthenticated: action.payload ? true : false,
 				token: action.payload,
 				organizations:[ ...new Set(action.payload.groups.map((group) => group.split('/')[1])) ],
-				selectedOrganization:action.selectedOrganization
+				selectedOrganization:action.selectedOrganization,
+				userName:action.userName
 			};
 		default:
 			return state;

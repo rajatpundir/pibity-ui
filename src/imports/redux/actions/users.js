@@ -4,12 +4,13 @@ import { domain } from '../config';
 import { updateErrors } from './errors';
 import { STORE_USERS, LOAD_USERS, ADD_USER, UPDATE_USER, DELETE_USER } from './actions';
 import { HTTP_STATUS_CODE } from './../config.js';
+import {loadVariables,replaceVariable} from './variables'
 
 async function loadUsers(dispatch) {
-	await db.users.toArray().then((users) => {
+	await db.users.toArray().then((user) => {
 		dispatch({
 			type: LOAD_USERS,
-			payload: users
+			payload: user
 		});
 	});
 }
@@ -25,12 +26,14 @@ async function storeUsers(dispatch, payload) {
 }
 
 async function addUser(dispatch, payload) {
+	console.log(payload)
 	await db.users.add(payload).then((users) => {
 		dispatch({
 			type: ADD_USER,
 			payload: payload
 		});
 	});
+
 }
 
 async function updateUser(dispatch, payload) {
@@ -61,21 +64,35 @@ async function deleteUser(dispatch, payload) {
 	});
 }
 
-export const getUsers = () => async (dispatch) => {
+
+
+export const getUserDetail = (username) => async (dispatch) => {
 	try {
-		await loadUsers(dispatch);
-		const url = domain + '/organization/users';
-		const request = {};
+		 await loadUsers(dispatch);
+		const url = domain + '/user/details';
+		const request = {
+			orgId: localStorage.getItem('selectedOrganization'),
+			username:username
+		};
 		const response = await axios.post(url, request);
-		const { statusCode, data } = JSON.parse(response.data.entity);
-		if (statusCode === HTTP_STATUS_CODE.OK) {
-			if (data !== undefined) {
-				await storeUsers(dispatch, data);
-				return true;
+		console.log(response);
+		if (response.status === 200) {
+			if (response.data !== undefined) {
+				const data={
+					username:response.data.username,
+					orgId:response.data.orgId,
+					firstName:response.data.firstName,
+					lastName:response.data.lastName,
+					email:response.data.email,
+					active:response.data.active
+				}
+				 await updateUser(dispatch, data);
+				 await replaceVariable(dispatch, response.data.details);
+				return response.status;
 			}
 		} else {
-			updateErrors(dispatch, data);
-			return false;
+			updateErrors(dispatch, response.data);
+			return response.status;
 		}
 	} catch (error) {
 		if (error.response) {

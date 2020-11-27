@@ -117,24 +117,30 @@ export const PageBlock = styled.div.attrs((props) => ({
 //    align-items: center;
 export const PageToolbar = styled.div.attrs((props) => ({
 	padding: props.padding || '16px 20px',
-	borderBottom: props.borderBottom
+	borderBottom: props.borderBottom,
+	borderTop: props.borderTop
 }))`
 	-webkit-flex-flow: row wrap;
 	flex-flow: row wrap;
 	display: flex;
+	height:'50px';
 	justify-content: space-between;
 	width: 100%;
     padding: ${(props) => props.padding};
     align-items: center;
-    border-bottom:${(props) => props.borderBottom};
+	border-bottom:${(props) => props.borderBottom};
+	border-top:${(props) => props.borderTop};
+
 
 `;
 
-export const ToolbarLeftItems = styled.div`
+export const ToolbarItems = styled.div.attrs((props) => ({
+	float: props.float || 'left'
+}))`
 	display: flex;
 	justify-content: flex-start !important;
 	align-items: center;
-	float: left;
+	float: ${(props) => props.float}
 `;
 
 export const InputFieldContainer = styled.div`
@@ -439,9 +445,12 @@ margin-left: ${(props) => props.marginLeft};
 
 // --------------------------Input-------------------------------//
 
-export const InputColumnWrapper = styled.div`
-	flex-basis: calc(100% / 3 - 12px) !important;
-    width: 30%;
+export const InputColumnWrapper = styled.div.attrs((props) => ({
+	flexBasis: props.flexBasis || 'calc(100% / 3 - 12px) !important',
+	width: props.width || '30%'
+}))`
+	flex-basis: ${(props) => props.flexBasis};
+    width: ${(props) => props.width};
     @media (max-width: 991px) {
     flex-basis: 100% !important;
     justify-content: space-between;
@@ -458,13 +467,16 @@ flex-basis: ${(props) => props.flexBasis};`;
 
 export const FormControl = styled.div.attrs((props) => ({
 	minHeight: props.minHeight || '60px',
-	paddingBottom: props.paddingBottom || '20px'
+	paddingBottom: props.paddingBottom || '20px',
+	flexBasis: props.flexBasis
+
 }))`
 	padding-bottom: ${(props) => props.paddingBottom};
 	min-height:${(props) => props.minHeight};
 	position: relative;
 	display: flex;
 	align-items: start;
+	flex-basis:${(props)=>props.flexBasis};
 	@media (max-width: 991px) {
 		flex-basis: calc(100% / 2 - 9px) !important;
 	}
@@ -608,7 +620,6 @@ export const SelectAddButton = styled.button`
 	}
 `;
 
-
 export const Input = styled.input.attrs((props) => ({
 	width: props.width || 'inherit',
 	height: props.height || '38px',
@@ -663,8 +674,6 @@ export const InputLabel = styled.label`
 		box-sizing: border-box;
 	}
 `;
-
-
 
 export const SelectIconContainer = styled.div`
 	justify-content: center;
@@ -927,15 +936,15 @@ export const PlusButton = styled.button`
 	border-radius: 4px;
 `;
 
-export const AuthorizeButton = styled.button`
-	min-width: 80px;
-	color: #fff;
-	background-color: #05cbbf;
-	border-color: #05cbbf;
-	border-width: 1px;
-	border-style: solid;
-	font-size: 13px;
-	font-weight: 500;
+export const Custombutton = styled.button.attrs((props) => ({
+	height: props.height || '40px',
+	minwidth: props.minWidth || '80px',
+	fontSize: props.fontSize || '13px',
+	fontWeight: props.fontWeight || '500',
+	padding: props.padding || '0 16px;',
+	color: props.color || '#fff',
+	backgroundAndBorderColor: props.backgroundColor || '#05cbbf'
+}))`
 	text-align: center;
 	text-decoration: none;
 	display: inline-flex;
@@ -943,11 +952,19 @@ export const AuthorizeButton = styled.button`
 	justify-content: center;
 	flex-direction: row;
 	align-items: center;
-	height: 40px;
 	white-space: nowrap;
-	border-radius: 4px;
-	padding: 0 16px;
 	cursor: pointer;
+	font-size: ${(props) => props.fontSize};
+	font-weight:${(props) => props.fontWeight};;
+	min-width:${(props) => props.minWidth};;
+	height: ${(props) => props.height};;
+	padding: ${(props) => props.padding};;
+	color: ${(props) => props.color};;
+	background-color: ${(props) => props.backgroundAndBorderColor};;
+	border-color: ${(props) => props.backgroundAndBorderColor};;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 4px;
 	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
 		opacity 0.15s ease-in-out;
 	&:focus {

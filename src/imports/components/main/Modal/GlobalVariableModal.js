@@ -2,7 +2,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { createVariable } from '../../redux/actions/variables';
+import { createVariable } from '../../../redux/actions/variables';
 import {
 	InputRowWrapper,
 	InputFieldContainer,
@@ -18,7 +18,7 @@ import {
 	ModalCustomStyles,
 	ModalSubmitButton,
 	ModalCloseButton
-} from '../../styles/main/Modal';
+} from '../../../styles/main/Modal';
 
 class GlobalVariableModal extends React.Component {
 	constructor(props) {

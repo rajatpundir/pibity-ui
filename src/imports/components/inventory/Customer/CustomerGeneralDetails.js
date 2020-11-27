@@ -20,7 +20,7 @@ import {
 	PageBlock,
 	PageToolbar,
 	SelectWrapper,
-	ToolbarLeftItems,
+	ToolbarItems,
 	FormControl,
 	CheckBoxInput,
 	CheckBoxLabel,
@@ -73,9 +73,9 @@ class CustomerGeneralDetails extends React.Component {
 		return (
 			<PageBlock paddingBottom="0">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>New Customer</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 					<IconButton
 						aria-label="expand row"
 						size="small"

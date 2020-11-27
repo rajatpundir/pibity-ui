@@ -48,7 +48,7 @@ import {
 	TableRow,
 	TextArea,
 	TextAreaContainer,
-	ToolbarLeftItems
+	ToolbarItems
 } from '../../../styles/inventory/Style';
 
 class PurchaseOrderDetails extends React.Component {
@@ -466,9 +466,9 @@ class PurchaseOrderDetails extends React.Component {
 		return (
 			<PageBlock id="order">
 				<PageToolbar>
-					<ToolbarLeftItems>
+					<ToolbarItems>
 						<LeftItemH1>Order</LeftItemH1>
-					</ToolbarLeftItems>
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<PageBarAlign>

@@ -5,7 +5,7 @@ import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
 import TablePagination from '@material-ui/core/TablePagination';
 import TablePaginationActions from '../../main/TablePagination';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
 	ListTableFieldContainer,
@@ -13,7 +13,7 @@ import {
 	PageBody,
 	Input,
 	PageToolbar,
-	ToolbarLeftItems,
+	ToolbarItems,
 	LeftItemH1,
 	PageBarAlign,
 	LeftItemFormControl,
@@ -176,9 +176,9 @@ class PurchaseOrderList extends React.Component {
 				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
-							<ToolbarLeftItems>
+							<ToolbarItems>
 								<LeftItemH1>PurchaseOrder</LeftItemH1>
-							</ToolbarLeftItems>
+							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="left">

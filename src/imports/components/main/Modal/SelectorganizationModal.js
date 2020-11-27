@@ -2,7 +2,7 @@ import React from 'react';
 import Select from 'react-select';
 import Modal from 'react-modal';
 import { connect } from 'react-redux';
-import { updateToken } from '../../redux/actions/auth';
+import { updateToken } from '../../../redux/actions/auth';
 import {
 	SelectWrapper,
 	InputFieldContainer,
@@ -15,7 +15,7 @@ import {
 	ModalTitle,
 	ModalCustomStyles,
 	ModalSubmitButton
-} from '../../styles/main/Modal';
+} from '../../../styles/main/Modal';
 
 class SelectOrganizationModal extends React.Component {
 	constructor(props) {

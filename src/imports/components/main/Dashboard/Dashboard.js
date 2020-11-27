@@ -10,7 +10,7 @@ import Quicklinks from './QuickLink';
 import CustoemrBlock from './CustoemrBlock';
 import SupplierBlock from './SupplierBlock';
 import ProductBlock from './ProductBlock';
-import { Container, PageWrapper, PageBody, AuthorizeButton } from '../../../styles/inventory/Style';
+import { Container, PageWrapper, PageBody, Custombutton } from '../../../styles/inventory/Style';
 import {
 	PageLabelContainer,
 	PageTitle,
@@ -28,7 +28,7 @@ import {
 	ModalSubmitButton
 } from '../../../styles/main/Modal';
 import { getVariables } from '../../../redux/actions/variables';
-import SelectorganizationModal from '../SelectorganizationModal';
+import SelectorganizationModal from '../Modal/SelectorganizationModal';
 
 class Dashboard extends React.Component {
 	constructor(props) {
@@ -87,10 +87,10 @@ class Dashboard extends React.Component {
 					<PageSubTitleContainer>
 						<div style={{ marginTop: '8px', display: 'contents' }}>
 							<PageSubTitleAnchor>General Dashboard</PageSubTitleAnchor>
-							<AuthorizeButton onClick={this.openModal}>
+							<Custombutton onClick={this.openModal}>
 								<Icon style={{ color: 'white', fontSize: '15px', paddingRight: '25px' }}>settings</Icon>
 								Manage Dashboard
-							</AuthorizeButton>
+							</Custombutton>
 						</div>
 					</PageSubTitleContainer>
 				</PageLabelContainer>

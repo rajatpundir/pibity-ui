@@ -21,14 +21,14 @@ import ProductGeneralDetails from './ProductGeneralDetails';
 import AdditionalUnitOfMeasure from './AdditionalUnitOfMeasure';
 // import ProductPrice from './PorudctPrice'
 import CheckIcon from '@material-ui/icons/Check';
-import SelectorganizationModal from '../../main/SelectorganizationModal';
+import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
 	PageWrapper,
 	PageBody,
 	PageBlock,
 	PageToolbar,
-	ToolbarLeftItems,
+	ToolbarItems,
 	BlockListItemButton,
 	LeftItemH1,
 	InputBody,
@@ -412,9 +412,9 @@ class Product extends React.Component {
 						{this.state.visibleSection === 'channels' && (
 							<PageBlock>
 								<PageToolbar>
-									<ToolbarLeftItems>
+									<ToolbarItems>
 										<LeftItemH1>Channels</LeftItemH1>
-									</ToolbarLeftItems>
+									</ToolbarItems>
 								</PageToolbar>
 								<InputBody />
 							</PageBlock>
@@ -422,9 +422,9 @@ class Product extends React.Component {
 						{this.state.visibleSection === 'additionalDescription' && (
 							<PageBlock>
 								<PageToolbar>
-									<ToolbarLeftItems>
+									<ToolbarItems>
 										<LeftItemH1>Additional Description</LeftItemH1>
-									</ToolbarLeftItems>
+									</ToolbarItems>
 								</PageToolbar>
 								<InputBody />
 							</PageBlock>

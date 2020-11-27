@@ -4,32 +4,21 @@ import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../components/main/Header';
 import styled from 'styled-components';
-import MiniDrawer from '../components/main/Navigation';
+import MiniDrawer from '../components/navigation/Navigation';
 import Footer from '../components/main/Footer';
 
 export const PublicRoute = ({ isAuthenticated, render: Component, ...rest }) => (
 	<Route
 		{...rest}
-		render={(props) =>
-			isAuthenticated ? (
-				<MainContainer>
-					<MiniDrawer />
-					<Body>
-						<Header match={props.match} />
-						<Component {...props} />
-						<Footer />
-					</Body>
-				</MainContainer>
-			) : (
-				<MainContainer>
-					<MiniDrawer />
-					<Body>
-						<Header match={props.match} />
-						<Component {...props} />
-						<Footer />
-					</Body>
-				</MainContainer>
-			)}
+		render={(props) => (
+			<MainContainer>
+				<MiniDrawer keycloak={props.keycloak} />
+				<Body>
+					<Component {...props} />
+					<Footer />
+				</Body>
+			</MainContainer>
+		)}
 	/>
 );
 

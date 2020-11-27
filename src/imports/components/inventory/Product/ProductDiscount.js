@@ -1,8 +1,8 @@
 	// <PageBlock id="discounts">
 	// 						<PageToolbar>
-	// 							<ToolbarLeftItems>
+	// 							<ToolbarItems>
 	// 								<LeftItemH1>Discounts</LeftItemH1>
-	// 							</ToolbarLeftItems>
+	// 							</ToolbarItems>
 	// 						</PageToolbar>
 	// 						<PageBar>
 	// 							<PageBarAlignLeft>
