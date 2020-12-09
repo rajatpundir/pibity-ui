@@ -23,7 +23,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import Tooltip from '@material-ui/core/Tooltip';
 import { updateToken } from '../../redux/actions/auth';
-import { keycloak,login } from '../../routes/Keycloak';
+import { keycloak } from '../../routes/Keycloak';
 import { SelectWrapper, ToolbarItemContainer } from '../../styles/main/Navigation';
 import SideDrawer from './SideDrawer';
 
@@ -165,7 +165,7 @@ class MiniDrawer extends React.Component {
 		super();
 		this.state = {
 			anchorEl: null,
-			open: true,
+			open: false,
 			openSideDrawer: false,
 			openProfileMenu: false,
 			prevtitle: '',
@@ -375,7 +375,7 @@ class MiniDrawer extends React.Component {
 								onClose={this.handleClose}
 							>
 								<MenuItem className={classes.profileMenuItem}>
-									<LinkTo to={'/user/' + encodeURIComponent(this.props.auth.userName)}>Profile</LinkTo>
+									<LinkTo to={'/Users/' + encodeURIComponent(this.props.auth.userName)}>Profile</LinkTo>
 								</MenuItem>
 								<MenuItem className={classes.profileMenuItem} onClick={keycloak.logout}>
 									LogOut
@@ -428,7 +428,6 @@ export default connect(mapStateToProps, {
 	updateToken
 })(withStyles(styles)(MiniDrawer));
 
-const LS = {};
 const LinkTo = styled(Link)`
 	text-decoration: none;
 	-webkit-box-align: center;

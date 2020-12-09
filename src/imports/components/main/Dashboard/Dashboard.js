@@ -61,7 +61,7 @@ class Dashboard extends React.Component {
 	}
 
 	handleChnage(e){
-		this.setState({[e.target.name]:!this.state.[e.target.name]})
+		this.setState({[e.target.name]:e.target.checked})
 	}
 
 	openModal() {
@@ -150,7 +150,7 @@ class Dashboard extends React.Component {
 									<FormControlLabel
 										control={
 											<Switch
-												size="normal"
+												size="medium"
 												name="product"
 												checked={this.state.product}
 												onChange={(e) => this.handleChnage(e)}

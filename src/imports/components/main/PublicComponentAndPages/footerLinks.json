@@ -1,0 +1,170 @@
+{
+	"data": [
+		{
+			"image": "https://dearsystems.com/wp-content/uploads/2020/08/dear-system-logo-white.svg",
+			"alt":"https://dearsystems.com/wp-content/uploads/2020/08/dear-system-logo-white.svg",
+			"links": [
+				{
+					"name": "Get Support",
+					"url": ""
+				},
+				{
+					"name": "KnowledgeBase",
+					"url": ""
+				},
+				{
+					"name": "Find a Partner",
+					"url": ""
+				},
+				{
+					"name": "Become a Partner",
+					"url": ""
+				},
+				{
+					"name": "Forum",
+					"url": ""
+				}
+			]
+		},
+		{
+			"name": "Resources",
+			"links": [
+				{
+					"name": "Blog",
+					"url": ""
+				},
+				{
+					"name": "Customer Stories",
+					"url": ""
+				},
+				{
+					"name": "Scholarship",
+					"url": ""
+				},
+				{
+					"name": "Release Notes",
+					"url": ""
+				},
+				{
+					"name": "Development RoadMap",
+					"url": ""
+				}
+			]
+		},
+		{
+			"name": "Solution",
+			"links": [
+				{
+					"name": "Accounting",
+					"url": ""
+				},
+				{
+					"name": "B2BPortal",
+					"url": ""
+				},
+				{
+					"name": "eCommerse",
+					"url": ""
+				},
+				{
+					"name": "Inventory Management",
+					"url": ""
+				},
+				{
+					"name": "Manufacturing",
+					"url": ""
+				},
+				{
+					"name": "Point Of Scale (POS)",
+					"url": ""
+				},
+				{
+					"name": "Purchasing",
+					"url": ""
+				},
+				{
+					"name": "Sales",
+					"url": ""
+				},
+				{
+					"name": "Hardware",
+					"url": ""
+				}
+			]
+		},
+		{
+			"name": "Integration",
+			"links": [
+				{
+					"name": "eCommerse Platform",
+					"url": ""
+				},
+				{
+					"name": "Shipping and Fulfillment",
+					"url": ""
+				},
+				{
+					"name": "MarketPlaces",
+					"url": ""
+				},
+				{
+					"name": "Point Of Sale Software",
+					"url": ""
+				},
+				{
+					"name": "B2B Software",
+					"url": ""
+				},
+				{
+					"name": "Accounting Systems",
+					"url": ""
+				},
+				{
+					"name": "Payment Gateways",
+					"url": ""
+				},
+				{
+					"name": "DEAR WMS",
+					"url": ""
+				}
+			]
+		},
+		{
+			"name": "About",
+			"links": [
+				{
+					"name": "GDPR",
+					"url": ""
+				},
+				{
+					"name": "Pricing Table",
+					"url": ""
+				},
+				{
+					"name": "Help and Support",
+					"url": ""
+				},
+				{
+					"name": "Terms & Condition",
+					"url": ""
+				},
+				{
+					"name": "Partner Help & Support",
+					"url": ""
+				},
+				{
+					"name": "Privacy Policy",
+					"url": ""
+				},
+				{
+					"name": "Login",
+					"url": ""
+				},
+				{
+					"name": "Sign Up",
+					"url": ""
+				}
+			]
+		}
+	]
+}

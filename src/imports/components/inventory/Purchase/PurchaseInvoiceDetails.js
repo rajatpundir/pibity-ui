@@ -58,20 +58,27 @@ class PurchaseInvoiceDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable
+			variable: new Map([
+				[ 'variableName', '0' ],
+				[
+					'values',
+					new Map([
+						[ 'additionalCost', [] ],
+						[ 'productInvoiceDetails', [] ],
+						[ 'supplierDeposit', [] ],
+						[ 'invoiceDate', '' ],
+						[ 'dueDate', '' ],
+						[ 'invoiceNumber', '' ],
+						[ 'total', '' ],
+						[ 'purchaseOrderMemo', '' ]
+					])
+				]
+			])
 		};
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
 
-	// supplierDepositkey: new Map([
-	// 	[ 'ammount', '' ],
-	// 	[ 'account', '' ],
-	// 	[ 'datePaid', '' ],
-	// 	[ 'reference', '' ]
-	// ]),
-
-	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
 	}

@@ -96,6 +96,14 @@
 				{
 					"name": "CreditNote",
 					"url": "/CreditNote"
+				},
+				{
+					"name": "DeditNote",
+					"url": "/debitNote"
+				},
+				{
+					"name":"Add User",
+					"url":"/addNewUser"
 				}
 			]
 		}

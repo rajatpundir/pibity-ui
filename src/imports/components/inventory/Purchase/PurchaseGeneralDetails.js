@@ -31,6 +31,9 @@ class PurchaseGeneralDetails extends React.Component {
 		super();
 		this.state = {
 			variable: props.variable,
+			contact: '',
+			line1: '',
+			line2: '',
 			open: true
 		};
 		this.onChange = this.onChange.bind(this);
@@ -50,17 +53,25 @@ class PurchaseGeneralDetails extends React.Component {
 	}
 
 	onVariableNameChange(e) {
-		console.log(e.target);
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set('supplierName', e.target.value);
 		if (e.target.data.contacts.length !== 0) {
-			values.set('contact', e.target.data.contacts[0].values.name);
+			const contact = values.get('contact');
+			contact.set('variableName', e.target.data.contacts[0].variableName);
+			contact.set('context', e.target.data.contacts[0].context);
+			values.set('contact', contact);
 			values.set('phone', e.target.data.contacts[0].values.phone);
+			this.setState({ contact: e.target.data.contacts[0].values.name });
 		}
 		if (e.target.data.addresses.length !== 0) {
-			values.set('vendorAddressLine1', e.target.data.addresses[0].values.line1);
-			values.set('vendorAddressLine2', e.target.data.addresses[0].values.line2);
+			const address = values.get('vendorAddressLine1');
+			address.set('variableName', e.target.data.addresses[0].variableName);
+			address.set('context', e.target.data.addresses[0].context);
+			values.set('vendorAddressLine1', address);
+			values.set('vendorAddressLine2', address);
+			this.setState({ line1: e.target.data.addresses[0].values.line1 });
+			this.setState({ line2: e.target.data.addresses[0].values.line2 });
 		}
 		values.set('term', e.target.data.general.values.paymentTerm);
 		values.set('taxRule', e.target.data.general.values.taxRule);
@@ -81,7 +92,6 @@ class PurchaseGeneralDetails extends React.Component {
 	}
 
 	render() {
-		
 		return (
 			<PageBlock style={{ display: 'block' }} paddingBottom="0">
 				<PageToolbar>
@@ -100,322 +110,333 @@ class PurchaseGeneralDetails extends React.Component {
 					</IconButton>
 				</PageToolbar>
 				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
-				<InputBody>
-					<InputFieldContainer>
-						<InputColumnWrapper>
-							<H3>Supplier Details</H3>
-							<FormControl>
-								<SelectWrapper>
-									<Select
-										value={{
-											value: this.state.variable.get('variableName'),
-											label: this.state.variable.get('variableName')
-										}}
-										onChange={(option) => {
-											this.onVariableNameChange({
-												target: { name: 'variableName', value: option.value, data: option.data }
-											});
-										}}
-										options={
-											this.props.variables.Supplier !== undefined ? (
-												this.props.variables.Supplier.map((variable) => {
-													return {
-														value: variable.variableName,
-														label: variable.variableName,
-														data: variable.values
-													};
-												})
-											) : (
-												[]
-											)
-										}
-									/>
-								</SelectWrapper>
+					<InputBody>
+						<InputFieldContainer>
+							<InputColumnWrapper>
+								<H3>Supplier Details</H3>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('variableName'),
+												label: this.state.variable.get('variableName')
+											}}
+											onChange={(option) => {
+												this.onVariableNameChange({
+													target: {
+														name: 'variableName',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={
+												this.props.variables.Supplier !== undefined ? (
+													this.props.variables.Supplier.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName,
+															data: variable.values
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
 
-								<InputLabel>
-									Supplier
-									<Required>*</Required>
-								</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="contact"
-									type="text"
-									placeholder="Default"
-									value={this.state.variable.get('values').get('contact')}
-									onChange={this.onChange}
-								/>
-								<InputLabel>Contact</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="phone"
-									type="text"
-									placeholder="Phone"
-									value={this.state.variable.get('values').get('phone')}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>
-									Phone
-									<Required>*</Required>
-								</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="vendorAddressLine1"
-									type="text"
-									placeholder="Default"
-									value={this.state.variable.get('values').get('vendorAddressLine1')}
-									onChange={this.onChange}
-								/>
-								<InputLabel>Vendor Address Line 1</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="vendorAddressLine2"
-									type="text"
-									placeholder="line 2"
-									value={this.state.variable.get('values').get('vendorAddressLine2')}
-									onChange={this.onChange}
-								/>
-								<InputLabel> Vendor Address Line 2</InputLabel>
-							</FormControl>
-						</InputColumnWrapper>
-						<InputColumnWrapper>
-							<H3>Accounting Details</H3>
-							<FormControl style={{ alignItems: 'center' }}>
-								<FormControl minHeight="0" paddingBottom="0">
-									<RadioLabel>
-										{' '}
-										<RadioInput type="radio" name="StockFirst" value="false" tabindex="35" />
-										Stock First
-									</RadioLabel>
+									<InputLabel>
+										Supplier
+										<Required>*</Required>
+									</InputLabel>
 								</FormControl>
-								<FormControl minHeight="0" paddingBottom="0">
-									<RadioLabel>
-										{' '}
-										<RadioInput type="radio" name="InvoiceFirst" tabindex="35" /> Invoice First
-									</RadioLabel>
+								<FormControl>
+									<Input
+										name="contact"
+										type="text"
+										placeholder="Default"
+										value={this.state.contact}
+										disabled
+										onChange={this.onChange}
+									/>
+									<InputLabel>Contact</InputLabel>
 								</FormControl>
-							</FormControl>
-							<FormControl>
-								<SelectWrapper>
-									<Select
-										value={{
-											value: this.state.variable.get('values').get('term'),
-											label: this.state.variable.get('values').get('term')
-										}}
-										onChange={(option) => {
-											this.onChange({ target: { name: 'term', value: option.value } });
-										}}
-										options={
-											this.props.variables.PaymentTerm !== undefined ? (
-												this.props.variables.PaymentTerm.map((variable) => {
-													return {
-														value: variable.variableName,
-														label: variable.variableName
-													};
-												})
-											) : (
-												[]
-											)
-										}
+								<FormControl>
+									<Input
+										name="phone"
+										type="text"
+										placeholder="Phone"
+										value={this.state.variable.get('values').get('phone')}
+										onChange={this.onChange}
+									/>{' '}
+									<InputLabel>
+										Phone
+										<Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="vendorAddressLine1"
+										type="text"
+										placeholder="Default"
+										value={this.state.line1}
+										disabled
+										onChange={this.onChange}
 									/>
-								</SelectWrapper>
-								<InputLabel>Terms</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="requiredBy"
-									type="text"
-									placeholder="requiredy"
-									value={this.state.variable.get('values').get('requiredBy')}
-									onChange={this.onChange}
-								/>
-								<InputLabel>Required By</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input />
-								<InputLabel>Inventory Account</InputLabel>
-							</FormControl>
-							<FormControl style={{ alignItems: 'center' }}>
-								<CheckBoxWapper>
-									<CheckBoxTable>
-										<TBody>
-											<TR>
-												<TD>
-													<CheckBoxInput
-														type="checkbox"
-														tabindex="55"
-														checked={this.state.variable.get('values').get('taxInclusive')}
-														onChange={(option) => {
-															this.onChange({
-																target: {
-																	name: 'taxInclusive',
-																	value: !this.state.variable
-																		.get('values')
-																		.get('taxInclusive')
-																}
-															});
-														}}
-													/>
-												</TD>
-											</TR>
-										</TBody>
-									</CheckBoxTable>
-								</CheckBoxWapper>
-								<CheckBoxLabel>Tax Inclusive</CheckBoxLabel>
-							</FormControl>
-							<FormControl>
-								<SelectWrapper>
-									<Select
-										value={{
-											value: this.state.variable.get('values').get('taxRule'),
-											label: this.state.variable.get('values').get('taxRule')
-										}}
-										onChange={(option) => {
-											this.onChange({ target: { name: 'taxRule', value: option.value } });
-										}}
-										options={
-											this.props.variables.PurchaseTaxRule !== undefined ? (
-												this.props.variables.PurchaseTaxRule.map((variable) => {
-													return {
-														value: variable.variableName,
-														label: variable.variableName
-													};
-												})
-											) : (
-												[]
-											)
-										}
+									<InputLabel>Vendor Address Line 1</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="vendorAddressLine2"
+										type="text"
+										placeholder="line 2"
+										value={this.state.line2}
+										disabled
+										onChange={this.onChange}
 									/>
-								</SelectWrapper>
+									<InputLabel> Vendor Address Line 2</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
+							<InputColumnWrapper>
+								<H3>Accounting Details</H3>
+								<FormControl style={{ alignItems: 'center' }}>
+									<FormControl minHeight="0" paddingBottom="0">
+										<RadioLabel>
+											{' '}
+											<RadioInput type="radio" name="StockFirst" value="false" tabindex="35" />
+											Stock First
+										</RadioLabel>
+									</FormControl>
+									<FormControl minHeight="0" paddingBottom="0">
+										<RadioLabel>
+											{' '}
+											<RadioInput type="radio" name="InvoiceFirst" tabindex="35" /> Invoice First
+										</RadioLabel>
+									</FormControl>
+								</FormControl>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('term'),
+												label: this.state.variable.get('values').get('term')
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'term', value: option.value } });
+											}}
+											options={
+												this.props.variables.PaymentTerm !== undefined ? (
+													this.props.variables.PaymentTerm.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>Terms</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="requiredBy"
+										type="text"
+										placeholder="requiredy"
+										value={this.state.variable.get('values').get('requiredBy')}
+										onChange={this.onChange}
+									/>
+									<InputLabel>Required By</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input />
+									<InputLabel>Inventory Account</InputLabel>
+								</FormControl>
+								<FormControl style={{ alignItems: 'center' }}>
+									<CheckBoxWapper>
+										<CheckBoxTable>
+											<TBody>
+												<TR>
+													<TD>
+														<CheckBoxInput
+															type="checkbox"
+															tabindex="55"
+															checked={this.state.variable
+																.get('values')
+																.get('taxInclusive')}
+															onChange={(option) => {
+																this.onChange({
+																	target: {
+																		name: 'taxInclusive',
+																		value: !this.state.variable
+																			.get('values')
+																			.get('taxInclusive')
+																	}
+																});
+															}}
+														/>
+													</TD>
+												</TR>
+											</TBody>
+										</CheckBoxTable>
+									</CheckBoxWapper>
+									<CheckBoxLabel>Tax Inclusive</CheckBoxLabel>
+								</FormControl>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('taxRule'),
+												label: this.state.variable.get('values').get('taxRule')
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'taxRule', value: option.value } });
+											}}
+											options={
+												this.props.variables.PurchaseTaxRule !== undefined ? (
+													this.props.variables.PurchaseTaxRule.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
 
-								<InputLabel>
-									Tax Rule <Required>*</Required>
-								</InputLabel>
-							</FormControl>
-						</InputColumnWrapper>
-						<InputColumnWrapper>
-							<H3>Shipping Details</H3>
-							<FormControl style={{ alignItems: 'center' }}>
-								<CheckBoxWapper>
-									<CheckBoxTable>
-										<TBody>
-											<TR>
-												<TD>
-													<CheckBoxInput
-														type="checkbox"
-														tabindex="55"
-														checked={this.state.variable.get('values').get('blindReceipt')}
-														onChange={(option) => {
-															this.onChange({
-																target: {
-																	name: 'blindReceipt',
-																	value: !this.state.variable
-																		.get('values')
-																		.get('blindReceipt')
-																}
-															});
-														}}
-													/>
-												</TD>
-											</TR>
-										</TBody>
-									</CheckBoxTable>
-								</CheckBoxWapper>
-								<CheckBoxLabel>Blind Reciept</CheckBoxLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="date"
-									type="date"
-									placeholder="date"
-									value={this.state.variable.get('values').get('date')}
-									onChange={this.onChange}
-									style={{ height: '38px' }}
-								/>{' '}
-								<InputLabel>
-									Date <Required>*</Required>
-								</InputLabel>
-							</FormControl>
-							<FormControl>
-								<SelectWrapper>
-									<Select
-										value={{
-											value: this.state.variable.get('values').get('location'),
-											label: this.state.variable.get('values').get('location')
-										}}
-										onChange={(option) => {
-											this.onChange({ target: { name: 'location', value: option.value } });
-										}}
-										options={
-											this.props.variables.Location !== undefined ? (
-												this.props.variables.Location.map((variable) => {
-													return {
-														value: variable.variableName,
-														label: variable.variableName
-													};
-												})
-											) : (
-												[]
-											)
-										}
-									/>
-								</SelectWrapper>
-								<InputLabel>
-									Location <Required>*</Required>{' '}
-								</InputLabel>
-							</FormControl>
-							<FormControl style={{ alignItems: 'center' }}>
-								<CheckBoxWapper>
-									<CheckBoxTable>
-										<TBody>
-											<TR>
-												<TD>
-													<CheckBoxInput type="checkbox" tabindex="55" />
-												</TD>
-											</TR>
-										</TBody>
-									</CheckBoxTable>
-								</CheckBoxWapper>
-								<CheckBoxLabel>Ship To Different Company</CheckBoxLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="shippingAddress1"
-									type="text"
-									placeholder="Default"
-									value={this.state.variable.get('values').get('shippingAddress1')}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>Shipping Address Line 1</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="shippingAddress2"
-									type="text"
-									placeholder="Default"
-									value={this.state.variable.get('values').get('shippingAddress2')}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>Shipping Address Line 2</InputLabel>
-							</FormControl>
-						</InputColumnWrapper>
-						<InputRowWrapper>
-							<FormControl>
-								<Input
-									name="comments"
-									type="text"
-									placeholder="comment"
-									value={this.state.variable.get('values').get('comments')}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>Comment</InputLabel>
-							</FormControl>
-						</InputRowWrapper>
-					</InputFieldContainer>
-				</InputBody>
+									<InputLabel>
+										Tax Rule <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
+							<InputColumnWrapper>
+								<H3>Shipping Details</H3>
+								<FormControl style={{ alignItems: 'center' }}>
+									<CheckBoxWapper>
+										<CheckBoxTable>
+											<TBody>
+												<TR>
+													<TD>
+														<CheckBoxInput
+															type="checkbox"
+															tabindex="55"
+															checked={this.state.variable
+																.get('values')
+																.get('blindReceipt')}
+															onChange={(option) => {
+																this.onChange({
+																	target: {
+																		name: 'blindReceipt',
+																		value: !this.state.variable
+																			.get('values')
+																			.get('blindReceipt')
+																	}
+																});
+															}}
+														/>
+													</TD>
+												</TR>
+											</TBody>
+										</CheckBoxTable>
+									</CheckBoxWapper>
+									<CheckBoxLabel>Blind Reciept</CheckBoxLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="date"
+										type="date"
+										placeholder="date"
+										value={this.state.variable.get('values').get('date')}
+										onChange={this.onChange}
+										style={{ height: '38px' }}
+									/>{' '}
+									<InputLabel>
+										Date <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('location'),
+												label: this.state.variable.get('values').get('location')
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'location', value: option.value } });
+											}}
+											options={
+												this.props.variables.Location !== undefined ? (
+													this.props.variables.Location.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										Location <Required>*</Required>{' '}
+									</InputLabel>
+								</FormControl>
+								<FormControl style={{ alignItems: 'center' }}>
+									<CheckBoxWapper>
+										<CheckBoxTable>
+											<TBody>
+												<TR>
+													<TD>
+														<CheckBoxInput type="checkbox" tabindex="55" />
+													</TD>
+												</TR>
+											</TBody>
+										</CheckBoxTable>
+									</CheckBoxWapper>
+									<CheckBoxLabel>Ship To Different Company</CheckBoxLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="shippingAddress1"
+										type="text"
+										placeholder="Default"
+										value={this.state.variable.get('values').get('shippingAddress1')}
+										onChange={this.onChange}
+									/>{' '}
+									<InputLabel>Shipping Address Line 1</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="shippingAddress2"
+										type="text"
+										placeholder="Default"
+										value={this.state.variable.get('values').get('shippingAddress2')}
+										onChange={this.onChange}
+									/>{' '}
+									<InputLabel>Shipping Address Line 2</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
+							<InputRowWrapper>
+								<FormControl>
+									<Input
+										name="comments"
+										type="text"
+										placeholder="comment"
+										value={this.state.variable.get('values').get('comments')}
+										onChange={this.onChange}
+									/>{' '}
+									<InputLabel>Comment</InputLabel>
+								</FormControl>
+							</InputRowWrapper>
+						</InputFieldContainer>
+					</InputBody>
 				</Collapse>
 			</PageBlock>
 		);

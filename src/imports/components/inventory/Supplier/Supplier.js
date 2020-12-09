@@ -6,6 +6,7 @@ import { customErrorMessage, successMessage, CustomNotification } from '../../ma
 import { clearErrors } from '../../../redux/actions/errors';
 import {
 	createVariable,
+	createAccount,
 	getVariables,
 	getVariable,
 	updateVariable,
@@ -29,6 +30,7 @@ import {
 	HoizontalBlockList,
 	HoizontalBlockListItems
 } from '../../../styles/inventory/Style';
+import SupplierAccount from './Supplier Account/SupplierAccount';
 
 class Supplier extends React.Component {
 	constructor(props) {
@@ -64,8 +66,22 @@ class Supplier extends React.Component {
 								]
 							])
 						],
+						[ 'account', '' ],
 						[ 'addresses', [] ],
 						[ 'contacts', [] ]
+					])
+				]
+			]),
+			account: new Map([
+				[ 'typeName', 'Account' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'name', '' ],
+						[ 'balance', 0 ],
+						[ 'openingBalance', 0 ],
+						[ 'accountType', 'Creditor' ]
 					])
 				]
 			]),
@@ -75,6 +91,7 @@ class Supplier extends React.Component {
 		this.updateAddresses = this.updateAddresses.bind(this);
 		this.updateContacts = this.updateContacts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
+		this.updateAccountName = this.updateAccountName.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
@@ -117,15 +134,14 @@ class Supplier extends React.Component {
 	}
 
 	componentDidMount() {
+		this.props.getVariables('Account');
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
 			if (this.props.match.params.variableName) {
-				this.props
-					.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
-					.then((variable) => {
-						this.setState({ prevVariable: objToMapRec(variable) });
-					});
+				const variable = decodeURIComponent(this.props.match.params.variableName);
+				this.props.getVariable(this.state.variable.get('typeName'), variable);
+				this.props.getVariables('PurchaseInvoice');
 			}
 			this.getData();
 		}
@@ -160,6 +176,10 @@ class Supplier extends React.Component {
 			customErrorMessage('Payment Term is missing');
 			this.setState({ createSupplier: false });
 		}
+		if (variable.get('general').get('values').get('discount') === '') {
+			customErrorMessage('Payment Term is missing');
+			this.setState({ createSupplier: false });
+		}
 		if (variable.get('general').get('values').get('currency') === '') {
 			customErrorMessage('Currency is missing');
 			this.setState({ createSupplier: false });
@@ -184,11 +204,17 @@ class Supplier extends React.Component {
 
 	updateDetails(details) {
 		const variable = cloneDeep(this.state.variable);
+		const account = cloneDeep(this.state.account);
+		const accountValues = account.get('values');
 		const values = variable.get('values');
 		values.set('general', details);
 		variable.set('values', values);
 		variable.set('variableName', details.get('variableName'));
-		this.setState({ variable: variable });
+		accountValues.set('name', details.get('variableName'));
+		this.setState({
+			variable: variable,
+			account: account
+		});
 	}
 
 	updateAddresses(addresses) {
@@ -207,11 +233,19 @@ class Supplier extends React.Component {
 		this.setState({ variable: variable });
 	}
 
+	updateAccountName(accountName) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('account', accountName);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
 	render() {
 		return (
-			<Container  mediaPadding="20px 20px 0 20px">
+			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<CustomNotification limit={3} rtl />
+				<CustomNotification limit={3} />
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -224,11 +258,22 @@ class Supplier extends React.Component {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
 											if (this.state.createSupplier) {
-												this.props.createVariable(this.state.variable).then((status) => {
-													if (status === 200) {
-														successMessage(' Supplier Created');
-													}
-												});
+												this.props
+													.createAccount(this.state.account)
+													.then((data) => {
+														if (data.status === 200) {
+															this.updateAccountName(data.accountName);
+														}
+													})
+													.then(() => {
+														this.props
+															.createVariable(this.state.variable)
+															.then((status) => {
+																if (status === 200) {
+																	successMessage(' Supplier Created');
+																}
+															});
+													});
 											}
 											this.setState({ createSupplier: true });
 										});
@@ -238,14 +283,30 @@ class Supplier extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
-						<SupplierDetails
-							variable={this.state.variable.get('values').get('general')}
-							updateDetails={this.updateDetails}
-						/>
+						{this.state.visibleSection !== 'accounts' && (
+							<SupplierDetails
+								variable={this.state.variable.get('values').get('general')}
+								updateDetails={this.updateDetails}
+							/>
+						)}
+
 						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList>
+										{this.state.visibleSection === 'accounts' ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'details' });
+													}}
+												>
+													Supplier Details
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
 										<HoizontalBlockListItems>
 											<BlockListItemButton
 												onClick={(e) => {
@@ -264,6 +325,19 @@ class Supplier extends React.Component {
 												Contacts
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
+										{this.props.match.params.variableName ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'accounts' });
+													}}
+												>
+													Supplier Account
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
@@ -279,6 +353,14 @@ class Supplier extends React.Component {
 								list={this.state.variable.get('values').get('contacts')}
 								updateContacts={this.updateContacts}
 							/>
+						)}
+
+						{this.props.match.params.variableName ? this.state.visibleSection === 'accounts' ? (
+							<SupplierAccount supplier={this.props.match.params.variableName} />
+						) : (
+							undefined
+						) : (
+							undefined
 						)}
 					</PageBody>
 				</PageWrapper>
@@ -296,6 +378,7 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
+	createAccount,
 	getVariable,
 	getVariables,
 	updateVariable

@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { successMessage, CustomNotification } from '../main/Notification';
+import { successMessage, CustomNotification, customErrorMessage } from '../../main/Notification';
 import 'react-toastify/dist/ReactToastify.css';
 import ProfileDetails from './ProfileDetails';
-import { Container, PageWrapper, PageBody } from '../../styles/inventory/Style';
-import { getUserDetail } from '../../redux/actions/users';
-import { objToMapRec, getVariables, getVariable, updateVariable } from '../../redux/actions/variables';
+import { Container, PageWrapper, PageBody } from '../../../styles/inventory/Style';
+import { createUser, getUserDetail } from '../../../redux/actions/users';
+import { objToMapRec, getVariables, getVariable, updateVariable } from '../../../redux/actions/variables';
 
 class Profile extends React.Component {
 	constructor(props) {
@@ -22,7 +22,7 @@ class Profile extends React.Component {
 				[ 'firstName', '' ],
 				[ 'lastName', '' ],
 				[ 'email', '' ],
-				[ 'active', '' ]
+				[ 'active', true ]
 			]),
 			variable: new Map([
 				[ 'typeName', 'User' ],
@@ -43,6 +43,7 @@ class Profile extends React.Component {
 		this.onUpdateUser = this.onUpdateUser.bind(this);
 		this.onUpdateUserDetail = this.onUpdateUserDetail.bind(this);
 		this.onupdateUserProfile = this.onupdateUserProfile.bind(this);
+		this.onCreateUser = this.onCreateUser.bind(this);
 	}
 
 	componentDidMount() {
@@ -55,17 +56,18 @@ class Profile extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variables.User && (nextProps.match.params.userId || nextProps.match.params.variableName) ) {
-			const variable = nextProps.match.params.variableName
-				? nextProps.variables.User.filter(
-						(variable) => variable.variableName === nextProps.match.params.variableName
-					)[0]
-				: nextProps.variables.User.filter(
-						(variable) => variable.variableName ===  nextProps.match.params.userId
-					)[0];
+		if (nextProps.variables.User && nextProps.match.params.variableName) {
+			const variable =
+				nextProps.match.params.variableName !== nextProps.auth.userName
+					? nextProps.variables.User.filter(
+							(variable) => variable.variableName === nextProps.match.params.variableName
+						)[0]
+					: nextProps.variables.User.filter(
+							(variable) => variable.variableName === nextProps.auth.userName
+						)[0];
 			const user = nextProps.match.params.variableName
 				? nextProps.users.filter((user) => user.username === nextProps.match.params.variableName)[0]
-				: nextProps.users.filter((user) => user.username === nextProps.match.params.userId)[0];
+				: nextProps.users.filter((user) => user.username === nextProps.auth.userName)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
@@ -98,10 +100,24 @@ class Profile extends React.Component {
 		this.setState({ variable: details });
 	}
 
+	onCreateUser(passwords, userRole) {
+		console.log(passwords.get('password'))
+		if (passwords.get('password') === passwords.get('confirmPassword')) {
+			const password = passwords.get('password');
+			this.props.createUser(this.state.user, this.state.variable, password, userRole).then((status) => {
+				if (status === 200) {
+					successMessage('User added successfully');
+				}
+			});
+		} else {
+			customErrorMessage('password Didint match');
+		}
+	}
+
 	onupdateUserProfile() {
 		this.props.updateVariable(this.state.prevVariable, this.state.variable).then((status) => {
 			if (status === 200) {
-				successMessage(' User Profile Details Updated');
+				successMessage('Profile details updated');
 			}
 		});
 	}
@@ -113,8 +129,10 @@ class Profile extends React.Component {
 				<PageWrapper>
 					<PageBody>
 						<ProfileDetails
+							params={this.props.match.params}
 							details={this.state.variable}
 							user={this.state.user}
+							createUser={this.onCreateUser}
 							updateUser={this.onUpdateUser}
 							updateUserDetails={this.onUpdateUserDetail}
 							updateUserProfile={this.onupdateUserProfile}
@@ -134,6 +152,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, {
+	createUser,
 	getUserDetail,
 	getVariables,
 	getVariable,

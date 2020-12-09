@@ -1,0 +1,92 @@
+{
+	"data": [
+		{
+			"name": "Features",
+			"url": "/dashboard",
+			"subMenu": [
+				{
+					"name": "Features11",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features22",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features33",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features111",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features221",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features331",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features11122",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features22221",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Features3321",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				}
+			]
+		},
+		{
+			"name": "Industries",
+			"url": "/dashboard",
+			"subMenu": [
+				{
+					"name": "Industry1",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Industry2",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				},
+				{
+					"name": "Industry3",
+					"url": "",
+					"detail": "Choose your suppliers with confidence based on value."
+				}
+			]
+		},
+		{
+			"name": "Intigration",
+			"url": "/dashboard"
+		},
+		{
+			"name": "Price",
+			"url": "/dashboard"
+		},
+		{
+			"name": "Customer stoies",
+			"url": "/dashboard"
+		},
+		{
+			"name": "Contact Us",
+			"url": "/dashboard"
+		}
+	]
+}

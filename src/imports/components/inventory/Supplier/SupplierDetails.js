@@ -68,7 +68,7 @@ class SupplierDetails extends React.Component {
 			<PageBlock paddingBottom="0">
 				<PageToolbar>
 					<ToolbarItems>
-						<LeftItemH1>New Supplier</LeftItemH1>
+						<LeftItemH1>Supplier</LeftItemH1>
 					</ToolbarItems>
 					<IconButton
 						aria-label="expand row"

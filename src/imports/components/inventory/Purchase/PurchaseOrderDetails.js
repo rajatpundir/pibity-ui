@@ -153,11 +153,9 @@ class PurchaseOrderDetails extends React.Component {
 		this.setState({ variable: variable });
 		this.props.updateInvoice(variable);
 	}
+
 	addVariableToProductOrderInputList() {
 		const variable = cloneDeep(this.state.variable);
-		console.log(variable);
-		console.log('hello');
-
 		const values = variable.get('values');
 		const list = values.get('productInvoiceDetails');
 		list.unshift(
@@ -381,12 +379,29 @@ class PurchaseOrderDetails extends React.Component {
 					</TableData>
 					<TableData width="8%" left="39%">
 						<TableHeaderInner>
-							<Input
-								name="unit"
-								type="number"
-								value={listVariable.get('values').get('unit')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
+						<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('unit'),
+										label: listVariable.get('values').get('unit')
+									}}
+									onChange={(option) => {
+										this.onProductOrderInputChange(
+											{ target: { name: 'unit', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.UnitOfMeasure !== undefined ? (
+											this.props.variables.UnitOfMeasure.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="11%" left="46%">
@@ -429,7 +444,7 @@ class PurchaseOrderDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onProductOrderInputChange(
-											{ target: { name: 'country', value: option.value } },
+											{ target: { name: 'taxRule', value: option.value } },
 											listVariable.get('variableName')
 										);
 									}}

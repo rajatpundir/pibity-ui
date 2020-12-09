@@ -12,14 +12,11 @@ import {
 	objToMapRec,
 	getVariables
 } from '../../../../redux/actions/variables';
-import CheckIcon from '@material-ui/icons/Check';
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import {
 	Container,
 	PageWrapper,
 	PageBody,
-	SaveButtonContaier,
-	SaveButton,
 	InputColumnWrapper,
 	InputFieldContainer,
 	Input,
@@ -31,6 +28,7 @@ import {
 	PageToolbar,
 	SelectWrapper,
 	ToolbarItems,
+	Custombutton,
 	FormControl
 } from '../../../../styles/inventory/Style';
 
@@ -39,7 +37,7 @@ const style = {
 	width: '50%'
 };
 
-class CreditNote extends React.Component {
+class DebitNote extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -54,22 +52,21 @@ class CreditNote extends React.Component {
 					new Map([
 						[ 'supplier', '' ],
 						[ 'purchaseOrder', '' ],
+						[ 'creditNote', '' ],
 						[ 'account', '' ],
-						[ 'status', '' ],
-						[ 'duedate', '' ],
-						[ 'date', '' ],
-						[ 'total', '' ],
-						[ 'dueAmount', '' ]
+						[ 'paidAmount', '' ],
+						[ 'date', '' ]
 					])
 				]
 			])
 		};
+		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.match.params.variableName && nextProps.variables.Customer) {
-			const variable = nextProps.variables.CreditNote.filter(
+			const variable = nextProps.variables.DebitNote.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
@@ -112,6 +109,20 @@ class CreditNote extends React.Component {
 		this.getData();
 	}
 
+	onChange(e) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set(e.target.name.e.target.value);
+		if (e.target.name === 'creditNote') {
+			values.set('purchaseOrder', e.target.data.purchaseorder);
+			values.set('supplier', e.target.data.supplier);
+			values.set('account', e.target.data.account);
+			values.set('paidAmount', e.target.data.dueAmount);
+		}
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
@@ -122,12 +133,67 @@ class CreditNote extends React.Component {
 						<PageBlock paddingBottom="0">
 							<PageToolbar>
 								<ToolbarItems>
-									<LeftItemH1>Credit Note</LeftItemH1>
+									<LeftItemH1>New Debit Note</LeftItemH1>
+								</ToolbarItems>
+								<ToolbarItems>
+									{this.props.match.params.variableName ? (
+										undefined
+									) : (
+										<Custombutton
+											height="30px"
+											onClick={(e) => {
+												this.props.createVariable(this.state.variable).then((status) => {
+													if (status === 200) {
+														successMessage('Debit Note Created');
+													}
+												});
+											}}
+										>
+											Create
+										</Custombutton>
+									)}
 								</ToolbarItems>
 							</PageToolbar>
 							<InputBody overflow="visible">
 								<InputFieldContainer>
 									<InputColumnWrapper flexBasis={style.flexBasis} width={style.width}>
+										<FormControl>
+											<SelectWrapper>
+												<Select
+													value={{
+														value: this.state.variable.get('values').get('creditNote'),
+														label: this.state.variable.get('values').get('creditNote')
+													}}
+													onChange={(option) => {
+														this.onChange({
+															target: {
+																name: 'creditNote',
+																value: option.value,
+																data: option.data
+															}
+														});
+													}}
+													options={
+														this.props.variables.CreditNote !== undefined ? (
+															this.props.variables.CreditNote.map((variable) => {
+																return {
+																	value: variable.variableName,
+																	label: variable.variableName,
+																	data: variable.values
+																};
+															})
+														) : (
+															[]
+														)
+													}
+												/>
+											</SelectWrapper>
+											<InputLabel>
+												Credit Note
+												<Required>*</Required>
+											</InputLabel>
+										</FormControl>
+
 										<FormControl>
 											<Input
 												name="purchaseOrder"
@@ -146,6 +212,9 @@ class CreditNote extends React.Component {
 											/>
 											<InputLabel>Supplier</InputLabel>
 										</FormControl>
+									</InputColumnWrapper>
+
+									<InputColumnWrapper flexBasis={style.flexBasis} width={style.width}>
 										<FormControl>
 											<Input
 												name="account"
@@ -157,50 +226,21 @@ class CreditNote extends React.Component {
 										</FormControl>
 										<FormControl>
 											<Input
-												name="status"
-												type="text"
-												value={this.state.variable.get('values').get('status')}
-												disabled
-											/>
-											<InputLabel>Status</InputLabel>
-										</FormControl>
-									</InputColumnWrapper>
-									<InputColumnWrapper flexBasis={style.flexBasis} width={style.width}>
-										<FormControl>
-											<Input
 												name="date"
 												type="Date"
-												value={this.state.variable.get('values').get('duedate')}
+												value={this.state.variable.get('values').get('date')}
 												disabled
 											/>
 											<InputLabel> Date</InputLabel>
 										</FormControl>
 										<FormControl>
 											<Input
-												name="duedate"
-												type="Date"
-												value={this.state.variable.get('values').get('duedate')}
-												disabled
-											/>
-											<InputLabel>Due Date</InputLabel>
-										</FormControl>
-										<FormControl>
-											<Input
-												name="total"
+												name="paidAmount"
 												type="decimal"
-												value={this.state.variable.get('values').get('total')}
-												diabled
+												value={this.state.variable.get('values').get('paidAmount')}
+												onChange={(e) => this.onChange(e)}
 											/>
-											<InputLabel>Total Amount</InputLabel>
-										</FormControl>
-										<FormControl>
-											<Input
-												name="dueAmount"
-												type="decimal"
-												value={this.state.variable.get('values').get('dueAmount')}
-												diabled
-											/>
-											<InputLabel>Due Amount</InputLabel>
+											<InputLabel>Amount Paid</InputLabel>
 										</FormControl>
 									</InputColumnWrapper>
 								</InputFieldContainer>
@@ -224,4 +264,4 @@ export default connect(mapStateToProps, {
 	getVariable,
 	updateVariable,
 	getVariables
-})(CreditNote);
+})(DebitNote);
