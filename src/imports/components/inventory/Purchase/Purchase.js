@@ -40,7 +40,7 @@ class Purchase extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'typeName', 'SimplePurchase' ],
+				[ 'typeName', 'PurchaseOrder' ],
 				[ 'variableName', '' ], //supllier name is variable name
 				[
 					'values',
@@ -57,6 +57,7 @@ class Purchase extends React.Component {
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
 										[ 'date', '' ],
+										['account',"1"],
 										[ 'contact', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
 										[ 'stockOrInvoice', 'Stock First' ],
 										[ 'phone', '' ],
@@ -64,34 +65,13 @@ class Purchase extends React.Component {
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
-										[ 'vendorAddressLine1', '' ],
-										[ 'vendorAddressLine2', '' ],
+										[ 'vendorAddressLine1', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
+										[ 'vendorAddressLine2', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
 										[ 'requiredBy', '' ],
 										[ 'comments', '' ]
 									])
 								]
 							])
-						],
-						[
-							'invoiceDetails',
-							[
-								new Map([
-									[ 'variableName', '0' ],
-									[
-										'values',
-										new Map([
-											[ 'additionalCost', [] ],
-											[ 'productInvoiceDetails', [] ],
-											[ 'supplierDeposit', [] ],
-											[ 'invoiceDate', '' ],
-											[ 'dueDate', '' ],
-											[ 'invoiceNumber', '' ],
-											[ 'total', '' ],
-											[ 'purchaseOrderMemo', '' ]
-										])
-									]
-								])
-							]
 						],
 						[
 							'orderDetails',
@@ -111,7 +91,6 @@ class Purchase extends React.Component {
 								])
 							]
 						],
-						[ 'stockReceived', [] ]
 					])
 				]
 			]),
@@ -131,6 +110,7 @@ class Purchase extends React.Component {
 		this.props.getVariables('PaymentTerm');
 		this.props.getVariables('PurchaseTaxRule');
 		this.props.getVariables('Product');
+		this.props.getVariables('UnitOfMeasure');
 	}
 
 	componentDidMount() {
@@ -339,14 +319,12 @@ class Purchase extends React.Component {
 						)}
 						{this.state.visibleSection === 'stockReceived' && (
 							<PurchaseStockReceived
-								list={this.state.variable.get('values').get('stockReceived')}
-								updateStock={this.updateStock}
+								
 							/>
 						)}
 						{this.state.visibleSection === 'invoice' && (
 							<PurchaseInvoiceDetails
-								variable={this.state.variable.get('values').get('invoiceDetails')[0]}
-								updateInvoice={this.updateInvoice}
+							
 							/>
 						)}
 					</PageBody>

@@ -278,8 +278,10 @@ export const HeaderBody = styled.div`
 	margin: 0px;
 	width: 100%;
 `;
-export const BodyTable = styled.table`
-	width: 100%;
+export const BodyTable = styled.table.attrs((props)=>({
+	width:props.width || '100%'
+}))`
+width:${(props)=>props.width};
 	height: 1px;
 	table-layout: fixed;
 	border-collapse: separate;

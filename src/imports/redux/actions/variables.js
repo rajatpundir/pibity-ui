@@ -83,7 +83,7 @@ export function objToMapRec(obj) {
 	return map;
 }
 
-export const getVariables = (typeName: String, limit: Number = 500, offset: Number = 0) => async (dispatch) => {
+export const getVariables = (typeName: String, limit: Number = 500, offset: Number = 0 ,values:Object ={}) => async (dispatch) => {
 	try {
 		await loadVariables(dispatch, typeName);
 		const url = domain + '/variable/query';
@@ -93,11 +93,42 @@ export const getVariables = (typeName: String, limit: Number = 500, offset: Numb
 			limit: limit,
 			offset: offset,
 			query: {
-				values: {}
+				values: values
 			}
 		};
 		const response = await axios.post(url, request);
 		await replaceVariables(dispatch, response.data, typeName);
+	} catch (error) {
+		if (error.response) {
+			updateErrors(dispatch, error.response.data);
+			return false;
+		}
+	}
+};
+
+export const createAccount = (variable: Map) => async (dispatch) => {
+	try {
+		const url = domain + '/variable/create';
+		const request = mapToObjectRec(variable);
+		console.log('--REQUEST--');
+		console.log(request);
+		const orgId = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, { ...request, ...{ orgId: orgId } });
+		console.log('--RESPONSE--');
+		console.log(response);
+		if (response.status === 200) {
+			if (response.data !== undefined) {
+				await replaceVariable(dispatch, response.data);
+				const accountInfo = {
+					status: response.status,
+					accountName: response.data.variableName
+				};
+				return accountInfo;
+			}
+		} else {
+			updateErrors(dispatch, response.data);
+			return response.status;
+		}
 	} catch (error) {
 		if (error.response) {
 			updateErrors(dispatch, error.response.data);
@@ -140,9 +171,9 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 		const request = {
 			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
-			variableName:variableName,
-			limit:1,
-			offset:0,
+			variableName: variableName,
+			limit: 1,
+			offset: 0,
 			query: {
 				values: {}
 			}

@@ -16,25 +16,28 @@ import {
 	ToolbarItems,
 	FormControl,
 	Custombutton
-} from '../../styles/inventory/Style';
+} from '../../../styles/inventory/Style';
+import Password from './Password';
 
 const style = {
 	flexBasis: 'calc(100% / 2 - 12px) !important',
 	width: '50%'
 };
+
 class ProfileDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			detail: props.details,
 			user: props.user,
-			newpassword: '',
-			confirmNewPassword: '',
-			open: true
+			userPasswords: new Map([ [ 'password', '' ], [ 'confirmPassword', '' ] ]),
+			userRole: '',
+			roleOptions: [ { value: 'USER', label: 'USER' }, { value: 'ADMIN', label: 'ADMIN' } ]
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onUserChange = this.onUserChange.bind(this);
 		this.onUserDetailChange = this.onUserDetailChange.bind(this);
+		this.onPasswordChange = this.onPasswordChange.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -59,9 +62,17 @@ class ProfileDetails extends React.Component {
 		this.props.updateUserDetails(detail);
 	}
 
+	onPasswordChange(passwords) {
+		this.setState({ userPasswords: passwords });
+	}
+
 	submit(e) {
 		e.preventDefault();
-		this.props.updateUserProfile();
+		if (this.props.params.variableName) {
+			this.props.updateUserProfile();
+		} else {
+			this.props.createUser(this.state.userPasswords, this.state.userRole);
+		}
 	}
 
 	onChange(e) {
@@ -69,7 +80,6 @@ class ProfileDetails extends React.Component {
 	}
 
 	render() {
-		console.log(this.state)
 		return (
 			<PageBlock paddingBottom="0">
 				<form onSubmit={this.submit.bind(this)}>
@@ -78,9 +88,15 @@ class ProfileDetails extends React.Component {
 							<LeftItemH1>User Profile Settings</LeftItemH1>
 						</ToolbarItems>
 						<ToolbarItems>
-							<Custombutton height="30px" type="submit">
-								Save
-							</Custombutton>
+							{this.props.params.variableName ? (
+								<Custombutton height="30px" type="submit">
+									Save
+								</Custombutton>
+							) : (
+								<Custombutton height="30px" type="submit">
+									Add User
+								</Custombutton>
+							)}
 						</ToolbarItems>
 					</PageToolbar>
 					<InputBody overflow="visible">
@@ -211,7 +227,7 @@ class ProfileDetails extends React.Component {
 											}}
 											onChange={(option) => {
 												this.onUserDetailChange({
-													target: { name: 'pindode', value: option.value }
+													target: { name: 'pinCode', value: option.value }
 												});
 											}}
 											options={
@@ -230,49 +246,57 @@ class ProfileDetails extends React.Component {
 									</SelectWrapper>
 									<InputLabel>Pincode</InputLabel>
 								</FormControl>
+								{this.props.params.variableName ? (
+									undefined
+								) : (
+									<FormControl>
+										<SelectWrapper>
+											<Select
+												value={{
+													value: this.state.userRole,
+													label: this.state.userRole
+												}}
+												onChange={(option) => {
+													this.onChange({
+														target: { name: 'userRole', value: option.value }
+													});
+												}}
+												options={this.state.roleOptions}
+											/>
+										</SelectWrapper>
+										<InputLabel>User Role</InputLabel>
+									</FormControl>
+								)}
 							</InputColumnWrapper>
+							{this.props.params.variableName ? (
+								undefined
+							) : (
+								<Password passwords={this.state.userPasswords} updatePassword={this.onPasswordChange} />
+							)}
 						</InputFieldContainer>
 					</InputBody>
 				</form>
-				
-				<form onSubmit={this.submit.bind(this)}>
-					<PageToolbar borderTop="1px solid #e0e1e7">
-						<ToolbarItems>
-							<LeftItemH1>Chanege Password</LeftItemH1>
-						</ToolbarItems>
-						<ToolbarItems>
-							<Custombutton height="30px" type="submit">
-								Update Password
-							</Custombutton>
-						</ToolbarItems>
-					</PageToolbar>
-					<InputBody overflow="visible" borderTop="0">
-						<InputFieldContainer>
-							<FormControl flexBasis={style.flexBasis}>
-								<Input
-									name="newPassword"
-									type="password"
-									minLength="8"
-									placeholder=""
-									value={this.state.newPassword}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>New Password</InputLabel>
-							</FormControl>
-							<FormControl flexBasis={style.flexBasis}>
-								<Input
-									name="confirmNewPassword"
-									type="password"
-									minLength="8"
-									placeholder=""
-									value={this.state.confirmNewPassword}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>Confirm New Password</InputLabel>
-							</FormControl>
-						</InputFieldContainer>
-					</InputBody>
-				</form>
+				{this.props.params.variableName === this.props.auth.userName ? (
+					<form onSubmit={this.submit.bind(this)}>
+						<PageToolbar borderTop="1px solid #e0e1e7">
+							<ToolbarItems>
+								<LeftItemH1>Chanege Password</LeftItemH1>
+							</ToolbarItems>
+							<ToolbarItems>
+								<Custombutton height="30px" type="submit">
+									Update Password
+								</Custombutton>
+							</ToolbarItems>
+						</PageToolbar>
+						<InputBody overflow="visible" borderTop="0">
+							<InputFieldContainer>
+								<Password passwords={this.state.userPasswords} updatePassword={this.onPasswordChange} />
+							</InputFieldContainer>
+						</InputBody>
+					</form>
+				) : (
+					undefined
+				)}
 			</PageBlock>
 		);
 	}
@@ -281,7 +305,8 @@ class ProfileDetails extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
 	types: state.types,
-	variables: state.variables
+	variables: state.variables,
+	auth: state.auth
 });
 
 export default connect(mapStateToProps, {})(ProfileDetails);

@@ -7,7 +7,7 @@ import PrivateRoute from './PrivateRoute'
 import NotFound from '../components/main/NotFound';
 import Dashboard from '../components/main/Dashboard/Dashboard';
 import ManageUsers from '../components/accounts/ManageUsers';
-import Profile from '../components/accounts/Profile';
+import Profile from '../components/accounts/UserProfile/Profile';
 import Product from '../components/inventory/Product/Product';
 import Supplier from '../components/inventory/Supplier/Supplier';
 import Purchase from '../components/inventory/Purchase/Purchase';
@@ -23,12 +23,13 @@ import Quotes from '../components/inventory/Accounting/Quotes/Quotes';
 import Bill from '../components/inventory/Accounting/Bill/Bill';
 import CreditNote from '../components/inventory/Accounting/CreditNote/CreditNote';
 import PurchaseOrder from '../components/inventory/Accounting/PurchaseOrder/PurchaseOrder'
-
+import PublicDashboard from '../components/main/PublicComponentAndPages/PublicDashborad'
+import DebitNote from '../components/inventory/Accounting/DebitNote/DebitNote';
 export const AppRouter = () => (
 	<BrowserRouter>
 		<Switch>
 			{/* Public Routes */}
-			<PublicRoute exact path="/" render={(props) => <ManageUsers {...props} />}/>
+			<PublicRoute exact path="/" render={(props) => <PublicDashboard {...props} />}/>
 			{/* Private Routes */}
 			<PrivateRoute exact path="/dashboard" render={(props) => <Dashboard />} />
 			<PrivateRoute exact path="/product" render={(props) => <Product {...props} />} />
@@ -52,9 +53,11 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/CreditNote" render={(props) => <CreditNote {...props} />} />
 			<PrivateRoute exact path="/stockAdjustmentList/:variableName" render={(props) => <StockAdjustment {...props} />} />
 			<PrivateRoute exact path="/addNewUser" render={(props) => <Profile {...props} />} />
-			{/* <PrivateRoute exact path="/users" render={(props) => <UserList {...props} />} /> */}
-			<PrivateRoute exact path="/users/:variableName" render={(props) => <Profile {...props} />} />
-			<PrivateRoute exact path="/user/:userId" render={(props) => <Profile {...props} />} />
+			<PrivateRoute exact path="/debitNote" render={(props) => <DebitNote {...props} />} />
+
+			{/* <PrivateRoute exact path="/Users" render={(props) => <UserList {...props} />} /> */}
+			<PrivateRoute exact path="/Users/:variableName" render={(props) => <Profile {...props} />} />
+			{/* <PrivateRoute exact path="/user/:userId" render={(props) => <Profile {...props} />} /> */}
 			{/* Page Not Found */}
 			<Route exact path="*" render={(props) => <NotFound />} />
 		</Switch>

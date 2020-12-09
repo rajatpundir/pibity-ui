@@ -70,14 +70,14 @@ class PurchaseOrderList extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('purchaseOrder');
+			this.props.getVariables('PurchaseOrder');
 		}
 	}
 
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('purchaseOrder');
+		this.props.getVariables('PurchaseOrder');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
