@@ -243,8 +243,8 @@ class CustomerGeneralDetails extends React.Component {
 												this.onChange({ target: { name: 'taxRule', value: option.value } });
 											}}
 											options={
-												this.props.variables.SalesTaxRule !== undefined ? (
-													this.props.variables.SalesTaxRule.map((variable) => {
+												this.props.variables.TaxRule !== undefined ? (
+													this.props.variables.TaxRule.map((variable) => {
 														return {
 															value: variable.variableName,
 															label: variable.variableName

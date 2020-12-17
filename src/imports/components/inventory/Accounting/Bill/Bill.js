@@ -101,7 +101,7 @@ class Bill extends React.Component {
 		// this.props.getVariables('CarrierService');
 		// this.props.getVariables('PaymentTerm');
 		// this.props.getVariables('Status');
-		// this.props.getVariables('SalesTaxRule');
+		// this.props.getVariables('TaxRule');
 		// this.props.getVariables('AttributeSet');
 		// this.props.getVariables('PriceTierName');
 		// this.props.getVariables('Location');

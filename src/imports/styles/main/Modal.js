@@ -1,5 +1,14 @@
 import styled from 'styled-components';
-export { SelectWrapper, InputFieldContainer, InputLabel, FormControl,Input,InputRowWrapper,Required } from '../inventory/Style';
+export {
+	SelectWrapper,
+	InputFieldContainer,
+	InputLabel,
+	FormControl,
+	Input,
+	InputRowWrapper,
+	Required,
+	TextAreaInput
+} from '../inventory/Style';
 
 export const ModalCustomStyles = {
 	overlay: {
@@ -22,6 +31,7 @@ export const ModalCustomStyles = {
 		position: 'relative',
 		padding: 0,
 		maxWidth: '420px',
+		minWidth: '35%',
 		display: 'flex',
 		flexDirection: 'column',
 		width: '100%',
@@ -165,4 +175,12 @@ export const ModalBody = styled.div`
 	padding: 20px;
 	font-size: 13px;
 	color: #3b3b3b;
+`;
+
+export const ModalBodyHeading = styled.h3`
+	font-weight: 600;
+	font-size: 14px;
+	line-height: 20px;
+	margin-top: 5px;
+	margin-bottom: 5px;
 `;

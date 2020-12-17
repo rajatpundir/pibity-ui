@@ -6,6 +6,7 @@ import { customErrorMessage, successMessage, CustomNotification } from '../../ma
 import { clearErrors } from '../../../redux/actions/errors';
 import {
 	createVariable,
+	createAccount,
 	getVariable,
 	updateVariable,
 	objToMapRec,
@@ -68,8 +69,25 @@ class Customer extends React.Component {
 								]
 							])
 						],
+						[ 'account', '' ],
 						[ 'addresses', [] ],
 						[ 'contacts', [] ]
+					])
+				]
+			]),
+			account: new Map([
+				[ 'typeName', 'Account' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'name', '' ],
+						[ 'balance', 0 ],
+						[ 'openingBalance', 0 ],
+						['status',"Active"],
+						['accountCategory','ASSET'],
+						[ 'description', 'Supplier Account'],
+						[ 'accountType', 'Debtor' ]
 					])
 				]
 			]),
@@ -79,6 +97,7 @@ class Customer extends React.Component {
 		this.updateAddresses = this.updateAddresses.bind(this);
 		this.updateContacts = this.updateContacts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
+		this.updateAccountName = this.updateAccountName.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
@@ -113,7 +132,7 @@ class Customer extends React.Component {
 		this.props.getVariables('CarrierService');
 		this.props.getVariables('PaymentTerm');
 		this.props.getVariables('Status');
-		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('TaxRule');
 		this.props.getVariables('AttributeSet');
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
@@ -182,13 +201,18 @@ class Customer extends React.Component {
 
 	updateDetails(details) {
 		const variable = cloneDeep(this.state.variable);
+		const account = cloneDeep(this.state.account);
+		const accountValues = account.get('values');
 		const values = variable.get('values');
 		values.set('general', details);
 		variable.set('values', values);
 		variable.set('variableName', details.get('variableName'));
-		this.setState({ variable: variable });
+		accountValues.set('name', details.get('variableName'));
+		this.setState({
+			variable: variable,
+			account: account
+		});
 	}
-
 	updateAddresses(addresses) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
@@ -201,6 +225,14 @@ class Customer extends React.Component {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set('contacts', contacts);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
+	updateAccountName(accountName) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('account', accountName);
 		variable.set('values', values);
 		this.setState({ variable: variable });
 	}
@@ -222,13 +254,24 @@ class Customer extends React.Component {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
 											if (this.state.createCustomer) {
-												this.props.createVariable(this.state.variable).then((status) => {
-													if (status === 200) {
-														successMessage(' Customer Created');
-													}
-												});
+												this.props
+													.createAccount(this.state.account)
+													.then((data) => {
+														if (data.status === 200) {
+															this.updateAccountName(data.accountName);
+														}
+													})
+													.then(() => {
+														this.props
+															.createVariable(this.state.variable)
+															.then((status) => {
+																if (status === 200) {
+																	successMessage(' Customer Created');
+																}
+															});
+													});
 											}
-											this.setState({ createCustomer: true });
+											this.setState({ createSupplier: true });
 										});
 									}
 								}}
@@ -293,6 +336,7 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
+	createAccount,
 	getVariable,
 	updateVariable,
 	getVariables

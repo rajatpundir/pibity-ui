@@ -30,7 +30,7 @@ export const PageWrapper = styled.div.attrs((props) => ({
 	mediaWidth: props.mediaWidth || '80%'
 }))`
 	 flex: 1;
-    overflow: hidde
+    overflow: hidden;
     padding: 0;
     border: 0;
     font-size: 100%;
@@ -55,7 +55,7 @@ export const PageBody = styled.div.attrs((props) => ({
 	font-family: "IBM Plex Sans", sans-serif;
 	vertical-align: baseline;
 	@media (min-width: 1440px) {
-		max-width: width: ${(props) => props.mediaWidth};
+		max-width: ${(props) => props.mediaWidth};
 		border: 1px solid #e0e1e7;
 	}
 `;
@@ -278,10 +278,10 @@ export const HeaderBody = styled.div`
 	margin: 0px;
 	width: 100%;
 `;
-export const BodyTable = styled.table.attrs((props)=>({
-	width:props.width || '100%'
+export const BodyTable = styled.table.attrs((props) => ({
+	width: props.width || '100%'
 }))`
-width:${(props)=>props.width};
+width:${(props) => props.width};
 	height: 1px;
 	table-layout: fixed;
 	border-collapse: separate;
@@ -325,17 +325,18 @@ export const TableData = styled.td`
 	float: none !important;
 `;
 
-export const TableHeaderInner = styled.div`
+export const TableHeaderInner = styled.div.attrs((props)=>({
+	whiteSpace: props.whiteSpace || 'nowrap',
+	overflow: props.overflow||'visible'
+}))`
     width:100%;
     padding: 0 3px;
     color: #41454e;
     vertical-align: middle;
     font-size: 13px;
-    white-space: nowrap;
+    white-space: ${(props)=>props.whiteSpace};
 	text-overflow: ellipsis;
-	overflow: visible;
-
-}
+	overflow: ${(props)=>props.overflow};
 `;
 
 export const EmptyRow = styled.div`
@@ -423,8 +424,16 @@ export const RoundBlockInnerDiv = styled.div`
 	padding-left: 20px;
 	box-sizing: border-box;
 `;
-export const StatusSpan = styled.span`
-	background-color: #d6f3e3;
+// background color based on status
+export const StatusBackgroundColor={
+	active:'#d6f3e3',
+	depricated:'#fee8e8',
+}
+
+export const StatusSpan = styled.span.attrs((props)=>({
+	backgroundColor:props.backgroundColor ||'#d6f3e3'
+}))`
+	background-color:${(props) => props.backgroundColor}; 
 	margin-right: 0 !important;
 	padding: 4px 10px 4px 10px;
 	border-radius: 3px;
@@ -454,12 +463,11 @@ export const InputColumnWrapper = styled.div.attrs((props) => ({
 	flex-basis: ${(props) => props.flexBasis};
     width: ${(props) => props.width};
     @media (max-width: 991px) {
-    flex-basis: 100% !important;
-    justify-content: space-between;
-    display: flex;
-    flex-flow: wrap;
+       flex-basis: 100% !important;
+       justify-content: space-between;
+       display: flex;
+       flex-flow: wrap;
     }
-}
 `;
 
 export const InputRowWrapper = styled.div.attrs((props) => ({
@@ -471,14 +479,13 @@ export const FormControl = styled.div.attrs((props) => ({
 	minHeight: props.minHeight || '60px',
 	paddingBottom: props.paddingBottom || '20px',
 	flexBasis: props.flexBasis
-
 }))`
 	padding-bottom: ${(props) => props.paddingBottom};
 	min-height:${(props) => props.minHeight};
 	position: relative;
 	display: flex;
 	align-items: start;
-	flex-basis:${(props)=>props.flexBasis};
+	flex-basis:${(props) => props.flexBasis};
 	@media (max-width: 991px) {
 		flex-basis: calc(100% / 2 - 9px) !important;
 	}
@@ -578,6 +585,9 @@ export const SelectWrapper = styled.div.attrs((props) => ({
 	line-height: normal;
 	margin: 0;
 	vertical-align: baseline;
+	&:focus{
+      outline:none;
+	}
 `;
 
 /*
@@ -651,6 +661,46 @@ export const Input = styled.input.attrs((props) => ({
 	font-size: 100%;
 	margin: 0;
 	vertical-align: baseline;
+	/* to remove Arrow from input type field number */
+	&::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+       -webkit-appearance: none;
+       margin: 0;
+    }
+
+     /* Firefox */
+    &[type=number] {
+    -moz-appearance: textfield;
+    }
+`;
+
+export const TextAreaInput = styled.textarea.attrs((props) => ({
+	height: props.height || '100px',
+	width: props.width || 'inherit',
+	padding: props.padding || '11px 10px 10px 10px'
+}))`
+    flex:1;
+    overflow: hidden;
+    overflow-wrap: break-word;
+	resize: vertical;
+    outline: none !important;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 4px;
+	border-color: #b9bdce;
+	color: #3b3b3b;
+	font-size: 13px;
+	font-weight: 400;
+	margin: 0;
+	width: ${(props) => props.width};
+	min-height: ${(props) => props.height};
+	padding: ${(props) => props.padding};
+	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+
 `;
 
 export const InputLabel = styled.label`
@@ -772,11 +822,14 @@ export const CheckBoxInput = styled.input`
 	white-space: pre;
 	align-items: flex-start;
 	text-align: center;
+	
 `;
 
 //  export const CheckBoxLabel = styled.label`padding-left: 5px;`;
-export const CheckBoxContainer = styled.div`
-	margin: 5px 0px;
+export const CheckBoxContainer = styled.div.attrs((props)=>({
+	margin:props.margin||'5px 10px'
+}))`
+	margin: ${(props)=>props.margin};
 	align-items: center;
 	margin-right: 10px !important;
 	position: relative;
@@ -784,6 +837,9 @@ export const CheckBoxContainer = styled.div`
 `;
 
 export const CheckBoxLabel = styled.label`
+    height: 16px;
+    width: 100%;
+    text-align: initial;
 	position: static;
 	padding: 0 0 0 10px;
 	pointer-events: all !important;
@@ -850,21 +906,20 @@ export const TextAreaContainer = styled.div`
 `;
 
 export const TextArea = styled.textarea`
-    padding: 10px;
-    width: 100%;
-    height: 100% !important;
-    border: 1px solid #b9bdce;
+	padding: 10px;
+	width: 100%;
+	height: 100% !important;
+	border: 1px solid #b9bdce;
 	border-radius: 4px;
 	font-size: 13px;
-	outline: none !important
+	outline: none !important;
 	padding: 11px 10px 10px 10px;
 	color: #3b3b3b;
 	font-weight: 400;
 	min-width: 100px;
-    flex: 1;
-    min-height: 40px;
-    background-color: #fff;
-
+	flex: 1;
+	min-height: 40px;
+	background-color: #fff;
 `;
 export const AddMoreBlock = styled.div`
 	flex-flow: row wrap;
@@ -945,7 +1000,11 @@ export const Custombutton = styled.button.attrs((props) => ({
 	fontWeight: props.fontWeight || '500',
 	padding: props.padding || '0 16px;',
 	color: props.color || '#fff',
-	backgroundAndBorderColor: props.backgroundColor || '#05cbbf'
+	backgroundColor: props.backgroundColor || '#05cbbf',
+	borderColor: props.borderColor || '#05cbbf',
+	backgroundOnHover: props.backgroundOnHover || '#05cbbf',
+	borderOnHover: props.borderOnHover || '#05cbbf',
+	margin: props.margin
 }))`
 	text-align: center;
 	text-decoration: none;
@@ -957,13 +1016,15 @@ export const Custombutton = styled.button.attrs((props) => ({
 	white-space: nowrap;
 	cursor: pointer;
 	font-size: ${(props) => props.fontSize};
-	font-weight:${(props) => props.fontWeight};;
-	min-width:${(props) => props.minWidth};;
-	height: ${(props) => props.height};;
-	padding: ${(props) => props.padding};;
-	color: ${(props) => props.color};;
-	background-color: ${(props) => props.backgroundAndBorderColor};;
-	border-color: ${(props) => props.backgroundAndBorderColor};;
+	font-weight:${(props) => props.fontWeight};
+	min-width:${(props) => props.minWidth};
+	height: ${(props) => props.height};
+	padding: ${(props) => props.padding};
+	margin: ${(props) => props.margin};
+	color: ${(props) => props.color};
+	margin: ${(props) => props.margin};
+	background-color: ${(props) => props.backgroundColor};
+	border-color: ${(props) => props.borderColor};
 	border-width: 1px;
 	border-style: solid;
 	border-radius: 4px;
@@ -973,8 +1034,8 @@ export const Custombutton = styled.button.attrs((props) => ({
 		outline: none;
 	}
 	&:hover{
-		background-color:#00afa5;
-	border-color:#00afa5;
+		background-color:${(props) => props.backgroundOnHover};
+	    border-color:${(props) => props.borderOnHover};
 	}
 `;
 
@@ -1062,10 +1123,9 @@ export const HoizontalBlockListItems = styled.li`
 export const BlockListItemButton = styled.button`
 	height: 40px;
 	width: 100%;
-    border: 1px solid #e0e1e7;
-	1px solid;
-    min-width: 90px;
-    justify-content: center;
+	border: 1px solid #e0e1e7;
+	min-width: 90px;
+	justify-content: center;
 	border-radius: 4px;
 	font-size: 13px;
 	font-weight: 300;
@@ -1086,7 +1146,7 @@ export const BlockListItemButton = styled.button`
 	vertical-align: baseline;
 	vertical-align: middle;
 
-	&:hover{
+	&:hover {
 		background-color: #25c99f;
 	}
 

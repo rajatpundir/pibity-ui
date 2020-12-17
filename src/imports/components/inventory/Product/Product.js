@@ -154,10 +154,11 @@ class Product extends React.Component {
 		this.props.getVariables('DropShip');
 		this.props.getVariables('ProductType');
 		this.props.getVariables('ProductDiscount');
-		this.props.getVariables('PurchaseTaxRule');
+		this.props.getVariables('TaxRule');
 		this.props.getVariables('AttributeSet');
 		this.props.getVariables('Brand');
-		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('ProductCategory');
+		this.props.getVariables('TaxRule');
 		this.props.getVariables('UnitOfMeasure');
 		this.props.getVariables('CostingMethod');
 		this.props.getVariables('Location');

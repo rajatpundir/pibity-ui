@@ -35,7 +35,8 @@ class SupplierAddresses extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			list: props.list
+			list: props.list,
+			area: []
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -57,6 +58,13 @@ class SupplierAddresses extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				values.set(e.target.name, e.target.value);
+				if (e.target.name === 'postCode') {
+					const area = e.target.data.area;
+					if(area.length === 1){
+						values.set('city', area[0].variableName)
+					}
+					this.setState({ area: area });
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
@@ -69,7 +77,7 @@ class SupplierAddresses extends React.Component {
 
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
-		list.unshift(
+		list.push(
 			new Map([
 				[
 					'variableName',
@@ -146,36 +154,6 @@ class SupplierAddresses extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="8%" left="37%">
-						<TableHeaderInner>
-							<Input
-								name="city"
-								type="text"
-								value={listVariable.get('values').get('city')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="50%">
-						<TableHeaderInner>
-							<Input
-								name="state"
-								type="text"
-								value={listVariable.get('values').get('state')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="62%">
-						<TableHeaderInner>
-							<Input
-								name="postCode"
-								type="text"
-								value={listVariable.get('values').get('postCode')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
 					<TableData width="8%" left="75%">
 						<TableHeaderInner>
 							<SelectWrapper>
@@ -200,6 +178,108 @@ class SupplierAddresses extends React.Component {
 											[]
 										)
 									}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="50%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									styles={RactSelectCustomStyles}
+									value={{
+										value: listVariable.get('values').get('state'),
+										label: listVariable.get('values').get('state')
+									}}
+									onChange={(option) => {
+										this.onChange(
+											{ target: { name: 'state', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.States !== undefined ? listVariable
+											.get('values')
+											.get('country') !== '' ? (
+											this.props.variables.States
+												.filter(
+													(state) =>
+														state.values.country ===
+														listVariable.get('values').get('country')
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+										) : (
+											[]
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="62%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									styles={RactSelectCustomStyles}
+									value={{
+										value: listVariable.get('values').get('postCode'),
+										label: listVariable.get('values').get('postCode')
+									}}
+									onChange={(option) => {
+										this.onChange(
+											{ target: { name: 'postCode', value: option.value, data: option.data } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.PinCode !== undefined ? listVariable
+											.get('values')
+											.get('state') !== '' ? (
+											this.props.variables.PinCode
+												.filter(
+													(pincode) =>
+														pincode.values.state === listVariable.get('values').get('state')
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName,
+														data: variable.values
+													};
+												})
+										) : (
+											[]
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="8%" left="37%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									styles={RactSelectCustomStyles}
+									value={{
+										value: listVariable.get('values').get('city'),
+										label: listVariable.get('values').get('city')
+									}}
+									onChange={(option) => {
+										this.onChange(
+											{ target: { name: 'city', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={this.state.area}
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
@@ -280,9 +360,9 @@ class SupplierAddresses extends React.Component {
 														<SelectSpan textAlign="right">Line 2</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
-												<TableHeaders width="10%" left="37%">
+												<TableHeaders width="10%" left="75%">
 													<SelectIconContainer>
-														<SelectSpan>City / Suburb</SelectSpan>
+														<SelectSpan>Country</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 												<TableHeaders width="12%" left="50%">
@@ -295,9 +375,9 @@ class SupplierAddresses extends React.Component {
 														<SelectSpan>PostCode</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
-												<TableHeaders width="10%" left="75%">
+												<TableHeaders width="10%" left="37%">
 													<SelectIconContainer>
-														<SelectSpan>Country</SelectSpan>
+														<SelectSpan>City / Suburb</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 												<TableHeaders width="10%" left="86%">

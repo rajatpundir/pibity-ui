@@ -1,16 +1,26 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
+import styled from 'styled-components';
 import Modal from 'react-modal';
 import Icon from '@material-ui/core/Icon';
-import Switch from '@material-ui/core/Switch';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Quicklinks from './QuickLink';
 import CustoemrBlock from './CustoemrBlock';
 import SupplierBlock from './SupplierBlock';
 import ProductBlock from './ProductBlock';
-import { Container, PageWrapper, PageBody, Custombutton } from '../../../styles/inventory/Style';
+import {
+	Container,
+	PageWrapper,
+	PageBody,
+	Custombutton,
+	CheckBoxContainer,
+	CheckBoxInput,
+	CheckBoxLabel,
+	InputRowWrapper,
+	PageToolbar,
+	CheckBoxWapper,
+	CheckBoxTable
+} from '../../../styles/inventory/Style';
 import {
 	PageLabelContainer,
 	PageTitle,
@@ -21,6 +31,7 @@ import {
 	InputFieldContainer,
 	ModalHeader,
 	ModalBody,
+	ModalBodyHeading,
 	ModalFooter,
 	ModalHeaderCloseButton,
 	ModalTitle,
@@ -38,13 +49,13 @@ class Dashboard extends React.Component {
 			supplier: true,
 			customer: true,
 			product: true,
-			isOrganizationModalOpen: false,
-
+			isOrganizationModalOpen: false
 		};
 		this.handleChnage = this.handleChnage.bind(this);
-		this.openModal=this.openModal.bind(this);
-		this.onClose=this.onClose.bind(this);
-		this.onOrganizationModalClose=this.onOrganizationModalClose.bind(this);
+		this.openModal = this.openModal.bind(this);
+		this.onClose = this.onClose.bind(this);
+		this.onResetDefaults=this.onResetDefaults.bind(this);
+		this.onOrganizationModalClose = this.onOrganizationModalClose.bind(this);
 	}
 
 	getData() {
@@ -60,8 +71,8 @@ class Dashboard extends React.Component {
 		}
 	}
 
-	handleChnage(e){
-		this.setState({[e.target.name]:e.target.checked})
+	handleChnage(e) {
+		this.setState({ [e.target.name]: e.target.value });
 	}
 
 	openModal() {
@@ -77,12 +88,22 @@ class Dashboard extends React.Component {
 		this.getData();
 	}
 
+	onResetDefaults() {
+		this.setState({
+			supplier: true,
+			customer: true,
+			product: true
+		});
+	}
 
 	render() {
 		return (
 			<React.Fragment>
 				<PageLabelContainer>
-				<SelectorganizationModal isOpen={this.state.isOrganizationModalOpen} onClose={this.onOrganizationModalClose} />
+					<SelectorganizationModal
+						isOpen={this.state.isOrganizationModalOpen}
+						onClose={this.onOrganizationModalClose}
+					/>
 					<PageTitle>Overview Dashboard</PageTitle>
 					<PageSubTitleContainer>
 						<div style={{ marginTop: '8px', display: 'contents' }}>
@@ -94,11 +115,11 @@ class Dashboard extends React.Component {
 						</div>
 					</PageSubTitleContainer>
 				</PageLabelContainer>
-				<Container mediaPadding="20px 20px 0 20px" backgroundColor="#F0F2F4" >
+				<Container mediaPadding="20px 20px 0 20px" backgroundColor="#F0F2F4">
 					<PageWrapper>
 						<PageBody>
 							<Quicklinks />
-							{this.state.customer ? <CustoemrBlock  /> : undefined}
+							{this.state.customer ? <CustoemrBlock /> : undefined}
 							{this.state.supplier ? <SupplierBlock /> : undefined}
 							{this.state.product ? <ProductBlock /> : undefined}
 						</PageBody>
@@ -113,7 +134,7 @@ class Dashboard extends React.Component {
 						overlayClassName="boxed-view boxed-view--modal"
 					>
 						<ModalHeader>
-							<ModalTitle>Manage DashBoard</ModalTitle>
+							<ModalTitle>Manage Dashboard</ModalTitle>
 							<ModalHeaderCloseButton
 								onClick={(e) => {
 									this.onClose();
@@ -123,42 +144,82 @@ class Dashboard extends React.Component {
 							</ModalHeaderCloseButton>
 						</ModalHeader>{' '}
 						<ModalBody>
-							<InputFieldContainer style={{ justifyContent: 'center' }}>
-								<FormGroup>
-									<FormControlLabel
-										control={
-											<Switch
-												size="medium"
-												name="customer"
-												checked={this.state.customer}
-												onChange={(e) => this.handleChnage(e)}
-											/>
-										}
-										label="Customer"
-									/>
-									<FormControlLabel
-										control={
-											<Switch
-												size="medium"
-												name="supplier"
-												checked={this.state.supplier}
-												onChange={(e) => this.handleChnage(e)}
-											/>
-										}
-										label="Supplier"
-									/>
-									<FormControlLabel
-										control={
-											<Switch
-												size="medium"
-												name="product"
-												checked={this.state.product}
-												onChange={(e) => this.handleChnage(e)}
-											/>
-										}
-										label="Product"
-									/>
-								</FormGroup>
+							<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
+								<Custombutton
+									padding="0 10px"
+									minWidth="70px"
+									height="32px"
+									color="#3b3b3b"
+									backgroundColor="#F7FAFD"
+									borderColor="#b9bdce"
+									borderOnHover="#3b3b3b"
+									backgroundOnHover="#F7FAFD"
+									margin="0 5px"
+									onClick={this.onResetDefaults}
+								>
+									<FontAwsomeIcon className="fa fa-sliders" />
+									Reset Layout
+								</Custombutton>
+							</PageToolbar>
+
+							<InputFieldContainer>
+								<InputRowWrapper display="flex" justifyContent="center">
+									<ModalBodyHeading
+										style={{
+											textAlign: 'initial'
+										}}
+									>
+										Select widgets to display:
+									</ModalBodyHeading>
+									<CheckBoxContainer margin="10px 0">
+										<CheckBoxInput
+											type="checkbox"
+											checked={this.state.customer}
+											tabindex="55"
+											onChange={(option) => {
+												this.handleChnage({
+													target: {
+														name: 'customer',
+														value: !this.state.customer
+													}
+												});
+											}}
+										/>
+										<CheckBoxLabel>Customer</CheckBoxLabel>
+									</CheckBoxContainer>
+									<CheckBoxContainer margin="10px 0">
+										<CheckBoxInput
+											type="checkbox"
+											checked={this.state.supplier}
+											tabindex="55"
+											onChange={(option) => {
+												this.handleChnage({
+													target: {
+														name: 'supplier',
+														value: !this.state.supplier
+													}
+												});
+											}}
+										/>
+										<CheckBoxLabel>Supplier</CheckBoxLabel>
+									</CheckBoxContainer>
+									<CheckBoxContainer margin="10px 0">
+										<CheckBoxInput
+											type="checkbox"
+											checked={this.state.product}
+											tabindex="55"
+											onChange={(option) => {
+												this.handleChnage({
+													target: {
+														name: 'product',
+														value: !this.state.product
+													}
+												});
+											}}
+										/>
+										<CheckBoxLabel>Products</CheckBoxLabel>
+									</CheckBoxContainer>
+								</InputRowWrapper>
 							</InputFieldContainer>
 						</ModalBody>
 						<ModalFooter>
@@ -184,3 +245,6 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, { getVariables })(Dashboard);
+export const FontAwsomeIcon = styled.i.attrs((props)=>({
+	marginRight:props.marginRight||'5px'
+}))`margin-right: ${(props)=>props.marginRight};`;

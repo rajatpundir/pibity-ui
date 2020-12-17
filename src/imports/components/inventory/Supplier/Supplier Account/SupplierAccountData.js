@@ -9,7 +9,8 @@ import TableCell from '@material-ui/core/TableCell';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import ClearDuesModal from './ClearDuesModal';
-import { TableData, TableHeaderInner, TableRow } from '../../../../styles/inventory/Style';
+import InvoiceTransactionHistory from './InvoiceTransactionHistory';
+import { TableData, TableHeaderInner, TableRow, Custombutton } from '../../../../styles/inventory/Style';
 const styles = (theme) => ({
 	hide: {
 		border: 'none'
@@ -21,7 +22,6 @@ class SupplierAccountData extends React.Component {
 		super();
 		this.state = {
 			open: false,
-			data: props.data,
 			isModalOpen: false
 		};
 		this.onCloseModal = this.onCloseModal.bind(this);
@@ -39,14 +39,14 @@ class SupplierAccountData extends React.Component {
 	render() {
 		const { classes } = this.props;
 		return (
-			<React.Fragment key={this.state.data.variableName}>
+			<React.Fragment key={this.props.data.variableName}>
 				<ClearDuesModal
 					isOpen={this.state.isModalOpen}
 					onClose={this.onCloseModal}
 					invoice={this.props.data}
 					account={this.props.account}
 				/>
-				<TableRow onClick={this.handleRowClick} key={this.state.data.variableName}>
+				<TableRow onClick={this.handleRowClick} key={this.props.data.variableName}>
 					<TableData width="5%">
 						<IconButton
 							aria-label="expand row"
@@ -57,37 +57,50 @@ class SupplierAccountData extends React.Component {
 						</IconButton>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{this.state.data.values.invoiceDate}</TableHeaderInner>
+						<TableHeaderInner>{this.props.data.values.invoiceDate}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{this.state.data.values.invoiceNumber}</TableHeaderInner>
+						<TableHeaderInner>{this.props.data.values.invoiceNumber}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{this.state.data.values.purchaseOrder}</TableHeaderInner>
+						<TableHeaderInner>{this.props.data.values.purchaseOrder}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{this.state.data.values.total}</TableHeaderInner>
+						<TableHeaderInner>{this.props.data.values.total}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{this.state.data.values.balanceDue}</TableHeaderInner>
+						<TableHeaderInner>{this.props.data.values.balanceDue}</TableHeaderInner>
 					</TableData>
 					<TableData width="0%">
-						<TableHeaderInner>{this.state.data.values.paymentStatus}</TableHeaderInner>
+						<TableHeaderInner>{this.props.data.values.paymentStatus}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner> <button onClick={(e)=>this.onOpenClearDuesModal()}>create</button></TableHeaderInner>
+						<TableHeaderInner>
+							<Custombutton height="2.5rem" onClick={(e) => this.onOpenClearDuesModal()}>
+								Pay
+							</Custombutton>
+						</TableHeaderInner>
 					</TableData>
 				</TableRow>
-				<TableRow>
+				<TableRow
+					style={{
+						display: this.state.open ? 'table-row' : 'none',
+						transition: 'opacity 1s ease-out',
+						opacity: this.state.open ? '1' : '0'
+					}}
+				>
 					<TableCell
-						style={{ padding: 0 }}
+						style={{
+							padding: '10px',
+							backgroundColor: '#f6f9f9'
+						}}
 						colSpan={12}
 						className={clsx({
 							[classes.hide]: !this.state.open
 						})}
 					>
 						<Collapse in={this.state.open} timeout="auto" unmountOnExit>
-							<h1>Transaction History</h1>
+							<InvoiceTransactionHistory transactions={this.props.data.values.transactions} />
 						</Collapse>
 					</TableCell>
 				</TableRow>

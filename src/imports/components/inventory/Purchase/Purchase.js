@@ -108,7 +108,7 @@ class Purchase extends React.Component {
 		this.props.getVariables('Supplier');
 		this.props.getVariables('Location');
 		this.props.getVariables('PaymentTerm');
-		this.props.getVariables('PurchaseTaxRule');
+		this.props.getVariables('TaxRule');
 		this.props.getVariables('Product');
 		this.props.getVariables('UnitOfMeasure');
 	}

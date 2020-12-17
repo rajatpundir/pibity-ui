@@ -220,7 +220,7 @@ class PurchaseOrderList extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow>
+													<TableRow style={{backgroundColor: '#f3f3f387'}}>
 														<TableHeaders width="5%">
 															<SelectIconContainer>
 																<SelectSpan>

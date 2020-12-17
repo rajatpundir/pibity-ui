@@ -132,7 +132,7 @@ class PurchaseGeneralDetails extends React.Component {
 											}}
 											options={
 												this.props.variables.Supplier !== undefined ? (
-													this.props.variables.Supplier.map((variable) => {
+													this.props.variables.Supplier.filter((supplier)=>supplier.values.general.values.status ==='Active').map((variable) => {
 														return {
 															value: variable.variableName,
 															label: variable.variableName,
@@ -239,7 +239,7 @@ class PurchaseGeneralDetails extends React.Component {
 											}
 										/>
 									</SelectWrapper>
-									<InputLabel>Terms</InputLabel>
+									<InputLabel> Payment Term</InputLabel>
 								</FormControl>
 								<FormControl>
 									<Input
@@ -296,8 +296,8 @@ class PurchaseGeneralDetails extends React.Component {
 												this.onChange({ target: { name: 'taxRule', value: option.value } });
 											}}
 											options={
-												this.props.variables.PurchaseTaxRule !== undefined ? (
-													this.props.variables.PurchaseTaxRule.map((variable) => {
+												this.props.variables.TaxRule !== undefined ? (
+													this.props.variables.TaxRule.map((variable) => {
 														return {
 															value: variable.variableName,
 															label: variable.variableName

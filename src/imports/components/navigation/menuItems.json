@@ -75,8 +75,28 @@
 		},
 		{
 			"name": "Accounting",
-			"icon": "AccountBalance",
+			"icon": "account_balance",
 			"children": [
+				{
+					"name":"Unit Of Measure ",
+					"url":"/unitOfMeasure"
+				},
+				{
+					"name":"Product Categories ",
+					"url":"/productCategories"
+				},
+				{
+					"name":"Crrier Services ",
+					"url":"/carrierServices"
+				},
+				{
+					"name":"Brands",
+					"url":"/brands"
+				},
+				{
+					"name":"Accounts",
+					"url":"/accounts"
+				},
 				{
 					"name": "Invoice",
 					"url": "/Invoice"
