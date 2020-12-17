@@ -287,8 +287,8 @@ class PurchaseOrderDetails extends React.Component {
 										);
 									}}
 									options={
-										this.props.variables.PurchaseTaxRule !== undefined ? (
-											this.props.variables.PurchaseTaxRule.map((variable) => {
+										this.props.variables.TaxRule !== undefined ? (
+											this.props.variables.TaxRule.map((variable) => {
 												return { value: variable.variableName, label: variable.variableName };
 											})
 										) : (
@@ -449,8 +449,8 @@ class PurchaseOrderDetails extends React.Component {
 										);
 									}}
 									options={
-										this.props.variables.PurchaseTaxRule !== undefined ? (
-											this.props.variables.PurchaseTaxRule.map((variable) => {
+										this.props.variables.TaxRule !== undefined ? (
+											this.props.variables.TaxRule.map((variable) => {
 												return { value: variable.variableName, label: variable.variableName };
 											})
 										) : (

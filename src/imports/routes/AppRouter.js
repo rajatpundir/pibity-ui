@@ -6,8 +6,8 @@ import PublicRoute from './PublicRoute';
 import PrivateRoute from './PrivateRoute'
 import NotFound from '../components/main/NotFound';
 import Dashboard from '../components/main/Dashboard/Dashboard';
-import ManageUsers from '../components/accounts/ManageUsers';
-import Profile from '../components/accounts/UserProfile/Profile';
+import ManageUsers from '../components/userManagement/ManageUsers';
+import Profile from '../components/userManagement/UserProfile/Profile';
 import Product from '../components/inventory/Product/Product';
 import Supplier from '../components/inventory/Supplier/Supplier';
 import Purchase from '../components/inventory/Purchase/Purchase';
@@ -25,6 +25,11 @@ import CreditNote from '../components/inventory/Accounting/CreditNote/CreditNote
 import PurchaseOrder from '../components/inventory/Accounting/PurchaseOrder/PurchaseOrder'
 import PublicDashboard from '../components/main/PublicComponentAndPages/PublicDashborad'
 import DebitNote from '../components/inventory/Accounting/DebitNote/DebitNote';
+import Accounts from '../components/inventory/Accounting/Accounts/Accounts';
+import Brands from '../components/main/Reference Books/Brands';
+import CarrierServices from '../components/main/Reference Books/CarrierServices';
+import Categories from '../components/main/Reference Books/Categories';
+import UnitOfMeasure from '../components/main/Reference Books/UnitOfMeasure';
 export const AppRouter = () => (
 	<BrowserRouter>
 		<Switch>
@@ -54,7 +59,12 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/stockAdjustmentList/:variableName" render={(props) => <StockAdjustment {...props} />} />
 			<PrivateRoute exact path="/addNewUser" render={(props) => <Profile {...props} />} />
 			<PrivateRoute exact path="/debitNote" render={(props) => <DebitNote {...props} />} />
-
+			<PrivateRoute exact path="/accounts" render={(props) => <Accounts {...props} />} />
+			<PrivateRoute exact path="/brands" render={(props) => <Brands {...props} />} />
+			<PrivateRoute exact path="/carrierServices" render={(props) => <CarrierServices {...props} />} />
+			<PrivateRoute exact path="/productCategories" render={(props) => <Categories {...props} />} />
+			<PrivateRoute exact path="/unitOfMeasure" render={(props) => <UnitOfMeasure {...props} />} />
+			
 			{/* <PrivateRoute exact path="/Users" render={(props) => <UserList {...props} />} /> */}
 			<PrivateRoute exact path="/Users/:variableName" render={(props) => <Profile {...props} />} />
 			{/* <PrivateRoute exact path="/user/:userId" render={(props) => <Profile {...props} />} /> */}

@@ -44,7 +44,7 @@ class SupplierAccount extends React.Component {
 			account: {}
 		};
 		this.onChange = this.onChange.bind(this);
-		this.renderInputFields = this.renderInputFields.bind(this);
+		this.renderInvoice = this.renderInvoice.bind(this);
 	}
 
 	componentDidMount() {
@@ -84,7 +84,7 @@ class SupplierAccount extends React.Component {
 		this.setState({ [e.target.name]: e.target.value });
 	}
 
-	renderInputFields() {
+	renderInvoice() {
 		const rows = [];
 		const invoice = this.props.variables.PurchaseInvoice.filter(
 			(invoice) => invoice.values.supplier === this.props.supplier
@@ -104,8 +104,6 @@ class SupplierAccount extends React.Component {
 	}
 
 	render() {
-		console.log(this.state.invoice);
-
 		const { rowsPerPage, page } = this.state;
 		return (
 			<PageBlock>
@@ -185,7 +183,7 @@ class SupplierAccount extends React.Component {
 													</SelectIconContainer>
 												</TableHeaders>
 											</TableRow>
-											{this.renderInputFields()}
+											{this.renderInvoice()}
 										</TableBody>
 									</BodyTable>
 									{this.state.invoice.length === 0 ? (

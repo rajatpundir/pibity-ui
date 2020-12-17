@@ -69,7 +69,7 @@ class CustomerAddresses extends React.Component {
 
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
-		list.unshift(
+		list.push(
 			new Map([
 				[
 					'variableName',

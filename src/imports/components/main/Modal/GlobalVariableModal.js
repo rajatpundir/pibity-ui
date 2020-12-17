@@ -3,6 +3,8 @@ import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { createVariable } from '../../../redux/actions/variables';
+import { successMessage, customErrorMessage } from '../../main/Notification';
+
 import {
 	InputRowWrapper,
 	InputFieldContainer,
@@ -34,7 +36,7 @@ class GlobalVariableModal extends React.Component {
 		if (nextProps.typeName !== prevState.typeVariable.get('typeName')) {
 			const typeVariable = cloneDeep(prevState.typeVariable);
 			typeVariable.set('typeName', nextProps.typeName);
-			typeVariable.set('variableName', "");
+			typeVariable.set('variableName', '');
 			return {
 				...prevState,
 				typeVariable: typeVariable
@@ -50,6 +52,8 @@ class GlobalVariableModal extends React.Component {
 	}
 
 	onClose() {
+		const typeVariable = new Map([ [ 'typeName', '' ], [ 'variableName', '' ], [ 'values', new Map([]) ] ]);
+		this.setState({ typeVariable });
 		this.props.onClose();
 	}
 
@@ -102,6 +106,7 @@ class GlobalVariableModal extends React.Component {
 							this.props.createVariable(this.state.typeVariable).then((status) => {
 								if (status === 200) {
 									this.onClose();
+									successMessage(`${this.props.typeName} Added Succesfully`);
 									console.log('Created');
 								}
 							});

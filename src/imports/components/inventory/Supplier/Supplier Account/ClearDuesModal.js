@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import { executeFuntion, updatePurchaseInvoice } from '../../../../redux/actions/executeFuntion';
 import { getVariables } from '../../../../redux/actions/variables';
+import { successMessage,customErrorMessage } from '../../../main/Notification';
 import {
 	InputRowWrapper,
 	InputFieldContainer,
@@ -59,28 +60,32 @@ class ClearDuesModal extends React.Component {
 			amount: this.state.amount,
 			invoice: this.props.invoice.variableName,
 			voucher: 'Sales',
-			account: this.props.account.variableName,
-			date: '2020-12-04'
+			account: this.props.account.variableName
 		};
-		this.props.executeFuntion(args, 'createAccountTransaction').then((data) => {
-			if(data.status ===200){
-				console.log(data.transaction)
-				const request = {
-					orgId: localStorage.getItem('selectedOrganization'),
-					typeName: 'PurchaseInvoice',
-					variableName: this.props.invoice.variableName,
-					values: {
-						transactions: {
-							add: [ data.transaction.variableName ]
+		if (this.state.amount <= this.props.invoice.values.balanceDue) {
+			this.props.executeFuntion(args, 'createAccountTransaction').then((data) => {
+				if (data.status === 200) {
+					const request = {
+						orgId: localStorage.getItem('selectedOrganization'),
+						typeName: 'PurchaseInvoice',
+						variableName: this.props.invoice.variableName,
+						values: {
+							transactions: {
+								add: [ data.transaction.variableName ]
+							}
 						}
-					}
-				};
-				this.props.updatePurchaseInvoice(request)
-				this.props.getVariables('PurchaseInvoice');
-				this.onClose();
-			}
-			
-		});
+					};
+					this.props.updatePurchaseInvoice(request).then((status) => {
+						successMessage('Transaction Compleated Successfully');
+					});
+					this.props.getVariables('PurchaseInvoice');
+					this.onClose();
+				}
+			});
+		} else {
+			customErrorMessage('amount is grater than Balnce Due');
+
+		}
 	}
 
 	render() {
@@ -166,7 +171,7 @@ class ClearDuesModal extends React.Component {
 							<FormControl>
 								<Input
 									name="amountdue"
-									type="Decimal"
+									type="number"
 									placeholder=""
 									value={this.props.invoice.values.balanceDue}
 									onChange={(e) => {
@@ -182,7 +187,7 @@ class ClearDuesModal extends React.Component {
 							<FormControl>
 								<Input
 									name="amount"
-									type="Decimal"
+									type="number"
 									placeholder=""
 									value={this.state.amount}
 									onChange={(e) => {

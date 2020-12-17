@@ -66,7 +66,7 @@ class CustomerContact extends React.Component {
 
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
-		list.unshift(
+		list.push(
 			new Map([
 				[ 'variableName',String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1 ) ],
 				[

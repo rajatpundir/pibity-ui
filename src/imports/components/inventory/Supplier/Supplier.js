@@ -79,9 +79,13 @@ class Supplier extends React.Component {
 					'values',
 					new Map([
 						[ 'name', '' ],
+						['code',''],
 						[ 'balance', 0 ],
 						[ 'openingBalance', 0 ],
-						[ 'accountType', 'Creditor' ]
+						['status',"Active"],
+						[ 'accountType', 'Creditor' ],
+						['accountCategory','LIABILITY'],
+						[ 'description', 'Supplier Account' ]
 					])
 				]
 			]),
@@ -122,11 +126,14 @@ class Supplier extends React.Component {
 	getData() {
 		this.props.clearErrors();
 		this.props.getVariables('Country');
+		this.props.getVariables('States');
+		this.props.getVariables('PinCode');
+		this.props.getVariables('Area');
 		this.props.getVariables('Currency');
 		this.props.getVariables('CarrierService');
 		this.props.getVariables('PaymentTerm');
 		this.props.getVariables('Status');
-		this.props.getVariables('SalesTaxRule');
+		this.props.getVariables('TaxRule');
 		this.props.getVariables('AttributeSet');
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
