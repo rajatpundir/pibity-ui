@@ -3,9 +3,8 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
-import { CustomNotification } from '../../main/Notification';
-import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
-import GlobalVariableModal from '../../main/Modal/GlobalVariableModal'
+import { CustomNotification } from '../Notification';
+import SelectorganizationModal from '../Modal/SelectorganizationModal';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
 import {
 	Container,
@@ -29,25 +28,30 @@ import {
 	TableData,
 	TableHeaderInner,
 	TableFieldContainer,
-	Custombutton
+	Custombutton,
+	StatusSpan,
+	CheckBoxInput,
+	CheckBoxLabel,
+	CheckBoxContainer,
+	StatusBackgroundColor
 } from '../../../styles/inventory/Style';
+import TaxRuleModal from '../Modal/TaxRuleModal';
 
-class Brands extends React.Component {
+class TaxRule extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			brands: [],
+			taxRules: [],
 			isOpen: false,
-			isCreateBrandModalOpen: false
+			isCreateTaxRuleModalOpen: false,
+			activeTaxRules: false,
+			variableName: ''
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
-		this.onCloseCreateBrandModal = this.onCloseCreateBrandModal.bind(this);
-		this.onOpenCreateBrandModal = this.onOpenCreateBrandModal.bind(this);
-	}
-
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		this.onUpdateTaxRule = this.onUpdateTaxRule.bind(this);
+		this.onCloseCreateTaxRuleModal = this.onCloseCreateTaxRuleModal.bind(this);
+		this.onOpenCreateTaxRuleModal = this.onOpenCreateTaxRuleModal.bind(this);
 	}
 
 	componentDidMount() {
@@ -55,43 +59,49 @@ class Brands extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('Brand');
+			this.props.getVariables('TaxRule');
+			this.props.getVariables('TaxRuleType');
+			this.props.getVariables('Status');
 		}
 	}
 
 	onClose() {
-		this.setState({ isOpen: false });
+		this.setState({
+			isOpen: false,
+			variableName: ''
+		});
 		this.props.clearErrors();
-		this.props.getVariables('Brand');
+		this.props.getVariables('TaxRule');
 	}
 
 	onRefresh() {
-		this.props.getVariables('Brand');
+		this.props.getVariables('TaxRule');
 	}
 
-	onOpenCreateBrandModal() {
-		this.setState({ isCreateBrandModalOpen: true });
-	}
-
-	onCloseCreateBrandModal() {
-		this.setState({ isCreateBrandModalOpen: false });
+	onUpdateTaxRule(e, variableName) {
+		this.setState({ variableName: variableName }, () => {
+			this.onOpenCreateTaxRuleModal();
+		});
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			brands:
+			taxRules:
 				nextProps.variables !== undefined
-					? nextProps.variables.Brand !== undefined ? nextProps.variables.Brand : []
+					? nextProps.variables.TaxRule !== undefined ? nextProps.variables.TaxRule : []
 					: []
 		};
 	}
 
-	renderBrands() {
+	renderTaxRules() {
 		const rows = [];
-		this.state.brands.forEach((brand) => {
+		const list = this.state.activeTaxRules
+			? this.state.taxRules.filter((taxRule) => taxRule.values.status === 'Active')
+			: this.state.taxRules;
+		list.forEach((taxRule) => {
 			rows.push(
-				<TableRow key={brand.variableName}>
+				<TableRow key={taxRule.variableName}>
 					<TableData left="0px" />
 					<TableData>
 						<TableHeaderInner
@@ -100,13 +110,89 @@ class Brands extends React.Component {
 								textAlign: 'initial',
 								marginLeft: '5px'
 							}}
+							onClick={(e) => this.onUpdateTaxRule(e, taxRule.variableName)}
 						>
-							{brand.variableName}
+							{taxRule.variableName}
 						</TableHeaderInner>
+					</TableData>
+					<TableData>
+						<TableHeaderInner
+							overflow="hidden"
+							style={{
+								textAlign: 'initial',
+								marginLeft: '5px'
+							}}
+						>
+							{taxRule.values.taxPercentage}
+						</TableHeaderInner>
+					</TableData>
+					<TableData>
+						<TableHeaderInner
+							overflow="hidden"
+							style={{
+								textAlign: 'initial',
+								marginLeft: '5px'
+							}}
+						>
+							{taxRule.values.taxType}
+						</TableHeaderInner>
+					</TableData>
+					<TableData>
+						<TableHeaderInner
+							overflow="hidden"
+							style={{
+								textAlign: 'initial',
+								marginLeft: '5px'
+							}}
+						>
+							<CheckBoxContainer>
+								<CheckBoxInput
+									type="checkbox"
+									checked={taxRule.values.isTaxForSale}
+									tabindex="55"
+									readOnly
+								/>
+							</CheckBoxContainer>
+						</TableHeaderInner>
+					</TableData>
+					<TableData>
+						<TableHeaderInner
+							overflow="hidden"
+							style={{
+								textAlign: 'initial',
+								marginLeft: '5px'
+							}}
+						>
+							<CheckBoxContainer>
+								<CheckBoxInput
+									type="checkbox"
+									checked={taxRule.values.isTaxForPurchase}
+									tabindex="55"
+									readOnly
+								/>
+							</CheckBoxContainer>
+						</TableHeaderInner>
+					</TableData>
+					<TableData>
+						<StatusSpan
+							style={{
+								textAlign: 'initial',
+								marginLeft: '5px'
+							}}
+							backgroundColor={
+								taxRule.values.status === 'Active' ? (
+									StatusBackgroundColor.active
+								) : (
+									StatusBackgroundColor.depricated
+								)
+							}
+						>
+							{taxRule.values.status}
+						</StatusSpan>
 					</TableData>
 					<TableData left="0px">
 						<i
-							name={brand.variableName}
+							name={taxRule.variableName}
 							className="large material-icons"
 							// onClick={(e) => this.onRemoveKey(e,)}
 						>
@@ -119,21 +205,32 @@ class Brands extends React.Component {
 		return rows;
 	}
 
+	onChange(e) {
+		this.setState({ [e.target.name]: e.target.value });
+	}
+
+	onOpenCreateTaxRuleModal() {
+		this.setState({ isCreateTaxRuleModalOpen: true });
+	}
+
+	onCloseCreateTaxRuleModal() {
+		this.setState({ isCreateTaxRuleModalOpen: false });
+	}
 	render() {
 		return (
 			<Container mediaPadding="0" backgroundColor="white">
 				<CustomNotification limit={3} />
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onRefresh} />
-                <GlobalVariableModal
-					onClose={this.onCloseCreateBrandModal}
-					isOpen={this.state.isCreateBrandModalOpen}
-					typeName='Brand'
+				<TaxRuleModal
+					onClose={this.onCloseCreateTaxRuleModal}
+					isOpen={this.state.isCreateTaxRuleModalOpen}
+					variableName={this.state.variableName}
 				/>
 				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarItems>
-								<LeftItemH1>Brands</LeftItemH1>
+								<LeftItemH1>taxRules</LeftItemH1>
 							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
@@ -142,10 +239,10 @@ class Brands extends React.Component {
 									padding="0 10px"
 									minWidth="70px"
 									height="32px"
-									onClick={this.onOpenCreateBrandModal}
+									onClick={this.onOpenCreateTaxRuleModal}
 								>
 									<FontAwsomeIcon className="fa fa-plus" />
-									Add Brand
+									Add Tax Rule
 								</Custombutton>
 								<Custombutton
 									padding="0 10px"
@@ -163,6 +260,24 @@ class Brands extends React.Component {
 									Refresh
 								</Custombutton>
 							</PageBarAlign>
+							<PageBarAlign padding="10px 20px" float="left">
+								<CheckBoxContainer>
+									<CheckBoxInput
+										type="checkbox"
+										checked={this.state.activeTaxRules}
+										tabindex="55"
+										onChange={(option) => {
+											this.onChange({
+												target: {
+													name: 'activeTaxRules',
+													value: !this.state.activeTaxRules
+												}
+											});
+										}}
+									/>
+									<CheckBoxLabel>Only active taxRules</CheckBoxLabel>
+								</CheckBoxContainer>
+							</PageBarAlign>
 						</PageToolbar>
 						<InputBody borderTop="0" padding="0">
 							<RoundedBlock border="none">
@@ -171,15 +286,60 @@ class Brands extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow style={{backgroundColor: '#f3f3f387'}}>
+													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%" />
-														<TableHeaders width="90%">
+														<TableHeaders width="15%">
 															<SelectIconContainer
 																style={{
 																	justifyContent: 'initial'
 																}}
 															>
 																<SelectSpan> Name</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="15%">
+															<SelectIconContainer
+																style={{
+																	justifyContent: 'initial'
+																}}
+															>
+																<SelectSpan>Tax Percentage</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="15%">
+															<SelectIconContainer
+																style={{
+																	justifyContent: 'initial'
+																}}
+															>
+																<SelectSpan>Tax Type</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="15%">
+															<SelectIconContainer
+																style={{
+																	justifyContent: 'initial'
+																}}
+															>
+																<SelectSpan>is TaxForSale</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="15%">
+															<SelectIconContainer
+																style={{
+																	justifyContent: 'initial'
+																}}
+															>
+																<SelectSpan>is TaxForPurchase</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="15%">
+															<SelectIconContainer
+															// style={{
+															// 	justifyContent: 'initial'
+															// }}
+															>
+																<SelectSpan>Status</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="5%">
@@ -192,13 +352,13 @@ class Brands extends React.Component {
 															</SelectIconContainer>
 														</TableHeaders>
 													</TableRow>
-													{this.renderBrands()}
+													{this.renderTaxRules()}
 												</TableBody>
 											</BodyTable>
-											{this.state.brands.length === 0 ? (
+											{this.state.taxRules.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Brands</EmptyRowTag>
+													<EmptyRowTag>No PaymentTerm</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined
@@ -221,6 +381,6 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(Brands);
+export default connect(mapStateToProps, { clearErrors, getVariables })(TaxRule);
 
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

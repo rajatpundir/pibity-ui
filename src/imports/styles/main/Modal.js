@@ -7,7 +7,10 @@ export {
 	Input,
 	InputRowWrapper,
 	Required,
-	TextAreaInput
+	TextAreaInput,
+	CheckBoxInput,
+	CheckBoxLabel,
+	CheckBoxContainer,
 } from '../inventory/Style';
 
 export const ModalCustomStyles = {

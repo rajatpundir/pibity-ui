@@ -84,9 +84,9 @@ class Customer extends React.Component {
 						[ 'name', '' ],
 						[ 'balance', 0 ],
 						[ 'openingBalance', 0 ],
-						['status',"Active"],
-						['accountCategory','ASSET'],
-						[ 'description', 'Supplier Account'],
+						[ 'status', 'Active' ],
+						[ 'accountCategory', 'ASSET' ],
+						[ 'description', 'Supplier Account' ],
 						[ 'accountType', 'Debtor' ]
 					])
 				]
@@ -248,7 +248,14 @@ class Customer extends React.Component {
 							<SaveButton
 								onClick={(e) => {
 									if (this.props.match.params.variableName) {
-										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+										this.props
+											.updateVariable(this.state.prevVariable, this.state.variable)
+											.then((status) => {
+												if (status === 200) {
+													this.onClose(e);
+													successMessage(`Updated Succesfully`);
+												}
+											});
 									} else {
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));

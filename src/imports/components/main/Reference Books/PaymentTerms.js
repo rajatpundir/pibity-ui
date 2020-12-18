@@ -3,9 +3,8 @@ import { connect } from 'react-redux';
 import styled from 'styled-components';
 import { clearErrors } from '../../../redux/actions/errors';
 import { getVariables } from '../../../redux/actions/variables';
-import { CustomNotification } from '../../main/Notification';
-import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
-import GlobalVariableModal from '../../main/Modal/GlobalVariableModal'
+import { CustomNotification } from '../Notification';
+import SelectorganizationModal from '../Modal/SelectorganizationModal';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
 import {
 	Container,
@@ -29,25 +28,30 @@ import {
 	TableData,
 	TableHeaderInner,
 	TableFieldContainer,
-	Custombutton
+	Custombutton,
+	StatusSpan,
+	CheckBoxInput,
+	CheckBoxLabel,
+	CheckBoxContainer,
+	StatusBackgroundColor
 } from '../../../styles/inventory/Style';
+import PaymentTermModal from '../Modal/PaymentTermModal';
 
-class Brands extends React.Component {
+class PaymentTerms extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			brands: [],
+			paymentTerms: [],
 			isOpen: false,
-			isCreateBrandModalOpen: false
+			isCreatePaymentTermModalOpen: false,
+			activePaymentTerms: false,
+			variableName: ''
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
-		this.onCloseCreateBrandModal = this.onCloseCreateBrandModal.bind(this);
-		this.onOpenCreateBrandModal = this.onOpenCreateBrandModal.bind(this);
-	}
-
-	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		this.onUpdatePaymentTerm = this.onUpdatePaymentTerm.bind(this);
+		this.onCloseCreatePaymentTermModal = this.onCloseCreatePaymentTermModal.bind(this);
+		this.onOpenCreatePaymentTermModal = this.onOpenCreatePaymentTermModal.bind(this);
 	}
 
 	componentDidMount() {
@@ -55,43 +59,48 @@ class Brands extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('Brand');
+			this.props.getVariables('PaymentTerm');
+			this.props.getVariables('Status');
 		}
 	}
 
 	onClose() {
-		this.setState({ isOpen: false });
+		this.setState({
+			isOpen: false,
+			variableName: ''
+		});
 		this.props.clearErrors();
-		this.props.getVariables('Brand');
+		this.props.getVariables('PaymentTerm');
 	}
 
 	onRefresh() {
-		this.props.getVariables('Brand');
+		this.props.getVariables('PaymentTerm');
 	}
 
-	onOpenCreateBrandModal() {
-		this.setState({ isCreateBrandModalOpen: true });
-	}
-
-	onCloseCreateBrandModal() {
-		this.setState({ isCreateBrandModalOpen: false });
+	onUpdatePaymentTerm(e, variableName) {
+		this.setState({ variableName: variableName }, () => {
+			this.onOpenCreatePaymentTermModal();
+		});
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			brands:
+			paymentTerms:
 				nextProps.variables !== undefined
-					? nextProps.variables.Brand !== undefined ? nextProps.variables.Brand : []
+					? nextProps.variables.PaymentTerm !== undefined ? nextProps.variables.PaymentTerm : []
 					: []
 		};
 	}
 
-	renderBrands() {
+	renderPaymentTerms() {
 		const rows = [];
-		this.state.brands.forEach((brand) => {
+		const list = this.state.activePaymentTerms
+			? this.state.paymentTerms.filter((paymentTerm) => paymentTerm.values.status === 'Active')
+			: this.state.paymentTerms;
+		list.forEach((paymentTerm,index) => {
 			rows.push(
-				<TableRow key={brand.variableName}>
+				<TableRow key={index}>
 					<TableData left="0px" />
 					<TableData>
 						<TableHeaderInner
@@ -100,13 +109,42 @@ class Brands extends React.Component {
 								textAlign: 'initial',
 								marginLeft: '5px'
 							}}
+							onClick={(e) => this.onUpdatePaymentTerm(e, paymentTerm.variableName)}
 						>
-							{brand.variableName}
+							{paymentTerm.variableName}
 						</TableHeaderInner>
+					</TableData>
+					<TableData>
+						<TableHeaderInner
+							overflow="hidden"
+							style={{
+								textAlign: 'initial',
+								marginLeft: '5px'
+							}}
+						>
+							{paymentTerm.values.days}
+						</TableHeaderInner>
+					</TableData>
+					<TableData>
+						<StatusSpan
+							style={{
+								textAlign: 'initial',
+								marginLeft: '5px'
+							}}
+							backgroundColor={
+								paymentTerm.values.status === 'Active' ? (
+									StatusBackgroundColor.active
+								) : (
+									StatusBackgroundColor.depricated
+								)
+							}
+						>
+							{paymentTerm.values.status}
+						</StatusSpan>
 					</TableData>
 					<TableData left="0px">
 						<i
-							name={brand.variableName}
+							name={paymentTerm.variableName}
 							className="large material-icons"
 							// onClick={(e) => this.onRemoveKey(e,)}
 						>
@@ -119,21 +157,32 @@ class Brands extends React.Component {
 		return rows;
 	}
 
+	onChange(e) {
+		this.setState({ [e.target.name]: e.target.value });
+	}
+
+	onOpenCreatePaymentTermModal() {
+		this.setState({ isCreatePaymentTermModalOpen: true });
+	}
+
+	onCloseCreatePaymentTermModal() {
+		this.setState({ isCreatePaymentTermModalOpen: false });
+	}
 	render() {
 		return (
 			<Container mediaPadding="0" backgroundColor="white">
 				<CustomNotification limit={3} />
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onRefresh} />
-                <GlobalVariableModal
-					onClose={this.onCloseCreateBrandModal}
-					isOpen={this.state.isCreateBrandModalOpen}
-					typeName='Brand'
+				<PaymentTermModal
+					onClose={this.onCloseCreatePaymentTermModal}
+					isOpen={this.state.isCreatePaymentTermModalOpen}
+					variableName={this.state.variableName}
 				/>
 				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarItems>
-								<LeftItemH1>Brands</LeftItemH1>
+								<LeftItemH1>PaymentTerms</LeftItemH1>
 							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
@@ -142,10 +191,10 @@ class Brands extends React.Component {
 									padding="0 10px"
 									minWidth="70px"
 									height="32px"
-									onClick={this.onOpenCreateBrandModal}
+									onClick={this.onOpenCreatePaymentTermModal}
 								>
 									<FontAwsomeIcon className="fa fa-plus" />
-									Add Brand
+									Add Payment Term
 								</Custombutton>
 								<Custombutton
 									padding="0 10px"
@@ -163,6 +212,24 @@ class Brands extends React.Component {
 									Refresh
 								</Custombutton>
 							</PageBarAlign>
+							<PageBarAlign padding="10px 20px" float="left">
+								<CheckBoxContainer>
+									<CheckBoxInput
+										type="checkbox"
+										checked={this.state.activePaymentTerms}
+										tabindex="55"
+										onChange={(option) => {
+											this.onChange({
+												target: {
+													name: 'activePaymentTerms',
+													value: !this.state.activePaymentTerms
+												}
+											});
+										}}
+									/>
+									<CheckBoxLabel>Only active PaymentTerms</CheckBoxLabel>
+								</CheckBoxContainer>
+							</PageBarAlign>
 						</PageToolbar>
 						<InputBody borderTop="0" padding="0">
 							<RoundedBlock border="none">
@@ -171,15 +238,33 @@ class Brands extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow style={{backgroundColor: '#f3f3f387'}}>
+													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%" />
-														<TableHeaders width="90%">
+														<TableHeaders width="20%">
 															<SelectIconContainer
 																style={{
 																	justifyContent: 'initial'
 																}}
 															>
-																<SelectSpan>Brand Name</SelectSpan>
+																<SelectSpan> Name</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="20%">
+															<SelectIconContainer
+																style={{
+																	justifyContent: 'initial'
+																}}
+															>
+																<SelectSpan>Duration(Days)</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="20%">
+															<SelectIconContainer
+															// style={{
+															// 	justifyContent: 'initial'
+															// }}
+															>
+																<SelectSpan>Status</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="5%">
@@ -192,13 +277,13 @@ class Brands extends React.Component {
 															</SelectIconContainer>
 														</TableHeaders>
 													</TableRow>
-													{this.renderBrands()}
+													{this.renderPaymentTerms()}
 												</TableBody>
 											</BodyTable>
-											{this.state.brands.length === 0 ? (
+											{this.state.paymentTerms.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Brands</EmptyRowTag>
+													<EmptyRowTag>No PaymentTerm</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined
@@ -221,6 +306,6 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(Brands);
+export default connect(mapStateToProps, { clearErrors, getVariables })(PaymentTerms);
 
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

@@ -107,7 +107,6 @@ class GlobalVariableModal extends React.Component {
 								if (status === 200) {
 									this.onClose();
 									successMessage(`${this.props.typeName} Added Succesfully`);
-									console.log('Created');
 								}
 							});
 						}}

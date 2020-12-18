@@ -59,6 +59,18 @@ class QuickLinks extends React.Component {
 								{this.props.variables.Customer !== undefined ? this.props.variables.Customer.length : 0}
 							</ItemData>
 						</Item>
+						<Item>
+							<ItemHeading>Accounts</ItemHeading>
+							<ItemData>
+								{this.props.variables.Account !== undefined ? this.props.variables.Account.length : 0}
+							</ItemData>
+						</Item>
+						<Item>
+							<ItemHeading>Purchase Orders</ItemHeading>
+							<ItemData>
+								{this.props.variables.PurchaseOrder !== undefined ? this.props.variables.PurchaseOrder.length : 0}
+							</ItemData>
+						</Item>
 					</ItemBlock>
 				</ItemContainer>
                 </Collapse>

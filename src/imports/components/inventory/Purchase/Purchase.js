@@ -57,7 +57,7 @@ class Purchase extends React.Component {
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
 										[ 'date', '' ],
-										['account',"1"],
+										[ 'account', '1' ],
 										[ 'contact', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
 										[ 'stockOrInvoice', 'Stock First' ],
 										[ 'phone', '' ],
@@ -65,8 +65,14 @@ class Purchase extends React.Component {
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
-										[ 'vendorAddressLine1', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
-										[ 'vendorAddressLine2', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
+										[
+											'vendorAddressLine1',
+											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
+										],
+										[
+											'vendorAddressLine2',
+											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
+										],
 										[ 'requiredBy', '' ],
 										[ 'comments', '' ]
 									])
@@ -90,7 +96,7 @@ class Purchase extends React.Component {
 									]
 								])
 							]
-						],
+						]
 					])
 				]
 			]),
@@ -118,8 +124,7 @@ class Purchase extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			if (this.props.match.params.variableName) {
-				this.props
-					.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+				this.props.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName);
 			}
 			this.getData();
 		}
@@ -128,8 +133,7 @@ class Purchase extends React.Component {
 	onClose() {
 		this.setState({ isOpen: false });
 		if (this.props.match.params.variableName) {
-			this.props
-				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+			this.props.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName);
 		}
 		this.getData();
 	}
@@ -221,7 +225,14 @@ class Purchase extends React.Component {
 							<SaveButton
 								onClick={(e) => {
 									if (this.props.match.params.variableName) {
-										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+										this.props
+											.updateVariable(this.state.prevVariable, this.state.variable)
+											.then((status) => {
+												if (status === 200) {
+													this.onClose(e);
+													successMessage(`Updated Succesfully`);
+												}
+											});
 									} else {
 										new Promise((resolve) => {
 											resolve(
@@ -317,16 +328,8 @@ class Purchase extends React.Component {
 								updateInvoice={this.updateOrder}
 							/>
 						)}
-						{this.state.visibleSection === 'stockReceived' && (
-							<PurchaseStockReceived
-								
-							/>
-						)}
-						{this.state.visibleSection === 'invoice' && (
-							<PurchaseInvoiceDetails
-							
-							/>
-						)}
+						{this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />}
+						{this.state.visibleSection === 'invoice' && <PurchaseInvoiceDetails />}
 					</PageBody>
 				</PageWrapper>
 			</Container>

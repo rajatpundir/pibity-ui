@@ -17,9 +17,7 @@ import {
 	CheckBoxInput,
 	CheckBoxLabel,
 	InputRowWrapper,
-	PageToolbar,
-	CheckBoxWapper,
-	CheckBoxTable
+	PageToolbar
 } from '../../../styles/inventory/Style';
 import {
 	PageLabelContainer,
@@ -62,6 +60,9 @@ class Dashboard extends React.Component {
 		this.props.getVariables('Customer');
 		this.props.getVariables('Product');
 		this.props.getVariables('Supplier');
+		this.props.getVariables('Account');
+		this.props.getVariables('PurchaseOrder');
+
 	}
 	componentDidMount() {
 		if (this.props.auth.selectedOrganization === null) {

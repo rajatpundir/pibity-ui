@@ -30,6 +30,9 @@ import Brands from '../components/main/Reference Books/Brands';
 import CarrierServices from '../components/main/Reference Books/CarrierServices';
 import Categories from '../components/main/Reference Books/Categories';
 import UnitOfMeasure from '../components/main/Reference Books/UnitOfMeasure';
+import PaymentTerms from '../components/main/Reference Books/PaymentTerms';
+import TaxRules from '../components/main/Reference Books/TaxRules';
+
 export const AppRouter = () => (
 	<BrowserRouter>
 		<Switch>
@@ -64,7 +67,9 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/carrierServices" render={(props) => <CarrierServices {...props} />} />
 			<PrivateRoute exact path="/productCategories" render={(props) => <Categories {...props} />} />
 			<PrivateRoute exact path="/unitOfMeasure" render={(props) => <UnitOfMeasure {...props} />} />
-			
+			<PrivateRoute exact path="/paymentTerms" render={(props) => <PaymentTerms {...props} />} />
+			<PrivateRoute exact path="/taxRules" render={(props) => <TaxRules {...props} />} />
+
 			{/* <PrivateRoute exact path="/Users" render={(props) => <UserList {...props} />} /> */}
 			<PrivateRoute exact path="/Users/:variableName" render={(props) => <Profile {...props} />} />
 			{/* <PrivateRoute exact path="/user/:userId" render={(props) => <Profile {...props} />} /> */}

@@ -118,8 +118,6 @@ class Product extends React.Component {
 		// this.customErrorMessage = this.customErrorMessage.bind(this);
 	}
 
-	
-
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.match.params.variableName && nextProps.variables.Product) {
 			const variable = nextProps.variables.Product.filter(
@@ -171,8 +169,7 @@ class Product extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			if (this.props.match.params.variableName) {
-				this.props
-					.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+				this.props.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName);
 			}
 			this.getData();
 		}
@@ -181,8 +178,7 @@ class Product extends React.Component {
 	onClose() {
 		this.setState({ isOpen: false });
 		if (this.props.match.params.variableName) {
-			this.props
-				.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName)
+			this.props.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName);
 		}
 		this.getData();
 	}
@@ -267,7 +263,14 @@ class Product extends React.Component {
 							<SaveButton
 								onClick={(e) => {
 									if (this.props.match.params.variableName) {
-										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+										this.props
+											.updateVariable(this.state.prevVariable, this.state.variable)
+											.then((status) => {
+												if (status === 200) {
+													this.onClose(e);
+													successMessage(`Updated Succesfully`);
+												}
+											});
 									} else {
 										new Promise((resolve) => {
 											resolve(

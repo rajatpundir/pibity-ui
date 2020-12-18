@@ -24,10 +24,6 @@
 				{
 					"name": "Stock Adjustment Record",
 					"url": "/stockAdjustmentList"
-				},
-				{
-					"name": "QuickBooks",
-					"url": "/expence"
 				}
 			]
 		},
@@ -77,6 +73,14 @@
 			"name": "Accounting",
 			"icon": "account_balance",
 			"children": [
+				{
+					"name":"Tax Rules ",
+					"url":"/taxRules"
+				},
+				{
+					"name":"Payment Terms ",
+					"url":"/paymentTerms"
+				},
 				{
 					"name":"Unit Of Measure ",
 					"url":"/unitOfMeasure"

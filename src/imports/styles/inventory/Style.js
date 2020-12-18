@@ -852,7 +852,7 @@ export const CheckBoxLabel = styled.label`
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
+	/* z-index: 20; */
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 `;
