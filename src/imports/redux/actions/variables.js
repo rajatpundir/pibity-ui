@@ -300,6 +300,5 @@ function computeUpdates(prevValues: Map, newValues: Map) {
 			map.set(key, newValues.get(key));
 		}
 	}
-	console.log(map);
 	return map;
 }

@@ -2,14 +2,19 @@ import styled from 'styled-components';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
-import { StatusSpan, StatusBackgroundColor } from '../../../styles/inventory/Style';
 // import clsx from 'clsx';
 // import Collapse from '@material-ui/core/Collapse';
 // import IconButton from '@material-ui/core/IconButton';
 // import TableCell from '@material-ui/core/TableCell';
 // import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 // import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-
+import {
+	StatusSpan,
+	StatusBackgroundColor,
+	TableData,
+	TableHeaderInner,
+	TableRow
+} from '../../../styles/inventory/Style';
 const styles = (theme) => ({
 	hide: {
 		border: 'none'
@@ -38,71 +43,101 @@ class CollapseData extends React.Component {
 							{this.state.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 						</IconButton> */}
 					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							<Link to={'/supplier/' + encodeURIComponent(this.state.data.variableName)}>
-								{this.state.data.variableName}
-							</Link>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							{this.state.data.values.contacts[0].values.name}
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							<Anchor href={'tel:' + this.state.data.values.contacts[0].values.phone}>
-								{this.state.data.values.contacts[0].values.phone}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							<Anchor href={'mailto:' + this.state.data.values.contacts[0].values.email} target="_blank">
-								{this.state.data.values.contacts[0].values.email}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							<Anchor href={this.state.data.values.contacts[0].values.website} target="_blank">
-								{this.state.data.values.contacts[0].values.website}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="20%">
-						<TableHeaderInner overflow="hidden">
-							{this.state.data.values.addresses[0] !== undefined ? (
-								this.state.data.values.addresses[0].values.line1 || 'no address found'
-							) : (
-								'no address found'
-							)}
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">{this.props.totalDue}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							<StatusSpan
-								backgroundColor={
-									this.state.data.values.general.values.status === 'Active' ? (
-										StatusBackgroundColor.active
-									) : (
-										StatusBackgroundColor.depricated
-									)
-								}
-							>
-								{this.state.data.values.general.values.status}
-							</StatusSpan>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							{this.state.data.values.general.values.onCreditHold === false ? 'NO' : 'Yes'}
-						</TableHeaderInner>
-					</TableData>
+					{this.props.layout.get('name') ? (
+						<TableData width="10%">
+							<TableHeaderInner overflow="hidden">
+								<Link to={'/supplier/' + encodeURIComponent(this.state.data.variableName)}>
+									{this.state.data.variableName}
+								</Link>
+							</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
+					{this.props.layout.get('contact') ? (
+						<TableData width="10%">
+							<TableHeaderInner overflow="hidden">
+								{this.state.data.values.contacts[0].values.name}
+							</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
+					{this.props.layout.get('phone') ? (
+						<TableData width="10%">
+							<TableHeaderInner overflow="hidden">
+								<Anchor href={'tel:' + this.state.data.values.contacts[0].values.phone}>
+									{this.state.data.values.contacts[0].values.phone}
+								</Anchor>
+							</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
+					{this.props.layout.get('email') ? (
+						<TableData width="10%">
+							<TableHeaderInner overflow="hidden">
+								<Anchor
+									href={'mailto:' + this.state.data.values.contacts[0].values.email}
+									target="_blank"
+								>
+									{this.state.data.values.contacts[0].values.email}
+								</Anchor>
+							</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
+					{this.props.layout.get('website') ? (
+						<TableData width="10%">
+							<TableHeaderInner overflow="hidden">
+								<Anchor href={this.state.data.values.contacts[0].values.website} target="_blank">
+									{this.state.data.values.contacts[0].values.website}
+								</Anchor>
+							</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
+					{this.props.layout.get('address') ? (
+						<TableData width="20%">
+							<TableHeaderInner overflow="hidden">
+								{this.state.data.values.addresses[0] !== undefined ? (
+									this.state.data.values.addresses[0].values.line1 || 'no address found'
+								) : (
+									'no address found'
+								)}
+							</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
+					{this.props.layout.get('due') ? (
+						<TableData width="10%">
+							<TableHeaderInner overflow="hidden">{this.props.totalDue}</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
+					{this.props.layout.get('status') ? (
+						<TableData width="10%">
+							<TableHeaderInner overflow="hidden">
+								<StatusSpan
+									backgroundColor={
+										this.state.data.values.general.values.status === 'Active' ? (
+											StatusBackgroundColor.active
+										) : (
+											StatusBackgroundColor.depricated
+										)
+									}
+								>
+									{this.state.data.values.general.values.status}
+								</StatusSpan>
+							</TableHeaderInner>
+						</TableData>
+					) : (
+						undefined
+					)}
 				</TableRow>
 
 				{/* <TableRow>
@@ -125,42 +160,6 @@ class CollapseData extends React.Component {
 
 export default withStyles(styles)(CollapseData);
 
-const TableRow = styled.tr`
-	cursor: pointer;
-	&:hover {
-		background-color: #f0f3fa;
-	}
-`;
-
-const TableData = styled.td`
-	font-family: inherit;
-	vertical-align: middle;
-	border-bottom: 1px solid #e7e8ec;
-	overflow: hidden;
-	padding: 5px 0;
-	height: 60px;
-	float: none !important;
-`;
-
-const TableHeaderInner = styled.div`
-	width: 100%;
-	padding: 0 3px;
-	color: #41454e;
-	vertical-align: middle;
-	font-size: 13px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	text-align: center;
-`;
-const Span = styled.span`
-	background-color: #d6f3e3;
-	margin-right: 0 !important;
-	padding: 4px 10px 4px 10px;
-	border-radius: 3px;
-	display: inline-block;
-	font-weight: 500;
-`;
 
 const Anchor = styled.a`
 	text-decoration: none;

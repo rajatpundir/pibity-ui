@@ -35,6 +35,15 @@ class SupplierListData extends React.Component {
 		return (
 			<React.Fragment key={this.state.data.variableName}>
 				<TableRow onClick={this.handleRowClick} key={this.state.data.variableName}>
+				<TableData width="5%">
+						{/* <IconButton
+							aria-label="expand row"
+							size="small"
+							onClick={() => this.setState({ open: !this.state.open })}
+						>
+							{this.state.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+						</IconButton> */}
+					</TableData>
 					{this.props.layout.get('name') ? (
 						<TableData width="10%">
 							<TableHeaderInner overflow="hidden">

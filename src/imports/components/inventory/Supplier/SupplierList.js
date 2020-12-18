@@ -12,7 +12,6 @@ import {
 	InputFieldContainer,
 	ModalHeader,
 	ModalBody,
-	ModalBodyHeading,
 	ModalFooter,
 	ModalHeaderCloseButton,
 	ModalTitle,
@@ -35,11 +34,11 @@ import {
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
 	HeaderBodyContainer,
 	HeaderBody,
 	BodyTable,
 	TableBody,
+	SelectSpanInner,
 	TableRow,
 	TableHeaders,
 	CheckBoxInput,
@@ -76,6 +75,7 @@ class SupplierList extends React.Component {
 			])
 		};
 		this.onChange = this.onChange.bind(this);
+		this.onClose = this.onClose.bind(this);
 		this.onLayoutChange = this.onLayoutChange.bind(this);
 		this.onManageLayoutModalClose = this.onManageLayoutModalClose.bind(this);
 		this.onManageLayoutModalOpen = this.onManageLayoutModalOpen.bind(this);
@@ -280,15 +280,15 @@ class SupplierList extends React.Component {
 											<BodyTable>
 												<TableBody>
 													<TableRow style={{backgroundColor: '#f3f3f387'}}>
-														{/* <TableHeaders width="5%">
-															<SelectIconContainer>
+														<TableHeaders width="5%">
+															{/* <SelectIconContainer>
 																<SelectSpan>
 																	<SelectSpanInner>
 																		<i className="large material-icons">create</i>
 																	</SelectSpanInner>
 																</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders> */}
+															</SelectIconContainer> */}
+														</TableHeaders>
 														{this.state.layoutFeilds.get('name') ? (
 															<TableHeaders width="10%">
 																<SelectIconContainer>
