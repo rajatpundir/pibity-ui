@@ -139,8 +139,8 @@ class Purchase extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.SimplePurchase) {
-			const variable = nextProps.variables.SimplePurchase.filter(
+		if (nextProps.match.params.variableName && nextProps.variables.PurchaseOrder) {
+			const variable = nextProps.variables.PurchaseOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {

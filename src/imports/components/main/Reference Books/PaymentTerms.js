@@ -66,11 +66,9 @@ class PaymentTerms extends React.Component {
 
 	onClose() {
 		this.setState({
-			isOpen: false,
-			variableName: ''
+			isOpen: false
 		});
 		this.props.clearErrors();
-		this.props.getVariables('PaymentTerm');
 	}
 
 	onRefresh() {
@@ -98,7 +96,7 @@ class PaymentTerms extends React.Component {
 		const list = this.state.activePaymentTerms
 			? this.state.paymentTerms.filter((paymentTerm) => paymentTerm.values.status === 'Active')
 			: this.state.paymentTerms;
-		list.forEach((paymentTerm,index) => {
+		list.forEach((paymentTerm, index) => {
 			rows.push(
 				<TableRow key={index}>
 					<TableData left="0px" />
@@ -166,7 +164,8 @@ class PaymentTerms extends React.Component {
 	}
 
 	onCloseCreatePaymentTermModal() {
-		this.setState({ isCreatePaymentTermModalOpen: false });
+		this.setState({ isCreatePaymentTermModalOpen: false, variableName: '' });
+		this.props.getVariables('PaymentTerm');
 	}
 	render() {
 		return (

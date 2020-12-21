@@ -67,8 +67,7 @@ class TaxRule extends React.Component {
 
 	onClose() {
 		this.setState({
-			isOpen: false,
-			variableName: ''
+			isOpen: false
 		});
 		this.props.clearErrors();
 		this.props.getVariables('TaxRule');
@@ -214,7 +213,10 @@ class TaxRule extends React.Component {
 	}
 
 	onCloseCreateTaxRuleModal() {
-		this.setState({ isCreateTaxRuleModalOpen: false });
+		this.setState({
+			isCreateTaxRuleModalOpen: false,
+			variableName: ''
+		});
 	}
 	render() {
 		return (

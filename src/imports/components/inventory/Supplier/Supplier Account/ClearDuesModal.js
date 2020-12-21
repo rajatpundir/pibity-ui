@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import { executeFuntion, updatePurchaseInvoice } from '../../../../redux/actions/executeFuntion';
 import { getVariables } from '../../../../redux/actions/variables';
-import { successMessage,customErrorMessage } from '../../../main/Notification';
+import { successMessage, customErrorMessage } from '../../../main/Notification';
 import {
 	InputRowWrapper,
 	InputFieldContainer,
@@ -26,11 +26,20 @@ class ClearDuesModal extends React.Component {
 		super();
 		this.state = {
 			amount: '',
-			invoiceAccount: {}
+			invoiceAccount: {
+				values: {
+					name: ''
+				}
+			}
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onClearDues = this.onClearDues.bind(this);
+	}
+
+	componentDidMount() {
+		this.props.getVariables('Account');
+		this.props.getVariables('PurchaseInvoice');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -84,7 +93,6 @@ class ClearDuesModal extends React.Component {
 			});
 		} else {
 			customErrorMessage('amount is grater than Balnce Due');
-
 		}
 	}
 

@@ -73,12 +73,18 @@ class PaymentTermModal extends React.Component {
 	}
 
 	onClose() {
+		const prevProptypeVariable = {};
+		const prevtypeVariable = new Map();
 		const typeVariable = new Map([
 			[ 'typeName', 'PamentTerm' ],
 			[ 'variableName', '' ],
 			[ 'values', new Map([ [ 'status', '' ], [ 'days', '' ] ]) ]
 		]);
-		this.setState({ typeVariable });
+		this.setState({
+			typeVariable: typeVariable,
+			prevProptypeVariable: prevProptypeVariable,
+			prevtypeVariable: prevtypeVariable
+		});
 		this.props.onClose();
 	}
 

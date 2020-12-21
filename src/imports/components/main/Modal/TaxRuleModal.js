@@ -60,7 +60,6 @@ class TaxRuleModal extends React.Component {
 			if (variable && prevState.prevProptypeVariable !== variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(variable);
-				console.log(prevVariableMap);
 				return {
 					...prevState,
 					typeVariable: variableMap,
@@ -85,6 +84,8 @@ class TaxRuleModal extends React.Component {
 	}
 
 	onClose() {
+		const prevProptypeVariable = {};
+		const prevtypeVariable = new Map();
 		const typeVariable = new Map([
 			[ 'typeName', 'TaxRule' ],
 			[ 'variableName', '' ],
@@ -99,11 +100,16 @@ class TaxRuleModal extends React.Component {
 				])
 			]
 		]);
-		this.setState({ typeVariable });
+		this.setState({
+			typeVariable: typeVariable,
+			prevProptypeVariable: prevProptypeVariable,
+			prevtypeVariable: prevtypeVariable
+		});
 		this.props.onClose();
 	}
 
 	render() {
+		console.log(this.props);
 		return (
 			<Modal
 				isOpen={this.props.isOpen}
@@ -247,7 +253,9 @@ class TaxRuleModal extends React.Component {
 											this.onChange({
 												target: {
 													name: 'isTaxForPurchase',
-													value: !this.state.typeVariable.get('values').get('isTaxForPurchase')
+													value: !this.state.typeVariable
+														.get('values')
+														.get('isTaxForPurchase')
 												}
 											});
 										}}
