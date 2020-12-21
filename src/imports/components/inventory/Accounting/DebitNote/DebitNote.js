@@ -142,8 +142,8 @@ class DebitNote extends React.Component {
 										<Custombutton
 											height="30px"
 											onClick={(e) => {
-												this.props.createVariable(this.state.variable).then((status) => {
-													if (status === 200) {
+												this.props.createVariable(this.state.variable).then((response) => {
+													if (response.status === 200) {
 														successMessage('Debit Note Created');
 													}
 												});

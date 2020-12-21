@@ -150,7 +150,7 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		if (response.status === 200) {
 			if (response.data !== undefined) {
 				await replaceVariable(dispatch, response.data);
-				return response.status;
+				return response;
 			}
 		} else {
 			updateErrors(dispatch, response.data);

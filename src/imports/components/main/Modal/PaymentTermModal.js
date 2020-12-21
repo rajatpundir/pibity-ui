@@ -191,8 +191,8 @@ class PaymentTermModal extends React.Component {
 										}
 									});
 							} else {
-								this.props.createVariable(this.state.typeVariable).then((status) => {
-									if (status === 200) {
+								this.props.createVariable(this.state.typeVariable).then((response) => {
+									if (response.status === 200) {
 										this.onClose(e);
 										successMessage(`Payment Term Added Succesfully`);
 									}

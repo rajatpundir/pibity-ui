@@ -280,8 +280,8 @@ class Product extends React.Component {
 											);
 										}).then(() => {
 											if (this.state.createProduct) {
-												this.props.createVariable(this.state.variable).then((status) => {
-													if (status === 200) {
+												this.props.createVariable(this.state.variable).then((response) => {
+													if (response.status === 200) {
 														successMessage(' Product Created');
 													}
 												});

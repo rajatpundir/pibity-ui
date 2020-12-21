@@ -271,8 +271,8 @@ class Customer extends React.Component {
 													.then(() => {
 														this.props
 															.createVariable(this.state.variable)
-															.then((status) => {
-																if (status === 200) {
+															.then((response) => {
+																if (response.status === 200) {
 																	successMessage(' Customer Created');
 																}
 															});

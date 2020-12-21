@@ -41,7 +41,7 @@ class Purchase extends React.Component {
 			prevVariable: new Map(),
 			variable: new Map([
 				[ 'typeName', 'PurchaseOrder' ],
-				[ 'variableName', '' ], //supllier name is variable name
+				[ 'variableName', '' ],
 				[
 					'values',
 					new Map([
@@ -100,7 +100,11 @@ class Purchase extends React.Component {
 					])
 				]
 			]),
-			visibleSection: 'order'
+			visibleSection: 'order',
+			purchaseOrderVariableName: '',
+			supplier: '',
+			account: '',
+			orderDetails: {}
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateInvoice = this.updateInvoice.bind(this);
@@ -155,7 +159,11 @@ class Purchase extends React.Component {
 					...prevState,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
+					prevVariable: prevVariableMap,
+					purchaseOrderVariableName: variable.variableName,
+					supplier: variable.values.general.values.supplierName,
+					account: variable.values.general.values.account,
+					orderDetails: variable.values.orderDetails[0]
 				};
 			}
 		}
@@ -229,7 +237,6 @@ class Purchase extends React.Component {
 											.updateVariable(this.state.prevVariable, this.state.variable)
 											.then((status) => {
 												if (status === 200) {
-													this.onClose(e);
 													successMessage(`Updated Succesfully`);
 												}
 											});
@@ -242,8 +249,14 @@ class Purchase extends React.Component {
 											);
 										}).then(() => {
 											if (this.state.createPurchaseOrder) {
-												this.props.createVariable(this.state.variable).then((status) => {
-													if (status === 200) {
+												this.props.createVariable(this.state.variable).then((response) => {
+													if (response.status === 200) {
+														this.setState({
+															purchaseOrderVariableName: response.data.variableName,
+															supplier: response.data.values.general.values.supplierName,
+															account: response.data.values.general.values.account,
+															orderDetails: response.data.values.orderDetails[0]
+														});
 														successMessage(' Purchase Order Created');
 													}
 												});
@@ -329,7 +342,14 @@ class Purchase extends React.Component {
 							/>
 						)}
 						{this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />}
-						{this.state.visibleSection === 'invoice' && <PurchaseInvoiceDetails />}
+						{this.state.visibleSection === 'invoice' && (
+							<PurchaseInvoiceDetails
+								purchaseOrder={this.state.purchaseOrderVariableName}
+								supplier={this.state.supplier}
+								account={this.state.account}
+								orderDetails={objToMapRec(this.state.orderDetails)}
+							/>
+						)}
 					</PageBody>
 				</PageWrapper>
 			</Container>

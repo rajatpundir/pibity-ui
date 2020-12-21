@@ -1,9 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { clearErrors } from '../../../redux/actions/errors';
-import { getVariables } from '../../../redux/actions/variables';
+import styled from 'styled-components';
 import Select from 'react-select';
+import { clearErrors } from '../../../redux/actions/errors';
+import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
+import {
+	createVariable,
+	getVariables,
+	getVariable,
+	updateVariable,
+	objToMapRec
+} from '../../../redux/actions/variables';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -51,15 +59,21 @@ import {
 	TableRow,
 	TextArea,
 	TextAreaContainer,
-	ToolbarItems
+	ToolbarItems,
+	Custombutton
 } from '../../../styles/inventory/Style';
 
 class PurchaseInvoiceDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
+			createInvoice: true,
+			updateInvoice: false,
+			prevPropVariable: {},
+			prevVariable: new Map(),
 			variable: new Map([
-				[ 'variableName', '0' ],
+				[ 'typeName', 'PurchaseInvoice' ],
+				[ 'variableName', '' ],
 				[
 					'values',
 					new Map([
@@ -70,23 +84,59 @@ class PurchaseInvoiceDetails extends React.Component {
 						[ 'dueDate', '' ],
 						[ 'invoiceNumber', '' ],
 						[ 'total', '' ],
-						[ 'purchaseOrderMemo', '' ]
+						[ 'purchaseOrderMemo', '' ],
+						[ 'transactions', [] ],
+						[ 'balanceDue', '' ],
+						[ 'purchaseOrder', '' ],
+						[ 'supplier', '' ],
+						[ 'account', '' ],
+						[ 'paymentStatus', 'Due' ]
 					])
 				]
 			])
 		};
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
+		this.onCopyProductOrderFromOrder = this.onCopyProductOrderFromOrder.bind(this);
 	}
 
 	componentDidMount() {
+		this.props.getVariables('PurchaseInvoice');
 		this.props.clearErrors();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.variables.PurchaseInvoice) {
+			const variable = nextProps.variables.PurchaseInvoice.filter(
+				(variable) => variable.values.purchaseOrder === nextProps.purchaseOrder
+			)[0];
+			if (variable && prevState.prevPropVariable !== variable) {
+				const variableMap = objToMapRec(variable);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+				return {
+					...prevState,
+					updateInvoice: variable.values.transactions.length === 0 ? true : false,
+					createInvoice: false,
+					variable: variableMap,
+					prevPropVariable: variable,
+					prevVariable: prevVariableMap
+				};
+			}
+			if (nextProps.purchaseOrder && variable === undefined) {
+				const variable = prevState.variable;
+				const values = variable.get('values');
+				values.set('purchaseOrder', nextProps.purchaseOrder);
+				values.set('supplier', nextProps.supplier);
+				values.set('account', nextProps.account);
+				variable.set('values', values);
+				return {
+					...prevState,
+					variable: variable
+				};
+			}
+		}
 		return {
-			...prevState,
-			variable: nextProps.variable
+			...prevState
 		};
 	}
 
@@ -96,7 +146,26 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.set(e.target.name, e.target.value);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
+	}
+
+	onCopyProductOrderFromOrder(DataToBeCopied) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		switch (DataToBeCopied) {
+			case 'productInvoiceDetails':
+				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('productInvoiceDetails'));
+				break;
+			case 'additionalCost':
+				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('additionalCost'));
+				break;
+			case 'supplierDeposit':
+				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('supplierDeposit'));
+				break;
+			default:
+				break;
+		}
+		variable.set('values', values);
+		this.setState({ variable: variable });
 	}
 
 	onAdditionalCostChange(e, variableName) {
@@ -115,7 +184,6 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.set('additionalCost', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
 	}
 
 	onProductOrderInputChange(e, variableName) {
@@ -134,7 +202,6 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.set('productInvoiceDetails', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
 	}
 
 	addVariableToadditionalCostList() {
@@ -164,8 +231,8 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.set('additionalCost', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
 	}
+
 	addVariableToProductOrderInputList() {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
@@ -195,8 +262,8 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.set('productInvoiceDetails', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
 	}
+
 	onRemoveProductOrderInputListKey(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
@@ -206,8 +273,8 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.set('productInvoiceDetails', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
 	}
+
 	onRemoveAdditionalCostListKey(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
@@ -217,7 +284,6 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.set('additionalCost', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
 	}
 
 	renderAdditionalCostInputFields() {
@@ -327,14 +393,13 @@ class PurchaseInvoiceDetails extends React.Component {
 		);
 		return rows;
 	}
-
 	renderProductOrderInputFields() {
 		const rows = [];
 		const values = this.state.variable.get('values');
 		values.get('productInvoiceDetails').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="5%" left="0px">
+					<TableData width="6%" left="0px">
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -343,7 +408,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" left="8%">
+					<TableData width="10%" left="7%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -370,7 +435,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="22%">
+					<TableData width="10%" left="17%">
 						<TableHeaderInner>
 							<Input
 								name="comment"
@@ -380,7 +445,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="35%">
+					<TableData width="10%" left="30%">
 						<TableHeaderInner>
 							<Input
 								name="supplierSKU"
@@ -390,17 +455,34 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="8%" left="50%">
+					<TableData width="8%" left="39%">
 						<TableHeaderInner>
-							<Input
-								name="unit"
-								type="number"
-								value={listVariable.get('values').get('unit')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
+							<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('unit'),
+										label: listVariable.get('values').get('unit')
+									}}
+									onChange={(option) => {
+										this.onProductOrderInputChange(
+											{ target: { name: 'unit', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.UnitOfMeasure !== undefined ? (
+											this.props.variables.UnitOfMeasure.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="60%">
+					<TableData width="11%" left="46%">
 						<TableHeaderInner>
 							<Input
 								name="quantity"
@@ -410,7 +492,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="73%">
+					<TableData width="10%" left="55%">
 						<TableHeaderInner>
 							<Input
 								name="price"
@@ -420,7 +502,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="85%">
+					<TableData width="10%" left="64%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -430,7 +512,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="85%">
+					<TableData width="10%" left="75%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -440,7 +522,7 @@ class PurchaseInvoiceDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onProductOrderInputChange(
-											{ target: { name: 'country', value: option.value } },
+											{ target: { name: 'taxRule', value: option.value } },
 											listVariable.get('variableName')
 										);
 									}}
@@ -457,7 +539,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="85%">
+					<TableData width="12%" left="87%">
 						<TableHeaderInner>
 							<Input
 								name="total"
@@ -480,6 +562,39 @@ class PurchaseInvoiceDetails extends React.Component {
 					<ToolbarItems>
 						<LeftItemH1>Invoice</LeftItemH1>
 					</ToolbarItems>
+					<ToolbarItems>
+						{this.state.createInvoice ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.createVariable(this.state.variable).then((response) => {
+										if (response.status === 200) {
+											successMessage(' Purchase Invoice Created');
+										}
+									});
+								}}
+							>
+								Create Invoice
+							</Custombutton>
+						) : this.state.updateInvoice ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props
+										.updateVariable(this.state.prevVariable, this.state.variable)
+										.then((status) => {
+											if (status === 200) {
+												successMessage(` Purchase Invoice Updated Succesfully`);
+											}
+										});
+								}}
+							>
+								Update Invoice
+							</Custombutton>
+						) : (
+							undefined
+						)}
+					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<InputColumnWrapper>
@@ -488,7 +603,7 @@ class PurchaseInvoiceDetails extends React.Component {
 								name="invoiceNumber"
 								type="text"
 								placeholder="write"
-								value={this.state.invoiceNumber}
+								value={this.state.variable.get('values').get('invoiceNumber')}
 								onChange={this.onChange}
 							/>
 							<InputLabel>
@@ -499,9 +614,8 @@ class PurchaseInvoiceDetails extends React.Component {
 						<FormControl>
 							<Input
 								name="invoiceDate"
-								type="text"
-								placeholder="date"
-								value={this.state.invoiceDate}
+								type="date"
+								value={this.state.variable.get('values').get('invoiceDate')}
 								onChange={this.onChange}
 							/>
 							<InputLabel>Invoice Date</InputLabel>
@@ -509,9 +623,8 @@ class PurchaseInvoiceDetails extends React.Component {
 						<FormControl>
 							<Input
 								name="dueDate"
-								type="text"
-								placeholder="date"
-								value={this.state.dueDate}
+								type="date"
+								value={this.state.variable.get('values').get('dueDate')}
 								onChange={this.onChange}
 							/>{' '}
 							<InputLabel>
@@ -526,10 +639,20 @@ class PurchaseInvoiceDetails extends React.Component {
 								name="total"
 								type="number"
 								placeholder="Default"
-								value={this.state.total}
-								onChange={this.onChange}
+								value={this.state.variable.get('values').get('total')}
+								readOnly
 							/>
 							<InputLabel>Total</InputLabel>
+						</FormControl>
+						<FormControl>
+							<Input
+								name="balanceDue"
+								type="number"
+								placeholder="Default"
+								value={this.state.variable.get('values').get('balanceDue')}
+								readOnly
+							/>
+							<InputLabel>Balance Due</InputLabel>
 						</FormControl>
 					</InputColumnWrapper>
 				</PageBar>
@@ -539,6 +662,21 @@ class PurchaseInvoiceDetails extends React.Component {
 						<PlusButton onClick={(e) => this.addVariableToProductOrderInputList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
+						<Custombutton
+							padding="0 10px"
+							minWidth="70px"
+							height="32px"
+							color="#3b3b3b"
+							backgroundColor="#F7FAFD"
+							borderColor="#b9bdce"
+							borderOnHover="#3b3b3b"
+							backgroundOnHover="#F7FAFD"
+							margin="0 5px"
+							onClick={(e) => this.onCopyProductOrderFromOrder('productInvoiceDetails')}
+						>
+							<FontAwsomeIcon className="fa fa-clone" />
+							Copy From Order
+						</Custombutton>
 					</PageBarAlign>
 				</PageBar>
 				<InputBody borderTop="0" overflow="visible">
@@ -636,6 +774,21 @@ class PurchaseInvoiceDetails extends React.Component {
 						<PlusButton onClick={(e) => this.addAdditionalCostListVariable()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
+						<Custombutton
+							padding="0 10px"
+							minWidth="70px"
+							height="32px"
+							color="#3b3b3b"
+							backgroundColor="#F7FAFD"
+							borderColor="#b9bdce"
+							borderOnHover="#3b3b3b"
+							backgroundOnHover="#F7FAFD"
+							margin="0 5px"
+							onClick={(e) => this.onCopyProductOrderFromOrder('additionalCost')}
+						>
+							<FontAwsomeIcon className="fa fa-clone" />
+							Copy From Order
+						</Custombutton>
 					</PageBarAlign>
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
@@ -885,4 +1038,7 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseInvoiceDetails);
+export default connect(mapStateToProps, { clearErrors, getVariables, createVariable, updateVariable })(
+	PurchaseInvoiceDetails
+);
+export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

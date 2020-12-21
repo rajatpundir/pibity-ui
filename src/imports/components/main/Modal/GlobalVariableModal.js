@@ -103,8 +103,8 @@ class GlobalVariableModal extends React.Component {
 				<ModalFooter>
 					<ModalSubmitButton
 						onClick={(e) => {
-							this.props.createVariable(this.state.typeVariable).then((status) => {
-								if (status === 200) {
+							this.props.createVariable(this.state.typeVariable).then((response) => {
+								if (response.status === 200) {
 									this.onClose();
 									successMessage(`${this.props.typeName} Added Succesfully`);
 								}

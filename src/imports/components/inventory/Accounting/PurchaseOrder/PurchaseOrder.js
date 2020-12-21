@@ -217,8 +217,8 @@ class PurchaseOrder extends React.Component {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
 											if (this.state.createCustomer) {
-												this.props.createVariable(this.state.variable).then((status) => {
-													if (status === 200) {
+												this.props.createVariable(this.state.variable).then((response) => {
+													if (response.status === 200) {
 														successMessage(' Customer Created');
 													}
 												});

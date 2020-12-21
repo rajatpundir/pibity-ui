@@ -185,7 +185,7 @@ class PaymentTerms extends React.Component {
 							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
-							<PageBarAlign padding="10px 20px" float="right">
+							<PageBarAlign padding="10px 20px">
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"
@@ -211,7 +211,7 @@ class PaymentTerms extends React.Component {
 									Refresh
 								</Custombutton>
 							</PageBarAlign>
-							<PageBarAlign padding="10px 20px" float="left">
+							<PageBarAlign padding="10px 20px" >
 								<CheckBoxContainer>
 									<CheckBoxInput
 										type="checkbox"
