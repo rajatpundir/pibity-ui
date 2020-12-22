@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import Select from 'react-select';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { clearErrors } from '../../../redux/actions/errors';
-import { getVariables } from '../../../redux/actions/variables';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { getVariables } from '../../../../redux/actions/variables';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
@@ -24,7 +24,7 @@ import {
 	SelectWrapper,
 	InputLabel,
 	Required
-} from '../../../styles/inventory/Style';
+} from '../../../../styles/inventory/Style';
 
 class PurchaseGeneralDetails extends React.Component {
 	constructor(props) {
@@ -99,7 +99,7 @@ class PurchaseGeneralDetails extends React.Component {
 						<LeftItemWrapper backgroundColor="#f9e491" color="black">
 							Draft
 						</LeftItemWrapper>
-						<LeftItemH1>New Purchase</LeftItemH1>
+						<LeftItemH1>Simple Purchase</LeftItemH1>
 					</ToolbarItems>
 					<IconButton
 						aria-label="expand row"
@@ -110,7 +110,7 @@ class PurchaseGeneralDetails extends React.Component {
 					</IconButton>
 				</PageToolbar>
 				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
-					<InputBody>
+					<InputBody overflow="visible">
 						<InputFieldContainer>
 							<InputColumnWrapper>
 								<H3>Supplier Details</H3>
@@ -145,7 +145,6 @@ class PurchaseGeneralDetails extends React.Component {
 											}
 										/>
 									</SelectWrapper>
-
 									<InputLabel>
 										Supplier
 										<Required>*</Required>
@@ -200,21 +199,6 @@ class PurchaseGeneralDetails extends React.Component {
 							</InputColumnWrapper>
 							<InputColumnWrapper>
 								<H3>Accounting Details</H3>
-								<FormControl style={{ alignItems: 'center' }}>
-									<FormControl minHeight="0" paddingBottom="0">
-										<RadioLabel>
-											{' '}
-											<RadioInput type="radio" name="StockFirst" value="false" tabindex="35" />
-											Stock First
-										</RadioLabel>
-									</FormControl>
-									<FormControl minHeight="0" paddingBottom="0">
-										<RadioLabel>
-											{' '}
-											<RadioInput type="radio" name="InvoiceFirst" tabindex="35" /> Invoice First
-										</RadioLabel>
-									</FormControl>
-								</FormControl>
 								<FormControl>
 									<SelectWrapper>
 										<Select
@@ -255,36 +239,7 @@ class PurchaseGeneralDetails extends React.Component {
 									<Input />
 									<InputLabel>Inventory Account</InputLabel>
 								</FormControl>
-								<FormControl style={{ alignItems: 'center' }}>
-									<CheckBoxWapper>
-										<CheckBoxTable>
-											<TBody>
-												<TR>
-													<TD>
-														<CheckBoxInput
-															type="checkbox"
-															tabindex="55"
-															checked={this.state.variable
-																.get('values')
-																.get('taxInclusive')}
-															onChange={(option) => {
-																this.onChange({
-																	target: {
-																		name: 'taxInclusive',
-																		value: !this.state.variable
-																			.get('values')
-																			.get('taxInclusive')
-																	}
-																});
-															}}
-														/>
-													</TD>
-												</TR>
-											</TBody>
-										</CheckBoxTable>
-									</CheckBoxWapper>
-									<CheckBoxLabel>Tax Inclusive</CheckBoxLabel>
-								</FormControl>
+								
 								<FormControl>
 									<SelectWrapper>
 										<Select
@@ -317,36 +272,7 @@ class PurchaseGeneralDetails extends React.Component {
 							</InputColumnWrapper>
 							<InputColumnWrapper>
 								<H3>Shipping Details</H3>
-								<FormControl style={{ alignItems: 'center' }}>
-									<CheckBoxWapper>
-										<CheckBoxTable>
-											<TBody>
-												<TR>
-													<TD>
-														<CheckBoxInput
-															type="checkbox"
-															tabindex="55"
-															checked={this.state.variable
-																.get('values')
-																.get('blindReceipt')}
-															onChange={(option) => {
-																this.onChange({
-																	target: {
-																		name: 'blindReceipt',
-																		value: !this.state.variable
-																			.get('values')
-																			.get('blindReceipt')
-																	}
-																});
-															}}
-														/>
-													</TD>
-												</TR>
-											</TBody>
-										</CheckBoxTable>
-									</CheckBoxWapper>
-									<CheckBoxLabel>Blind Reciept</CheckBoxLabel>
-								</FormControl>
+								
 								<FormControl>
 									<Input
 										name="date"
@@ -387,20 +313,6 @@ class PurchaseGeneralDetails extends React.Component {
 									<InputLabel>
 										Location <Required>*</Required>{' '}
 									</InputLabel>
-								</FormControl>
-								<FormControl style={{ alignItems: 'center' }}>
-									<CheckBoxWapper>
-										<CheckBoxTable>
-											<TBody>
-												<TR>
-													<TD>
-														<CheckBoxInput type="checkbox" tabindex="55" />
-													</TD>
-												</TR>
-											</TBody>
-										</CheckBoxTable>
-									</CheckBoxWapper>
-									<CheckBoxLabel>Ship To Different Company</CheckBoxLabel>
 								</FormControl>
 								<FormControl>
 									<Input
@@ -452,143 +364,6 @@ export default connect(mapStateToProps, {
 	clearErrors,
 	getVariables
 })(PurchaseGeneralDetails);
-
-const RadioInput = styled.input`
-	overflow: hidden;
-	box-sizing: border-box;
-	border-style: solid;
-	border-color: #05cbbf;
-	color: #05cbbf;
-
-	border-radius: 50%;
-	cursor: default;
-	-webkit-appearance: radio;
-	margin: 3px 3px 0px 5px;
-	font-size: 100%;
-	outline: none;
-	font: 400 13.3333px Arial;
-	width: 16px;
-	height: 16px;
-	justify-content: center;
-`;
-
-const RadioLabel = styled.label`
-	cursor: pointer;
-	height: 16px;
-	font-size: 14px;
-	left: 0;
-	top: 0;
-	pointer-events: all;
-	padding: 0px 0 0 25px;
-	line-height: 16px;
-	position: relative;
-	background-color: #fff;
-	white-space: nowrap;
-	color: #3b3b3b;
-	background: transparent;
-	user-select: none;
-`;
-
-const TBody = styled.tbody``;
-const TR = styled.tr``;
-const TD = styled.td`
-	width: 100% !important;
-	height: 16px;
-	line-height: 1px;
-	position: relative;
-	font-weight: normal;
-	overflow: hidden;
-	cursor: pointer;
-	vertical-align: top;
-	// &:before {
-	// 	border-width: 1px;
-	// 	border-style: solid;
-	// 	border-radius: 4px;
-	// 	border-color: #b9bdce;
-	// 	content: '';
-	// 	width: 16px;
-	// 	height: 16px;
-	// 	position: absolute;
-	// 	left: 0;
-	// 	top: 0;
-	// 	text-align: center;
-	// 	font-size: 21px;
-	// 	display: flex;
-	// 	background-color: transparent;
-	// 	justify-content: center;
-	// 	-webkit-transition: all 0.15s ease-in-out;
-	// 	pointer-events: none;
-	// }
-	// &:after {
-	// 	content: '\e81a';
-	// 	line-height: 18px;
-	// 	font-style: normal;
-	// 	color: transparent;
-	// 	font-family: 'icons_2019';
-	// 	width: 16px;
-	// 	height: 16px;
-	// 	position: absolute;
-	// 	left: 0;
-	// 	top: 0;
-	// 	text-align: center;
-	// 	font-size: 21px;
-	// 	display: flex;
-	// 	background-color: transparent;
-	// 	justify-content: center;
-	// 	transition: all 0.15s ease-in-out;
-	// 	pointer-events: none;
-	// }
-`;
-
-const CheckBoxWapper = styled.div`
-	float: left;
-	width: 16px;
-`;
-const CheckBoxTable = styled.table`
-	width: 35% !important;
-	table-layout: auto !important;
-	border-collapse: inherit !important;
-	border-spacing: 0;
-`;
-
-const CheckBoxInput = styled.input`
-	width: 16px;
-	height: 16px;
-	padding: 0;
-	-webkit-appearance: button;
-	cursor: pointer;
-	font-size: 100%;
-	outline: none;
-	vertical-align: baseline;
-	line-height: normal;
-	color: -internal-light-dark-color(buttontext, rgb(170, 170, 170));
-	background-color: -internal-light-dark-color(rgb(239, 239, 239), rgb(74, 74, 74));
-	border-width: 2px;
-	border-style: outset;
-	border-color: -internal-light-dark-color(rgb(118, 118, 118), rgb(195, 195, 195));
-	border-image: initial;
-	user-select: none;
-	white-space: pre;
-	align-items: flex-start;
-	text-align: center;
-`;
-
-const CheckBoxLabel = styled.label`
-	position: static;
-	padding: 0 0 0 10px;
-	pointer-events: all !important;
-	cursor: pointer;
-	top: -6px;
-	left: 7px;
-	background-color: #fff;
-	white-space: nowrap;
-	font-size: 13px;
-	line-height: 13px;
-	color: #3b3b3b;
-	background: transparent;
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-`;
 
 const H3 = styled.h3`
 	padding-bottom: 15px;

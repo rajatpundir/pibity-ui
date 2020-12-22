@@ -2,20 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
-import { clearErrors } from '../../../redux/actions/errors';
+import { customErrorMessage, successMessage, CustomNotification } from '../../../main/Notification';
+import { clearErrors } from '../../../../redux/actions/errors';
 import {
 	createVariable,
 	getVariables,
 	getVariable,
 	updateVariable,
 	objToMapRec
-} from '../../../redux/actions/variables';
-import PurchaseGeneralDetails from './PurchaseGeneralDetails';
-import PurchaseOrderDetails from './PurchaseOrderDetails';
-import PurchaseInvoiceDetails from './PurchaseInvoiceDetails';
-import PurchaseStockReceived from './PurchaseStockReceived';
-import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
+} from '../../../../redux/actions/variables';
+import ServicePurchaseGeneralDetails from './ServicePurchaseGeneralDetails';
+import ServicePurchaseOrderDetails from './ServicePurchaseOrderDetails';
+import ServicePurchaseInvoiceDetails from './ServicePurchaseInvoiceDetails';
+import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
 import {
 	Container,
@@ -29,14 +28,15 @@ import {
 	HoizontalBlockList,
 	HoizontalBlockListItems,
 	BlockListItemButton
-} from '../../../styles/inventory/Style';
+} from '../../../../styles/inventory/Style';
 
-class Purchase extends React.Component {
+class ServicePurchase extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			isOpen: false,
 			createPurchaseOrder: true,
+			createPo: true,
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
@@ -53,15 +53,12 @@ class Purchase extends React.Component {
 									'values',
 									new Map([
 										[ 'supplierName', '' ],
-										[ 'blindReceipt', false ],
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
 										[ 'date', '' ],
 										[ 'account', '1' ],
 										[ 'contact', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
-										[ 'stockOrInvoice', 'Stock First' ],
 										[ 'phone', '' ],
-										[ 'taxInclusive', false ],
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
@@ -90,13 +87,18 @@ class Purchase extends React.Component {
 											[ 'additionalCost', [] ],
 											[ 'productInvoiceDetails', [] ],
 											[ 'supplierDeposit', [] ],
-											[ 'total', '' ],
-											[ 'purchaseOrderMemo', '' ]
+											[ 'total', 0 ],
+											[ 'purchaseOrderMemo', '' ],
+											[ 'productCostBeforeTax', 0 ],
+											[ 'additionalCostBeforeTax', 0 ],
+											[ 'totalTaxOnProduct', 0 ],
+											[ 'totalTaxOnAdditionalCost', 0 ]
 										])
 									]
 								])
 							]
-						]
+						],
+						['invoiceCreated',false]
 					])
 				]
 			]),
@@ -110,6 +112,7 @@ class Purchase extends React.Component {
 		this.updateInvoice = this.updateInvoice.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
 		this.updateStock = this.updateStock.bind(this);
+		this.onCalculateTotal = this.onCalculateTotal.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
@@ -160,6 +163,7 @@ class Purchase extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
+					createPo: false,
 					purchaseOrderVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,
 					account: variable.values.general.values.account,
@@ -211,7 +215,7 @@ class Purchase extends React.Component {
 		const values = variable.get('values');
 		values.set('orderDetails', [ orderDetails ]);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable }, () => this.onCalculateTotal());
 	}
 
 	updateStock(productStock) {
@@ -222,6 +226,53 @@ class Purchase extends React.Component {
 		this.setState({ variable: variable });
 	}
 
+	onCalculateTotal() {
+		var productCostBeforeTax = 0;
+		var totalTaxOnProduct = 0;
+		var additionalCostBeforeTax = 0;
+		var totalTaxOnAdditionalCost = 0;
+        const values = this.state.variable.get('values');
+        
+		//AdditionalCost
+		values.get('orderDetails')[0].get('values').get('additionalCost').forEach((listVariable) => {
+			const taxRule = this.props.variables.TaxRule.filter(
+				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
+			)[0];
+			if (taxRule) {
+				switch (taxRule.values.taxType) {
+					case 'Exclusive':
+						totalTaxOnAdditionalCost =
+							totalTaxOnAdditionalCost +
+							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+						break;
+					case 'Inclusive':
+						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						totalTaxOnAdditionalCost = totalTaxOnAdditionalCost + tax;
+						additionalCostBeforeTax =
+							additionalCostBeforeTax + listVariable.get('values').get('total') - tax;
+						break;
+					default:
+						break;
+				}
+			} else {
+				additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+			}
+		});
+		const totalCost = productCostBeforeTax + totalTaxOnProduct + additionalCostBeforeTax + totalTaxOnAdditionalCost;
+		const variable = cloneDeep(this.state.variable);
+		const Variablevalues = variable.get('values');
+		const order = Variablevalues.get('orderDetails')[0];
+		const orderValues = order.get('values');
+		orderValues.set('total', totalCost);
+		orderValues.set('additionalCostBeforeTax', additionalCostBeforeTax);
+		orderValues.set('totalTaxOnAdditionalCost', totalTaxOnAdditionalCost);
+		order.set('values', orderValues);
+		Variablevalues.set('orderDetails', [ order ]);
+		variable.set('values', Variablevalues);
+		this.setState({ variable: variable });
+	}
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
@@ -229,47 +280,52 @@ class Purchase extends React.Component {
 				<CustomNotification limit={3} />
 				<PageWrapper>
 					<PageBody>
-						<SaveButtonContaier>
-							<SaveButton
-								onClick={(e) => {
-									if (this.props.match.params.variableName) {
-										this.props
-											.updateVariable(this.state.prevVariable, this.state.variable)
-											.then((status) => {
-												if (status === 200) {
-													successMessage(`Updated Succesfully`);
-												}
-											});
-									} else {
-										new Promise((resolve) => {
-											resolve(
-												this.checkRequiredField(
-													this.state.variable.get('values').get('general')
-												)
-											);
-										}).then(() => {
-											if (this.state.createPurchaseOrder) {
-												this.props.createVariable(this.state.variable).then((response) => {
-													if (response.status === 200) {
-														this.setState({
-															purchaseOrderVariableName: response.data.variableName,
-															supplier: response.data.values.general.values.supplierName,
-															account: response.data.values.general.values.account,
-															orderDetails: response.data.values.orderDetails[0]
-														});
-														successMessage(' Purchase Order Created');
+						{this.state.createPo ? (
+							<SaveButtonContaier>
+								<SaveButton
+									onClick={(e) => {
+										if (this.props.match.params.variableName) {
+											this.props
+												.updateVariable(this.state.prevVariable, this.state.variable)
+												.then((status) => {
+													if (status === 200) {
+														successMessage(`Updated Succesfully`);
 													}
 												});
-											}
-											this.setState({ createPurchaseOrder: true });
-										});
-									}
-								}}
-							>
-								<CheckIcon />
-							</SaveButton>
-						</SaveButtonContaier>
-						<PurchaseGeneralDetails
+										} else {
+											new Promise((resolve) => {
+												resolve(
+													this.checkRequiredField(
+														this.state.variable.get('values').get('general')
+													)
+												);
+											}).then(() => {
+												if (this.state.createPurchaseOrder) {
+													this.props.createVariable(this.state.variable).then((response) => {
+														if (response.status === 200) {
+															this.setState({
+																purchaseOrderVariableName: response.data.variableName,
+																supplier:
+																	response.data.values.general.values.supplierName,
+																account: response.data.values.general.values.account,
+																orderDetails: response.data.values.orderDetails[0]
+															});
+															successMessage(' Purchase Order Created');
+														}
+													});
+												}
+												this.setState({ createPurchaseOrder: true });
+											});
+										}
+									}}
+								>
+									<CheckIcon />
+								</SaveButton>
+							</SaveButtonContaier>
+						) : (
+							undefined
+						)}
+						<ServicePurchaseGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
 						/>
@@ -295,55 +351,18 @@ class Purchase extends React.Component {
 												Invoice
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'stockReceived' });
-												}}
-											>
-												Stock Received
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'creditNote' });
-												}}
-											>
-												Credit Note
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'unStock' });
-												}}
-											>
-												Unstock
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'manualJournals' });
-												}}
-											>
-												Manual Journals
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
 						</HorizontalListPageBlock>
 						{this.state.visibleSection === 'order' && (
-							<PurchaseOrderDetails
+							<ServicePurchaseOrderDetails
 								variable={this.state.variable.get('values').get('orderDetails')[0]}
-								updateInvoice={this.updateOrder}
+								updateOrder={this.updateOrder}
 							/>
 						)}
-						{this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />}
 						{this.state.visibleSection === 'invoice' && (
-							<PurchaseInvoiceDetails
+							<ServicePurchaseInvoiceDetails
 								purchaseOrder={this.state.purchaseOrderVariableName}
 								supplier={this.state.supplier}
 								account={this.state.account}
@@ -368,4 +387,4 @@ export default connect(mapStateToProps, {
 	getVariable,
 	getVariables,
 	updateVariable
-})(Purchase);
+})(ServicePurchase);

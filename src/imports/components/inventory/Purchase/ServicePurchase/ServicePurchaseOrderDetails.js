@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { clearErrors } from '../../../redux/actions/errors';
-import { getVariables } from '../../../redux/actions/variables';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { getVariables } from '../../../../redux/actions/variables';
 import Select from 'react-select';
 import {
 	AddMoreBlock,
@@ -49,18 +49,14 @@ import {
 	TextArea,
 	TextAreaContainer,
 	ToolbarItems
-} from '../../../styles/inventory/Style';
+} from '../../../../styles/inventory/Style';
 
-class PurchaseOrderDetails extends React.Component {
+class ServicePurchaseOrderDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable,
-			productCostBeforeTax: 0,
-			additionalCostBefroeTax: 0,
-			totalTaxOnProduct: 0,
-			totalTaxOnAdditionalCost: 0,
-			totalCost: 0
+			variable: props.variable
+
 		};
 
 		this.onChange = this.onChange.bind(this);
@@ -92,7 +88,7 @@ class PurchaseOrderDetails extends React.Component {
 		values.set(e.target.name, e.target.value);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
+		this.props.updateOrder(variable);
 	}
 
 	onAdditionalCostChange(e, variableName) {
@@ -142,7 +138,7 @@ class PurchaseOrderDetails extends React.Component {
 		values.set('additionalCost', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
+		this.props.updateOrder(variable);
 	}
 
 	onProductOrderInputChange(e, variableName) {
@@ -192,7 +188,7 @@ class PurchaseOrderDetails extends React.Component {
 		values.set('productInvoiceDetails', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
+		this.props.updateOrder(variable);
 	}
 
 	addVariableToadditionalCostList() {
@@ -219,50 +215,9 @@ class PurchaseOrderDetails extends React.Component {
 		values.set('additionalCost', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
+		this.props.updateOrder(variable);
 	}
 
-	addVariableToProductOrderInputList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails');
-		list.unshift(
-			new Map([
-				[ 'variableName', String(list.length) ],
-				[
-					'values',
-					new Map([
-						[ 'comment', '' ],
-						[ 'discount', 0 ],
-						[ 'price', 0 ],
-						[ 'quantity', 0 ],
-						[ 'unit', '' ],
-						[ 'taxRule', '' ],
-						[ 'total', 0 ],
-						[ 'supplierSKU', '' ],
-						[ 'product', '' ]
-					])
-				]
-			])
-		);
-		console.log(list);
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		console.log(variable);
-		this.props.updateInvoice(variable);
-	}
-	onRemoveProductOrderInputListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').filter((listVariable) => {
-			return listVariable.get('variableName') !== variableName;
-		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
-	}
 	onRemoveAdditionalCostListKey(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
@@ -272,7 +227,7 @@ class PurchaseOrderDetails extends React.Component {
 		values.set('additionalCost', list);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateInvoice(variable);
+		this.props.updateOrder(variable);
 	}
 
 	renderAdditionalCostInputFields() {
@@ -281,7 +236,7 @@ class PurchaseOrderDetails extends React.Component {
 		values.get('additionalCost').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="5%" left="0px">
+					<TableData width="6%" >
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -290,7 +245,7 @@ class PurchaseOrderDetails extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" left="8%">
+					<TableData width="11%" >
 						<TableHeaderInner>
 							<Input
 								name="description"
@@ -300,7 +255,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="22%">
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="reference"
@@ -310,7 +265,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="35%">
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="quantity"
@@ -320,7 +275,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="8%" left="50%">
+					<TableData width="8%">
 						<TableHeaderInner>
 							<Input
 								name="price"
@@ -330,7 +285,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="60%">
+					<TableData width="11%" >
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -340,7 +295,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="73%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -350,168 +305,6 @@ class PurchaseOrderDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onAdditionalCostChange(
-											{ target: { name: 'country', value: option.value } },
-											listVariable.get('variableName')
-										);
-									}}
-									options={
-										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
-										) : (
-											[]
-										)
-									}
-								/>
-							</SelectWrapper>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="85%">
-						<TableHeaderInner>
-							<Input
-								name="total"
-								type="number"
-								value={listVariable.get('values').get('total')}
-								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-				</TableRow>
-			)
-		);
-		return rows;
-	}
-
-	renderProductOrderInputFields() {
-		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('productInvoiceDetails').forEach((listVariable) =>
-			rows.push(
-				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="6%" left="0px">
-						<i
-							name={listVariable.get('variableName')}
-							className="large material-icons"
-							onClick={(e) => this.onRemoveProductOrderInputListKey(e, listVariable.get('variableName'))}
-						>
-							remove_circle_outline
-						</i>
-					</TableData>
-					<TableData width="10%" left="7%">
-						<TableHeaderInner>
-							<SelectWrapper>
-								<Select
-									value={{
-										value: listVariable.get('values').get('product'),
-										label: listVariable.get('values').get('product')
-									}}
-									onChange={(option) => {
-										this.onProductOrderInputChange(
-											{ target: { name: 'product', value: option.value } },
-											listVariable.get('variableName')
-										);
-									}}
-									options={
-										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
-										) : (
-											[]
-										)
-									}
-								/>
-							</SelectWrapper>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="17%">
-						<TableHeaderInner>
-							<Input
-								name="comment"
-								type="text"
-								value={listVariable.get('values').get('comment')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="30%">
-						<TableHeaderInner>
-							<Input
-								name="supplierSKU"
-								type="text"
-								value={listVariable.get('values').get('supplierSKU')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="39%">
-						<TableHeaderInner>
-							<SelectWrapper>
-								<Select
-									value={{
-										value: listVariable.get('values').get('unit'),
-										label: listVariable.get('values').get('unit')
-									}}
-									onChange={(option) => {
-										this.onProductOrderInputChange(
-											{ target: { name: 'unit', value: option.value } },
-											listVariable.get('variableName')
-										);
-									}}
-									options={
-										this.props.variables.UnitOfMeasure !== undefined ? (
-											this.props.variables.UnitOfMeasure.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
-										) : (
-											[]
-										)
-									}
-								/>
-							</SelectWrapper>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="11%" left="46%">
-						<TableHeaderInner>
-							<Input
-								name="quantity"
-								type="number"
-								value={listVariable.get('values').get('quantity')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="55%">
-						<TableHeaderInner>
-							<Input
-								name="price"
-								type="number"
-								value={listVariable.get('values').get('price')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="64%">
-						<TableHeaderInner>
-							<Input
-								name="discount"
-								type="number"
-								value={listVariable.get('values').get('discount')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="75%">
-						<TableHeaderInner>
-							<SelectWrapper>
-								<Select
-									value={{
-										value: listVariable.get('values').get('taxRule'),
-										label: listVariable.get('values').get('taxRule')
-									}}
-									onChange={(option) => {
-										this.onProductOrderInputChange(
 											{ target: { name: 'taxRule', value: option.value } },
 											listVariable.get('variableName')
 										);
@@ -529,13 +322,13 @@ class PurchaseOrderDetails extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="12%" left="87%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="total"
 								type="number"
 								value={listVariable.get('values').get('total')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
+								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -545,6 +338,8 @@ class PurchaseOrderDetails extends React.Component {
 		return rows;
 	}
 
+	
+
 	render() {
 		return (
 			<PageBlock id="order">
@@ -553,104 +348,7 @@ class PurchaseOrderDetails extends React.Component {
 						<LeftItemH1>Order</LeftItemH1>
 					</ToolbarItems>
 				</PageToolbar>
-				<PageBar>
-					<PageBarAlign>
-						<PlusButton onClick={(e) => this.addVariableToProductOrderInputList()}>
-							<i className="large material-icons">add</i>
-						</PlusButton>
-					</PageBarAlign>
-				</PageBar>
 				<InputBody borderTop="0" overflow="visible">
-					<RoundedBlock overflow="visible">
-						<TableFieldContainer overflow="visible">
-							<Headers>
-								<HeaderContainer>
-									<HeaderBody>
-										<BodyTable>
-											<TableBody>
-												<TableRow>
-													<TableHeaders width="6%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="7%">
-														<SelectIconContainer>
-															<SelectSpan>Product</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="17%">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Comment</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="30%">
-														<SelectIconContainer>
-															<SelectSpan>Supplier SKU</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="8%" left="39%">
-														<SelectIconContainer>
-															<SelectSpan>Unit</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="11%" left="46%">
-														<SelectIconContainer>
-															<SelectSpan>Quantity</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="55%">
-														<SelectIconContainer>
-															<SelectSpan>Price</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="64%">
-														<SelectIconContainer>
-															<SelectSpan>Discount</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="75%">
-														<SelectIconContainer>
-															<SelectSpan>Tax Rule</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="12%" left="87%">
-														<SelectIconContainer>
-															<SelectSpan>Total</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-												</TableRow>
-											</TableBody>
-										</BodyTable>
-									</HeaderBody>
-								</HeaderContainer>
-							</Headers>
-
-							<HeaderBodyContainer>
-								<HeaderBody>
-									<BodyTable>
-										<TableBody>{this.renderProductOrderInputFields()}</TableBody>
-									</BodyTable>
-								</HeaderBody>
-								{this.state.variable.get('values').get('productInvoiceDetails').length === 0 ? (
-									<EmptyRow>You do not have any Purchase Order Lines.</EmptyRow>
-								) : (
-									undefined
-								)}
-							</HeaderBodyContainer>
-							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addVariableToProductOrderInputList()}>
-									<i className="large material-icons">add</i>Add more items
-								</AddMoreButton>
-							</AddMoreBlock>
-						</TableFieldContainer>
-					</RoundedBlock>
-
-					<H3 style={{ paddingTop: '20px' }}>Additional Cost</H3>
 					<PageBarAlign style={{ paddingBottom: '20px' }}>
 						<PlusButton onClick={(e) => this.addAdditionalCostListVariable()}>
 							<i className="large material-icons">add</i>
@@ -675,7 +373,7 @@ class PurchaseOrderDetails extends React.Component {
 													</TableHeaders>
 													<TableHeaders width="11%" left="8%">
 														<SelectIconContainer>
-															<SelectSpan>Desciption</SelectSpan>
+															<SelectSpan>Service</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
 													<TableHeaders width="11%" left="22%">
@@ -721,7 +419,7 @@ class PurchaseOrderDetails extends React.Component {
 									</BodyTable>
 								</HeaderBody>
 								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
-									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
+									<EmptyRow>You do not have any Product Purchase Order.</EmptyRow>
 								) : (
 									undefined
 								)}
@@ -751,10 +449,8 @@ class PurchaseOrderDetails extends React.Component {
 						<RightBlockTable>
 							<BlockTableHead>
 								<TableRow>
-									<BlockTableHeader width="25%" />
-									<BlockTableHeader width="25%">Order Lines</BlockTableHeader>
-									<BlockTableHeader width="25%">Additional Cost</BlockTableHeader>
-									<BlockTableHeader width="25%">Total</BlockTableHeader>
+									<BlockTableHeader width="20%" />
+									<BlockTableHeader width="10%">Total</BlockTableHeader>
 								</TableRow>
 							</BlockTableHead>
 							<BlockTableBody>
@@ -784,58 +480,22 @@ class PurchaseOrderDetails extends React.Component {
 										<BlockInnerTable>
 											<TableBody>
 												<TableRow>
-													<BlockTableTd>{this.state.productCostBeforeTax}</BlockTableTd>
-												</TableRow>
-												<TableRow>
-													<BlockTableTd>{this.state.totalTaxOnProduct}</BlockTableTd>
-												</TableRow>
-												<TableRow>
 													<BlockTableTd>
-														{this.state.productCostBeforeTax + this.state.totalTaxOnProduct}
-													</BlockTableTd>
-												</TableRow>
-											</TableBody>
-										</BlockInnerTable>
-									</BlockTableTd>
-									<BlockTableTd style={{ border: 'none' }}>
-										<BlockInnerTable>
-											<TableBody>
-												<TableRow>
-													<BlockTableTd>{this.state.additionalCostBefroeTax}</BlockTableTd>
-												</TableRow>
-												<TableRow>
-													<BlockTableTd>{this.state.totalTaxOnAdditionalCost}</BlockTableTd>
-												</TableRow>
-												<TableRow>
-													<BlockTableTd>
-														{this.state.additionalCostBefroeTax +
-															this.state.totalTaxOnAdditionalCost}
-													</BlockTableTd>
-												</TableRow>
-											</TableBody>
-										</BlockInnerTable>
-									</BlockTableTd>
-									<BlockTableTd style={{ border: 'none' }}>
-										<BlockInnerTable>
-											<TableBody>
-												<TableRow>
-													<BlockTableTd>
-														{this.state.productCostBeforeTax +
-															this.state.additionalCostBefroeTax}
+														{this.state.variable
+															.get('values')
+															.get('additionalCostBeforeTax')}
 													</BlockTableTd>
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
-														{this.state.totalTaxOnAdditionalCost +
-															this.state.totalTaxOnProduct}
+														{this.state.variable
+															.get('values')
+															.get('totalTaxOnAdditionalCost')}
 													</BlockTableTd>
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
-														{this.state.totalTaxOnAdditionalCost +
-															this.state.totalTaxOnProduct +
-															this.state.productCostBeforeTax +
-															this.state.additionalCostBefroeTax}
+                                                    {this.state.variable.get('values').get('total')}
 													</BlockTableTd>
 												</TableRow>
 											</TableBody>
@@ -913,9 +573,9 @@ class PurchaseOrderDetails extends React.Component {
 					<RoundedBlock style={{ marginTop: '20px' }}>
 						<RoundBlockOuterDiv>
 							<RoundBlockInnerDiv>
-								<Span color="#b5b9c2">Balance Due</Span>
+								<Span color="#b5b9c2">Total Amount</Span>
 								<Span color="#41454e" marginLeft="10px">
-									0.00{' '}
+									{this.state.variable.get('values').get('total')}
 								</Span>
 							</RoundBlockInnerDiv>
 						</RoundBlockOuterDiv>
@@ -932,4 +592,4 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseOrderDetails);
+export default connect(mapStateToProps, { clearErrors, getVariables })(ServicePurchaseOrderDetails);

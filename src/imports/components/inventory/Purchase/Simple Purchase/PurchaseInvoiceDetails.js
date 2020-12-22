@@ -3,15 +3,14 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import styled from 'styled-components';
 import Select from 'react-select';
-import { clearErrors } from '../../../redux/actions/errors';
-import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { successMessage } from '../../../main/Notification';
 import {
 	createVariable,
 	getVariables,
-	getVariable,
 	updateVariable,
 	objToMapRec
-} from '../../../redux/actions/variables';
+} from '../../../../redux/actions/variables';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -61,7 +60,7 @@ import {
 	TextAreaContainer,
 	ToolbarItems,
 	Custombutton
-} from '../../../styles/inventory/Style';
+} from '../../../../styles/inventory/Style';
 
 class PurchaseInvoiceDetails extends React.Component {
 	constructor(props) {
@@ -83,22 +82,21 @@ class PurchaseInvoiceDetails extends React.Component {
 						[ 'invoiceDate', '' ],
 						[ 'dueDate', '' ],
 						[ 'invoiceNumber', '' ],
-						[ 'total', '' ],
+						[ 'total', 0 ],
 						[ 'purchaseOrderMemo', '' ],
 						[ 'transactions', [] ],
-						[ 'balanceDue', '' ],
+						[ 'balanceDue', 0 ],
 						[ 'purchaseOrder', '' ],
 						[ 'supplier', '' ],
 						[ 'account', '' ],
-						[ 'paymentStatus', 'Due' ]
+						[ 'paymentStatus', 'Due' ],
+						[ 'productCostBeforeTax', 0 ],
+						[ 'additionalCostBeforeTax', 0 ],
+						[ 'totalTaxOnProduct', 0 ],
+						[ 'totalTaxOnAdditionalCost', 0 ]
 					])
 				]
-			]),
-			productCostBeforeTax: 0,
-			additionalCostBeforeTax: 0,
-			totalTaxOnProduct: 0,
-			totalTaxOnAdditionalCost: 0,
-			totalCost: 0
+			])
 		};
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
@@ -171,7 +169,9 @@ class PurchaseInvoiceDetails extends React.Component {
 				break;
 		}
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable }, () => {
+			this.onCalculateTotal();
+		});
 	}
 
 	onAdditionalCostChange(e, variableName) {
@@ -359,7 +359,6 @@ class PurchaseInvoiceDetails extends React.Component {
 	}
 
 	onCalculateTotal() {
-		console.log('infuntion');
 		var productCostBeforeTax = 0;
 		var totalTaxOnProduct = 0;
 		var additionalCostBeforeTax = 0;
@@ -399,14 +398,15 @@ class PurchaseInvoiceDetails extends React.Component {
 				switch (taxRule.values.taxType) {
 					case 'Exclusive':
 						totalTaxOnAdditionalCost =
-						totalTaxOnAdditionalCost +
+							totalTaxOnAdditionalCost +
 							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
-							additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+						additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
 						break;
 					case 'Inclusive':
 						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
 						totalTaxOnAdditionalCost = totalTaxOnAdditionalCost + tax;
-						additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total') - tax;
+						additionalCostBeforeTax =
+							additionalCostBeforeTax + listVariable.get('values').get('total') - tax;
 						break;
 					default:
 						break;
@@ -415,14 +415,18 @@ class PurchaseInvoiceDetails extends React.Component {
 				additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
 			}
 		});
-		
-		var totalCost =productCostBeforeTax+totalTaxOnProduct+additionalCostBeforeTax+totalTaxOnAdditionalCost ;
+		const totalCost = productCostBeforeTax + totalTaxOnProduct + additionalCostBeforeTax + totalTaxOnAdditionalCost;
+		const variable = cloneDeep(this.state.variable);
+		const Variablevalues = variable.get('values');
+		Variablevalues.set('balanceDue', totalCost);
+		Variablevalues.set('total', totalCost);
+		Variablevalues.set('productCostBeforeTax', productCostBeforeTax);
+		Variablevalues.set('totalTaxOnProduct', totalTaxOnProduct);
+		Variablevalues.set('additionalCostBeforeTax', additionalCostBeforeTax);
+		Variablevalues.set('totalTaxOnAdditionalCost', totalTaxOnAdditionalCost);
+		variable.set('values', Variablevalues);
 		this.setState({
-			productCostBeforeTax,
-			totalTaxOnProduct,
-			additionalCostBeforeTax,
-			totalTaxOnAdditionalCost,
-			totalCost
+			variable
 		});
 	}
 
@@ -432,7 +436,7 @@ class PurchaseInvoiceDetails extends React.Component {
 		values.get('additionalCost').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="5%" left="0px">
+					<TableData width="6%" >
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -441,7 +445,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" left="8%">
+					<TableData width="11%" >
 						<TableHeaderInner>
 							<Input
 								name="description"
@@ -451,7 +455,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="22%">
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="reference"
@@ -461,7 +465,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="35%">
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="quantity"
@@ -471,27 +475,27 @@ class PurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="8%" left="50%">
+					<TableData width="8%">
 						<TableHeaderInner>
 							<Input
 								name="price"
-								type="number"
+								type="text"
 								value={listVariable.get('values').get('price')}
 								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="60%">
+					<TableData width="11%" >
 						<TableHeaderInner>
 							<Input
 								name="discount"
-								type="number"
+								type="text"
 								value={listVariable.get('values').get('discount')}
 								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="73%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -501,7 +505,7 @@ class PurchaseInvoiceDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onAdditionalCostChange(
-											{ target: { name: 'country', value: option.value } },
+											{ target: { name: 'taxRule', value: option.value } },
 											listVariable.get('variableName')
 										);
 									}}
@@ -518,7 +522,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="85%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="total"
@@ -688,7 +692,7 @@ class PurchaseInvoiceDetails extends React.Component {
 								name="total"
 								type="number"
 								value={listVariable.get('values').get('total')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
+								readOnly
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -786,16 +790,6 @@ class PurchaseInvoiceDetails extends React.Component {
 								readOnly
 							/>
 							<InputLabel>Total</InputLabel>
-						</FormControl>
-						<FormControl>
-							<Input
-								name="balanceDue"
-								type="number"
-								placeholder="Default"
-								value={this.state.variable.get('values').get('balanceDue')}
-								readOnly
-							/>
-							<InputLabel>Balance Due</InputLabel>
 						</FormControl>
 					</InputColumnWrapper>
 				</PageBar>
@@ -909,7 +903,6 @@ class PurchaseInvoiceDetails extends React.Component {
 							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
-
 					<H3 style={{ paddingTop: '20px' }}>Additional Cost</H3>
 					<PageBarAlign style={{ paddingBottom: '20px' }}>
 						<PlusButton onClick={(e) => this.addAdditionalCostListVariable()}>
@@ -1028,7 +1021,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							<BlockTableHead>
 								<TableRow>
 									<BlockTableHeader width="25%" />
-									<BlockTableHeader width="25%">Order Lines</BlockTableHeader>
+									<BlockTableHeader width="25%">Invoice Lines</BlockTableHeader>
 									<BlockTableHeader width="25%">Additional Cost</BlockTableHeader>
 									<BlockTableHeader width="25%">Total</BlockTableHeader>
 								</TableRow>
@@ -1060,32 +1053,19 @@ class PurchaseInvoiceDetails extends React.Component {
 										<BlockInnerTable>
 											<TableBody>
 												<TableRow>
-													<BlockTableTd>{this.state.productCostBeforeTax}</BlockTableTd>
-												</TableRow>
-												<TableRow>
-													<BlockTableTd>{this.state.totalTaxOnProduct}</BlockTableTd>
-												</TableRow>
-												<TableRow>
 													<BlockTableTd>
-														{this.state.productCostBeforeTax + this.state.totalTaxOnProduct}
+														{this.state.variable.get('values').get('productCostBeforeTax')}
 													</BlockTableTd>
 												</TableRow>
-											</TableBody>
-										</BlockInnerTable>
-									</BlockTableTd>
-									<BlockTableTd style={{ border: 'none' }}>
-										<BlockInnerTable>
-											<TableBody>
 												<TableRow>
-													<BlockTableTd>{this.state.additionalCostBeforeTax}</BlockTableTd>
-												</TableRow>
-												<TableRow>
-													<BlockTableTd>{this.state.totalTaxOnAdditionalCost}</BlockTableTd>
+													<BlockTableTd>
+														{this.state.variable.get('values').get('totalTaxOnProduct')}
+													</BlockTableTd>
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
-														{this.state.additionalCostBeforeTax +
-															this.state.totalTaxOnAdditionalCost}
+														{this.state.variable.get('values').get('productCostBeforeTax') +
+															this.state.variable.get('values').get('totalTaxOnProduct')}
 													</BlockTableTd>
 												</TableRow>
 											</TableBody>
@@ -1096,19 +1076,53 @@ class PurchaseInvoiceDetails extends React.Component {
 											<TableBody>
 												<TableRow>
 													<BlockTableTd>
-														{this.state.productCostBeforeTax +
-															this.state.additionalCostBeforeTax}
+														{this.state.variable
+															.get('values')
+															.get('additionalCostBeforeTax')}
 													</BlockTableTd>
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
-														{this.state.totalTaxOnAdditionalCost +
-															this.state.totalTaxOnProduct}
+														{this.state.variable
+															.get('values')
+															.get('totalTaxOnAdditionalCost')}
 													</BlockTableTd>
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
-														{this.state.totalCost}
+														{this.state.variable
+															.get('values')
+															.get('additionalCostBeforeTax') +
+															this.state.variable
+																.get('values')
+																.get('totalTaxOnAdditionalCost')}
+													</BlockTableTd>
+												</TableRow>
+											</TableBody>
+										</BlockInnerTable>
+									</BlockTableTd>
+									<BlockTableTd style={{ border: 'none' }}>
+										<BlockInnerTable>
+											<TableBody>
+												<TableRow>
+													<BlockTableTd>
+														{this.state.variable.get('values').get('productCostBeforeTax') +
+															this.state.variable
+																.get('values')
+																.get('additionalCostBeforeTax')}
+													</BlockTableTd>
+												</TableRow>
+												<TableRow>
+													<BlockTableTd>
+														{this.state.variable
+															.get('values')
+															.get('totalTaxOnAdditionalCost') +
+															this.state.variable.get('values').get('totalTaxOnProduct')}
+													</BlockTableTd>
+												</TableRow>
+												<TableRow>
+													<BlockTableTd>
+														{this.state.variable.get('values').get('total')}
 													</BlockTableTd>
 												</TableRow>
 											</TableBody>
@@ -1188,7 +1202,7 @@ class PurchaseInvoiceDetails extends React.Component {
 							<RoundBlockInnerDiv>
 								<Span color="#b5b9c2">Balance Due</Span>
 								<Span color="#41454e" marginLeft="10px">
-									0.00{' '}
+									{this.state.variable.get('values').get('balanceDue')}
 								</Span>
 							</RoundBlockInnerDiv>
 						</RoundBlockOuterDiv>

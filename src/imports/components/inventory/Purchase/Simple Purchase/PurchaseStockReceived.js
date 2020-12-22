@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { clearErrors } from '../../../redux/actions/errors';
-import { getVariables } from '../../../redux/actions/variables';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { getVariables } from '../../../../redux/actions/variables';
 import Select from 'react-select';
 import {
 	AddMoreBlock,
@@ -32,7 +32,7 @@ import {
 	TableHeaders,
 	TableRow,
 	ToolbarItems
-} from '../../../styles/inventory/Style';
+} from '../../../../styles/inventory/Style';
 
 class PurchaseStockReceived extends React.Component {
 	constructor(props) {

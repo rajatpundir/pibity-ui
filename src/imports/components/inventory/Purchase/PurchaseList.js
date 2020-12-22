@@ -94,12 +94,7 @@ class PurchaseOrderList extends React.Component {
 
 	renderInputFields() {
 		const rows = [];
-		const list = this.state.activeCustomerOnly
-			? this.state.purchaseOrder.filter(
-					(purchaseOrder) => purchaseOrder.values.general.values.status === 'Active'
-				)
-			: this.state.purchaseOrder;
-		list.forEach((purchaseOrder) => {
+		this.state.purchaseOrder.forEach((purchaseOrder) => {
 			rows.push(
 				<TableRow onClick={this.handleRowClick} key={purchaseOrder.variableName}>
 					<TableData width="5%" />
@@ -220,7 +215,7 @@ class PurchaseOrderList extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow style={{backgroundColor: '#f3f3f387'}}>
+													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%">
 															<SelectIconContainer>
 																<SelectSpan>

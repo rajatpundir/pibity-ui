@@ -10,7 +10,8 @@ import ManageUsers from '../components/userManagement/ManageUsers';
 import Profile from '../components/userManagement/UserProfile/Profile';
 import Product from '../components/inventory/Product/Product';
 import Supplier from '../components/inventory/Supplier/Supplier';
-import Purchase from '../components/inventory/Purchase/Purchase';
+import Purchase from '../components/inventory/Purchase/Simple Purchase/Purchase';
+import ServicePurchase from '../components/inventory/Purchase/ServicePurchase/ServicePurchase'
 import Customer from '../components/inventory/Customer/Customer';
 import CustomerList from '../components/inventory/Customer/CustomerList';
 import ProductList from '../components/inventory/Product/ProductList';
@@ -49,16 +50,22 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/purchase" render={(props) => <Purchase {...props} />} />
 			<PrivateRoute exact path="/purchaseList" render={(props) => <PurchaseList {...props} />} />
 			<PrivateRoute exact path="/purchase/:variableName" render={(props) => <Purchase {...props} />} />
+			<PrivateRoute exact path="/servicePurchase" render={(props) => <ServicePurchase {...props} />} />
+			<PrivateRoute exact path="/servicePurchase/:variableName" render={(props) => <ServicePurchase {...props} />} />
+			
 			<PrivateRoute exact path="/customer" render={(props) => <Customer {...props} />} />
 			<PrivateRoute exact path="/customerList" render={(props) => <CustomerList {...props} />} />
 			<PrivateRoute exact path="/customerList/:variableName" render={(props) => <Customer {...props} />} />
 			<PrivateRoute exact path="/stockAdjustment" render={(props) => <StockAdjustment {...props} />} />
 			<PrivateRoute exact path="/stockAdjustmentList" render={(props) => <StockAdjustmentList {...props} />} />
+		
+		
 			<PrivateRoute exact path="/Invoice" render={(props) => <Invoice {...props} />} />
 			<PrivateRoute exact path="/Quotes" render={(props) => <Quotes {...props} />} />
 			<PrivateRoute exact path="/Bill" render={(props) => <Bill {...props} />} />
 			<PrivateRoute exact path="/PurchaseOrder" render={(props) => <PurchaseOrder {...props} />} />
 			<PrivateRoute exact path="/CreditNote" render={(props) => <CreditNote {...props} />} />
+			
 			<PrivateRoute exact path="/stockAdjustmentList/:variableName" render={(props) => <StockAdjustment {...props} />} />
 			<PrivateRoute exact path="/addNewUser" render={(props) => <Profile {...props} />} />
 			<PrivateRoute exact path="/debitNote" render={(props) => <DebitNote {...props} />} />
