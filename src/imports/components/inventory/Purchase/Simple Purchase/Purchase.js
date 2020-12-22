@@ -356,6 +356,7 @@ class Purchase extends React.Component {
 						<PurchaseGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
+							creatable={!this.state.createPo}
 						/>
 						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>
@@ -372,36 +373,68 @@ class Purchase extends React.Component {
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
 											<BlockListItemButton
+												style={{
+													opacity: this.state.createPo ? '0.5' : '1',
+													pointerEvents: this.state.createPo ? 'none' : 'all'
+												}}
 												onClick={
 													this.state.createPo ? (
 														undefined
 													) : (
-														this.setState({ visibleSection: 'invoice' })													)
+														this.setState({ visibleSection: 'invoice' })
+													)
 												}
-												disabled
 											>
 												Invoice
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
 											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'stockReceived' });
+												style={{
+													opacity: this.state.variable.get('values').get('invoiceCreated')
+														? '1'
+														: '0.5',
+													pointerEvents: this.state.variable
+														.get('values')
+														.get('invoiceCreated')
+														? 'all'
+														: 'none'
 												}}
+												onClick={
+													this.state.variable.get('values').get('invoiceCreated') ? (
+														this.setState({ visibleSection: 'stockReceived' })
+													) : (
+														undefined
+													)
+												}
 											>
 												Stock Received
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
+										{/* <HoizontalBlockListItems>
 											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'creditNote' });
+												style={{
+													opacity: this.state.variable.get('values').get('invoiceCreated')
+														? '1'
+														: '0.5',
+													pointerEvents: this.state.variable
+														.get('values')
+														.get('invoiceCreated')
+														? 'all'
+														: 'none'
 												}}
+												onClick={
+													this.state.variable.get('values').get('invoiceCreated') ? (
+														this.setState({ visibleSection: 'creditNote' })
+													) : (
+														undefined
+													)
+												}
 											>
 												Credit Note
 											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
+										</HoizontalBlockListItems> */}
+										{/* <HoizontalBlockListItems>
 											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'unStock' });
@@ -418,7 +451,7 @@ class Purchase extends React.Component {
 											>
 												Manual Journals
 											</BlockListItemButton>
-										</HoizontalBlockListItems>
+										</HoizontalBlockListItems> */}
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>

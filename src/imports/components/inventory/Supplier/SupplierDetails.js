@@ -79,7 +79,7 @@ class SupplierDetails extends React.Component {
 					</IconButton>
 				</PageToolbar>
 				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
-					<InputBody>
+					<InputBody overflow="visible">
 						<InputFieldContainer>
 							<InputColumnWrapper>
 								<FormControl>

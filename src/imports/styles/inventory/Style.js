@@ -1130,7 +1130,7 @@ export const BlockListItemButton = styled.button`
 	border-radius: 4px;
 	font-size: 13px;
 	font-weight: 300;
-	color: #3b3b3b;
+	color: #191313;
 	padding: 0 10px;
 	display: flex;
 	align-items: center;
@@ -1149,6 +1149,7 @@ export const BlockListItemButton = styled.button`
 
 	&:hover {
 		background-color: #25c99f;
+		color: black
 	}
 
 	&:before,

@@ -121,6 +121,7 @@ class PurchaseGeneralDetails extends React.Component {
 												value: this.state.variable.get('variableName'),
 												label: this.state.variable.get('variableName')
 											}}
+											isDisabled={this.props.creatable}
 											onChange={(option) => {
 												this.onVariableNameChange({
 													target: {
@@ -236,7 +237,37 @@ class PurchaseGeneralDetails extends React.Component {
 									<InputLabel>Required By</InputLabel>
 								</FormControl>
 								<FormControl>
-									<Input />
+								<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('account'),
+												label: this.state.variable.get('values').get('account')
+											}}
+											isDisabled={this.props.creatable}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'account',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={
+												this.props.variables.Account !== undefined ? (
+													this.props.variables.Account.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName,
+															data: variable.values
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
 									<InputLabel>Inventory Account</InputLabel>
 								</FormControl>
 								

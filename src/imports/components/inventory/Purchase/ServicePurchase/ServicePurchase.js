@@ -328,6 +328,7 @@ class ServicePurchase extends React.Component {
 						<ServicePurchaseGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
+							creatable={!this.state.createPo}
 						/>
 						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>
