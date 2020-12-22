@@ -920,6 +920,7 @@ export const TextArea = styled.textarea`
 	flex: 1;
 	min-height: 40px;
 	background-color: #fff;
+	resize:none;
 `;
 export const AddMoreBlock = styled.div`
 	flex-flow: row wrap;

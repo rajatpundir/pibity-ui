@@ -55,8 +55,14 @@ class PurchaseOrderDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable
+			variable: props.variable,
+			productCostBeforeTax: 0,
+			additionalCostBefroeTax: 0,
+			totalTaxOnProduct: 0,
+			totalTaxOnAdditionalCost: 0,
+			totalCost: 0
 		};
+
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
@@ -71,7 +77,6 @@ class PurchaseOrderDetails extends React.Component {
 	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
-		
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -89,13 +94,45 @@ class PurchaseOrderDetails extends React.Component {
 		this.setState({ variable: variable });
 		this.props.updateInvoice(variable);
 	}
+
 	onAdditionalCostChange(e, variableName) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		const list = values.get('additionalCost').map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
-				values.set(e.target.name, e.target.value);
+				switch (e.target.name) {
+					case 'quantity':
+						values.set(e.target.name, e.target.value);
+						values.set(
+							'total',
+							listVariable.get('values').get('price') *
+								e.target.value *
+								((100 - listVariable.get('values').get('discount')) / 100)
+						);
+						break;
+					case 'price':
+						values.set(e.target.name, e.target.value);
+						values.set(
+							'total',
+							listVariable.get('values').get('quantity') *
+								e.target.value *
+								((100 - listVariable.get('values').get('discount')) / 100)
+						);
+						break;
+					case 'discount':
+						values.set(e.target.name, e.target.value);
+						values.set(
+							'total',
+							listVariable.get('values').get('quantity') *
+								listVariable.get('values').get('price') *
+								((100 - e.target.value) / 100)
+						);
+						break;
+					default:
+						values.set(e.target.name, e.target.value);
+						break;
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
@@ -114,7 +151,38 @@ class PurchaseOrderDetails extends React.Component {
 		const list = values.get('productInvoiceDetails').map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
-				values.set(e.target.name, e.target.value);
+				switch (e.target.name) {
+					case 'quantity':
+						values.set(e.target.name, e.target.value);
+						values.set(
+							'total',
+							listVariable.get('values').get('price') *
+								e.target.value *
+								((100 - listVariable.get('values').get('discount')) / 100)
+						);
+						break;
+					case 'price':
+						values.set(e.target.name, e.target.value);
+						values.set(
+							'total',
+							listVariable.get('values').get('quantity') *
+								e.target.value *
+								((100 - listVariable.get('values').get('discount')) / 100)
+						);
+						break;
+					case 'discount':
+						values.set(e.target.name, e.target.value);
+						values.set(
+							'total',
+							listVariable.get('values').get('quantity') *
+								listVariable.get('values').get('price') *
+								((100 - e.target.value) / 100)
+						);
+						break;
+					default:
+						values.set(e.target.name, e.target.value);
+						break;
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
@@ -138,12 +206,12 @@ class PurchaseOrderDetails extends React.Component {
 					'values',
 					new Map([
 						[ 'description', '' ],
-						[ 'discount', '' ],
-						[ 'price', '' ],
-						[ 'quantity', '' ],
+						[ 'discount', 0 ],
+						[ 'price', 0 ],
+						[ 'quantity', 0 ],
 						[ 'reference', '' ],
 						[ 'taxRule', '' ],
-						[ 'total', '' ]
+						[ 'total', 0 ]
 					])
 				]
 			])
@@ -165,12 +233,12 @@ class PurchaseOrderDetails extends React.Component {
 					'values',
 					new Map([
 						[ 'comment', '' ],
-						[ 'discount', '' ],
-						[ 'price', '' ],
-						[ 'quantity', '' ],
+						[ 'discount', 0 ],
+						[ 'price', 0 ],
+						[ 'quantity', 0 ],
 						[ 'unit', '' ],
 						[ 'taxRule', '' ],
-						[ 'total', '' ],
+						[ 'total', 0 ],
 						[ 'supplierSKU', '' ],
 						[ 'product', '' ]
 					])
@@ -379,7 +447,7 @@ class PurchaseOrderDetails extends React.Component {
 					</TableData>
 					<TableData width="8%" left="39%">
 						<TableHeaderInner>
-						<SelectWrapper>
+							<SelectWrapper>
 								<Select
 									value={{
 										value: listVariable.get('values').get('unit'),
@@ -683,9 +751,10 @@ class PurchaseOrderDetails extends React.Component {
 						<RightBlockTable>
 							<BlockTableHead>
 								<TableRow>
-									<BlockTableHeader>Order Lines</BlockTableHeader>
-									<BlockTableHeader width="150px">Additional Cost</BlockTableHeader>
-									<BlockTableHeader width="120px">Total</BlockTableHeader>
+									<BlockTableHeader width="25%" />
+									<BlockTableHeader width="25%">Order Lines</BlockTableHeader>
+									<BlockTableHeader width="25%">Additional Cost</BlockTableHeader>
+									<BlockTableHeader width="25%">Total</BlockTableHeader>
 								</TableRow>
 							</BlockTableHead>
 							<BlockTableBody>
@@ -697,19 +766,16 @@ class PurchaseOrderDetails extends React.Component {
 													<BlockTableTd>
 														<Span color="#41454e">BEFORE TAX</Span>
 													</BlockTableTd>
-													<BlockTableTd>0.00</BlockTableTd>
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
 														<Span color="#41454e">TAX</Span>
 													</BlockTableTd>
-													<BlockTableTd>0.00</BlockTableTd>
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
 														<Span color="#41454e">TOTAL </Span>
 													</BlockTableTd>
-													<BlockTableTd>0.00</BlockTableTd>
 												</TableRow>
 											</TableBody>
 										</BlockInnerTable>
@@ -718,13 +784,15 @@ class PurchaseOrderDetails extends React.Component {
 										<BlockInnerTable>
 											<TableBody>
 												<TableRow>
-													<BlockTableTd>0.00</BlockTableTd>
+													<BlockTableTd>{this.state.productCostBeforeTax}</BlockTableTd>
 												</TableRow>
 												<TableRow>
-													<BlockTableTd>0.00</BlockTableTd>
+													<BlockTableTd>{this.state.totalTaxOnProduct}</BlockTableTd>
 												</TableRow>
 												<TableRow>
-													<BlockTableTd>0.00</BlockTableTd>
+													<BlockTableTd>
+														{this.state.productCostBeforeTax + this.state.totalTaxOnProduct}
+													</BlockTableTd>
 												</TableRow>
 											</TableBody>
 										</BlockInnerTable>
@@ -733,13 +801,42 @@ class PurchaseOrderDetails extends React.Component {
 										<BlockInnerTable>
 											<TableBody>
 												<TableRow>
-													<BlockTableTd>0.00</BlockTableTd>
+													<BlockTableTd>{this.state.additionalCostBefroeTax}</BlockTableTd>
 												</TableRow>
 												<TableRow>
-													<BlockTableTd>0.00</BlockTableTd>
+													<BlockTableTd>{this.state.totalTaxOnAdditionalCost}</BlockTableTd>
 												</TableRow>
 												<TableRow>
-													<BlockTableTd>0.00</BlockTableTd>
+													<BlockTableTd>
+														{this.state.additionalCostBefroeTax +
+															this.state.totalTaxOnAdditionalCost}
+													</BlockTableTd>
+												</TableRow>
+											</TableBody>
+										</BlockInnerTable>
+									</BlockTableTd>
+									<BlockTableTd style={{ border: 'none' }}>
+										<BlockInnerTable>
+											<TableBody>
+												<TableRow>
+													<BlockTableTd>
+														{this.state.productCostBeforeTax +
+															this.state.additionalCostBefroeTax}
+													</BlockTableTd>
+												</TableRow>
+												<TableRow>
+													<BlockTableTd>
+														{this.state.totalTaxOnAdditionalCost +
+															this.state.totalTaxOnProduct}
+													</BlockTableTd>
+												</TableRow>
+												<TableRow>
+													<BlockTableTd>
+														{this.state.totalTaxOnAdditionalCost +
+															this.state.totalTaxOnProduct +
+															this.state.productCostBeforeTax +
+															this.state.additionalCostBefroeTax}
+													</BlockTableTd>
 												</TableRow>
 											</TableBody>
 										</BlockInnerTable>
@@ -836,4 +933,3 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseOrderDetails);
-
