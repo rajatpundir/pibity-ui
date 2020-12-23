@@ -332,7 +332,6 @@ class Purchase extends React.Component {
 													this.props.createVariable(this.state.variable).then((response) => {
 														if (response.status === 200) {
 															this.setState({
-																createPo:false,
 																purchaseOrderVariableName: response.data.variableName,
 																supplier:
 																	response.data.values.general.values.supplierName,
@@ -378,7 +377,7 @@ class Purchase extends React.Component {
 													opacity: this.state.createPo ? '0.5' : '1',
 													pointerEvents: this.state.createPo ? 'none' : 'all'
 												}}
-												onClick={
+												onClick={(e)=>
 													this.state.createPo ? (
 														undefined
 													) : (
@@ -401,7 +400,7 @@ class Purchase extends React.Component {
 														? 'all'
 														: 'none'
 												}}
-												onClick={
+												onClick={(e)=>
 													this.state.variable.get('values').get('invoiceCreated') ? (
 														this.setState({ visibleSection: 'stockReceived' })
 													) : (
@@ -463,7 +462,7 @@ class Purchase extends React.Component {
 								updateOrder={this.updateOrder}
 							/>
 						)}
-						{this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />}
+						{/* {this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />} */}
 						{this.state.visibleSection === 'invoice' && (
 							<PurchaseInvoiceDetails
 								purchaseOrder={this.state.purchaseOrderVariableName}

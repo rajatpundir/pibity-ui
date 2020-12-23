@@ -55,12 +55,7 @@ class PurchaseOrderDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable,
-			productCostBeforeTax: 0,
-			additionalCostBefroeTax: 0,
-			totalTaxOnProduct: 0,
-			totalTaxOnAdditionalCost: 0,
-			totalCost: 0
+			variable: props.variable
 		};
 
 		this.onChange = this.onChange.bind(this);
