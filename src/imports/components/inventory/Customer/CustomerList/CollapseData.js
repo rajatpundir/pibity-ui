@@ -46,7 +46,7 @@ class CollapseData extends React.Component {
 					{this.props.layout.get('name') ? (
 						<TableData width="10%">
 							<TableHeaderInner overflow="hidden">
-								<Link to={'/supplier/' + encodeURIComponent(this.state.data.variableName)}>
+								<Link to={'/customerList/' + encodeURIComponent(this.state.data.variableName)}>
 									{this.state.data.variableName}
 								</Link>
 							</TableHeaderInner>

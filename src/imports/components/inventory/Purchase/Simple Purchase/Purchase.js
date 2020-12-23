@@ -332,6 +332,7 @@ class Purchase extends React.Component {
 													this.props.createVariable(this.state.variable).then((response) => {
 														if (response.status === 200) {
 															this.setState({
+																createPo:false,
 																purchaseOrderVariableName: response.data.variableName,
 																supplier:
 																	response.data.values.general.values.supplierName,

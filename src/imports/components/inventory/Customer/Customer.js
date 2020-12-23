@@ -138,6 +138,7 @@ class Customer extends React.Component {
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
 		this.props.getVariables('AddressType');
+		this.props.getVariables('SalesInvoice');
 	}
 
 	componentDidMount() {
@@ -297,20 +298,20 @@ class Customer extends React.Component {
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList>
+										{this.state.visibleSection === 'accounts' ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'details' });
+													}}
+												>
+													Customer Details
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
 										<HoizontalBlockListItems>
-											{this.state.visibleSection === 'accounts' ? (
-												<HoizontalBlockListItems>
-													<BlockListItemButton
-														onClick={(e) => {
-															this.setState({ visibleSection: 'details' });
-														}}
-													>
-														Customer Details
-													</BlockListItemButton>
-												</HoizontalBlockListItems>
-											) : (
-												undefined
-											)}
 											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'addresses' });
