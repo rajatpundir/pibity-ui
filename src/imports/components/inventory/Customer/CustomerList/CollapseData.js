@@ -2,27 +2,26 @@ import styled from 'styled-components';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
-import {
-	StatusSpan,
-	StatusBackgroundColor,
-	TableData,
-	TableHeaderInner,
-	TableRow
-} from '../../../styles/inventory/Style';
 // import clsx from 'clsx';
 // import Collapse from '@material-ui/core/Collapse';
 // import IconButton from '@material-ui/core/IconButton';
 // import TableCell from '@material-ui/core/TableCell';
 // import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 // import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-
+import {
+	StatusSpan,
+	StatusBackgroundColor,
+	TableData,
+	TableHeaderInner,
+	TableRow
+} from '../../../../styles/inventory/Style';
 const styles = (theme) => ({
 	hide: {
 		border: 'none'
 	}
 });
 
-class SupplierListData extends React.Component {
+class CollapseData extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -30,12 +29,12 @@ class SupplierListData extends React.Component {
 			data: props.data
 		};
 	}
-
 	render() {
+		// const { classes } = this.props;
 		return (
 			<React.Fragment key={this.state.data.variableName}>
 				<TableRow onClick={this.handleRowClick} key={this.state.data.variableName}>
-				<TableData width="5%">
+					<TableData width="5%">
 						{/* <IconButton
 							aria-label="expand row"
 							size="small"
@@ -159,10 +158,10 @@ class SupplierListData extends React.Component {
 	}
 }
 
-export default withStyles(styles)(SupplierListData);
+export default withStyles(styles)(CollapseData);
+
 
 const Anchor = styled.a`
 	text-decoration: none;
 	color: #05cbbf;
-	word-break: break-word;
 `;

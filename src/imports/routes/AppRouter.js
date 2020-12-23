@@ -13,10 +13,10 @@ import Supplier from '../components/inventory/Supplier/Supplier';
 import Purchase from '../components/inventory/Purchase/Simple Purchase/Purchase';
 import ServicePurchase from '../components/inventory/Purchase/ServicePurchase/ServicePurchase'
 import Customer from '../components/inventory/Customer/Customer';
-import CustomerList from '../components/inventory/Customer/CustomerList';
+import CustomerList from '../components/inventory/Customer/CustomerList/CustomerList';
 import ProductList from '../components/inventory/Product/ProductList';
 import PurchaseList from '../components/inventory/Purchase/PurchaseList';
-import SupplierList from '../components/inventory/Supplier/SupplierList';
+import SupplierList from '../components/inventory/Supplier/SupplierList/SupplierList';
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
 import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
 import Invoice from '../components/inventory/Accounting/Invoice/Invoice';

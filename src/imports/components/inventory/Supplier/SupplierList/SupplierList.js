@@ -2,11 +2,11 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import Modal from 'react-modal';
-import { clearErrors } from '../../../redux/actions/errors';
-import { getVariables } from '../../../redux/actions/variables';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { getVariables } from '../../../../redux/actions/variables';
 import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from '../../main/TablePagination';
-import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
+import TablePaginationActions from '../../../main/TablePagination';
+import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import SupplierListData from './SupplierListData';
 import {
 	InputFieldContainer,
@@ -17,7 +17,7 @@ import {
 	ModalTitle,
 	ModalCustomStyles,
 	ModalSubmitButton
-} from '../../../styles/main/Modal';
+} from '../../../../styles/main/Modal';
 import {
 	Container,
 	PageWrapper,
@@ -46,10 +46,10 @@ import {
 	CheckBoxContainer,
 	TableFieldContainer,
 	Custombutton
-} from '../../../styles/inventory/Style';
-import { FontAwsomeIcon } from '../../main/Dashboard/Dashboard';
-import { TablePaginationStyle } from '../../../styles/main/TablePagination';
-import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
+} from '../../../../styles/inventory/Style';
+import { FontAwsomeIcon } from '../../../main/Dashboard/Dashboard';
+import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
+import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
 
 class SupplierList extends React.Component {
 	constructor(props) {
