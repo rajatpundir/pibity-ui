@@ -21,7 +21,7 @@ import {
 	ModalCloseButton
 } from '../../../../styles/main/Modal';
 
-class ClearDuesModal extends React.Component {
+class RecievePaymentModal extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -39,7 +39,7 @@ class ClearDuesModal extends React.Component {
 
 	componentDidMount() {
 		this.props.getVariables('Account');
-		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('SalesInvoice');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -68,7 +68,7 @@ class ClearDuesModal extends React.Component {
 		const args = {
 			amount: this.state.amount,
 			invoice: this.props.invoice.variableName,
-			voucher: 'Sales',
+			voucher: 'Purchase',
 			account: this.props.account.variableName
 		};
 		if (this.state.amount <= this.props.invoice.values.balanceDue) {
@@ -76,7 +76,7 @@ class ClearDuesModal extends React.Component {
 				if (data.status === 200) {
 					const request = {
 						orgId: localStorage.getItem('selectedOrganization'),
-						typeName: 'PurchaseInvoice',
+						typeName: 'SalesInvoice',
 						variableName: this.props.invoice.variableName,
 						values: {
 							transactions: {
@@ -87,7 +87,7 @@ class ClearDuesModal extends React.Component {
 					this.props.updatePurchaseInvoice(request).then((status) => {
 						successMessage('Transaction Compleated Successfully');
 					});
-					this.props.getVariables('PurchaseInvoice');
+					this.props.getVariables('SalesInvoice');
 					this.onClose();
 				}
 			});
@@ -108,7 +108,7 @@ class ClearDuesModal extends React.Component {
 				overlayClassName="boxed-view boxed-view--modal"
 			>
 				<ModalHeader>
-					<ModalTitle>Clear Dues </ModalTitle>
+					<ModalTitle>Recieve Payment</ModalTitle>
 					<ModalHeaderCloseButton
 						onClick={(e) => {
 							this.onClose(e);
@@ -139,7 +139,7 @@ class ClearDuesModal extends React.Component {
 									name="voucherType"
 									type="text"
 									placeholder=""
-									value="Sales"
+									value="Purchase"
 									minWidth="300px"
 									disabled
 								/>{' '}
@@ -241,4 +241,4 @@ export default connect(mapStateToProps, {
 	executeFuntion,
 	getVariables,
 	updatePurchaseInvoice
-})(ClearDuesModal);
+})(RecievePaymentModal);

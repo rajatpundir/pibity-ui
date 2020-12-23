@@ -16,6 +16,7 @@ import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
+import CustomerAccount from './Customer Account/CustomerAccount';
 import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
@@ -286,15 +287,30 @@ class Customer extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
-						<CustomerGeneralDetails
-							variable={this.state.variable.get('values').get('general')}
-							updateDetails={this.updateDetails}
-						/>
+						{this.state.visibleSection !== 'accounts' && (
+							<CustomerGeneralDetails
+								variable={this.state.variable.get('values').get('general')}
+								updateDetails={this.updateDetails}
+							/>
+						)}
 						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList>
 										<HoizontalBlockListItems>
+											{this.state.visibleSection === 'accounts' ? (
+												<HoizontalBlockListItems>
+													<BlockListItemButton
+														onClick={(e) => {
+															this.setState({ visibleSection: 'details' });
+														}}
+													>
+														Customer Details
+													</BlockListItemButton>
+												</HoizontalBlockListItems>
+											) : (
+												undefined
+											)}
 											<BlockListItemButton
 												onClick={(e) => {
 													this.setState({ visibleSection: 'addresses' });
@@ -312,6 +328,19 @@ class Customer extends React.Component {
 												Contacts
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
+										{this.props.match.params.variableName ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'accounts' });
+													}}
+												>
+													Customer Account
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
@@ -327,6 +356,14 @@ class Customer extends React.Component {
 								list={this.state.variable.get('values').get('addresses')}
 								updateAddresses={this.updateAddresses}
 							/>
+						)}
+
+						{this.props.match.params.variableName ? this.state.visibleSection === 'accounts' ? (
+							<CustomerAccount customer={this.props.match.params.variableName} />
+						) : (
+							undefined
+						) : (
+							undefined
 						)}
 					</PageBody>
 				</PageWrapper>
