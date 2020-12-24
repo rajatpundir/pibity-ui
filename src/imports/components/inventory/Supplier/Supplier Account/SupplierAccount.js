@@ -54,7 +54,7 @@ class SupplierAccount extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.variables.Account && nextProps.variables.PurchaseInvoice) {
 			const account = nextProps.variables.Account.filter(
-				(account) => account.values.name === nextProps.supplier
+				(account) => account.variableName === nextProps.supplierAccount
 			)[0];
 			const invoice = nextProps.variables.PurchaseInvoice.filter(
 				(invoice) => invoice.values.supplier === nextProps.supplier
@@ -65,7 +65,6 @@ class SupplierAccount extends React.Component {
 				invoice: invoice
 			};
 		}
-
 		return {
 			...prevState
 		};

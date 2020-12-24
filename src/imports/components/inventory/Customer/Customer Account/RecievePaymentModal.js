@@ -72,7 +72,7 @@ class RecievePaymentModal extends React.Component {
 			account: this.props.account.variableName
 		};
 		if (this.state.amount <= this.props.invoice.values.balanceDue) {
-			this.props.executeFuntion(args, 'createAccountTransaction').then((data) => {
+			this.props.executeFuntion(args, 'createSalesAccountTransaction').then((data) => {
 				if (data.status === 200) {
 					const request = {
 						orgId: localStorage.getItem('selectedOrganization'),
@@ -150,7 +150,7 @@ class RecievePaymentModal extends React.Component {
 							</FormControl>
 							<FormControl>
 								<Input
-									name="fromAccount"
+									name="toAccount"
 									type="text"
 									placeholder=""
 									value={this.state.invoiceAccount.values.name}
@@ -158,13 +158,13 @@ class RecievePaymentModal extends React.Component {
 									disabled
 								/>{' '}
 								<InputLabel>
-									From Account
+									To Account
 									<Required>*</Required>
 								</InputLabel>
 							</FormControl>
 							<FormControl>
 								<Input
-									name="toAccount"
+									name="fromAccount"
 									type="text"
 									placeholder=""
 									value={this.props.account.values.name}
@@ -172,7 +172,7 @@ class RecievePaymentModal extends React.Component {
 									disabled
 								/>{' '}
 								<InputLabel>
-									To Account
+									From Account
 									<Required>*</Required>
 								</InputLabel>
 							</FormControl>

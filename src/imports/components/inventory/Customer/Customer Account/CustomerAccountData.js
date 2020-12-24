@@ -34,6 +34,20 @@ class CustomerAccountData extends React.Component {
 		this.setState({ isModalOpen: false });
 	}
 
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.account !== undefined) {
+			return {
+				...prevState,
+				account: nextProps.account
+			};
+		}
+
+		return {
+			...prevState
+		};
+	}
+
 	render() {
 		const { classes } = this.props;
 		return (

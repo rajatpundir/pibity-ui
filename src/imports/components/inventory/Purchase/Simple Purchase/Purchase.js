@@ -14,7 +14,6 @@ import {
 import PurchaseGeneralDetails from './PurchaseGeneralDetails';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
 import PurchaseInvoiceDetails from './PurchaseInvoiceDetails';
-import PurchaseStockReceived from './PurchaseStockReceived';
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
 import {
@@ -110,7 +109,6 @@ class Purchase extends React.Component {
 			orderDetails: {}
 		};
 		this.updateDetails = this.updateDetails.bind(this);
-		this.updateInvoice = this.updateInvoice.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
 		this.updateStock = this.updateStock.bind(this);
 		this.onCalculateTotal = this.onCalculateTotal.bind(this);
@@ -203,13 +201,6 @@ class Purchase extends React.Component {
 		this.setState({ variable: variable });
 	}
 
-	updateInvoice(invoiceDetails) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('invoiceDetails', [ invoiceDetails ]);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-	}
 
 	updateOrder(orderDetails) {
 		const variable = cloneDeep(this.state.variable);

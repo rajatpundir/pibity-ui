@@ -33,7 +33,7 @@ import Categories from '../components/main/Reference Books/Categories';
 import UnitOfMeasure from '../components/main/Reference Books/UnitOfMeasure';
 import PaymentTerms from '../components/main/Reference Books/PaymentTerms';
 import TaxRules from '../components/main/Reference Books/TaxRules';
-import Sales from '../components/inventory/Sales/Sale/Sales'
+import Sales from '../components/inventory/Sales/Sale/Sales';
 
 export const AppRouter = () => (
 	<BrowserRouter>
@@ -72,6 +72,7 @@ export const AppRouter = () => (
 				render={(props) => <ServicePurchase {...props} />}
 			/>
 			<PrivateRoute exact path="/sales" render={(props) => <Sales {...props} />} />
+			<PrivateRoute exact path="/sales/:variableName" render={(props) => <Sales {...props} />} />
 
 			<PrivateRoute exact path="/Invoice" render={(props) => <Invoice {...props} />} />
 			<PrivateRoute exact path="/Quotes" render={(props) => <Quotes {...props} />} />

@@ -87,11 +87,12 @@ class Customer extends React.Component {
 						[ 'openingBalance', 0 ],
 						[ 'status', 'Active' ],
 						[ 'accountCategory', 'ASSET' ],
-						[ 'description', 'Supplier Account' ],
+						[ 'description', 'Customer Account' ],
 						[ 'accountType', 'Debtor' ]
 					])
 				]
 			]),
+			customerAccount:'',
 			visibleSection: 'addresses'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -119,7 +120,8 @@ class Customer extends React.Component {
 					...prevState,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
+					prevVariable: prevVariableMap,
+					customerAccount:variable.values.account
 				};
 			}
 		}
@@ -129,6 +131,8 @@ class Customer extends React.Component {
 	getData() {
 		this.props.clearErrors();
 		this.props.getVariables('Country');
+		this.props.getVariables('States');
+		this.props.getVariables('PinCode');
 		this.props.getVariables('Currency');
 		this.props.getVariables('CarrierService');
 		this.props.getVariables('PaymentTerm');
@@ -142,12 +146,14 @@ class Customer extends React.Component {
 	}
 
 	componentDidMount() {
+		this.props.getVariables('Account');
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
 			if (this.props.match.params.variableName) {
 				const variable = decodeURIComponent(this.props.match.params.variableName);
 				this.props.getVariable(this.state.variable.get('typeName'), variable);
+				this.props.getVariables('SalesInvoice');
 			}
 			this.getData();
 		}
@@ -236,7 +242,10 @@ class Customer extends React.Component {
 		const values = variable.get('values');
 		values.set('account', accountName);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({
+			variable: variable,
+			customerAccount: accountName
+		});
 	}
 
 	render() {
@@ -360,7 +369,10 @@ class Customer extends React.Component {
 						)}
 
 						{this.props.match.params.variableName ? this.state.visibleSection === 'accounts' ? (
-							<CustomerAccount customer={this.props.match.params.variableName} />
+							<CustomerAccount
+								customer={this.props.match.params.variableName}
+								customerAccount={this.state.customerAccount}
+							/>
 						) : (
 							undefined
 						) : (

@@ -1,9 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import SupplierAccountData from './SupplierAccountData';
-import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from '../../../main/TablePagination';
 import { getVariables } from '../../../../redux/actions/variables';
 
 import {
@@ -11,26 +8,17 @@ import {
 	HeaderBody,
 	HeaderBodyContainer,
 	InputBody,
-	LeftItemH1,
-	PageBarAlign,
-	PageBlock,
-	PageToolbar,
 	TableData,
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
 	TableHeaderInner,
 	TableBody,
 	TableFieldContainer,
 	TableHeaders,
-	TableRow,
-	ToolbarItems,
-	CheckBoxInput,
-	CheckBoxLabel,
-	CheckBoxContainer
+	TableRow
 } from '../../../../styles/inventory/Style';
-import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
+import { EmptyRowImageContainer, EmptyRowTag } from '../../../../styles/main/Dashboard';
 
 class InvoiceTransactionHistory extends React.Component {
 	constructor(props) {

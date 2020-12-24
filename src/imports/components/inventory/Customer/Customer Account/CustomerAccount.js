@@ -53,7 +53,7 @@ class CustomerAccount extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.variables.Account && nextProps.variables.SalesInvoice) {
 			const account = nextProps.variables.Account.filter(
-				(account) => account.values.name === nextProps.customer
+				(account) => account.variableName === nextProps.customerAccount
 			)[0];
 			const invoice = nextProps.variables.SalesInvoice.filter(
 				(invoice) => invoice.values.customer === nextProps.customer
@@ -64,7 +64,6 @@ class CustomerAccount extends React.Component {
 				invoice: invoice
 			};
 		}
-
 		return {
 			...prevState
 		};

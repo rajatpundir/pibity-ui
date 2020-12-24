@@ -1,108 +1,460 @@
 import React from 'react';
-import styled from 'styled-components';
+import { connect } from 'react-redux';
+import { cloneDeep } from 'lodash';
+import 'react-toastify/dist/ReactToastify.css';
+import { customErrorMessage, successMessage, CustomNotification } from '../../../main/Notification';
+import { clearErrors } from '../../../../redux/actions/errors';
+import {
+	createVariable,
+	getVariables,
+	getVariable,
+	updateVariable,
+	objToMapRec
+} from '../../../../redux/actions/variables';
+import SalesGeneralDetails from './SalesGeneralDetails';
+import SimpleSalesOrder from './SimpleSalesOrder';
+import SimpleSalesInvoice from './SimpleSalesInvoice';
+import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
-import SalesDetails from './SalesDetails';
-import SimpleSalesOrder from './SimpleSalesOrder'
+import {
+	Container,
+	PageWrapper,
+	PageBody,
+	SaveButtonContaier,
+	SaveButton,
+	HorizontalListPageBlock,
+	HorizontalBlockListOuter,
+	HorizontalBlockListInnerWrapper,
+	HoizontalBlockList,
+	HoizontalBlockListItems,
+	BlockListItemButton
+} from '../../../../styles/inventory/Style';
 
-class Sales extends React.Component {
+class SimpleSale extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			visibleSection: 'quote1',
+			isOpen: false,
+			createSalesOrder: true,
+			createPo: true,
+			prevPropVariable: {},
+			prevVariable: new Map(),
 			variable: new Map([
+				[ 'typeName', 'SalesOrder' ],
+				[ 'variableName', '' ],
 				[
 					'values',
-					new Map([ [ 'quote1', [] ], [ 'invoice1', [] ], [ 'order1', [] ], [ 'pack', [] ], [ 'pick', [] ] ])
+					new Map([
+						[
+							'general',
+							new Map([
+								[ 'variableName', '' ],
+								[
+									'values',
+									new Map([
+										[ 'CustomerName', '' ],
+										[ 'term', '' ],
+										[ 'taxRule', '' ],
+										[ 'date', '' ],
+										[ 'account', '1' ],
+										[ 'contact', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
+										[ 'phone', '' ],
+										[ 'shippingAddress1', '' ],
+										[ 'shippingAddress2', '' ],
+										[ 'location', '' ],
+										[
+											'vendorAddressLine1',
+											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
+										],
+										[
+											'vendorAddressLine2',
+											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
+										],
+										[ 'requiredBy', '' ],
+										[ 'comments', '' ]
+									])
+								]
+							])
+						],
+						[
+							'orderDetails',
+							[
+								new Map([
+									[ 'variableName', '0' ],
+									[
+										'values',
+										new Map([
+											[ 'additionalCost', [] ],
+											[ 'productInvoiceDetails', [] ],
+											[ 'customerDeposit', [] ],
+											[ 'total', 0 ],
+											[ 'salesOrderMemo', '' ],
+											[ 'productCostBeforeTax', 0 ],
+											[ 'additionalCostBeforeTax', 0 ],
+											[ 'totalTaxOnProduct', 0 ],
+											[ 'totalTaxOnAdditionalCost', 0 ]
+										])
+									]
+								])
+							]
+						],
+						[ 'invoiceCreated', false ]
+					])
 				]
-			])
+			]),
+			visibleSection: 'order',
+			salesOrderVariableName: '',
+			customer: '',
+			account: '',
+			orderDetails: {}
 		};
+		this.updateDetails = this.updateDetails.bind(this);
+		this.updateOrder = this.updateOrder.bind(this);
+		this.updateStock = this.updateStock.bind(this);
+		this.onCalculateTotal = this.onCalculateTotal.bind(this);
+		this.onClose = this.onClose.bind(this);
+	}
+
+	getData() {
+		this.props.clearErrors();
+		this.props.getVariables('Customer');
+		this.props.getVariables('Location');
+		this.props.getVariables('PaymentTerm');
+		this.props.getVariables('TaxRule');
+		this.props.getVariables('Product');
+		this.props.getVariables('UnitOfMeasure');
+	}
+
+	componentDidMount() {
+		if (this.props.auth.selectedOrganization === null) {
+			this.setState({ isOpen: true });
+		} else {
+			if (this.props.match.params.variableName) {
+				this.props.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName);
+			}
+			this.getData();
+		}
+	}
+
+	onClose() {
+		this.setState({ isOpen: false });
+		if (this.props.match.params.variableName) {
+			this.props.getVariable(this.state.variable.get('typeName'), this.props.match.params.variableName);
+		}
+		this.getData();
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.match.params.variableName && nextProps.variables.SalesOrder) {
+			const variable = nextProps.variables.SalesOrder.filter(
+				(variable) => variable.variableName === nextProps.match.params.variableName
+			)[0];
+			if (variable && prevState.prevPropVariable !== variable) {
+				const variableMap = objToMapRec(variable);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+				const values = variableMap.get('values');
+				const general = values.get('general');
+				general.set('variableName', variableMap.get('variableName'));
+				values.set('general', general);
+				variableMap.set('values', values);
+				return {
+					...prevState,
+					variable: variableMap,
+					prevPropVariable: variable,
+					prevVariable: prevVariableMap,
+					createPo: false,
+					salesOrderVariableName: variable.variableName,
+					customer: variable.values.general.values.customerName,
+					account: variable.values.general.values.account,
+					orderDetails: variable.values.orderDetails[0]
+				};
+			}
+		}
+		return prevState;
+	}
+
+	checkRequiredField(variable) {
+		if (variable.get('values').get('customerName') === '') {
+			customErrorMessage('customer Name  is missing');
+			this.setState({ createSalesOrder: false });
+		}
+		if (variable.get('values').get('location') === '') {
+			customErrorMessage(' Location is missing');
+			this.setState({ createSalesOrder: false });
+		}
+		if (variable.get('values').get('term') === '') {
+			customErrorMessage(' Term is missing');
+			this.setState({ createSalesOrder: false });
+		}
+		if (variable.get('values').get('taxRule') === '') {
+			customErrorMessage(' Tax Rule is missing');
+			this.setState({ createSalesOrder: false });
+		}
+	}
+
+	updateDetails(details) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('general', details);
+		variable.set('values', values);
+		variable.set('variableName', details.get('variableName'));
+		this.setState({ variable: variable });
+	}
+
+	updateOrder(orderDetails) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('orderDetails', [ orderDetails ]);
+		variable.set('values', values);
+		this.setState({ variable: variable }, () => this.onCalculateTotal());
+	}
+
+	updateStock(productStock) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('stockReceived', productStock);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+
+	onCalculateTotal() {
+		var productCostBeforeTax = 0;
+		var totalTaxOnProduct = 0;
+		var additionalCostBeforeTax = 0;
+		var totalTaxOnAdditionalCost = 0;
+		const values = this.state.variable.get('values');
+
+		// Product Cost
+		values.get('orderDetails')[0].get('values').get('productInvoiceDetails').forEach((listVariable) => {
+			const taxRule = this.props.variables.TaxRule.filter(
+				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
+			)[0];
+			if (taxRule) {
+				switch (taxRule.values.taxType) {
+					case 'Exclusive':
+						totalTaxOnProduct =
+							totalTaxOnProduct +
+							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total');
+						break;
+					case 'Inclusive':
+						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						totalTaxOnProduct = totalTaxOnProduct + tax;
+						productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total') - tax;
+						break;
+					default:
+						break;
+				}
+			} else {
+				productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total');
+			}
+		});
+		//AdditionalCost
+		values.get('orderDetails')[0].get('values').get('additionalCost').forEach((listVariable) => {
+			const taxRule = this.props.variables.TaxRule.filter(
+				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
+			)[0];
+			if (taxRule) {
+				switch (taxRule.values.taxType) {
+					case 'Exclusive':
+						totalTaxOnAdditionalCost =
+							totalTaxOnAdditionalCost +
+							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+						break;
+					case 'Inclusive':
+						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						totalTaxOnAdditionalCost = totalTaxOnAdditionalCost + tax;
+						additionalCostBeforeTax =
+							additionalCostBeforeTax + listVariable.get('values').get('total') - tax;
+						break;
+					default:
+						break;
+				}
+			} else {
+				additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+			}
+		});
+		const totalCost = productCostBeforeTax + totalTaxOnProduct + additionalCostBeforeTax + totalTaxOnAdditionalCost;
+		const variable = cloneDeep(this.state.variable);
+		const Variablevalues = variable.get('values');
+		const order = Variablevalues.get('orderDetails')[0];
+		const orderValues = order.get('values');
+		orderValues.set('total', totalCost);
+		orderValues.set('productCostBeforeTax', productCostBeforeTax);
+		orderValues.set('totalTaxOnProduct', totalTaxOnProduct);
+		orderValues.set('additionalCostBeforeTax', additionalCostBeforeTax);
+		orderValues.set('totalTaxOnAdditionalCost', totalTaxOnAdditionalCost);
+		order.set('values', orderValues);
+		Variablevalues.set('orderDetails', [ order ]);
+		variable.set('values', Variablevalues);
+		this.setState({ variable: variable });
 	}
 
 	render() {
-		console.log(this.state);
 		return (
-			<Container>
+			<Container mediaPadding="20px 20px 0 20px">
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
+				<CustomNotification limit={3} />
 				<PageWrapper>
 					<PageBody>
-						<SaveButtonContaier>
-							<SaveButton>
-								<CheckIcon />
-							</SaveButton>
-						</SaveButtonContaier>
-						<SalesDetails /> {/* // import from another page can say as a component */}
-						<HorizontalistPageBlock>
+						{this.state.createPo ? (
+							<SaveButtonContaier>
+								<SaveButton
+									onClick={(e) => {
+										if (this.props.match.params.variableName) {
+											this.props
+												.updateVariable(this.state.prevVariable, this.state.variable)
+												.then((status) => {
+													if (status === 200) {
+														successMessage(`Updated Succesfully`);
+													}
+												});
+										} else {
+											new Promise((resolve) => {
+												resolve(
+													this.checkRequiredField(
+														this.state.variable.get('values').get('general')
+													)
+												);
+											}).then(() => {
+												if (this.state.createSalesOrder) {
+													this.props.createVariable(this.state.variable).then((response) => {
+														if (response.status === 200) {
+															this.setState({
+																createPo: false,
+																salesOrderVariableName: response.data.variableName,
+																customer:
+																	response.data.values.general.values.customerName,
+																account: response.data.values.general.values.account,
+																orderDetails: response.data.values.orderDetails[0]
+															});
+															successMessage(' Sales Order Created');
+														}
+													});
+												}
+												this.setState({ createSalesOrder: true });
+											});
+										}
+									}}
+								>
+									<CheckIcon />
+								</SaveButton>
+							</SaveButtonContaier>
+						) : (
+							undefined
+						)}
+						<SalesGeneralDetails
+							variable={this.state.variable.get('values').get('general')}
+							updateDetails={this.updateDetails}
+							creatable={!this.state.createPo}
+						/>
+						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList style={{ justifyContent: 'space-evenly' }}>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
+											<BlockListItemButton
 												onClick={(e) => {
-													this.setState({ visibleSection: 'quote1' });
-												}}
-											>
-												Quote
-											</BlockListItemBUtton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemBUtton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'order1' });
+													this.setState({ visibleSection: 'order' });
 												}}
 											>
 												Order
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'pick' });
+											<BlockListItemButton
+												style={{
+													opacity: this.state.createPo ? '0.5' : '1',
+													pointerEvents: this.state.createPo ? 'none' : 'all'
 												}}
-											>
-												Pick
-											</BlockListItemBUtton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemBUtton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'pack' });
-												}}
-											>
-												Pack
-											</BlockListItemBUtton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemBUtton>Ship</BlockListItemBUtton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemBUtton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'invoice1' });
-												}}
+												onClick={(e) =>
+													this.state.createPo
+														? undefined
+														: this.setState({ visibleSection: 'invoice' })}
 											>
 												Invoice
-											</BlockListItemBUtton>
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton>Credit Note</BlockListItemBUtton>
+											<BlockListItemButton
+												style={{
+													opacity: this.state.variable.get('values').get('invoiceCreated')
+														? '1'
+														: '0.5',
+													pointerEvents: this.state.variable
+														.get('values')
+														.get('invoiceCreated')
+														? 'all'
+														: 'none'
+												}}
+												onClick={(e) =>
+													this.state.variable.get('values').get('invoiceCreated')
+														? this.setState({ visibleSection: 'stockReceived' })
+														: undefined}
+											>
+												Stock Received
+											</BlockListItemButton>
 										</HoizontalBlockListItems>
-
+										{/* <HoizontalBlockListItems>
+											<BlockListItemButton
+												style={{
+													opacity: this.state.variable.get('values').get('invoiceCreated')
+														? '1'
+														: '0.5',
+													pointerEvents: this.state.variable
+														.get('values')
+														.get('invoiceCreated')
+														? 'all'
+														: 'none'
+												}}
+												onClick={
+													this.state.variable.get('values').get('invoiceCreated') ? (
+														this.setState({ visibleSection: 'creditNote' })
+													) : (
+														undefined
+													)
+												}
+											>
+												Credit Note
+											</BlockListItemButton>
+										</HoizontalBlockListItems> */}
+										{/* <HoizontalBlockListItems>
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'unStock' });
+												}}
+											>
+												Unstock
+											</BlockListItemButton>
+										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
-											<BlockListItemBUtton>Restock</BlockListItemBUtton>
-										</HoizontalBlockListItems>
-
-										<HoizontalBlockListItems>
-											<BlockListItemBUtton>Manual Journals</BlockListItemBUtton>
-										</HoizontalBlockListItems>
-
-										<HoizontalBlockListItems>
-											<BlockListItemBUtton>Log and attributes</BlockListItemBUtton>
-										</HoizontalBlockListItems>
-									</HoizontalBlockList>{' '}
-								</HorizontalBlockListInnerWrapper>{' '}
-							</HorizontalBlockListOuter>{' '}
-						</HorizontalistPageBlock>{' '}
-						{this.state.visibleSection === 'order1' && (
-							<SimpleSalesOrder list={this.state.variable.get('values').get('order')} />
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'manualJournals' });
+												}}
+											>
+												Manual Journals
+											</BlockListItemButton>
+										</HoizontalBlockListItems> */}
+									</HoizontalBlockList>
+								</HorizontalBlockListInnerWrapper>
+							</HorizontalBlockListOuter>
+						</HorizontalListPageBlock>
+						{this.state.visibleSection === 'order' && (
+							<SimpleSalesOrder
+								variable={this.state.variable.get('values').get('orderDetails')[0]}
+								updateOrder={this.updateOrder}
+							/>
+						)}
+						{/* {this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />} */}
+						{this.state.visibleSection === 'invoice' && (
+							<SimpleSalesInvoice
+								salesOrder={this.state.salesOrderVariableName}
+								customer={this.state.customer}
+								account={this.state.account}
+								orderDetails={objToMapRec(this.state.orderDetails)}
+							/>
 						)}
 					</PageBody>
 				</PageWrapper>
@@ -110,168 +462,16 @@ class Sales extends React.Component {
 		);
 	}
 }
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	variables: state.variables,
+	auth: state.auth
+});
 
-export default Sales;
-
-const Container = styled.div`
-	padding: 0;
-	width: 100%;
-	margin-top: 65px;
-	min-height: 100vh;
-	min-width: 860px;
-	border-radius: 6px;
-	position: relative;
-	display: flex;
-	flex-direction: row;
-	flex-grow: 1;
-	font-size: 100%;
-	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
-	vertical-align: baseline;
-	background-color: #e3e4e8;
-	@media (max-width: 1200px) {
-		flex-direction: column !important;
-		padding: 20px 20px 0 20px !important;
-	}
-	// @media (min-width: 1440px) {
-	//     max-width: 1200px;
-	// }
-`;
-
-const PageWrapper = styled.div`
-     flex: 1;
-    overflow: hidden;
-    padding: 0;
-    border: 0;
-    font-size: 100%;
-    font: inherit;
-    font-family: 'IBM Plex Sans', sans-serif;
-    vertical-align: baseline;
-    @media (min-width: 1201px) {
-        margin: 20px 20px 0 20px;
-        width: 75%;
-    }
-`;
-
-const PageBody = styled.div`
-	margin: 0 auto !important;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	font-family: 'IBM Plex Sans', sans-serif;
-	vertical-align: baseline;
-	@media (min-width: 1440px) {
-		max-width: 90%;
-	}
-`;
-const SaveButtonContaier = styled.div`
-	position: fixed;
-	bottom: 50px;
-	right: 50px;
-	bottom: 37px;
-	right: 37px;
-	z-index: 300;
-`;
-const SaveButton = styled.button`
-	border-radius: 50%;
-	width: 40px;
-	height: 40px;
-	background-color: #05cbbf;
-	border: 0;
-	color: #fff;
-	text-align: center;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: background-color 0.15s ease-in-out;
-	outline: none;
-`;
-export const HorizontalistPageBlock = styled.div`
-	width: 100%;
-	height: 60px;
-	padding: 10px 10px;
-	background: #fff;
-	float: left;
-	border-radius: 6px;
-	overflow: hidden;
-	display: flex;
-	flex-direction: row;
-	position: relative;
-	margin-bottom: 20px !important;
-`;
-
-export const HorizontalBlockListOuter = styled.div`
-	width: 100%;
-	position: relative;
-	display: block;
-`;
-export const HorizontalBlockListInnerWrapper = styled.div`
-	width: 100%;
-	overflow: hidden;
-	position: relative;
-`;
-export const HoizontalBlockList = styled.ul`
-	width: 212px;
-	height: 40px;
-	padding-bottom: 0%;
-	transform: translate3d(0px, 0px, 0px);
-	display: flex;
-	flex-direction: row;
-	flex: 1;
-	position: relative;
-	z-index: 1;
-	min-width: 100%;
-	padding-left: 0;
-	list-style: none outside none;
-	transition: all 1s;
-	transition-property: transform, height;
-	justify-content: start;
-	float: left;
-`;
-
-export const HoizontalBlockListItems = styled.li`
-	margin-right: 0px;
-	display: flex;
-	white-space: nowrap;
-	height: 40px;
-	float: left;
-	margin-right: 10px;
-	text-align: -webkit-match-parent;
-	list-style: none outside none;
-	color: #3b3b3b;
-	letter-spacing: -0.2px;
-`;
-
-export const BlockListItemBUtton = styled.button`
-	height: 40px;
-	width: 100%;
-	border-radius: 4px;
-	font-size: 13px;
-	font-size: 13px;
-	font-weight: 600;
-	color: #3b3b3b;
-	padding: 0 10px;
-	display: flex;
-	align-items: center;
-	cursor: pointer;
-	border: 0;
-	background: transparent;
-	-webkit-transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-	-webkit-appearance: button;
-	cursor: pointer;
-	text-transform: none;
-	line-height: normal;
-	margin: 0;
-	outline: none;
-	vertical-align: baseline;
-	vertical-align: middle;
-
-	&:before,
-	&:after {
-		-moz-box-sizing: border-box;
-		-webkit-box-sizing: border-box;
-		box-sizing: border-box;
-	}
-`;
+export default connect(mapStateToProps, {
+	clearErrors,
+	createVariable,
+	getVariable,
+	getVariables,
+	updateVariable
+})(SimpleSale);

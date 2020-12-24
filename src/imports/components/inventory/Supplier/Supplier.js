@@ -89,6 +89,7 @@ class Supplier extends React.Component {
 					])
 				]
 			]),
+			supplierAccount:'',
 			visibleSection: 'addresses'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -116,7 +117,8 @@ class Supplier extends React.Component {
 					...prevState,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
+					prevVariable: prevVariableMap,
+					supplierAccount:variable.values.account
 				};
 			}
 		}
@@ -245,7 +247,8 @@ class Supplier extends React.Component {
 		const values = variable.get('values');
 		values.set('account', accountName);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable,
+			supplierAccount:accountName });
 	}
 
 	render() {
@@ -368,7 +371,7 @@ class Supplier extends React.Component {
 						)}
 
 						{this.props.match.params.variableName ? this.state.visibleSection === 'accounts' ? (
-							<SupplierAccount supplier={this.props.match.params.variableName} />
+							<SupplierAccount supplier={this.props.match.params.variableName} supplierAccount={this.state.supplierAccount} />
 						) : (
 							undefined
 						) : (

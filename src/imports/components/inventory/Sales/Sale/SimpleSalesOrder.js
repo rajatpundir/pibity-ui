@@ -55,12 +55,7 @@ class SimpleSalesOrder extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable,
-			productCostBeforeTax: 0,
-			additionalCostBefroeTax: 0,
-			totalTaxOnProduct: 0,
-			totalTaxOnAdditionalCost: 0,
-			totalCost: 0
+			variable: props.variable
 		};
 
 		this.onChange = this.onChange.bind(this);
@@ -236,10 +231,8 @@ class SimpleSalesOrder extends React.Component {
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
 						[ 'quantity', 0 ],
-						[ 'unit', '' ],
 						[ 'taxRule', '' ],
 						[ 'total', 0 ],
-						[ 'supplierSKU', '' ],
 						[ 'product', '' ]
 					])
 				]
@@ -435,43 +428,6 @@ class SimpleSalesOrder extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
-						<TableHeaderInner>
-							<Input
-								name="supplierSKU"
-								type="text"
-								value={listVariable.get('values').get('supplierSKU')}
-								onChange={(e) => this.onProductOrderInputChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%">
-						<TableHeaderInner>
-							<SelectWrapper>
-								<Select
-									value={{
-										value: listVariable.get('values').get('unit'),
-										label: listVariable.get('values').get('unit')
-									}}
-									onChange={(option) => {
-										this.onProductOrderInputChange(
-											{ target: { name: 'unit', value: option.value } },
-											listVariable.get('variableName')
-										);
-									}}
-									options={
-										this.props.variables.UnitOfMeasure !== undefined ? (
-											this.props.variables.UnitOfMeasure.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
-										) : (
-											[]
-										)
-									}
-								/>
-							</SelectWrapper>
-						</TableHeaderInner>
-					</TableData>
 					<TableData width="11%" >
 						<TableHeaderInner>
 							<Input
@@ -586,16 +542,6 @@ class SimpleSalesOrder extends React.Component {
 													<TableHeaders width="10%" >
 														<SelectIconContainer>
 															<SelectSpan textAlign="right">Comment</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" >
-														<SelectIconContainer>
-															<SelectSpan>Supplier SKU</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="8%">
-														<SelectIconContainer>
-															<SelectSpan>Unit</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
 													<TableHeaders width="11%" >
@@ -739,8 +685,8 @@ class SimpleSalesOrder extends React.Component {
 					<LeftBlock>
 						<TextAreaContainer>
 							<TextArea
-								name="purchaseOrderMemo"
-								value={this.state.purchaseOrderMemo}
+								name="salesOrderMemo"
+								value={this.state.salesOrderMemo}
 								placeholder="Write a note here..."
 								onChange={this.onChange}
 							/>
@@ -924,7 +870,7 @@ class SimpleSalesOrder extends React.Component {
 										</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								<EmptyRow>You do not have any supplier deposits</EmptyRow>
+								<EmptyRow>You do not have any Customer deposits</EmptyRow>
 							</HeaderBodyContainer>
 						</TableFieldContainer>
 					</RoundedBlock>
