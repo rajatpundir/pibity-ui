@@ -8,7 +8,15 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import RecievePaymentModal from './RecievePaymentModal';
 import InvoiceTransactionHistory from './InvoiceTransactionHistory';
-import { TableData, TableHeaderInner, TableRow, Custombutton } from '../../../../styles/inventory/Style';
+import {
+	TableData,
+	TableHeaderInner,
+	TableRow,
+	Custombutton,
+	StatusSpan,
+	StatusBackgroundColor,
+	FontAwsomeIcon
+} from '../../../../styles/inventory/Style';
 const styles = (theme) => ({
 	hide: {
 		border: 'none'
@@ -33,7 +41,6 @@ class CustomerAccountData extends React.Component {
 	onCloseModal() {
 		this.setState({ isModalOpen: false });
 	}
-
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.account !== undefined) {
@@ -83,14 +90,44 @@ class CustomerAccountData extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner>{this.props.data.values.balanceDue}</TableHeaderInner>
 					</TableData>
-					<TableData width="0%">
-						<TableHeaderInner>{this.props.data.values.paymentStatus}</TableHeaderInner>
+					<TableData width="10%">
+						<TableHeaderInner>
+							<StatusSpan
+								backgroundColor={
+									this.props.data.values.paymentStatus === 'Paid' ? (
+										StatusBackgroundColor.active
+									) : (
+										StatusBackgroundColor.depricated
+									)
+								}
+							>
+								{this.props.data.values.paymentStatus}
+							</StatusSpan>
+						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Custombutton height="2.5rem" onClick={(e) => this.onOpenRecievePaymentModal()}>
-								Pay
+							{this.props.data.values.paymentStatus === 'Due' ? (
+								<Custombutton height="2.5rem" onClick={(e) => this.onOpenRecievePaymentModal()}>
+									Pay
+								</Custombutton>
+							) : (
+								<Custombutton
+								padding="0 10px"
+								minWidth="70px"
+								height="2.5rem"
+								color="#3b3b3b"
+								backgroundColor="#F7FAFD"
+								borderColor="#b9bdce"
+								borderOnHover="#3b3b3b"
+								backgroundOnHover="#F7FAFD"
+								margin="0 5px"
+								onClick={this.onClose}
+							>
+								<FontAwsomeIcon className="fa fa-print" />
+								Print
 							</Custombutton>
+							)}
 						</TableHeaderInner>
 					</TableData>
 				</TableRow>

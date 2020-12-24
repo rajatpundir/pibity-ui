@@ -10,7 +10,15 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import ClearDuesModal from './ClearDuesModal';
 import InvoiceTransactionHistory from './InvoiceTransactionHistory';
-import { TableData, TableHeaderInner, TableRow, Custombutton } from '../../../../styles/inventory/Style';
+import {
+	TableData,
+	TableHeaderInner,
+	TableRow,
+	Custombutton,
+	StatusSpan,
+	StatusBackgroundColor,
+	FontAwsomeIcon
+} from '../../../../styles/inventory/Style';
 const styles = (theme) => ({
 	hide: {
 		border: 'none'
@@ -72,13 +80,43 @@ class SupplierAccountData extends React.Component {
 						<TableHeaderInner>{this.props.data.values.balanceDue}</TableHeaderInner>
 					</TableData>
 					<TableData width="0%">
-						<TableHeaderInner>{this.props.data.values.paymentStatus}</TableHeaderInner>
+						<TableHeaderInner>
+							<StatusSpan
+								backgroundColor={
+									this.props.data.values.paymentStatus === 'Paid' ? (
+										StatusBackgroundColor.active
+									) : (
+										StatusBackgroundColor.depricated
+									)
+								}
+							>
+								{this.props.data.values.paymentStatus}
+							</StatusSpan>
+						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Custombutton height="2.5rem" onClick={(e) => this.onOpenClearDuesModal()}>
-								Pay
-							</Custombutton>
+							{this.props.data.values.paymentStatus === 'Due' ? (
+								<Custombutton height="2.5rem" onClick={(e) => this.onOpenRecievePaymentModal()}>
+									Pay
+								</Custombutton>
+							) : (
+								<Custombutton
+									padding="0 10px"
+									minWidth="70px"
+									height="2.5rem"
+									color="#3b3b3b"
+									backgroundColor="#F7FAFD"
+									borderColor="#b9bdce"
+									borderOnHover="#3b3b3b"
+									backgroundOnHover="#F7FAFD"
+									margin="0 5px"
+									onClick={this.onClose}
+								>
+									<FontAwsomeIcon className="fa fa-print" />
+									Print
+								</Custombutton>
+							)}
 						</TableHeaderInner>
 					</TableData>
 				</TableRow>
@@ -111,16 +149,3 @@ class SupplierAccountData extends React.Component {
 
 export default withStyles(styles)(SupplierAccountData);
 
-const Span = styled.span`
-	background-color: #d6f3e3;
-	margin-right: 0 !important;
-	padding: 4px 10px 4px 10px;
-	border-radius: 3px;
-	display: inline-block;
-	font-weight: 500;
-`;
-
-const Anchor = styled.a`
-	text-decoration: none;
-	color: #05cbbf;
-`;

@@ -1,33 +1,29 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Select from 'react-select';
-import styled from 'styled-components';
-import TablePagination from '@material-ui/core/TablePagination';
+import AccountsData from './AccountsData';
+import CreateAccountModal from './CreateAccountsModal';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { getVariables } from '../../../../redux/actions/variables';
 import { CustomNotification } from '../../../main/Notification';
-import TablePaginationActions from '../../../main/TablePagination';
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
-import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
+// import TablePagination from '@material-ui/core/TablePagination';
+// import TablePaginationActions from '../../../main/TablePagination';
+// import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
-import AccountsData from './AccountsData';
-import CreateAccountModal from './CreateAccountsModal';
 import {
 	Container,
 	PageWrapper,
 	PageBody,
-	Input,
-	PageToolbar,
+	FontAwsomeIcon,
+		PageToolbar,
 	ToolbarItems,
 	LeftItemH1,
 	PageBarAlign,
-	LeftItemFormControl,
-	ButtonWithOutline,
 	InputBody,
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
 	HeaderBodyContainer,
 	HeaderBody,
 	BodyTable,
@@ -336,4 +332,3 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(Accounts);
 
-export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

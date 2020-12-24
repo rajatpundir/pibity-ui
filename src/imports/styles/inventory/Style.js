@@ -993,6 +993,7 @@ export const PlusButton = styled.button`
 	white-space: nowrap;
 	border-radius: 4px;
 `;
+export const FontAwsomeIcon = styled.i`margin-right: 5px;`;
 
 export const Custombutton = styled.button.attrs((props) => ({
 	height: props.height || '40px',
