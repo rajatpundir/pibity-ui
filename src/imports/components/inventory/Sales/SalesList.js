@@ -33,11 +33,11 @@ import {
 } from '../../../styles/inventory/Style';
 import { TablePaginationStyle } from '../../../styles/main/TablePagination';
 
-class PurchaseOrderList extends React.Component {
+class SalesList extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			purchaseOrder: [],
+			salesOrder: [],
 			expandedRows: [],
 			activeCustomerOnly: false,
 			isOpen: false,
@@ -64,23 +64,23 @@ class PurchaseOrderList extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('PurchaseOrder');
+			this.props.getVariables('SalesOrder');
 		}
 	}
 
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('PurchaseOrder');
+		this.props.getVariables('SalesOrder');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			purchaseOrder:
+			salesOrder:
 				nextProps.variables !== undefined
-					? nextProps.variables.PurchaseOrder !== undefined
-						? nextProps.variables.PurchaseOrder.map((x, i) => ({ ...x, Id: i }))
+					? nextProps.variables.SalesOrder !== undefined
+						? nextProps.variables.SalesOrder.map((x, i) => ({ ...x, Id: i }))
 						: []
 					: []
 		};
@@ -88,45 +88,43 @@ class PurchaseOrderList extends React.Component {
 
 	renderInputFields() {
 		const rows = [];
-		this.state.purchaseOrder.forEach((purchaseOrder) => {
+		this.state.salesOrder.forEach((salesOrder) => {
 			rows.push(
-				<TableRow onClick={this.handleRowClick} key={purchaseOrder.variableName}>
+				<TableRow onClick={this.handleRowClick} key={salesOrder.variableName}>
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							{this.purchaseOrder.values.orderType === 'Simple' ? (
-								<Link to={'/purchase/' + purchaseOrder.variableName}>{purchaseOrder.variableName}</Link>
+							{this.salesOrder.values.orderType === 'Simple' ? (
+								<Link to={'/sales/' + salesOrder.variableName}>{salesOrder.variableName}</Link>
 							) : (
-								<Link to={'/servicePurchase/' + purchaseOrder.variableName}>
-									{purchaseOrder.variableName}
-								</Link>
+								<Link to={'/serviceSale/' + salesOrder.variableName}>{salesOrder.variableName}</Link>
 							)}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Link to={'/supplierList/' + purchaseOrder.values.general.values.supplierName}>
-								{purchaseOrder.variableName}
+							<Link to={'/customerList/' + salesOrder.values.general.values.customerName}>
+								{salesOrder.variableName}
 							</Link>
 						</TableHeaderInner>{' '}
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{purchaseOrder.values.general.values.date}</TableHeaderInner>
+						<TableHeaderInner>{salesOrder.values.general.values.date}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.orderDetails.values.additionalCostBeforeTax +
-								purchaseOrder.values.orderDetails.values.productCostBeforeTax}
+							{salesOrder.values.orderDetails.values.additionalCostBeforeTax +
+								salesOrder.values.orderDetails.values.productCostBeforeTax}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.orderDetails.values.totalTaxOnAdditionalCost +
-								purchaseOrder.values.orderDetails.values.totalTaxOnProduct}
+							{salesOrder.values.orderDetails.values.totalTaxOnAdditionalCost +
+								salesOrder.values.orderDetails.values.totalTaxOnProduct}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{purchaseOrder.values.orderDetails.values.total}</TableHeaderInner>
+						<TableHeaderInner>{salesOrder.values.orderDetails.values.total}</TableHeaderInner>
 					</TableData>
 				</TableRow>
 			);
@@ -178,12 +176,12 @@ class PurchaseOrderList extends React.Component {
 														<TableHeaders width="5%" />
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Purchase Order</SelectSpan>
+																<SelectSpan>Sales Order</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Supplier</SelectSpan>
+																<SelectSpan>Customer</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
@@ -222,7 +220,7 @@ class PurchaseOrderList extends React.Component {
 						style={TablePaginationStyle}
 						rowsPerPageOptions={[ 5, 10, 20 ]}
 						colSpan={3}
-						count={this.state.purchaseOrder.length}
+						count={this.state.salesOrder.length}
 						rowsPerPage={rowsPerPage}
 						page={page}
 						onChangePage={this.handleChangePage}
@@ -244,4 +242,4 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseOrderList);
+export default connect(mapStateToProps, { clearErrors, getVariables })(SalesList);

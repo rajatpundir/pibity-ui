@@ -78,6 +78,10 @@
 				{
 					"name":"ServiceSale",
 					"url":"/serviceSale"
+				},
+				{
+					"name":"Sales Orders",
+					"url":"/salesList"
 				}
 			]
 		},

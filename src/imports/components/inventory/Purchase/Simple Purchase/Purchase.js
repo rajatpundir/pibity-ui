@@ -98,7 +98,8 @@ class Purchase extends React.Component {
 								])
 							]
 						],
-						[ 'invoiceCreated', false ]
+						[ 'invoiceCreated', false ],
+						[ 'orderType', 'Simple' ]
 					])
 				]
 			]),

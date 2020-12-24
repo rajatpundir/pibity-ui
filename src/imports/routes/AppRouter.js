@@ -35,7 +35,7 @@ import PaymentTerms from '../components/main/Reference Books/PaymentTerms';
 import TaxRules from '../components/main/Reference Books/TaxRules';
 import Sales from '../components/inventory/Sales/Sale/Sales';
 import ServiceSale from '../components/inventory/Sales/SaleService/ServiceSale'
-
+import SalesList  from '../components/inventory/Sales/SalesList'
 export const AppRouter = () => (
 	<BrowserRouter>
 		<Switch>
@@ -72,6 +72,7 @@ export const AppRouter = () => (
 				path="/servicePurchase/:variableName"
 				render={(props) => <ServicePurchase {...props} />}
 			/>
+			<PrivateRoute exact path="/salesList" render={(props) => <SalesList {...props} />} />
 			<PrivateRoute exact path="/sales" render={(props) => <Sales {...props} />} />
 			<PrivateRoute exact path="/sales/:variableName" render={(props) => <Sales {...props} />} />
 			<PrivateRoute exact path="/serviceSale" render={(props) => <ServiceSale {...props} />} />

@@ -98,7 +98,8 @@ class SimpleSale extends React.Component {
 								])
 							]
 						],
-						[ 'invoiceCreated', false ]
+						[ 'invoiceCreated', false ],
+						[ 'orderType', 'Simple' ]
 					])
 				]
 			]),

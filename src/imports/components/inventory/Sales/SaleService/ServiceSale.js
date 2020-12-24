@@ -98,7 +98,8 @@ class ServiceSale extends React.Component {
 								])
 							]
 						],
-						[ 'invoiceCreated', false ]
+						[ 'invoiceCreated', false ],
+						[ 'orderType', 'Service' ]
 					])
 				]
 			]),

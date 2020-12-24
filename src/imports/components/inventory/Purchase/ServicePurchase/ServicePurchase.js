@@ -98,7 +98,8 @@ class ServicePurchase extends React.Component {
 								])
 							]
 						],
-						['invoiceCreated',false]
+						['invoiceCreated',false],
+						[ 'orderType', 'Service' ]
 					])
 				]
 			]),
