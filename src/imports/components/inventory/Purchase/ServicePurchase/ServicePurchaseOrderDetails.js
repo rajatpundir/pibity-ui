@@ -246,13 +246,30 @@ class ServicePurchaseOrderDetails extends React.Component {
 						</i>
 					</TableData>
 					<TableData width="11%" >
-						<TableHeaderInner>
-							<Input
-								name="description"
-								type="text"
-								value={listVariable.get('values').get('description')}
-								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
-							/>
+					<TableHeaderInner>
+						<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('description'),
+										label: listVariable.get('values').get('description')
+									}}
+									onChange={(option) => {
+										this.onAdditionalCostChange(
+											{ target: { name: 'description', value: option.value } },
+											listVariable.get('variableName')
+										);
+									}}
+									options={
+										this.props.variables.Product !== undefined ? (
+											this.props.variables.Product.map((variable) => {
+												return { value: variable.variableName, label: variable.variableName };
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="11%">
