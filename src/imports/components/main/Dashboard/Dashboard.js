@@ -62,8 +62,11 @@ class Dashboard extends React.Component {
 		this.props.getVariables('Supplier');
 		this.props.getVariables('Account');
 		this.props.getVariables('PurchaseOrder');
-
+		this.props.getVariables('SalesOrder');
+		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('SalesInvoice');
 	}
+
 	componentDidMount() {
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOrganizationModalOpen: true });
@@ -246,6 +249,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, { getVariables })(Dashboard);
+
 export const FontAwsomeIcon = styled.i.attrs((props)=>({
 	marginRight:props.marginRight||'5px'
 }))`margin-right: ${(props)=>props.marginRight};`;

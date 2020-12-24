@@ -38,7 +38,6 @@ import {
 	HeaderBody,
 	BodyTable,
 	TableBody,
-	SelectSpanInner,
 	TableRow,
 	TableHeaders,
 	CheckBoxInput,

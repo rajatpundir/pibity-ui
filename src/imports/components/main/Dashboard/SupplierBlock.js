@@ -17,7 +17,7 @@ import {
 	TableFieldContainer,
 	TableHeaderInner
 } from '../../../styles/inventory/Style';
-import { EmptyRowImageContainer, EmptyRowImage ,EmptyRowTag} from '../../../styles/main/Dashboard';
+import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
@@ -28,13 +28,18 @@ class SupplierBlock extends React.Component {
 		super();
 		this.state = {
 			open: true,
-			supplier: []
+			supplier: [],
+			invoice: []
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
+			invoice:
+				nextProps.variables !== undefined
+					? nextProps.variables.SalesInvoice !== undefined ? nextProps.variables.PurchaseInvoice : []
+					: [],
 			supplier:
 				nextProps.variables !== undefined
 					? nextProps.variables.Supplier !== undefined
@@ -48,6 +53,12 @@ class SupplierBlock extends React.Component {
 		const rows = [];
 		this.state.supplier.length !== 0
 			? this.state.supplier.forEach((data) => {
+					const invoice = this.state.invoice.filter(
+						(invoice) => invoice.values.supplier === data.variableName
+					);
+					const totalDue = invoice.reduce(function(accumulator, currentValue) {
+						return accumulator + currentValue.values.balanceDue;
+					}, 0);
 					rows.push(
 						<TableRow key={data.Id}>
 							<TableData width="10%">
@@ -58,7 +69,7 @@ class SupplierBlock extends React.Component {
 							</TableData>
 
 							<TableData width="10%">
-								<TableHeaderInner>0.00</TableHeaderInner>
+								<TableHeaderInner>{totalDue}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
 								<TableHeaderInner>
@@ -123,8 +134,8 @@ class SupplierBlock extends React.Component {
 										{this.state.supplier.length === 0 ? (
 											<EmptyRowImageContainer>
 												<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-											<EmptyRowTag>No Suppliers</EmptyRowTag>
-                                            </EmptyRowImageContainer>
+												<EmptyRowTag>No Suppliers</EmptyRowTag>
+											</EmptyRowImageContainer>
 										) : (
 											undefined
 										)}

@@ -29,7 +29,7 @@ class Header extends React.Component {
 			<HeaderContainer>
 				{this.props.match.params.variableName ? (
 					<Breadcrumbs aria-label="breadcrumb">
-						<Link color="inherit" href="/" className={classes.links}>
+						<Link color="inherit" href="/dashboard" className={classes.links}>
 							Home{' '}
 						</Link>
 						<Link color="inherit" href={'/' + `${url}`} className={classes.links}>
@@ -41,7 +41,7 @@ class Header extends React.Component {
 					</Breadcrumbs>
 				) : (
 					<Breadcrumbs aria-label="breadcrumb">
-						<Link color="inherit" href="/" className={classes.links}>
+						<Link color="inherit" href="/dashboard" className={classes.links}>
 							Home{' '}
 						</Link>
 

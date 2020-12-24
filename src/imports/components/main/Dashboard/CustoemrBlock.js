@@ -28,13 +28,18 @@ class CustoemrBlock extends React.Component {
 		super();
 		this.state = {
 			open: true,
-			customer: []
+			customer: [],
+			invoice:[]
 		};
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
+			invoice:
+				nextProps.variables !== undefined
+					? nextProps.variables.SalesInvoice !== undefined ? nextProps.variables.PurchaseInvoice : []
+					: [],
 			customer:
 				nextProps.variables !== undefined
 					? nextProps.variables.Customer !== undefined
@@ -48,6 +53,10 @@ class CustoemrBlock extends React.Component {
 		const rows = [];
 		this.state.customer.length !== 0
 			? this.state.customer.forEach((data) => {
+					const invoice = this.state.invoice.filter((invoice) => invoice.values.customer === data.variableName);
+					const totalDue = invoice.reduce(function(accumulator, currentValue) {
+						return accumulator + currentValue.values.balanceDue;
+					}, 0);
 					rows.push(
 						<TableRow key={data.Id}>
 							<TableData width="10%">
@@ -56,9 +65,8 @@ class CustoemrBlock extends React.Component {
 							<TableData width="10%">
 								<TableHeaderInner>{data.values.contacts[0].values.phone}</TableHeaderInner>
 							</TableData>
-
 							<TableData width="10%">
-								<TableHeaderInner>0.00</TableHeaderInner>
+								<TableHeaderInner>{totalDue}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
 								<TableHeaderInner>

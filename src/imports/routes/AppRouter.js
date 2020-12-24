@@ -74,6 +74,7 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/sales" render={(props) => <Sales {...props} />} />
 			<PrivateRoute exact path="/sales/:variableName" render={(props) => <Sales {...props} />} />
 
+
 			<PrivateRoute exact path="/Invoice" render={(props) => <Invoice {...props} />} />
 			<PrivateRoute exact path="/Quotes" render={(props) => <Quotes {...props} />} />
 			<PrivateRoute exact path="/Bill" render={(props) => <Bill {...props} />} />
