@@ -196,7 +196,7 @@ class SupplierAccount extends React.Component {
 							</HeaderBodyContainer>
 						</TableFieldContainer>
 					</RoundedBlock>
-					<TablePagination
+					{/* <TablePagination
 						component="div"
 						style={TablePaginationStyle}
 						rowsPerPageOptions={[ 5, 10, 20 ]}
@@ -210,7 +210,7 @@ class SupplierAccount extends React.Component {
 						onChangePage={this.handleChangePage}
 						onChangeRowsPerPage={this.handleChangeRowsPerPage}
 						ActionsComponent={TablePaginationActions}
-					/>
+					/> */}
 				</InputBody>
 			</PageBlock>
 		);

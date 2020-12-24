@@ -38,7 +38,7 @@ class SupplierBlock extends React.Component {
 			...prevState,
 			invoice:
 				nextProps.variables !== undefined
-					? nextProps.variables.SalesInvoice !== undefined ? nextProps.variables.PurchaseInvoice : []
+					? nextProps.variables.SalesInvoice !== undefined ? nextProps.variables.SalesInvoice : []
 					: [],
 			supplier:
 				nextProps.variables !== undefined

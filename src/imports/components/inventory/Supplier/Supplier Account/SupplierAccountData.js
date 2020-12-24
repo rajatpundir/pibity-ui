@@ -97,7 +97,7 @@ class SupplierAccountData extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner>
 							{this.props.data.values.paymentStatus === 'Due' ? (
-								<Custombutton height="2.5rem" onClick={(e) => this.onOpenRecievePaymentModal()}>
+								<Custombutton height="2.5rem" onClick={(e) => this.onOpenClearDuesModal()}>
 									Pay
 								</Custombutton>
 							) : (

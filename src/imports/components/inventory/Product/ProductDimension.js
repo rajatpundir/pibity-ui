@@ -56,7 +56,7 @@ class ProductDimension extends React.Component {
 						<LeftItemH1>Dimensions</LeftItemH1>
 					</ToolbarItems>
 				</PageToolbar>
-				<InputBody alignItem="flex-end">
+				<InputBody alignItem="flex-end" overflow="visible">
 					<InputColumnWrapper>
 						<H3>Item Size</H3>
 						<FormControl>
@@ -119,7 +119,7 @@ class ProductDimension extends React.Component {
 						</FormControl>
 					</InputColumnWrapper>
 				</InputBody>
-				<InputBody alignItem="flex-end">
+				<InputBody alignItem="flex-end" overflow="visible">
 					<InputColumnWrapper>
 						<H3>Item Weight</H3>
 						<FormControl>
