@@ -23,7 +23,9 @@ import {
 	InputColumnWrapper,
 	LeftItemH1,
 	PageToolbar,
-	ToolbarItems
+    ToolbarItems,
+    StatusSpan,
+	StatusBackgroundColor
 } from '../../../../styles/inventory/Style';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
 // import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
@@ -120,8 +122,21 @@ class SupplierAccount extends React.Component {
 			<PageBlock>
 				<PageToolbar>
 					<ToolbarItems>
+                    <StatusSpan
+								backgroundColor={
+									this.props.supplierAccoutnDetail.values.status === 'Active' ? (
+										StatusBackgroundColor.active
+									) : (
+										StatusBackgroundColor.depricated
+									)
+								}
+							>
+								{this.props.supplierAccoutnDetail.values.status }
+							</StatusSpan>
 						<LeftItemH1>Account Details</LeftItemH1>
 					</ToolbarItems>
+
+
 				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible" padding="20px">
 					<InputFieldContainer>
