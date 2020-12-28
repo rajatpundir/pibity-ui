@@ -25,7 +25,7 @@ const styles = (theme) => ({
 	}
 });
 
-class SupplierAccountData extends React.Component {
+class SupplierSalesData extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -147,5 +147,5 @@ class SupplierAccountData extends React.Component {
 	}
 }
 
-export default withStyles(styles)(SupplierAccountData);
+export default withStyles(styles)(SupplierSalesData);
 
