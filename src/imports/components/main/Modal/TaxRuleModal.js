@@ -260,7 +260,7 @@ class TaxRuleModal extends React.Component {
 											});
 										}}
 									/>
-									<CheckBoxLabel>is TaxForSale</CheckBoxLabel>
+									<CheckBoxLabel>is TaxForPurchase</CheckBoxLabel>
 								</CheckBoxContainer>
 							</FormControl>
 						</InputRowWrapper>
