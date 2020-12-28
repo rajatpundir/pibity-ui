@@ -226,7 +226,7 @@ class Dashboard extends React.Component {
 								</InputRowWrapper>
 							</InputFieldContainer>
 						</ModalBody>
-						<ModalFooter>
+						{/* <ModalFooter>
 							<ModalSubmitButton
 								onClick={(e) => {
 									this.onClose(e);
@@ -234,7 +234,7 @@ class Dashboard extends React.Component {
 							>
 								Save
 							</ModalSubmitButton>
-						</ModalFooter>
+						</ModalFooter> */}
 					</Modal>
 				</Container>
 			</React.Fragment>

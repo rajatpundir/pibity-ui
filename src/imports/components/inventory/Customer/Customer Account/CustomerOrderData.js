@@ -23,7 +23,7 @@ const styles = (theme) => ({
 	}
 });
 
-class CustomerAccountData extends React.Component {
+class CustomerOrderData extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -158,4 +158,4 @@ class CustomerAccountData extends React.Component {
 	}
 }
 
-export default withStyles(styles)(CustomerAccountData);
+export default withStyles(styles)(CustomerOrderData);

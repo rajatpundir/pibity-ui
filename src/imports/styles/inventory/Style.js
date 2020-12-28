@@ -431,10 +431,11 @@ export const StatusBackgroundColor={
 }
 
 export const StatusSpan = styled.span.attrs((props)=>({
-	backgroundColor:props.backgroundColor ||'#d6f3e3'
+	backgroundColor:props.backgroundColor ||'#d6f3e3',
+	marginRight: props.marginRight ||0,
 }))`
 	background-color:${(props) => props.backgroundColor}; 
-	margin-right: 0 !important;
+	margin-right:${(props) => props.marginRight} ;
 	padding: 4px 10px 4px 10px;
 	border-radius: 3px;
 	display: inline-block;

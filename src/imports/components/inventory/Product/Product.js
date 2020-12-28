@@ -256,7 +256,6 @@ class Product extends React.Component {
 			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit="2" />
-
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>

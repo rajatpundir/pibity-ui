@@ -18,13 +18,13 @@ import {
 	TableHeaders,
 	TableRow,
 	TableData,
-    TableHeaderInner,
-    InputFieldContainer,
+	TableHeaderInner,
+	InputFieldContainer,
 	InputColumnWrapper,
 	LeftItemH1,
 	PageToolbar,
-    ToolbarItems,
-    StatusSpan,
+	ToolbarItems,
+	StatusSpan,
 	StatusBackgroundColor
 } from '../../../../styles/inventory/Style';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
@@ -35,7 +35,6 @@ class SupplierAccount extends React.Component {
 		super();
 		this.state = {
 			transactions: [],
-			paidInvoice: false,
 			expandedRows: [],
 			isOpen: false,
 			page: 0,
@@ -122,25 +121,25 @@ class SupplierAccount extends React.Component {
 			<PageBlock>
 				<PageToolbar>
 					<ToolbarItems>
-                    <StatusSpan
-								backgroundColor={
-									this.props.supplierAccoutnDetail.values.status === 'Active' ? (
-										StatusBackgroundColor.active
-									) : (
-										StatusBackgroundColor.depricated
-									)
-								}
-							>
-								{this.props.supplierAccoutnDetail.values.status }
-							</StatusSpan>
+						<StatusSpan
+							backgroundColor={
+								this.props.supplierAccoutnDetail.values.status === 'Active' ? (
+									StatusBackgroundColor.active
+								) : (
+									StatusBackgroundColor.depricated
+								)
+							}
+							marginRight="10px"
+							style={{fontSize: '20px'}}
+						>
+							{this.props.supplierAccoutnDetail.values.status}
+						</StatusSpan>
 						<LeftItemH1>Account Details</LeftItemH1>
 					</ToolbarItems>
-
-
 				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible" padding="20px">
 					<InputFieldContainer>
-						<InputColumnWrapper flexBasis= 'calc(100% / 2 - 12px) !important' width="50%">
+						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%">
 							<Card>
 								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
 									Account Name
@@ -154,7 +153,7 @@ class SupplierAccount extends React.Component {
 								<CardSpan fontWeight="bold">{this.props.supplierAccoutnDetail.values.code}</CardSpan>
 							</Card>
 						</InputColumnWrapper>
-						<InputColumnWrapper flexBasis= 'calc(100% / 2 - 12px) !important' width="50%">
+						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%">
 							<Card>
 								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
 									Category

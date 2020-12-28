@@ -72,16 +72,16 @@
 					"url": "/servicePurchase"
 				},
 				{
-					"name":"Sales",
+					"name":"Sales Orders",
+					"url":"/salesList"
+				},
+				{
+					"name":"Simple Sale",
 					"url":"/sales"
 				},
 				{
-					"name":"ServiceSale",
+					"name":"Service Sale",
 					"url":"/serviceSale"
-				},
-				{
-					"name":"Sales Orders",
-					"url":"/salesList"
 				}
 			]
 		},
@@ -106,7 +106,7 @@
 					"url":"/productCategories"
 				},
 				{
-					"name":"Crrier Services ",
+					"name":"Carrier Services ",
 					"url":"/carrierServices"
 				},
 				{
@@ -116,30 +116,6 @@
 				{
 					"name":"Accounts",
 					"url":"/accounts"
-				},
-				{
-					"name": "Invoice",
-					"url": "/Invoice"
-				},
-				{
-					"name": "Quotes",
-					"url": "/Quotes"
-				},
-				{
-					"name": "Bill",
-					"url": "/Bill"
-				},
-				{
-					"name": "PurchaseOrder",
-					"url": "/PurchaseOrder"
-				},
-				{
-					"name": "CreditNote",
-					"url": "/CreditNote"
-				},
-				{
-					"name": "DeditNote",
-					"url": "/debitNote"
 				},
 				{
 					"name":"Add User",

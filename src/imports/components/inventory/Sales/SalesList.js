@@ -94,7 +94,7 @@ class SalesList extends React.Component {
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							{this.salesOrder.values.orderType === 'Simple' ? (
+							{salesOrder.values.orderType === 'Simple' ? (
 								<Link to={'/sales/' + salesOrder.variableName}>{salesOrder.variableName}</Link>
 							) : (
 								<Link to={'/serviceSale/' + salesOrder.variableName}>{salesOrder.variableName}</Link>

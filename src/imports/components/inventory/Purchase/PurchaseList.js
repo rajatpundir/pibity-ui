@@ -94,7 +94,7 @@ class PurchaseOrderList extends React.Component {
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							{this.purchaseOrder.values.orderType === 'Simple' ? (
+							{purchaseOrder.values.orderType === 'Simple' ? (
 								<Link to={'/purchase/' + purchaseOrder.variableName}>{purchaseOrder.variableName}</Link>
 							) : (
 								<Link to={'/servicePurchase/' + purchaseOrder.variableName}>

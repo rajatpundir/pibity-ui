@@ -10,13 +10,15 @@ import {
 	getVariable,
 	updateVariable,
 	objToMapRec,
-	getVariables
+	getVariables,
+	mapToObjectRec
 } from '../../../redux/actions/variables';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
 import CustomerAccount from './Customer Account/CustomerAccount';
+import CustomerOrders from './Customer Account/CustomerOrders';
 import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
@@ -92,7 +94,7 @@ class Customer extends React.Component {
 					])
 				]
 			]),
-			customerAccount:'',
+			customerAccount: '',
 			visibleSection: 'addresses'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -104,11 +106,15 @@ class Customer extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Customer) {
+		if (nextProps.match.params.variableName && nextProps.variables.Customer && nextProps.variables.Account) {
 			const variable = nextProps.variables.Customer.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
+			const account = nextProps.variables.Account.filter(
+				(account) => account.variableName === variable.values.account
+			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const accountMap = objToMapRec(account);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -118,10 +124,11 @@ class Customer extends React.Component {
 				variableMap.set('values', values);
 				return {
 					...prevState,
+					account: accountMap,
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					customerAccount:variable.values.account
+					customerAccount: variable.values.account
 				};
 			}
 		}
@@ -342,10 +349,10 @@ class Customer extends React.Component {
 											<HoizontalBlockListItems>
 												<BlockListItemButton
 													onClick={(e) => {
-														this.setState({ visibleSection: 'accounts' });
+														this.setState({ visibleSection: 'orders' });
 													}}
 												>
-													Customer Account
+													Customer Purchase
 												</BlockListItemButton>
 											</HoizontalBlockListItems>
 										) : (
@@ -368,13 +375,20 @@ class Customer extends React.Component {
 							/>
 						)}
 
-						{this.props.match.params.variableName ? this.state.visibleSection === 'accounts' ? (
-							<CustomerAccount
+						{this.props.match.params.variableName && this.state.visibleSection === 'orders' ? (
+							<CustomerOrders
 								customer={this.props.match.params.variableName}
 								customerAccount={this.state.customerAccount}
 							/>
 						) : (
 							undefined
+						)}
+						{this.props.match.params.variableName && this.state.visibleSection === 'orders' ? (
+							<CustomerAccount
+								customer={this.props.match.params.variableName}
+								customerAccount={this.state.customerAccount}
+								customerAccountDetail={mapToObjectRec(this.state.account)}
+							/>
 						) : (
 							undefined
 						)}

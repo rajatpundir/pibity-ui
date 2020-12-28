@@ -1,40 +1,40 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import CustomerAccountData from './CustomerAccountData';
-import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from '../../../main/TablePagination';
+import styled from 'styled-components';
+// import TablePagination from '@material-ui/core/TablePagination';
+// import TablePaginationActions from '../../../main/TablePagination';
 import { getVariables } from '../../../../redux/actions/variables';
 import {
 	BodyTable,
 	HeaderBody,
 	HeaderBodyContainer,
 	InputBody,
-	LeftItemH1,
-	PageBarAlign,
 	PageBlock,
-	PageToolbar,
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
 	TableBody,
 	TableFieldContainer,
 	TableHeaders,
 	TableRow,
+	TableData,
+	TableHeaderInner,
+	InputFieldContainer,
+	InputColumnWrapper,
+	LeftItemH1,
+	PageToolbar,
 	ToolbarItems,
-	CheckBoxInput,
-	CheckBoxLabel,
-	CheckBoxContainer
+	StatusSpan,
+	StatusBackgroundColor
 } from '../../../../styles/inventory/Style';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
-import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
+// import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
 
 class CustomerAccount extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			invoice: [],
-			paidInvoice: false,
+			transactions: [],
 			expandedRows: [],
 			isOpen: false,
 			page: 0,
@@ -42,26 +42,26 @@ class CustomerAccount extends React.Component {
 			account: {}
 		};
 		this.onChange = this.onChange.bind(this);
-		this.renderInvoice = this.renderInvoice.bind(this);
+		this.renderTransactionRecords = this.renderTransactionRecords.bind(this);
 	}
 
 	componentDidMount() {
 		this.props.getVariables('Account');
-		this.props.getVariables('SalesInvoice');
+		this.props.getVariables('AccountTransaction');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variables.Account && nextProps.variables.SalesInvoice) {
+		if (nextProps.variables.Account && nextProps.variables.AccountTransaction) {
 			const account = nextProps.variables.Account.filter(
 				(account) => account.variableName === nextProps.customerAccount
 			)[0];
-			const invoice = nextProps.variables.SalesInvoice.filter(
-				(invoice) => invoice.values.customer === nextProps.customer
+			const transactions = nextProps.variables.AccountTransaction.filter(
+				(transaction) => transaction.values.account === nextProps.customerAccount
 			);
 			return {
 				...prevState,
 				account: account,
-				invoice: invoice
+				transactions: transactions
 			};
 		}
 		return {
@@ -81,16 +81,31 @@ class CustomerAccount extends React.Component {
 		this.setState({ [e.target.name]: e.target.value });
 	}
 
-	renderInvoice() {
+	renderTransactionRecords() {
 		const rows = [];
-		const invoice = this.props.variables.SalesInvoice.filter(
-			(invoice) => invoice.values.customer === this.props.customer
-		);
-		const list = this.state.paidInvoice
-			? invoice.filter((invoice) => invoice.values.paymenyStatus === 'Paid')
-			: invoice;
-		list.forEach((invoice) => {
-			rows.push(<CustomerAccountData data={invoice} key={invoice.variableName} account={this.state.account} />);
+		this.state.transactions.forEach((transaction, index) => {
+			const refAccount = this.props.variables.Account.filter(
+				(account) => account.variableName === transaction.values.refAccount
+			)[0];
+			rows.push(
+				<TableRow key={index}>
+					<TableData width="10%">
+						<TableHeaderInner>{transaction.values.date}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{refAccount.values.name}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{transaction.values.voucherType}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{transaction.values.creditAmount}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{transaction.values.debitAmount}</TableHeaderInner>
+					</TableData>
+				</TableRow>
+			);
 		});
 		return this.state.rowsPerPage > 0
 			? rows.slice(
@@ -101,33 +116,64 @@ class CustomerAccount extends React.Component {
 	}
 
 	render() {
-		const { rowsPerPage, page } = this.state;
+		// const { rowsPerPage, page } = this.state;
 		return (
 			<PageBlock>
-				<PageToolbar borderBottom="1px solid #e0e1e7">
+				<PageToolbar>
 					<ToolbarItems>
-						<LeftItemH1>Order Invoice</LeftItemH1>
+						<StatusSpan
+							backgroundColor={
+								this.props.customerAccountDetail.values.status === 'Active' ? (
+									StatusBackgroundColor.active
+								) : (
+									StatusBackgroundColor.depricated
+								)
+							}
+							marginRight="10px"
+							style={{fontSize: '20px'}}
+						>
+							{this.props.customerAccountDetail.values.status}
+						</StatusSpan>
+						<LeftItemH1>Account Details</LeftItemH1>
 					</ToolbarItems>
-					<PageBarAlign padding="10px 20px" float="left">
-						<CheckBoxContainer>
-							<CheckBoxInput
-								type="checkbox"
-								checked={this.state.paidInvoice}
-								tabindex="55"
-								onChange={(option) => {
-									this.onChange({
-										target: {
-											name: 'paidInvoice',
-											value: !this.state.paidInvoice
-										}
-									});
-								}}
-							/>
-							<CheckBoxLabel>Paid Invoice</CheckBoxLabel>
-						</CheckBoxContainer>
-					</PageBarAlign>
 				</PageToolbar>
-				<InputBody borderTop="0" overflow="visible">
+				<InputBody borderTop="0" overflow="visible" padding="20px">
+					<InputFieldContainer>
+						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%">
+							<Card>
+								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
+									Account Name
+								</CardSpan>
+								<CardSpan fontWeight="bold">{this.props.customerAccountDetail.values.name}</CardSpan>
+							</Card>
+							<Card>
+								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
+									Code
+								</CardSpan>
+								<CardSpan fontWeight="bold">{this.props.customerAccountDetail.values.code}</CardSpan>
+							</Card>
+						</InputColumnWrapper>
+						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%">
+							<Card>
+								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
+									Category
+								</CardSpan>
+								<CardSpan fontWeight="bold">
+									{this.props.customerAccountDetail.values.accountCategory}
+								</CardSpan>
+							</Card>
+							<Card>
+								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
+									Type
+								</CardSpan>
+								<CardSpan fontWeight="bold">
+									{this.props.customerAccountDetail.values.accountType}
+								</CardSpan>
+							</Card>
+						</InputColumnWrapper>
+					</InputFieldContainer>
+				</InputBody>
+				<InputBody overflow="visible">
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
 							<HeaderBodyContainer>
@@ -135,15 +181,6 @@ class CustomerAccount extends React.Component {
 									<BodyTable width="auto">
 										<TableBody>
 											<TableRow>
-												<TableHeaders width="6%">
-													<SelectIconContainer>
-														<SelectSpan>
-															<SelectSpanInner>
-																<i className="large material-icons">create</i>
-															</SelectSpanInner>
-														</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
 												<TableHeaders width="10%">
 													<SelectIconContainer>
 														<SelectSpan>Date</SelectSpan>
@@ -151,42 +188,32 @@ class CustomerAccount extends React.Component {
 												</TableHeaders>
 												<TableHeaders width="10%">
 													<SelectIconContainer>
-														<SelectSpan>Invoice Number</SelectSpan>
+														<SelectSpan>Reference Account</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 												<TableHeaders width="10%">
 													<SelectIconContainer>
-														<SelectSpan>Sales Order</SelectSpan>
+														<SelectSpan>Voucher Type</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 												<TableHeaders width="10%">
 													<SelectIconContainer>
-														<SelectSpan>Total</SelectSpan>
+														<SelectSpan>Credit</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 												<TableHeaders width="10%">
 													<SelectIconContainer>
-														<SelectSpan> Due Amount</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%">
-													<SelectIconContainer>
-														<SelectSpan>Payment Status</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%">
-													<SelectIconContainer>
-														<SelectSpan>Actions</SelectSpan>
+														<SelectSpan>Debit</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 											</TableRow>
-											{this.renderInvoice()}
+											{this.renderTransactionRecords()}
 										</TableBody>
 									</BodyTable>
-									{this.state.invoice.length === 0 ? (
+									{this.state.transactions.length === 0 ? (
 										<EmptyRowImageContainer>
 											<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-											<EmptyRowTag>No Invoice</EmptyRowTag>
+											<EmptyRowTag>No Transactions </EmptyRowTag>
 										</EmptyRowImageContainer>
 									) : (
 										undefined
@@ -195,12 +222,12 @@ class CustomerAccount extends React.Component {
 							</HeaderBodyContainer>
 						</TableFieldContainer>
 					</RoundedBlock>
-					<TablePagination
+					{/* <TablePagination
 						component="div"
 						style={TablePaginationStyle}
 						rowsPerPageOptions={[ 5, 10, 20 ]}
 						colSpan={3}
-						count={this.state.invoice.length}
+						count={this.state.transactions.length}
 						rowsPerPage={rowsPerPage}
 						page={page}
 						SelectProps={{
@@ -209,7 +236,7 @@ class CustomerAccount extends React.Component {
 						onChangePage={this.handleChangePage}
 						onChangeRowsPerPage={this.handleChangeRowsPerPage}
 						ActionsComponent={TablePaginationActions}
-					/>
+					/> */}
 				</InputBody>
 			</PageBlock>
 		);
@@ -224,3 +251,39 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	getVariables
 })(CustomerAccount);
+
+export const Card = styled.div.attrs((props) => ({
+	background: props.background || '#f1f6fb',
+	borderRadius: props.borderRadius || '6px',
+	padding: props.padding || '10px 20px',
+	margin: props.margin || '12px'
+}))`
+    background:${(props) => props.background};
+    border-radius: ${(props) => props.borderRadius};
+    padding: ${(props) => props.padding};
+    margin: ${(props) => props.margin} ;
+    min-height:55px;
+    display: flex;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+`;
+
+export const CardSpan = styled.span.attrs((props) => ({
+	color: props.color || '#3e525d',
+	fontSize: props.fontSize || '100%',
+	fontWeight: props.fontWeight,
+	lineHeight: props.lineHeight,
+	marginBottom: props.marginBottom
+}))`
+    color:${(props) => props.color};
+    margin-bottom: ${(props) => props.marginBottom};
+    font-size: ${(props) => props.fontSize};
+    line-height: ${(props) => props.lineHeight};
+    font-weight:${(props) => props.fontWeight}; 
+`;

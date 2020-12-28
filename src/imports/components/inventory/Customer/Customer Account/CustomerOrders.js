@@ -1,10 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import SupplierSalesData from './SupplierSalesData';
+import CustomerOrderData from './CustomerOrderData';
 import TablePagination from '@material-ui/core/TablePagination';
 import TablePaginationActions from '../../../main/TablePagination';
 import { getVariables } from '../../../../redux/actions/variables';
-
 import {
 	BodyTable,
 	HeaderBody,
@@ -30,7 +29,7 @@ import {
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
 import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
 
-class SupplierSales extends React.Component {
+class CustomerAccount extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -48,16 +47,16 @@ class SupplierSales extends React.Component {
 
 	componentDidMount() {
 		this.props.getVariables('Account');
-		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('SalesInvoice');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variables.Account && nextProps.variables.PurchaseInvoice) {
+		if (nextProps.variables.Account && nextProps.variables.SalesInvoice) {
 			const account = nextProps.variables.Account.filter(
-				(account) => account.variableName === nextProps.supplierAccount
+				(account) => account.variableName === nextProps.customerAccount
 			)[0];
-			const invoice = nextProps.variables.PurchaseInvoice.filter(
-				(invoice) => invoice.values.supplier === nextProps.supplier
+			const invoice = nextProps.variables.SalesInvoice.filter(
+				(invoice) => invoice.values.customer === nextProps.customer
 			);
 			return {
 				...prevState,
@@ -84,14 +83,14 @@ class SupplierSales extends React.Component {
 
 	renderInvoice() {
 		const rows = [];
-		const invoice = this.props.variables.PurchaseInvoice.filter(
-			(invoice) => invoice.values.supplier === this.props.supplier
+		const invoice = this.props.variables.SalesInvoice.filter(
+			(invoice) => invoice.values.customer === this.props.customer
 		);
 		const list = this.state.paidInvoice
-			? invoice.filter((invoice) => invoice.values.paymentStatus === "Paid")
+			? invoice.filter((invoice) => invoice.values.paymentStatus === 'Paid')
 			: invoice;
 		list.forEach((invoice) => {
-			rows.push(<SupplierSalesData data={invoice} key={invoice.variableName} account={this.state.account} />);
+			rows.push(<CustomerOrderData data={invoice} key={invoice.variableName} account={this.state.account} />);
 		});
 		return this.state.rowsPerPage > 0
 			? rows.slice(
@@ -157,7 +156,7 @@ class SupplierSales extends React.Component {
 												</TableHeaders>
 												<TableHeaders width="10%">
 													<SelectIconContainer>
-														<SelectSpan>Purchase Order</SelectSpan>
+														<SelectSpan>Sales Order</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 												<TableHeaders width="10%">
@@ -196,7 +195,7 @@ class SupplierSales extends React.Component {
 							</HeaderBodyContainer>
 						</TableFieldContainer>
 					</RoundedBlock>
-					{/* <TablePagination
+					<TablePagination
 						component="div"
 						style={TablePaginationStyle}
 						rowsPerPageOptions={[ 5, 10, 20 ]}
@@ -210,7 +209,7 @@ class SupplierSales extends React.Component {
 						onChangePage={this.handleChangePage}
 						onChangeRowsPerPage={this.handleChangeRowsPerPage}
 						ActionsComponent={TablePaginationActions}
-					/> */}
+					/>
 				</InputBody>
 			</PageBlock>
 		);
@@ -224,4 +223,4 @@ const mapStateToProps = (state, ownProps) => ({
 
 export default connect(mapStateToProps, {
 	getVariables
-})(SupplierSales);
+})(CustomerAccount);
