@@ -54,7 +54,6 @@ class ServicePurchaseOrderDetails extends React.Component {
 		super();
 		this.state = {
 			variable: props.variable
-
 		};
 
 		this.onChange = this.onChange.bind(this);
@@ -234,7 +233,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 		values.get('additionalCost').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="6%" >
+					<TableData width="6%">
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -243,9 +242,9 @@ class ServicePurchaseOrderDetails extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" >
-					<TableHeaderInner>
-						<SelectWrapper>
+					<TableData width="11%">
+						<TableHeaderInner>
+							<SelectWrapper>
 								<Select
 									value={{
 										value: listVariable.get('values').get('description'),
@@ -259,9 +258,16 @@ class ServicePurchaseOrderDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.Product
+												.filter(
+													(product) => product.values.general.values.productType === 'Service'
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.values.general.values.productName
+													};
+												})
 										) : (
 											[]
 										)
@@ -300,7 +306,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -326,9 +332,14 @@ class ServicePurchaseOrderDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForPurchase===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForPurchase === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -352,8 +363,6 @@ class ServicePurchaseOrderDetails extends React.Component {
 		);
 		return rows;
 	}
-
-	
 
 	render() {
 		return (
@@ -510,7 +519,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 												</TableRow>
 												<TableRow>
 													<BlockTableTd>
-                                                    {this.state.variable.get('values').get('total')}
+														{this.state.variable.get('values').get('total')}
 													</BlockTableTd>
 												</TableRow>
 											</TableBody>

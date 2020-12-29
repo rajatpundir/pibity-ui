@@ -74,7 +74,7 @@ class Product extends React.Component {
 										[ 'minimumBeforeReorder', '' ],
 										[ 'minimumReorderQuantity', '' ],
 										[ 'productCostingMethod', '' ],
-										[ 'productSKU', '' ],
+										['productName',''],
 										[ 'productStatus', '' ],
 										[ 'productType', '' ],
 										[ 'productWarranty', '' ],

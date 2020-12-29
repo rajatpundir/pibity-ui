@@ -160,10 +160,10 @@ class SimpleSalesInvoice extends React.Component {
 				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('productInvoiceDetails'));
 				break;
 			case 'additionalCost':
-				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('additionalCost'));
+				values.set('additionalCost', this.props.orderDetails.get('values').get('additionalCost'));
 				break;
 			case 'supplierDeposit':
-				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('supplierDeposit'));
+				values.set('supplierDeposit', this.props.orderDetails.get('values').get('supplierDeposit'));
 				break;
 			default:
 				break;
@@ -584,8 +584,8 @@ class SimpleSalesInvoice extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
+											this.props.variables.Product.filter((product)=>product.values.general.values.productType !== "Service").map((variable) => {
+												return { value: variable.variableName, label: variable.values.general.values.productName };
 											})
 										) : (
 											[]

@@ -104,7 +104,7 @@ class SalesList extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner>
 							<Link to={'/customerList/' + salesOrder.values.general.values.customerName}>
-								{salesOrder.variableName}
+								{salesOrder.values.general.values.customerName}
 							</Link>
 						</TableHeaderInner>{' '}
 					</TableData>

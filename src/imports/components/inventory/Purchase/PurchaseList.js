@@ -106,7 +106,7 @@ class PurchaseOrderList extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner>
 							<Link to={'/supplierList/' + purchaseOrder.values.general.values.supplierName}>
-								{purchaseOrder.variableName}
+								{purchaseOrder.values.general.values.supplierName}
 							</Link>
 						</TableHeaderInner>{' '}
 					</TableData>

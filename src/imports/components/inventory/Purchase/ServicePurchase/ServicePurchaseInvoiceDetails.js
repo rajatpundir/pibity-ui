@@ -152,10 +152,10 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 		const values = variable.get('values');
 		switch (DataToBeCopied) {
 			case 'additionalCost':
-				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('additionalCost'));
+				values.set('additionalCost', this.props.orderDetails.get('values').get('additionalCost'));
 				break;
 			case 'supplierDeposit':
-				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('supplierDeposit'));
+				values.set('supplierDeposit', this.props.orderDetails.get('values').get('supplierDeposit'));
 				break;
 			default:
 				break;
@@ -308,7 +308,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 		values.get('additionalCost').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="6%" >
+					<TableData width="6%">
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -317,9 +317,9 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" >
-					<TableHeaderInner>
-						<SelectWrapper>
+					<TableData width="11%">
+						<TableHeaderInner>
+							<SelectWrapper>
 								<Select
 									value={{
 										value: listVariable.get('values').get('description'),
@@ -333,9 +333,16 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.Product
+												.filter(
+													(product) => product.values.general.values.productType === 'Service'
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.values.general.values.productName
+													};
+												})
 										) : (
 											[]
 										)
@@ -374,7 +381,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -400,9 +407,14 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForPurchase===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForPurchase === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)

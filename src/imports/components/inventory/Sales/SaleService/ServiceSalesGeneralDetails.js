@@ -117,14 +117,14 @@ class ServiceSalesGeneralDetails extends React.Component {
 									<SelectWrapper>
 										<Select
 											value={{
-												value: this.state.variable.get('variableName'),
-												label: this.state.variable.get('variableName')
+												value: this.state.variable.get('values').get('customerName'),
+												label: this.state.variable.get('values').get('customerName')
 											}}
 											isDisabled={this.props.creatable}
 											onChange={(option) => {
 												this.onVariableNameChange({
 													target: {
-														name: 'variableName',
+														name: 'customerName',
 														value: option.value,
 														data: option.data
 													}
