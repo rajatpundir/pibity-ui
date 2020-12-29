@@ -459,7 +459,8 @@ margin-left: ${(props) => props.marginLeft};
 
 export const InputColumnWrapper = styled.div.attrs((props) => ({
 	flexBasis: props.flexBasis || 'calc(100% / 3 - 12px) !important',
-	width: props.width || '30%'
+	width: props.width || '30%',
+	flexFlow: props.flexFlow ||'wrap'
 }))`
 	flex-basis: ${(props) => props.flexBasis};
     width: ${(props) => props.width};
@@ -467,7 +468,7 @@ export const InputColumnWrapper = styled.div.attrs((props) => ({
        flex-basis: 100% !important;
        justify-content: space-between;
        display: flex;
-       flex-flow: wrap;
+       flex-flow: ${(props) => props.flexFlow};
     }
 `;
 

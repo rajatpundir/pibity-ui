@@ -139,22 +139,22 @@ class SupplierAccount extends React.Component {
 				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible" padding="20px">
 					<InputFieldContainer>
-						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%">
-							<Card>
+						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%"  flexFlow="initial">
+							<Card flexBasis="calc(100% / 2 - 12px) !important" >
 								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
 									Account Name
 								</CardSpan>
 								<CardSpan fontWeight="bold">{this.props.supplierAccoutnDetail.values.name}</CardSpan>
 							</Card>
-							<Card>
+							<Card flexBasis="calc(100% / 2 - 12px) !important">
 								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
 									Code
 								</CardSpan>
 								<CardSpan fontWeight="bold">{this.props.supplierAccoutnDetail.values.code}</CardSpan>
 							</Card>
 						</InputColumnWrapper>
-						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%">
-							<Card>
+						<InputColumnWrapper flexBasis="calc(100% / 2 - 12px) !important" width="50%" flexFlow="initial">
+							<Card flexBasis="calc(100% / 2 - 12px) !important">
 								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
 									Category
 								</CardSpan>
@@ -162,7 +162,7 @@ class SupplierAccount extends React.Component {
 									{this.props.supplierAccoutnDetail.values.accountCategory}
 								</CardSpan>
 							</Card>
-							<Card>
+							<Card flexBasis="calc(100% / 2 - 12px) !important">
 								<CardSpan color="#707887" marginBottom="4px" fontSize="12px" lineHeight="16px">
 									Type
 								</CardSpan>
@@ -173,8 +173,8 @@ class SupplierAccount extends React.Component {
 						</InputColumnWrapper>
 					</InputFieldContainer>
 				</InputBody>
-				<InputBody overflow="visible">
-					<RoundedBlock overflow="visible">
+				<InputBody overflow="visible" padding="0" >
+					<RoundedBlock overflow="visible" border="none">
 						<TableFieldContainer overflow="visible">
 							<HeaderBodyContainer>
 								<HeaderBody>
@@ -256,12 +256,14 @@ export const Card = styled.div.attrs((props) => ({
 	background: props.background || '#f1f6fb',
 	borderRadius: props.borderRadius || '6px',
 	padding: props.padding || '10px 20px',
-	margin: props.margin || '12px'
+	margin: props.margin || '12px',
+	flexBasis: props.flexBasis
 }))`
     background:${(props) => props.background};
     border-radius: ${(props) => props.borderRadius};
     padding: ${(props) => props.padding};
     margin: ${(props) => props.margin} ;
+	flex-basis:${(props) => props.flexBasis};
     min-height:55px;
     display: flex;
     display: -webkit-box;
@@ -272,6 +274,9 @@ export const Card = styled.div.attrs((props) => ({
     -webkit-flex-direction: column;
     -ms-flex-direction: column;
     flex-direction: column;
+	@media (max-width: 991px) {
+		flex-basis: calc(100% / 2 - 9px) !important;
+	}
 `;
 
 export const CardSpan = styled.span.attrs((props) => ({

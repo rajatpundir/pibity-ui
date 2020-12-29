@@ -38,7 +38,7 @@ import {
 	Custombutton
 } from '../../../../styles/inventory/Style';
 
-class Accounts extends React.Component {
+class AccountList extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -330,5 +330,5 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(Accounts);
+export default connect(mapStateToProps, { clearErrors, getVariables })(AccountList);
 

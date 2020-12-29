@@ -26,7 +26,7 @@ import CreditNote from '../components/inventory/Accounting/CreditNote/CreditNote
 import PurchaseOrder from '../components/inventory/Accounting/PurchaseOrder/PurchaseOrder';
 import PublicDashboard from '../components/main/PublicComponentAndPages/PublicDashborad';
 import DebitNote from '../components/inventory/Accounting/DebitNote/DebitNote';
-import Accounts from '../components/inventory/Accounting/Accounts/Accounts';
+import AccountList from '../components/inventory/Accounting/Accounts/AccountList';
 import Brands from '../components/main/Reference Books/Brands';
 import CarrierServices from '../components/main/Reference Books/CarrierServices';
 import Categories from '../components/main/Reference Books/Categories';
@@ -86,7 +86,7 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/CreditNote" render={(props) => <CreditNote {...props} />} />
 
 			<PrivateRoute exact path="/debitNote" render={(props) => <DebitNote {...props} />} />
-			<PrivateRoute exact path="/accounts" render={(props) => <Accounts {...props} />} />
+			<PrivateRoute exact path="/accounts" render={(props) => <AccountList {...props} />} />
 			<PrivateRoute exact path="/brands" render={(props) => <Brands {...props} />} />
 			<PrivateRoute exact path="/carrierServices" render={(props) => <CarrierServices {...props} />} />
 			<PrivateRoute exact path="/productCategories" render={(props) => <Categories {...props} />} />
