@@ -564,7 +564,7 @@ class SupplierList extends React.Component {
 							</InputRowWrapper>
 						</InputFieldContainer>
 					</ModalBody>
-					<ModalFooter>
+					{/* <ModalFooter>
 						<ModalSubmitButton
 							onClick={(e) => {
 								this.onManageLayoutModalClose(e);
@@ -572,7 +572,7 @@ class SupplierList extends React.Component {
 						>
 							Save
 						</ModalSubmitButton>
-					</ModalFooter>
+					</ModalFooter> */}
 				</Modal>
 			</Container>
 		);
