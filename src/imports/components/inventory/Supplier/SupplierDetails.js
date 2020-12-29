@@ -89,6 +89,7 @@ class SupplierDetails extends React.Component {
 										placeholder="Supplier Name"
 										value={this.state.variable.get('variableName')}
 										onChange={this.onVariableNameChange}
+										disabled={this.props.params.variableName?true:false}
 									/>{' '}
 									<InputLabel>
 										Name<Required>*</Required>

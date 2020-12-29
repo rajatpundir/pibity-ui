@@ -15,7 +15,6 @@ import {
 	BodyTable,
 	EmptyRow,
 	EqualBlockContainer,
-	H3,
 	HeaderBody,
 	HeaderBodyContainer,
 	HeaderContainer,
@@ -25,7 +24,6 @@ import {
 	InputLabel,
 	LeftBlock,
 	LeftItemH1,
-	PageBar,
 	PageBarAlign,
 	PageBlock,
 	PageToolbar,
@@ -328,7 +326,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.map((variable) => {
+											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForPurchase===true).map((variable) => {
 												return { value: variable.variableName, label: variable.variableName };
 											})
 										) : (

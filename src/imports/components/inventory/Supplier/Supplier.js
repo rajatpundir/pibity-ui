@@ -314,6 +314,7 @@ class Supplier extends React.Component {
 							<SupplierDetails
 								variable={this.state.variable.get('values').get('general')}
 								updateDetails={this.updateDetails}
+								params={this.props.match.params}
 							/>
 						)}
 

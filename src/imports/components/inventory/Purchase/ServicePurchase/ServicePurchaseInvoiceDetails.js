@@ -400,7 +400,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.map((variable) => {
+											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForPurchase===true).map((variable) => {
 												return { value: variable.variableName, label: variable.variableName };
 											})
 										) : (
