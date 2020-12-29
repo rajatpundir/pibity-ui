@@ -219,7 +219,7 @@ class MiniDrawer extends React.Component {
 		});
 	}
 
-	handleSideDrawer() {
+	handleSideDrawer(e) {
 		this.setState({ openSideDrawer: !this.state.openSideDrawer });
 	}
 
@@ -411,6 +411,8 @@ class MiniDrawer extends React.Component {
 						left={this.state.open ? '240px' : '73px'}
 						data={this.state.childData}
 						title={this.state.title}
+						onClose={this.handleSideDrawer}
+
 					/>
 				) : (
 					undefined

@@ -17,8 +17,8 @@ class SideDrawer extends React.Component {
 							<List>
 								{this.props.data.map((item) => {
 									return (
-										<ListItem key={item.name}>
-											<LS.NavFixedItem_LINK to={item.url}>
+										<ListItem key={item.name} onClick={(e)=>this.props.onClose(e)}>
+											<LS.NavFixedItem_LINK to={item.url} >
 												<span>{item.name}</span>
 											</LS.NavFixedItem_LINK>
 										</ListItem>
