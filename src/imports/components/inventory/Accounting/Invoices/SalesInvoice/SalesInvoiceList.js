@@ -232,7 +232,7 @@ class SalesInvoice extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Purchase Order</SelectSpan>
+																<SelectSpan>Sales Order</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
