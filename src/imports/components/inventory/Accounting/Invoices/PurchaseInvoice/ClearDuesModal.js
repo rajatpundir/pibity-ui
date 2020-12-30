@@ -2,9 +2,9 @@ import React from 'react';
 import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import Select from 'react-select';
-import { executeFuntion, updatePurchaseInvoice } from '../../../../redux/actions/executeFuntion';
-import { getVariables } from '../../../../redux/actions/variables';
-import { successMessage, customErrorMessage } from '../../../main/Notification';
+import { executeFuntion, updatePurchaseInvoice } from '../../../../../redux/actions/executeFuntion';
+import { getVariables } from '../../../../../redux/actions/variables';
+import { successMessage, customErrorMessage } from '../../../../main/Notification';
 import {
 	InputRowWrapper,
 	InputFieldContainer,
@@ -21,7 +21,7 @@ import {
 	ModalCustomStyles,
 	ModalSubmitButton,
 	ModalCloseButton
-} from '../../../../styles/main/Modal';
+} from '../../../../../styles/main/Modal';
 
 class ClearDuesModal extends React.Component {
 	constructor(props) {

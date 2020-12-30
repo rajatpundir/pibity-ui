@@ -124,6 +124,14 @@
 				{
 					"name":"Reference Books",
 					"url":"/referenceBook"
+				},
+				{
+					"name":"PurchaseInvoice",
+					"url":"/purchaseinvocies"
+				},
+				{
+					"name":"SalesInvoice",
+					"url":"/salesinvocies"
 				}
 			]
 		}
