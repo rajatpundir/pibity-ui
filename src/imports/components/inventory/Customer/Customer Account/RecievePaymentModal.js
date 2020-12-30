@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import { connect } from 'react-redux';
+import Select from 'react-select';
 import { executeFuntion, updatePurchaseInvoice } from '../../../../redux/actions/executeFuntion';
 import { getVariables } from '../../../../redux/actions/variables';
 import { successMessage, customErrorMessage } from '../../../main/Notification';
@@ -11,6 +12,7 @@ import {
 	Input,
 	Required,
 	FormControl,
+	SelectWrapper,
 	ModalHeader,
 	ModalBody,
 	ModalFooter,
@@ -26,6 +28,8 @@ class RecievePaymentModal extends React.Component {
 		super();
 		this.state = {
 			amount: '',
+			paymentMode:'',
+			paymentReferenceId:'',
 			invoiceAccount: {
 				values: {
 					name: ''
@@ -40,6 +44,7 @@ class RecievePaymentModal extends React.Component {
 	componentDidMount() {
 		this.props.getVariables('Account');
 		this.props.getVariables('SalesInvoice');
+		this.props.getVariables('PaymentMode');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -68,8 +73,10 @@ class RecievePaymentModal extends React.Component {
 		const args = {
 			amount: this.state.amount,
 			invoice: this.props.invoice.variableName,
-			voucher: 'Purchase',
-			account: this.props.account.variableName
+			voucher: 'Sales',
+			account: this.props.account.variableName,
+			paymentReferenceId: this.state.paymentReferenceId,
+			paymentMode: this.state.paymentMode
 		};
 		if (this.state.amount <= this.props.invoice.values.balanceDue) {
 			this.props.executeFuntion(args, 'createSalesAccountTransaction').then((data) => {
@@ -146,6 +153,50 @@ class RecievePaymentModal extends React.Component {
 								<InputLabel>
 									Voucher Type
 									<Required>*</Required>
+								</InputLabel>
+							</FormControl>
+							<FormControl>
+								<SelectWrapper>
+									<Select
+										value={{
+											value: this.state.paymentMode,
+											label: this.state.paymentMode
+										}}
+										onChange={(option) => {
+											this.onChange({ target: { name: 'paymentMode', value: option.value } });
+										}}
+										options={
+											this.props.variables.PaymentMode !== undefined ? (
+												this.props.variables.PaymentMode.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
+											) : (
+												[]
+											)
+										}
+									/>
+								</SelectWrapper>
+								<InputLabel>
+									Payment Mode
+									<Required>*</Required>
+								</InputLabel>
+							</FormControl>
+							<FormControl>
+								<Input
+									name="paymentReferenceId"
+									type="text"
+									placeholder=""
+									value={this.state.paymentReferenceId}
+									minWidth="300px"
+									onChange={(e) => {
+										this.onChange(e);
+									}}
+								/>{' '}
+								<InputLabel>
+									Payment Mode Reference Id
 								</InputLabel>
 							</FormControl>
 							<FormControl>
