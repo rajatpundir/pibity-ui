@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import 'react-toastify/dist/ReactToastify.css';
 import { CustomNotification } from '../../../main/Notification';
@@ -34,8 +35,8 @@ import {
 	HeaderBody,
 	BodyTable,
 	TableBody,
-    TableRow,
-    TableData,
+	TableRow,
+	TableData,
 	TableHeaderInner,
 	TableHeaders,
 	TableFieldContainer
@@ -70,18 +71,22 @@ class Account extends React.Component {
 						[ 'accountType', '' ]
 					])
 				]
-            ]),
-            transactions:[]
+			]),
+			transactions: []
 		};
 		this.onClose = this.onClose.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Account && nextProps.variables.AccountTransaction) {
+		if (
+			nextProps.match.params.variableName &&
+			nextProps.variables.Account &&
+			nextProps.variables.AccountTransaction
+		) {
 			const variable = nextProps.variables.Account.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
-            )[0];
-            const transactions = nextProps.variables.AccountTransaction.filter(
+			)[0];
+			const transactions = nextProps.variables.AccountTransaction.filter(
 				(transaction) => transaction.values.account === nextProps.match.params.variableName
 			);
 			if (variable && prevState.prevPropVariable !== variable) {
@@ -91,8 +96,8 @@ class Account extends React.Component {
 					...prevState,
 					variable: variableMap,
 					prevPropVariable: variable,
-                    prevVariable: prevVariableMap,
-                    transactions:transactions
+					prevVariable: prevVariableMap,
+					transactions: transactions
 				};
 			}
 		}
@@ -101,7 +106,7 @@ class Account extends React.Component {
 
 	getData() {
 		this.props.clearErrors();
-        this.props.getVariables('Account');
+		this.props.getVariables('Account');
 		this.props.getVariables('AccountTransaction');
 	}
 
@@ -126,7 +131,7 @@ class Account extends React.Component {
 		this.getData();
 	}
 
-    renderTransactionRecords() {
+	renderTransactionRecords() {
 		const rows = [];
 		this.state.transactions.forEach((transaction, index) => {
 			const refAccount = this.props.variables.Account.filter(
@@ -141,7 +146,26 @@ class Account extends React.Component {
 						<TableHeaderInner>{refAccount.values.name}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
+						<TableHeaderInner>
+							{transaction.values.voucherType === 'Purchase' ? (
+								<Link to={'/purchase/' + transaction.values.orderId}>{transaction.values.orderId}</Link>
+							) : transaction.values.voucherType === 'Sales' ? (
+								<Link to={'/servicePurchase/' + transaction.values.orderId}>
+									{transaction.values.orderId}
+								</Link>
+							) : (
+								transaction.values.orderId
+							)}
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
 						<TableHeaderInner>{transaction.values.voucherType}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{transaction.values.paymentMode}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{transaction.values.paymentReferenceId}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>{transaction.values.creditAmount}</TableHeaderInner>
@@ -167,7 +191,7 @@ class Account extends React.Component {
 				<CustomNotification limit={2} />
 				<PageWrapper>
 					<PageBody>
-						<PageBlock  paddingBottom="0">
+						<PageBlock paddingBottom="0">
 							<PageToolbar>
 								<ToolbarItems>
 									<LeftItemH1 style={{ fontSize: 'initial' }}>Account</LeftItemH1>
@@ -286,7 +310,7 @@ class Account extends React.Component {
 								</InputFieldContainer>
 							</InputBody>
 							<InputBody overflow="visible" padding="20px">
-								<RoundedBlock overflow="visible" >
+								<RoundedBlock overflow="visible">
 									<TableFieldContainer overflow="visible">
 										<HeaderBodyContainer>
 											<HeaderBody>
@@ -305,7 +329,22 @@ class Account extends React.Component {
 															</TableHeaders>
 															<TableHeaders width="10%">
 																<SelectIconContainer>
+																	<SelectSpan>Order Id</SelectSpan>
+																</SelectIconContainer>
+															</TableHeaders>
+															<TableHeaders width="10%">
+																<SelectIconContainer>
 																	<SelectSpan>Voucher Type</SelectSpan>
+																</SelectIconContainer>
+															</TableHeaders>
+															<TableHeaders width="10%">
+																<SelectIconContainer>
+																	<SelectSpan>Payment Mode</SelectSpan>
+																</SelectIconContainer>
+															</TableHeaders>
+															<TableHeaders width="10%">
+																<SelectIconContainer>
+																	<SelectSpan>Payment Mode Reference Id</SelectSpan>
 																</SelectIconContainer>
 															</TableHeaders>
 															<TableHeaders width="10%">

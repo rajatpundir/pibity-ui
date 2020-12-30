@@ -89,7 +89,7 @@ class AccountList extends React.Component {
 		this.props.getVariables('Account');
 	}
 
-	onRefresh() {
+	onRefresh(e) {
 		this.props.getVariables('Account');
 	}
 
@@ -156,7 +156,7 @@ class AccountList extends React.Component {
 		return (
 			<Container mediaPadding="0" backgroundColor="white">
 				<CustomNotification limit={3} />
-				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onRefresh} />
+				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CreateAccountModal
 					isOpen={this.state.isCreateAccountModalOpen}
 					onClose={this.onCloseCreateAccountModal}
