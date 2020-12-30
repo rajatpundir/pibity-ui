@@ -120,6 +120,10 @@
 				{
 					"name":"Add User",
 					"url":"/addNewUser"
+				},
+				{
+					"name":"Reference Books",
+					"url":"/referenceBook"
 				}
 			]
 		}
