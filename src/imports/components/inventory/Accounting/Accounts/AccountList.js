@@ -16,7 +16,7 @@ import {
 	PageWrapper,
 	PageBody,
 	FontAwsomeIcon,
-		PageToolbar,
+	PageToolbar,
 	ToolbarItems,
 	LeftItemH1,
 	PageBarAlign,
@@ -248,7 +248,7 @@ class AccountList extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow style={{backgroundColor: '#f3f3f387'}}>
+													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														{/* <TableHeaders width="5%">
 															<SelectIconContainer>
 																<SelectSpan>
@@ -260,12 +260,12 @@ class AccountList extends React.Component {
 														</TableHeaders> */}
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Code</SelectSpan>
+																<SelectSpan>Name</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Name</SelectSpan>
+																<SelectSpan>Code</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 
@@ -331,4 +331,3 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(AccountList);
-

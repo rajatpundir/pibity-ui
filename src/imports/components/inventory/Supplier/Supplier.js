@@ -151,14 +151,14 @@ class Supplier extends React.Component {
 	}
 
 	componentDidMount() {
-		this.props.getVariables('Account');
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
 			if (this.props.match.params.variableName) {
+				this.props.getVariables('Account');
+				this.props.getVariables('PurchaseInvoice');
 				const variable = decodeURIComponent(this.props.match.params.variableName);
 				this.props.getVariable(this.state.variable.get('typeName'), variable);
-				this.props.getVariables('PurchaseInvoice');
 			}
 			this.getData();
 		}
