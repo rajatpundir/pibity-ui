@@ -6,20 +6,32 @@
 			"url": "/dashboard"
 		},
 		{
-			"name": "Product",
-			"icon": "storefront",
+			"name": "Inventory",
+			"icon": "inventory_2",
 			"children": [
 				{
 					"name": "Products",
 					"url": "/productList"
 				},
 				{
-					"name": "Create Product",
+					"name": "Add Product",
 					"url": "/product"
 				},
 				{
 					"name": "Adjust Stock",
 					"url": "/stockAdjustment"
+				},
+				{
+					"name": "Unit Of Measure ",
+					"url": "/unitOfMeasure"
+				},
+				{
+					"name": "Product Categories ",
+					"url": "/productCategories"
+				},
+				{
+					"name": "Brands",
+					"url": "/brands"
 				},
 				{
 					"name": "Stock Adjustment Record",
@@ -28,35 +40,7 @@
 			]
 		},
 		{
-			"name": "Customer",
-			"icon": "person",
-			"children": [
-				{
-					"name": "Customers",
-					"url": "/customerList"
-				},
-				{
-					"name": "New Customer",
-					"url": "/customer"
-				}
-			]
-		},
-		{
-			"name": "Supplier",
-			"icon": "assignment_ind",
-			"children": [
-				{
-					"name": "Suppliers",
-					"url": "/SupplierList"
-				},
-				{
-					"name": "New Supplier",
-					"url": "/supplier"
-				}
-			]
-		},
-		{
-			"name": "Purchase Order",
+			"name": "Purchase",
 			"icon": "shopping_cart",
 			"children": [
 				{
@@ -64,24 +48,50 @@
 					"url": "/purchaseList"
 				},
 				{
-					"name": "Simple Purchase Order",
+					"name": "Add Simple Purchase",
 					"url": "/purchase"
 				},
 				{
-					"name": "Service Purchase Order",
+					"name": "Add Service Purchase ",
 					"url": "/servicePurchase"
 				},
 				{
-					"name":"Sales Orders",
-					"url":"/salesList"
+					"name": "Suppliers",
+					"url": "/SupplierList"
 				},
 				{
-					"name":"Simple Sale",
-					"url":"/sales"
+					"name": "Add Supplier",
+					"url": "/supplier"
+				}
+			]
+		},
+		{
+			"name": "Sales",
+			"icon": "local_offer",
+			"children": [
+				{
+					"name": "Sales",
+					"url": "/salesList"
 				},
 				{
-					"name":"Service Sale",
-					"url":"/serviceSale"
+					"name": "Add Simple Sale",
+					"url": "/sales"
+				},
+				{
+					"name": " Add Service Sale",
+					"url": "/serviceSale"
+				},
+				{
+					"name": "Customers",
+					"url": "/customerList"
+				},
+				{
+					"name": "Add Customer",
+					"url": "/customer"
+				},
+				{
+					"name": "Carrier Services ",
+					"url": "/carrierServices"
 				}
 			]
 		},
@@ -90,48 +100,38 @@
 			"icon": "account_balance",
 			"children": [
 				{
-					"name":"Tax Rules ",
-					"url":"/taxRules"
+					"name": "Accounts",
+					"url": "/accounts"
 				},
 				{
-					"name":"Payment Terms ",
-					"url":"/paymentTerms"
+					"name": "Purchase Invoice",
+					"url": "/purchaseinvocies"
 				},
 				{
-					"name":"Unit Of Measure ",
-					"url":"/unitOfMeasure"
+					"name": "Sales Invoice",
+					"url": "/salesinvocies"
 				},
 				{
-					"name":"Product Categories ",
-					"url":"/productCategories"
+					"name": "Tax Rules ",
+					"url": "/taxRules"
 				},
 				{
-					"name":"Carrier Services ",
-					"url":"/carrierServices"
+					"name": "Payment Terms ",
+					"url": "/paymentTerms"
+				}
+			]
+		},
+		{
+			"name": "Admin Panel",
+			"icon": "admin_panel_settings",
+			"children": [
+				{
+					"name": "Add User",
+					"url": "/addNewUser"
 				},
 				{
-					"name":"Brands",
-					"url":"/brands"
-				},
-				{
-					"name":"Accounts",
-					"url":"/accounts"
-				},
-				{
-					"name":"Add User",
-					"url":"/addNewUser"
-				},
-				{
-					"name":"Reference Books",
-					"url":"/referenceBook"
-				},
-				{
-					"name":"PurchaseInvoice",
-					"url":"/purchaseinvocies"
-				},
-				{
-					"name":"SalesInvoice",
-					"url":"/salesinvocies"
+					"name": "Reference Books",
+					"url": "/referenceBook"
 				}
 			]
 		}
