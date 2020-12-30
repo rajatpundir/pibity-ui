@@ -148,9 +148,21 @@ class Account extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner>
 							{transaction.values.voucherType === 'Purchase' ? (
-								<Link to={'/purchase/' + transaction.values.orderId}>{transaction.values.orderId}</Link>
+								<Link
+									style={{
+										color: ' #05cbbf'
+									}}
+									to={'/purchase/' + transaction.values.orderId}
+								>
+									{transaction.values.orderId}
+								</Link>
 							) : transaction.values.voucherType === 'Sales' ? (
-								<Link to={'/servicePurchase/' + transaction.values.orderId}>
+								<Link
+									style={{
+										color: ' #05cbbf'
+									}}
+									to={'/servicePurchase/' + transaction.values.orderId}
+								>
 									{transaction.values.orderId}
 								</Link>
 							) : (

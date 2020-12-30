@@ -366,7 +366,7 @@ class Supplier extends React.Component {
 										) : (
 											undefined
 										)}
-										{this.props.match.params.variableName ? (
+										{/* {this.props.match.params.variableName ? (
 											<HoizontalBlockListItems>
 												<BlockListItemButton
 													onClick={(e) => {
@@ -378,7 +378,7 @@ class Supplier extends React.Component {
 											</HoizontalBlockListItems>
 										) : (
 											undefined
-										)}
+										)} */}
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
