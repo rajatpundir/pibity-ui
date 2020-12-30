@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import PurchaseInvoiceData from './PurchaseInvoiceData';
+import SalesInvoiceData from './SalesInvoiceData';
 import { clearErrors } from '../../../../../redux/actions/errors';
 import { getVariables } from '../../../../../redux/actions/variables';
 import { CustomNotification } from '../../../../main/Notification';
@@ -35,13 +35,13 @@ import {
 	Custombutton
 } from '../../../../../styles/inventory/Style';
 
-class PurchaseInvoice extends React.Component {
+class SalesInvoice extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
 			invoice: [],
 			accounts: [],
-			suppliers:[],
+			customers:[],
 			expandedRows: [],
 			paidInvoice: false,
 			isOpen: false,
@@ -71,9 +71,9 @@ class PurchaseInvoice extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('Supplier');
+			this.props.getVariables('Customer');
 			this.props.getVariables('Account');
-			this.props.getVariables('PurchaseInvoice');
+			this.props.getVariables('SalesInvoice');
 			this.props.getVariables('AccountTransaction');
 		}
 	}
@@ -81,14 +81,14 @@ class PurchaseInvoice extends React.Component {
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('Supplier');
+		this.props.getVariables('Customer');
 		this.props.getVariables('Account');
-		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('SalesInvoice');
 		this.props.getVariables('AccountTransaction');
 	}
 
 	onRefresh(e) {
-		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('SalesInvoice');
 	}
 
 	onResetDefaults() {
@@ -100,9 +100,9 @@ class PurchaseInvoice extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			suppliers:
+			customers:
 				nextProps.variables !== undefined
-					? nextProps.variables.Supplier !== undefined ? nextProps.variables.Supplier : []
+					? nextProps.variables.Customer !== undefined ? nextProps.variables.Customer : []
 					: [],
 			accounts:
 				nextProps.variables !== undefined
@@ -110,7 +110,7 @@ class PurchaseInvoice extends React.Component {
 					: [],
 			invoice:
 				nextProps.variables !== undefined
-					? nextProps.variables.PurchaseInvoice !== undefined ? nextProps.variables.PurchaseInvoice : []
+					? nextProps.variables.SalesInvoice !== undefined ? nextProps.variables.SalesInvoice : []
 					: []
 		};
 	}
@@ -121,13 +121,13 @@ class PurchaseInvoice extends React.Component {
 			? this.state.invoice.filter((invoice) => invoice.values.paymentStatus === 'Paid')
 			: this.state.invoice;
 		list.forEach((invoice) => {
-			const supplier = this.state.suppliers.filter(
-				(supplier) => supplier.variableName === invoice.values.supplier
+			const customer = this.state.customers.filter(
+				(customer) => customer.variableName === invoice.values.customer
 			)[0];
 			const account = this.state.accounts.filter(
-				(account) => account.variableName === supplier.values.account
+				(account) => account.variableName === customer.values.account
 			)[0];
-			rows.push(<PurchaseInvoiceData data={invoice} key={invoice.variableName} account={account} />);
+			rows.push(<SalesInvoiceData data={invoice} key={invoice.variableName} account={account} />);
 		});
 		return this.state.rowsPerPage > 0
 			? rows.slice(
@@ -300,4 +300,4 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseInvoice);
+export default connect(mapStateToProps, { clearErrors, getVariables })(SalesInvoice);

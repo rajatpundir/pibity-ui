@@ -6,7 +6,7 @@ import IconButton from '@material-ui/core/IconButton';
 import TableCell from '@material-ui/core/TableCell';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import ClearDuesModal from './ClearDuesModal';
+import RecievePaymentModal from './RecievePaymentModal';
 import InvoiceTransactionHistory from '../InvoiceTransactionHistory';
 import {
 	TableData,
@@ -24,7 +24,7 @@ const styles = (theme) => ({
 	}
 });
 
-class PurchaseInvoiceData extends React.Component {
+class SalesInvoiceData extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -47,7 +47,7 @@ class PurchaseInvoiceData extends React.Component {
         const { classes } = this.props;
 		return (
 			<React.Fragment key={this.props.data.variableName}>
-				<ClearDuesModal
+                <RecievePaymentModal
 					isOpen={this.state.isModalOpen}
 					onClose={this.onCloseModal}
 					invoice={this.props.data}
@@ -70,7 +70,7 @@ class PurchaseInvoiceData extends React.Component {
 						<TableHeaderInner>{this.props.data.values.invoiceNumber}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{this.props.data.values.purchaseOrder}</TableHeaderInner>
+						<TableHeaderInner>{this.props.data.values.salesOrder}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>{this.props.data.values.total}</TableHeaderInner>
@@ -146,5 +146,5 @@ class PurchaseInvoiceData extends React.Component {
 	}
 }
 
-export default withStyles(styles)(PurchaseInvoiceData);
+export default withStyles(styles)(SalesInvoiceData);
 

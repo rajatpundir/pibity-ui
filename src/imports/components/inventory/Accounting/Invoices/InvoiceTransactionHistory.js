@@ -56,7 +56,7 @@ class InvoiceTransactionHistory extends React.Component {
 									style={{
 										color: ' #05cbbf'
 									}}
-									to={'/servicePurchase/' + transaction.values.orderId}
+									to={'/sales/' + transaction.values.orderId}
 								>
 									{transaction.values.orderId}
 								</Link>
