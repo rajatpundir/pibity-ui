@@ -19,13 +19,7 @@ import PurchaseList from '../components/inventory/Purchase/PurchaseList';
 import SupplierList from '../components/inventory/Supplier/SupplierList/SupplierList';
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
 import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
-import Invoice from '../components/inventory/Accounting/Invoice/Invoice';
-import Quotes from '../components/inventory/Accounting/Quotes/Quotes';
-import Bill from '../components/inventory/Accounting/Bill/Bill';
-import CreditNote from '../components/inventory/Accounting/CreditNote/CreditNote';
-import PurchaseOrder from '../components/inventory/Accounting/PurchaseOrder/PurchaseOrder';
 import PublicDashboard from '../components/main/PublicComponentAndPages/PublicDashborad';
-import DebitNote from '../components/inventory/Accounting/DebitNote/DebitNote';
 import AccountList from '../components/inventory/Accounting/Accounts/AccountList';
 import Account from '../components/inventory/Accounting/Accounts/Account';
 import Brands from '../components/main/Reference Books/Brands';
@@ -100,13 +94,6 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/addNewUser" render={(props) => <Profile {...props} />} />
 			<PrivateRoute exact path="/Users/:variableName" render={(props) => <Profile {...props} />} />
 			{/* <PrivateRoute exact path="/user/:userId" render={(props) => <Profile {...props} />} /> */}
-			
-			{/* <PrivateRoute exact path="/Invoice" render={(props) => <Invoice {...props} />} />
-			<PrivateRoute exact path="/Quotes" render={(props) => <Quotes {...props} />} />
-			<PrivateRoute exact path="/Bill" render={(props) => <Bill {...props} />} />
-			<PrivateRoute exact path="/PurchaseOrder" render={(props) => <PurchaseOrder {...props} />} />
-			<PrivateRoute exact path="/CreditNote" render={(props) => <CreditNote {...props} />} />
-			<PrivateRoute exact path="/debitNote" render={(props) => <DebitNote {...props} />} /> */}
 			
 			{/* Page Not Found */}
 			<Route exact path="*" render={(props) => <NotFound />} />
