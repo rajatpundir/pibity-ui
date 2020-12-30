@@ -1,9 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { cloneDeep } from 'lodash';
 import styled from 'styled-components';
 import 'react-toastify/dist/ReactToastify.css';
-import { customErrorMessage, successMessage, CustomNotification } from '../../../main/Notification';
+import { CustomNotification } from '../../../main/Notification';
 import { clearErrors } from '../../../../redux/actions/errors';
 import {
 	createVariable,
@@ -12,11 +11,10 @@ import {
 	objToMapRec,
 	getVariables
 } from '../../../../redux/actions/variables';
-import CheckIcon from '@material-ui/icons/Check';
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
-import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from '../../../main/TablePagination';
-import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
+// import TablePagination from '@material-ui/core/TablePagination';
+// import TablePaginationActions from '../../../main/TablePagination';
+// import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
 import {
 	Container,
@@ -42,7 +40,6 @@ import {
 	TableHeaders,
 	TableFieldContainer
 } from '../../../../styles/inventory/Style';
-
 const style = {
 	flexBasis: 'calc(100% / 2 - 12px) !important',
 	width: '50%'

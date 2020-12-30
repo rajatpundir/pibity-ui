@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import Modal from 'react-modal';
+import { Link } from 'react-router-dom';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { getVariables } from '../../../../redux/actions/variables';
 import TablePagination from '@material-ui/core/TablePagination';
@@ -12,11 +13,9 @@ import {
 	InputFieldContainer,
 	ModalHeader,
 	ModalBody,
-	ModalFooter,
 	ModalHeaderCloseButton,
 	ModalTitle,
-	ModalCustomStyles,
-	ModalSubmitButton
+	ModalCustomStyles
 } from '../../../../styles/main/Modal';
 import {
 	Container,
@@ -79,7 +78,7 @@ class SupplierList extends React.Component {
 		this.onManageLayoutModalClose = this.onManageLayoutModalClose.bind(this);
 		this.onManageLayoutModalOpen = this.onManageLayoutModalOpen.bind(this);
 		this.onRefresh = this.onRefresh.bind.bind(this);
-		this.onResetDefaults=this.onResetDefaults.bind(this);
+		this.onResetDefaults = this.onResetDefaults.bind(this);
 	}
 
 	handleChangePage = (event, page) => {
@@ -203,15 +202,11 @@ class SupplierList extends React.Component {
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="left">
-								<Custombutton
-									padding="10px"
-									margin="0 5px"
-									minWidth="32px"
-									height="32px"
-									onClick={this.onManageLayoutModalOpen}
-								>
-									<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
-								</Custombutton>
+								<Link to="/supplier" style={{ textDecoration: 'none' }}>
+									<Custombutton padding="10px" margin="0 5px" minWidth="32px" height="32px">
+										<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
+									</Custombutton>
+								</Link>
 								<LeftItemFormControl paddingBottom="0">
 									<Input
 										width="250px"
@@ -278,7 +273,7 @@ class SupplierList extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow style={{backgroundColor: '#f3f3f387'}}>
+													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%">
 															{/* <SelectIconContainer>
 																<SelectSpan>

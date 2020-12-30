@@ -34,7 +34,9 @@ import {
 	CheckBoxContainer,
 	TableHeaderInner,
 	TableFieldContainer,
-	Span
+	Span,
+	Custombutton,
+	FontAwsomeIcon
 } from '../../../styles/inventory/Style';
 import { TablePaginationStyle } from '../../../styles/main/TablePagination';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../styles/main/Dashboard';
@@ -161,6 +163,11 @@ class ProductList extends React.Component {
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="left">
+							<Link to="/product" style={{ textDecoration: 'none' }}>
+								<Custombutton padding="10px" margin="0 5px" minWidth="32px" height="32px">
+									<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
+								</Custombutton>
+							</Link>
 								<LeftItemFormControl paddingBottom="0">
 									<Input
 										width="250px"
@@ -199,7 +206,7 @@ class ProductList extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow style={{backgroundColor: '#f3f3f387'}}>
+													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%">
 															<SelectIconContainer>
 																<SelectSpan>

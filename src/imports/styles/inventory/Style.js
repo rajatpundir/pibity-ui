@@ -325,18 +325,18 @@ export const TableData = styled.td`
 	float: none !important;
 `;
 
-export const TableHeaderInner = styled.div.attrs((props)=>({
+export const TableHeaderInner = styled.div.attrs((props) => ({
 	whiteSpace: props.whiteSpace || 'nowrap',
-	overflow: props.overflow||'visible'
+	overflow: props.overflow || 'visible'
 }))`
     width:100%;
     padding: 0 3px;
     color: #41454e;
     vertical-align: middle;
     font-size: 13px;
-    white-space: ${(props)=>props.whiteSpace};
+    white-space: ${(props) => props.whiteSpace};
 	text-overflow: ellipsis;
-	overflow: ${(props)=>props.overflow};
+	overflow: ${(props) => props.overflow};
 `;
 
 export const EmptyRow = styled.div`
@@ -425,14 +425,14 @@ export const RoundBlockInnerDiv = styled.div`
 	box-sizing: border-box;
 `;
 // background color based on status
-export const StatusBackgroundColor={
-	active:'#d6f3e3',
-	depricated:'#fee8e8',
-}
+export const StatusBackgroundColor = {
+	active: '#d6f3e3',
+	depricated: '#fee8e8'
+};
 
-export const StatusSpan = styled.span.attrs((props)=>({
-	backgroundColor:props.backgroundColor ||'#d6f3e3',
-	marginRight: props.marginRight ||0,
+export const StatusSpan = styled.span.attrs((props) => ({
+	backgroundColor: props.backgroundColor || '#d6f3e3',
+	marginRight: props.marginRight || 0
 }))`
 	background-color:${(props) => props.backgroundColor}; 
 	margin-right:${(props) => props.marginRight} ;
@@ -460,7 +460,7 @@ margin-left: ${(props) => props.marginLeft};
 export const InputColumnWrapper = styled.div.attrs((props) => ({
 	flexBasis: props.flexBasis || 'calc(100% / 3 - 12px) !important',
 	width: props.width || '30%',
-	flexFlow: props.flexFlow ||'wrap'
+	flexFlow: props.flexFlow || 'wrap'
 }))`
 	flex-basis: ${(props) => props.flexBasis};
     width: ${(props) => props.width};
@@ -824,14 +824,13 @@ export const CheckBoxInput = styled.input`
 	white-space: pre;
 	align-items: flex-start;
 	text-align: center;
-	
 `;
 
 //  export const CheckBoxLabel = styled.label`padding-left: 5px;`;
-export const CheckBoxContainer = styled.div.attrs((props)=>({
-	margin:props.margin||'5px 10px'
+export const CheckBoxContainer = styled.div.attrs((props) => ({
+	margin: props.margin || '5px 10px'
 }))`
-	margin: ${(props)=>props.margin};
+	margin: ${(props) => props.margin};
 	align-items: center;
 	margin-right: 10px !important;
 	position: relative;
@@ -839,9 +838,9 @@ export const CheckBoxContainer = styled.div.attrs((props)=>({
 `;
 
 export const CheckBoxLabel = styled.label`
-    height: 16px;
-    width: 100%;
-    text-align: initial;
+	height: 16px;
+	width: 100%;
+	text-align: initial;
 	position: static;
 	padding: 0 0 0 10px;
 	pointer-events: all !important;
@@ -922,7 +921,7 @@ export const TextArea = styled.textarea`
 	flex: 1;
 	min-height: 40px;
 	background-color: #fff;
-	resize:none;
+	resize: none;
 `;
 export const AddMoreBlock = styled.div`
 	flex-flow: row wrap;
@@ -995,7 +994,9 @@ export const PlusButton = styled.button`
 	white-space: nowrap;
 	border-radius: 4px;
 `;
-export const FontAwsomeIcon = styled.i`margin-right: 5px;`;
+export const FontAwsomeIcon = styled.i.attrs((props) => ({
+	marginRight: props.marginRight || '5px'
+}))`margin-right:${(props) => props.marginRight};`;
 
 export const Custombutton = styled.button.attrs((props) => ({
 	height: props.height || '40px',
@@ -1152,7 +1153,7 @@ export const BlockListItemButton = styled.button`
 
 	&:hover {
 		background-color: #25c99f;
-		color: black
+		color: black;
 	}
 
 	&:before,

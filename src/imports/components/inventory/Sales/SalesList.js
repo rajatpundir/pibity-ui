@@ -113,18 +113,18 @@ class SalesList extends React.Component {
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{salesOrder.values.orderDetails.values.additionalCostBeforeTax +
-								salesOrder.values.orderDetails.values.productCostBeforeTax}
+							{salesOrder.values.orderDetails[0].values.additionalCostBeforeTax +
+								salesOrder.values.orderDetails[0].values.productCostBeforeTax}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{salesOrder.values.orderDetails.values.totalTaxOnAdditionalCost +
-								salesOrder.values.orderDetails.values.totalTaxOnProduct}
+							{salesOrder.values.orderDetails[0].values.totalTaxOnAdditionalCost +
+								salesOrder.values.orderDetails[0].values.totalTaxOnProduct}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{salesOrder.values.orderDetails.values.total}</TableHeaderInner>
+						<TableHeaderInner>{salesOrder.values.orderDetails[0].values.total}</TableHeaderInner>
 					</TableData>
 				</TableRow>
 			);

@@ -120,6 +120,7 @@ export const ItemBlock = styled.div`
 `;
 
 export const Item = styled(Link)`
+    text-decoration:none;
 	font-weight: normal;
 	font-size: 12px;
 	line-height: 16px;
@@ -150,7 +151,7 @@ export const Item = styled(Link)`
 
 export const ItemHeading = styled.div`
 	padding-top: 10px;
-	text-decoration: underline;
+	text-decoration: none;
 `;
 
 export const ItemData = styled.div`

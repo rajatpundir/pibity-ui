@@ -127,7 +127,7 @@ class Categories extends React.Component {
                 <GlobalVariableModal
 					onClose={this.onCloseCreateProductCategoryModal}
 					isOpen={this.state.isCreateProductCategoryModalOpen}
-					typeName='CarrierService'
+					typeName='ProductCategory'
 				/>
 				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">

@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import { Link } from 'react-router-dom';
 import Modal from 'react-modal';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { getVariables } from '../../../../redux/actions/variables';
@@ -12,11 +13,9 @@ import {
 	InputFieldContainer,
 	ModalHeader,
 	ModalBody,
-	ModalFooter,
 	ModalHeaderCloseButton,
 	ModalTitle,
 	ModalCustomStyles,
-	ModalSubmitButton
 } from '../../../../styles/main/Modal';
 import {
 	Container,
@@ -56,6 +55,7 @@ class CustomerList extends React.Component {
 		super();
 		this.state = {
 			customer: [],
+			invoice:[],
 			expandedRows: [],
 			activeCustomerOnly: false,
 			isOpen: false,
@@ -118,7 +118,7 @@ class CustomerList extends React.Component {
 	}
 
 	onRefresh() {
-		this.props.getVariables('Suppliers');
+		this.props.getVariables('Customer');
 	}
 
 	onResetDefaults() {
@@ -142,11 +142,16 @@ class CustomerList extends React.Component {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
 		this.props.getVariables('Customer');
+		this.props.getVariables('SalesInvoice');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
+			invoice:
+				nextProps.variables !== undefined
+					? nextProps.variables.SalesInvoice !== undefined ? nextProps.variables.SalesInvoice : []
+					: [],
 			customer:
 				nextProps.variables !== undefined
 					? nextProps.variables.Customer !== undefined
@@ -162,15 +167,15 @@ class CustomerList extends React.Component {
 			? this.state.customer.filter((customer) => customer.values.general.values.status === 'Active')
 			: this.state.customer;
 		list.forEach((customer) => {
-			// const invoice = this.state.invoice.filter((invoice) => invoice.values.customer === customer.variableName);
-			// const totalDue = invoice.reduce(function(accumulator, currentValue) {
-			// 	return accumulator + currentValue.values.balanceDue;
-			// }, 0);
+			const invoice = this.state.invoice.filter((invoice) => invoice.values.customer === customer.variableName);
+			const totalDue = invoice.reduce(function(accumulator, currentValue) {
+				return accumulator + currentValue.values.balanceDue;
+			}, 0);
 			rows.push(
 				<CollapseData
 					data={customer}
 					key={customer.variableName}
-					// totalDue={totalDue}
+				    totalDue={totalDue}
 					layout={this.state.layoutFeilds}
 				/>
 			);
@@ -198,15 +203,11 @@ class CustomerList extends React.Component {
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="left">
-								<Custombutton
-									padding="10px"
-									margin="0 5px"
-									minWidth="32px"
-									height="32px"
-									onClick={this.onManageLayoutModalOpen}
-								>
-									<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
-								</Custombutton>
+								<Link to="/supplier" style={{ textDecoration: 'none' }}>
+									<Custombutton padding="10px" margin="0 5px" minWidth="32px" height="32px">
+										<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
+									</Custombutton>
+								</Link>
 								<LeftItemFormControl paddingBottom="0">
 									<Input
 										width="250px"

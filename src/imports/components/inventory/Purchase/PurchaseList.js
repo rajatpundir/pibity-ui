@@ -115,18 +115,18 @@ class PurchaseOrderList extends React.Component {
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.orderDetails.values.additionalCostBeforeTax +
-								purchaseOrder.values.orderDetails.values.productCostBeforeTax}
+							{purchaseOrder.values.orderDetails[0].values.additionalCostBeforeTax +
+								purchaseOrder.values.orderDetails[0].values.productCostBeforeTax}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.orderDetails.values.totalTaxOnAdditionalCost +
-								purchaseOrder.values.orderDetails.values.totalTaxOnProduct}
+							{purchaseOrder.values.orderDetails[0].values.totalTaxOnAdditionalCost +
+								purchaseOrder.values.orderDetails[0].values.totalTaxOnProduct}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{purchaseOrder.values.orderDetails.values.total}</TableHeaderInner>
+						<TableHeaderInner>{purchaseOrder.values.orderDetails[0].values.total}</TableHeaderInner>
 					</TableData>
 				</TableRow>
 			);
