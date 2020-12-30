@@ -358,6 +358,19 @@ class Customer extends React.Component {
 										) : (
 											undefined
 										)}
+										{this.props.match.params.variableName ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'accounts' });
+													}}
+												>
+													Customer Account
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
@@ -383,7 +396,7 @@ class Customer extends React.Component {
 						) : (
 							undefined
 						)}
-						{this.props.match.params.variableName && this.state.visibleSection === 'orders' ? (
+						{this.props.match.params.variableName && this.state.visibleSection === 'accounts' ? (
 							<CustomerAccount
 								customer={this.props.match.params.variableName}
 								customerAccount={this.state.customerAccount}

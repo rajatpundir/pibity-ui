@@ -173,8 +173,8 @@ class CustomerAccount extends React.Component {
 						</InputColumnWrapper>
 					</InputFieldContainer>
 				</InputBody>
-				<InputBody overflow="visible">
-					<RoundedBlock overflow="visible">
+				<InputBody overflow="visible" padding="0" >
+					<RoundedBlock overflow="visible" border="none">
 						<TableFieldContainer overflow="visible">
 							<HeaderBodyContainer>
 								<HeaderBody>
