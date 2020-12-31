@@ -1,8 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import CustomerOrderData from './CustomerOrderData';
-import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from '../../../main/TablePagination';
+// import TablePagination from '@material-ui/core/TablePagination';
+// import TablePaginationActions from '../../../main/TablePagination';
 import { getVariables } from '../../../../redux/actions/variables';
 import {
 	BodyTable,
@@ -27,7 +27,7 @@ import {
 	CheckBoxContainer
 } from '../../../../styles/inventory/Style';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
-import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
+// import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
 
 class CustomerAccount extends React.Component {
 	constructor(props) {
@@ -101,7 +101,7 @@ class CustomerAccount extends React.Component {
 	}
 
 	render() {
-		const { rowsPerPage, page } = this.state;
+		// const { rowsPerPage, page } = this.state;
 		return (
 			<PageBlock>
 				<PageToolbar borderBottom="1px solid #e0e1e7">
@@ -195,7 +195,7 @@ class CustomerAccount extends React.Component {
 							</HeaderBodyContainer>
 						</TableFieldContainer>
 					</RoundedBlock>
-					<TablePagination
+					{/* <TablePagination
 						component="div"
 						style={TablePaginationStyle}
 						rowsPerPageOptions={[ 5, 10, 20 ]}
@@ -209,7 +209,7 @@ class CustomerAccount extends React.Component {
 						onChangePage={this.handleChangePage}
 						onChangeRowsPerPage={this.handleChangeRowsPerPage}
 						ActionsComponent={TablePaginationActions}
-					/>
+					/> */}
 				</InputBody>
 			</PageBlock>
 		);

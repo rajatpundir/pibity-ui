@@ -10,14 +10,12 @@ import {
 	getVariable,
 	updateVariable,
 	objToMapRec,
-	getVariables,
-	mapToObjectRec
+	getVariables
 } from '../../../redux/actions/variables';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
-import CustomerAccount from './Customer Account/CustomerAccount';
 import CustomerOrders from './Customer Account/CustomerOrders';
 import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
@@ -358,19 +356,7 @@ class Customer extends React.Component {
 										) : (
 											undefined
 										)}
-										{/* {this.props.match.params.variableName ? (
-											<HoizontalBlockListItems>
-												<BlockListItemButton
-													onClick={(e) => {
-														this.setState({ visibleSection: 'accounts' });
-													}}
-												>
-													Customer Account
-												</BlockListItemButton>
-											</HoizontalBlockListItems>
-										) : (
-											undefined
-										)} */}
+									
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
@@ -396,15 +382,7 @@ class Customer extends React.Component {
 						) : (
 							undefined
 						)}
-						{this.props.match.params.variableName && this.state.visibleSection === 'accounts' ? (
-							<CustomerAccount
-								customer={this.props.match.params.variableName}
-								customerAccount={this.state.customerAccount}
-								customerAccountDetail={mapToObjectRec(this.state.account)}
-							/>
-						) : (
-							undefined
-						)}
+						
 					</PageBody>
 				</PageWrapper>
 			</Container>
