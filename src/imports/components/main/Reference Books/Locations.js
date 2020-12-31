@@ -118,7 +118,6 @@ class Locations extends React.Component {
 						<TableHeaderInner
 							overflow="hidden"
 							style={{
-								textAlign: 'initial',
 								marginLeft: '5px'
 							}}
 						>
@@ -129,7 +128,6 @@ class Locations extends React.Component {
 						<TableHeaderInner
 							overflow="hidden"
 							style={{
-								textAlign: 'initial',
 								marginLeft: '5px'
 							}}
 						>
@@ -140,7 +138,6 @@ class Locations extends React.Component {
 						<TableHeaderInner
 							overflow="hidden"
 							style={{
-								textAlign: 'initial',
 								marginLeft: '5px'
 							}}
 						>
@@ -151,7 +148,6 @@ class Locations extends React.Component {
 						<TableHeaderInner
 							overflow="hidden"
 							style={{
-								textAlign: 'initial',
 								marginLeft: '5px'
 							}}
 						>
