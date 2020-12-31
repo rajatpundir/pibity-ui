@@ -62,14 +62,7 @@ class ServicePurchase extends React.Component {
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
-										[
-											'vendorAddressLine1',
-											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
-										],
-										[
-											'vendorAddressLine2',
-											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
-										],
+										[ 'address', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
 										[ 'requiredBy', '' ],
 										[ 'comments', '' ]
 									])
@@ -107,7 +100,15 @@ class ServicePurchase extends React.Component {
 			purchaseOrderVariableName: '',
 			supplier: '',
 			account: '',
-			orderDetails: {}
+			orderDetails: {},
+			supplierAddress: new Map([
+				[ 'variableName', '' ],
+				[ 'values', new Map([ [ 'line1', '' ], [ 'line2', '' ] ]) ]
+			]),
+			supplierContact: new Map([
+				[ 'variableName', '' ],
+				[ 'values', new Map([ [ 'name', '' ], [ 'phone', '' ] ]) ]
+			])
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateInvoice = this.updateInvoice.bind(this);
@@ -153,6 +154,11 @@ class ServicePurchase extends React.Component {
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const supplier = nextProps.variables.Supplier.filter(
+					(supplier) => supplier.variableName === variable.values.general.values.supplierName
+				)[0];
+				const address = objToMapRec(supplier.values.addresses[0]);
+				const contact = objToMapRec(supplier.values.contacts[0]);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -165,6 +171,8 @@ class ServicePurchase extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
+					supplierAddress: address,
+					supplierContact: contact,
 					createPo: false,
 					purchaseOrderVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,
@@ -195,13 +203,13 @@ class ServicePurchase extends React.Component {
 		}
 	}
 
-	updateDetails(details) {
+	updateDetails(details, address, contact) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set('general', details);
 		variable.set('values', values);
 		variable.set('variableName', details.get('variableName'));
-		this.setState({ variable: variable });
+		this.setState({ variable: variable, supplierAddress: address, supplierContact: contact });
 	}
 
 	updateInvoice(invoiceDetails) {
@@ -330,6 +338,8 @@ class ServicePurchase extends React.Component {
 						<ServicePurchaseGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
 							updateDetails={this.updateDetails}
+							address={this.state.supplierAddress}
+							contact={this.state.supplierContact}
 							creatable={!this.state.createPo}
 						/>
 						<HorizontalListPageBlock>

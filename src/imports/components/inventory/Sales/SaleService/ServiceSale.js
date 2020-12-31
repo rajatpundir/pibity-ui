@@ -62,14 +62,7 @@ class ServiceSale extends React.Component {
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
-										[
-											'vendorAddressLine1',
-											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
-										],
-										[
-											'vendorAddressLine2',
-											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
-										],
+										[ 'address', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
 										[ 'requiredBy', '' ],
 										[ 'comments', '' ]
 									])
@@ -107,7 +100,15 @@ class ServiceSale extends React.Component {
 			salesOrderVariableName: '',
 			customer: '',
 			account: '',
-			orderDetails: {}
+			orderDetails: {},
+			customerAddress: new Map([
+				[ 'variableName', '' ],
+				[ 'values', new Map([ [ 'line1', '' ], [ 'line2', '' ] ]) ]
+			]),
+			customerContact: new Map([
+				[ 'variableName', '' ],
+				[ 'values', new Map([ [ 'name', '' ], [ 'phone', '' ] ]) ]
+			])
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
@@ -146,11 +147,16 @@ class ServiceSale extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.SalesOrder) {
+		if (nextProps.match.params.variableName && nextProps.variables.SalesOrder && nextProps.variables.Customer) {
 			const variable = nextProps.variables.SalesOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const customer = nextProps.variables.Customer.filter(
+					(customer) => customer.variableName === variable.values.general.values.customerName
+				)[0];
+				const address = objToMapRec(customer.values.addresses[0]);
+				const contact = objToMapRec(customer.values.contacts[0]);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -163,6 +169,8 @@ class ServiceSale extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
+					customerAddress: address,
+					customerContact: contact,
 					createPo: false,
 					salesOrderVariableName: variable.variableName,
 					customer: variable.values.general.values.customerName,
@@ -193,13 +201,13 @@ class ServiceSale extends React.Component {
 		}
 	}
 
-	updateDetails(details) {
+	updateDetails(details, address, contact) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set('general', details);
 		variable.set('values', values);
 		variable.set('variableName', details.get('variableName'));
-		this.setState({ variable: variable });
+		this.setState({ variable: variable, customerAddress: address, customerContact: contact });
 	}
 
 	updateOrder(orderDetails) {
@@ -347,6 +355,8 @@ class ServiceSale extends React.Component {
 						)}
 						<ServiceSalesGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
+							address={this.state.customerAddress}
+							contact={this.state.customerContact}
 							updateDetails={this.updateDetails}
 							creatable={!this.state.createPo}
 						/>

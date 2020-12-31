@@ -31,9 +31,8 @@ class SalesGeneralDetails extends React.Component {
 		super();
 		this.state = {
 			variable: props.variable,
-			contact: '',
-			line1: '',
-			line2: '',
+			address: props.address,
+			contact: props.contact,
 			open: true
 		};
 		this.onChange = this.onChange.bind(this);
@@ -48,37 +47,46 @@ class SalesGeneralDetails extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			variable: nextProps.variable
+			variable: nextProps.variable,
+			address: nextProps.address,
+			contact: nextProps.contact
 		};
 	}
 
 	onVariableNameChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
+		const address = cloneDeep(this.state.address);
+		const addressValues = address.get('values');
+		const contact = cloneDeep(this.state.contact);
+		const contactValues = contact.get('values');
 		values.set('customerName', e.target.value);
 		if (e.target.data.contacts.length !== 0) {
 			const contact = values.get('contact');
 			contact.set('variableName', e.target.data.contacts[0].variableName);
 			contact.set('context', e.target.data.contacts[0].context);
 			values.set('contact', contact);
-			values.set('phone', e.target.data.contacts[0].values.phone);
-			this.setState({ contact: e.target.data.contacts[0].values.name });
+			contactValues.set('name', e.target.data.contact[0].values.name);
+			contactValues.set('phone', e.target.data.contacts[0].values.phone);
+			contact.set('variableName', e.target.data.contacts[0].variableName);
 		}
 		if (e.target.data.addresses.length !== 0) {
 			const address = values.get('vendorAddressLine1');
 			address.set('variableName', e.target.data.addresses[0].variableName);
 			address.set('context', e.target.data.addresses[0].context);
-			values.set('vendorAddressLine1', address);
-			values.set('vendorAddressLine2', address);
-			this.setState({ line1: e.target.data.addresses[0].values.line1 });
-			this.setState({ line2: e.target.data.addresses[0].values.line2 });
+			values.set('address', address);
+			addressValues.set('line1', e.target.data.addresses[0].values.line1);
+			addressValues.set('line2', e.target.data.addresses[0].values.line2);
+			address.set('variableName', addressValues);
 		}
 		values.set('term', e.target.data.general.values.paymentTerm);
 		values.set('taxRule', e.target.data.general.values.taxRule);
 		variable.set('variableName', e.target.value);
 		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateDetails(variable);
+		address.set('values', addressValues);
+		contact.set('values', contactValues);
+		this.setState({ variable: variable, address: address, contact: contact });
+		this.props.updateDetails(variable, address, contact);
 	}
 
 	onChange(e) {
@@ -87,7 +95,7 @@ class SalesGeneralDetails extends React.Component {
 		values.set(e.target.name, e.target.value);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateDetails(variable);
+		this.props.updateDetails(variable, this.state.address, this.state.contact);
 	}
 
 	render() {
@@ -118,7 +126,7 @@ class SalesGeneralDetails extends React.Component {
 										<Select
 											value={{
 												value: this.state.variable.get('values').get('customerName'),
-												label:this.state.variable.get('values').get('customerName')
+												label: this.state.variable.get('values').get('customerName')
 											}}
 											isDisabled={this.props.creatable}
 											onChange={(option) => {
@@ -132,13 +140,18 @@ class SalesGeneralDetails extends React.Component {
 											}}
 											options={
 												this.props.variables.Customer !== undefined ? (
-													this.props.variables.Customer.filter((customer)=>customer.values.general.values.status ==='Active').map((variable) => {
-														return {
-															value: variable.variableName,
-															label: variable.variableName,
-															data: variable.values
-														};
-													})
+													this.props.variables.Customer
+														.filter(
+															(customer) =>
+																customer.values.general.values.status === 'Active'
+														)
+														.map((variable) => {
+															return {
+																value: variable.variableName,
+																label: variable.variableName,
+																data: variable.values
+															};
+														})
 												) : (
 													[]
 												)
@@ -154,10 +167,8 @@ class SalesGeneralDetails extends React.Component {
 									<Input
 										name="contact"
 										type="text"
-										placeholder="Default"
-										value={this.state.contact}
-										disabled
-										onChange={this.onChange}
+										value={this.state.contact.get('values').get('name')}
+										readOnly
 									/>
 									<InputLabel>Contact</InputLabel>
 								</FormControl>
@@ -165,10 +176,9 @@ class SalesGeneralDetails extends React.Component {
 									<Input
 										name="phone"
 										type="text"
-										placeholder="Phone"
-										value={this.state.variable.get('values').get('phone')}
-										onChange={this.onChange}
-									/>{' '}
+										value={this.state.contact.get('values').get('phone')}
+										readOnly
+									/>
 									<InputLabel>
 										Phone
 										<Required>*</Required>
@@ -176,23 +186,19 @@ class SalesGeneralDetails extends React.Component {
 								</FormControl>
 								<FormControl>
 									<Input
-										name="vendorAddressLine1"
+										name="addressLine1"
 										type="text"
-										placeholder="Default"
-										value={this.state.line1}
-										disabled
-										onChange={this.onChange}
+										value={this.state.address.get('values').get('line1')}
+										readOnly
 									/>
 									<InputLabel>Billing Address Line 1</InputLabel>
 								</FormControl>
 								<FormControl>
 									<Input
-										name="vendorAddressLine2"
+										name="addressLine2"
 										type="text"
-										placeholder="line 2"
-										value={this.state.line2}
-										disabled
-										onChange={this.onChange}
+										value={this.state.address.get('values').get('line2')}
+										readOnly
 									/>
 									<InputLabel> Billing Address Line 2</InputLabel>
 								</FormControl>
@@ -236,7 +242,7 @@ class SalesGeneralDetails extends React.Component {
 									<InputLabel>Required By</InputLabel>
 								</FormControl>
 								<FormControl>
-								<SelectWrapper>
+									<SelectWrapper>
 										<Select
 											value={{
 												value: this.state.variable.get('values').get('account'),
@@ -269,7 +275,7 @@ class SalesGeneralDetails extends React.Component {
 									</SelectWrapper>
 									<InputLabel>Sales Account</InputLabel>
 								</FormControl>
-								
+
 								<FormControl>
 									<SelectWrapper>
 										<Select
@@ -282,12 +288,14 @@ class SalesGeneralDetails extends React.Component {
 											}}
 											options={
 												this.props.variables.TaxRule !== undefined ? (
-													this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForSale===true).map((variable) => {
-														return {
-															value: variable.variableName,
-															label: variable.variableName
-														};
-													})
+													this.props.variables.TaxRule
+														.filter((taxRule) => taxRule.values.isTaxForSale === true)
+														.map((variable) => {
+															return {
+																value: variable.variableName,
+																label: variable.variableName
+															};
+														})
 												) : (
 													[]
 												)
@@ -302,7 +310,7 @@ class SalesGeneralDetails extends React.Component {
 							</InputColumnWrapper>
 							<InputColumnWrapper>
 								<H3>Shipping Details</H3>
-								
+
 								<FormControl>
 									<Input
 										name="date"

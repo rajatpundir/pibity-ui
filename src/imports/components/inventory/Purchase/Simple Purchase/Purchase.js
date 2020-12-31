@@ -62,14 +62,7 @@ class Purchase extends React.Component {
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
-										[
-											'vendorAddressLine1',
-											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
-										],
-										[
-											'vendorAddressLine2',
-											new Map([ [ 'context', '' ], [ 'variableName', '' ] ])
-										],
+										[ 'address', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
 										[ 'requiredBy', '' ],
 										[ 'comments', '' ]
 									])
@@ -107,7 +100,15 @@ class Purchase extends React.Component {
 			purchaseOrderVariableName: '',
 			supplier: '',
 			account: '',
-			orderDetails: {}
+			orderDetails: {},
+			supplierAddress: new Map([
+				[ 'variableName', '' ],
+				[ 'values', new Map([ [ 'line1', '' ], [ 'line2', '' ] ]) ]
+			]),
+			supplierContact: new Map([
+				[ 'variableName', '' ],
+				[ 'values', new Map([ [ 'name', '' ], [ 'phone', '' ] ]) ]
+			])
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
@@ -147,11 +148,16 @@ class Purchase extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.PurchaseOrder) {
+		if (nextProps.match.params.variableName && nextProps.variables.PurchaseOrder && nextProps.variables.Supplier) {
 			const variable = nextProps.variables.PurchaseOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const supplier = nextProps.variables.Supplier.filter(
+					(supplier) => supplier.variableName === variable.values.general.values.supplierName
+				)[0];
+				const address = objToMapRec(supplier.values.addresses[0]);
+				const contact = objToMapRec(supplier.values.contacts[0]);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -164,6 +170,8 @@ class Purchase extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
+					supplierAddress: address,
+					supplierContact: contact,
 					createPo: false,
 					purchaseOrderVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,
@@ -194,15 +202,14 @@ class Purchase extends React.Component {
 		}
 	}
 
-	updateDetails(details) {
+	updateDetails(details, address, contact) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set('general', details);
 		variable.set('values', values);
 		variable.set('variableName', details.get('variableName'));
-		this.setState({ variable: variable });
+		this.setState({ variable: variable, supplierAddress: address, supplierContact: contact });
 	}
-
 
 	updateOrder(orderDetails) {
 		const variable = cloneDeep(this.state.variable);
@@ -325,7 +332,7 @@ class Purchase extends React.Component {
 													this.props.createVariable(this.state.variable).then((response) => {
 														if (response.status === 200) {
 															this.setState({
-																createPo:false,
+																createPo: false,
 																purchaseOrderVariableName: response.data.variableName,
 																supplier:
 																	response.data.values.general.values.supplierName,
@@ -349,6 +356,8 @@ class Purchase extends React.Component {
 						)}
 						<PurchaseGeneralDetails
 							variable={this.state.variable.get('values').get('general')}
+							address={this.state.supplierAddress}
+							contact={this.state.supplierContact}
 							updateDetails={this.updateDetails}
 							creatable={!this.state.createPo}
 						/>
@@ -371,13 +380,10 @@ class Purchase extends React.Component {
 													opacity: this.state.createPo ? '0.5' : '1',
 													pointerEvents: this.state.createPo ? 'none' : 'all'
 												}}
-												onClick={(e)=>
-													this.state.createPo ? (
-														undefined
-													) : (
-														this.setState({ visibleSection: 'invoice' })
-													)
-												}
+												onClick={(e) =>
+													this.state.createPo
+														? undefined
+														: this.setState({ visibleSection: 'invoice' })}
 											>
 												Invoice
 											</BlockListItemButton>
@@ -394,13 +400,10 @@ class Purchase extends React.Component {
 														? 'all'
 														: 'none'
 												}}
-												onClick={(e)=>
-													this.state.variable.get('values').get('invoiceCreated') ? (
-														this.setState({ visibleSection: 'stockReceived' })
-													) : (
-														undefined
-													)
-												}
+												onClick={(e) =>
+													this.state.variable.get('values').get('invoiceCreated')
+														? this.setState({ visibleSection: 'stockReceived' })
+														: undefined}
 											>
 												Stock Received
 											</BlockListItemButton>

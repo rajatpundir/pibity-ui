@@ -106,13 +106,11 @@ class ProductList extends React.Component {
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Link to={'/product/' + product.variableName}>
-								{product.values.general.values.productSKU}
-							</Link>
+							<Link to={'/product/' + product.variableName}>{product.variableName}</Link>
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{product.variableName}</TableHeaderInner>
+						<TableHeaderInner> {product.values.general.values.productName}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>{product.values.general.values.unitOfMeasure}</TableHeaderInner>
@@ -163,11 +161,11 @@ class ProductList extends React.Component {
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="left">
-							<Link to="/product" style={{ textDecoration: 'none' }}>
-								<Custombutton padding="10px" margin="0 5px" minWidth="32px" height="32px">
-									<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
-								</Custombutton>
-							</Link>
+								<Link to="/product" style={{ textDecoration: 'none' }}>
+									<Custombutton padding="10px" margin="0 5px" minWidth="32px" height="32px">
+										<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
+									</Custombutton>
+								</Link>
 								<LeftItemFormControl paddingBottom="0">
 									<Input
 										width="250px"
