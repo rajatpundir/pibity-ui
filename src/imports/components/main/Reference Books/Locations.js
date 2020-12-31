@@ -35,23 +35,23 @@ import {
 	CheckBoxContainer,
 	StatusBackgroundColor
 } from '../../../styles/inventory/Style';
-import TaxRuleModal from '../Modal/TaxRuleModal';
+import LocationModal from '../Modal/LocationModal';
 
-class TaxRule extends React.Component {
+class Locations extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			taxRules: [],
+			locations: [],
 			isOpen: false,
-			isCreateTaxRuleModalOpen: false,
-			activeTaxRules: false,
+			isCreateLocationModalOpen: false,
+			activelocations: false,
 			variableName: ''
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
-		this.onUpdateTaxRule = this.onUpdateTaxRule.bind(this);
-		this.onCloseCreateTaxRuleModal = this.onCloseCreateTaxRuleModal.bind(this);
-		this.onOpenCreateTaxRuleModal = this.onOpenCreateTaxRuleModal.bind(this);
+		this.onUpdateLocation = this.onUpdateLocation.bind(this);
+		this.onCloseCreateLocationModal = this.onCloseCreateLocationModal.bind(this);
+		this.onOpenCreateLocationModal = this.onOpenCreateLocationModal.bind(this);
 	}
 
 	componentDidMount() {
@@ -59,8 +59,8 @@ class TaxRule extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('TaxRule');
-			this.props.getVariables('TaxRuleType');
+			this.props.getVariables('Location');
+			this.props.getVariables('Country');
 			this.props.getVariables('Status');
 		}
 	}
@@ -70,37 +70,37 @@ class TaxRule extends React.Component {
 			isOpen: false
 		});
 		this.props.clearErrors();
-		this.props.getVariables('TaxRule');
+		this.props.getVariables('Location');
 	}
 
 	onRefresh() {
-		this.props.getVariables('TaxRule');
+		this.props.getVariables('Location');
 	}
 
-	onUpdateTaxRule(e, variableName) {
+	onUpdateLocation(e, variableName) {
 		this.setState({ variableName: variableName }, () => {
-			this.onOpenCreateTaxRuleModal();
+			this.onOpenCreateLocationModal();
 		});
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			taxRules:
+			locations:
 				nextProps.variables !== undefined
-					? nextProps.variables.TaxRule !== undefined ? nextProps.variables.TaxRule : []
+					? nextProps.variables.Location !== undefined ? nextProps.variables.Location : []
 					: []
 		};
 	}
 
-	renderTaxRules() {
+	renderLocations() {
 		const rows = [];
-		const list = this.state.activeTaxRules
-			? this.state.taxRules.filter((taxRule) => taxRule.values.status === 'Active')
-			: this.state.taxRules;
-		list.forEach((taxRule) => {
+		const list = this.state.activelocations
+			? this.state.locations.filter((location) => location.values.status === 'Active')
+			: this.state.locations;
+		list.forEach((location) => {
 			rows.push(
-				<TableRow key={taxRule.variableName}>
+				<TableRow key={location.variableName}>
 					<TableData left="0px" />
 					<TableData>
 						<TableHeaderInner
@@ -109,9 +109,9 @@ class TaxRule extends React.Component {
 								textAlign: 'initial',
 								marginLeft: '5px'
 							}}
-							onClick={(e) => this.onUpdateTaxRule(e, taxRule.variableName)}
+							onClick={(e) => this.onUpdateLocation(e, location.variableName)}
 						>
-							{taxRule.variableName}
+							{location.variableName}
 						</TableHeaderInner>
 					</TableData>
 					<TableData>
@@ -122,7 +122,7 @@ class TaxRule extends React.Component {
 								marginLeft: '5px'
 							}}
 						>
-							{taxRule.values.taxPercentage}
+							{location.values.address.values.line1 + ' ' + location.values.address.values.line2}
 						</TableHeaderInner>
 					</TableData>
 					<TableData>
@@ -133,7 +133,7 @@ class TaxRule extends React.Component {
 								marginLeft: '5px'
 							}}
 						>
-							{taxRule.values.taxType}
+							{location.values.address.values.city}
 						</TableHeaderInner>
 					</TableData>
 					<TableData>
@@ -144,14 +144,7 @@ class TaxRule extends React.Component {
 								marginLeft: '5px'
 							}}
 						>
-							<CheckBoxContainer>
-								<CheckBoxInput
-									type="checkbox"
-									checked={taxRule.values.isTaxForSale}
-									tabindex="55"
-									readOnly
-								/>
-							</CheckBoxContainer>
+							{location.values.address.values.state}
 						</TableHeaderInner>
 					</TableData>
 					<TableData>
@@ -162,14 +155,7 @@ class TaxRule extends React.Component {
 								marginLeft: '5px'
 							}}
 						>
-							<CheckBoxContainer>
-								<CheckBoxInput
-									type="checkbox"
-									checked={taxRule.values.isTaxForPurchase}
-									tabindex="55"
-									readOnly
-								/>
-							</CheckBoxContainer>
+							{location.values.address.values.country}
 						</TableHeaderInner>
 					</TableData>
 					<TableData>
@@ -179,19 +165,19 @@ class TaxRule extends React.Component {
 								marginLeft: '5px'
 							}}
 							backgroundColor={
-								taxRule.values.status === 'Active' ? (
+								location.values.status === 'Active' ? (
 									StatusBackgroundColor.active
 								) : (
 									StatusBackgroundColor.depricated
 								)
 							}
 						>
-							{taxRule.values.status}
+							{location.values.status}
 						</StatusSpan>
 					</TableData>
 					<TableData left="0px">
 						<i
-							name={taxRule.variableName}
+							name={location.variableName}
 							className="large material-icons"
 							// onClick={(e) => this.onRemoveKey(e,)}
 						>
@@ -208,31 +194,32 @@ class TaxRule extends React.Component {
 		this.setState({ [e.target.name]: e.target.value });
 	}
 
-	onOpenCreateTaxRuleModal() {
-		this.setState({ isCreateTaxRuleModalOpen: true });
+	onOpenCreateLocationModal() {
+		this.setState({ isCreateLocationModalOpen: true });
 	}
 
-	onCloseCreateTaxRuleModal() {
+	onCloseCreateLocationModal() {
 		this.setState({
-			isCreateTaxRuleModalOpen: false,
+			isCreateLocationModalOpen: false,
 			variableName: ''
 		});
 	}
+
 	render() {
 		return (
 			<Container mediaPadding="0" backgroundColor="white">
 				<CustomNotification limit={3} />
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onRefresh} />
-				<TaxRuleModal
-					onClose={this.onCloseCreateTaxRuleModal}
-					isOpen={this.state.isCreateTaxRuleModalOpen}
+				<LocationModal
+					onClose={this.onCloseCreateLocationModal}
+					isOpen={this.state.isCreateLocationModalOpen}
 					variableName={this.state.variableName}
 				/>
 				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarItems>
-								<LeftItemH1>taxRules</LeftItemH1>
+								<LeftItemH1>Locations</LeftItemH1>
 							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
@@ -241,10 +228,10 @@ class TaxRule extends React.Component {
 									padding="0 10px"
 									minWidth="70px"
 									height="32px"
-									onClick={this.onOpenCreateTaxRuleModal}
+									onClick={this.onOpenCreateLocationModal}
 								>
 									<FontAwsomeIcon className="fa fa-plus" />
-									Add Tax Rule
+									Add Location
 								</Custombutton>
 								<Custombutton
 									padding="0 10px"
@@ -266,18 +253,18 @@ class TaxRule extends React.Component {
 								<CheckBoxContainer>
 									<CheckBoxInput
 										type="checkbox"
-										checked={this.state.activeTaxRules}
+										checked={this.state.activelocations}
 										tabindex="55"
 										onChange={(option) => {
 											this.onChange({
 												target: {
-													name: 'activeTaxRules',
-													value: !this.state.activeTaxRules
+													name: 'activelocations',
+													value: !this.state.activelocations
 												}
 											});
 										}}
 									/>
-									<CheckBoxLabel>Only active taxRules</CheckBoxLabel>
+									<CheckBoxLabel>Only active locations</CheckBoxLabel>
 								</CheckBoxContainer>
 							</PageBarAlign>
 						</PageToolbar>
@@ -300,47 +287,27 @@ class TaxRule extends React.Component {
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="15%">
-															<SelectIconContainer
-																style={{
-																	justifyContent: 'initial'
-																}}
-															>
-																<SelectSpan>Tax Percentage</SelectSpan>
+															<SelectIconContainer>
+																<SelectSpan>Address</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="15%">
-															<SelectIconContainer
-																style={{
-																	justifyContent: 'initial'
-																}}
-															>
-																<SelectSpan>Tax Type</SelectSpan>
+															<SelectIconContainer>
+																<SelectSpan>City</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="15%">
-															<SelectIconContainer
-																style={{
-																	justifyContent: 'initial'
-																}}
-															>
-																<SelectSpan>is TaxForSale</SelectSpan>
+															<SelectIconContainer>
+																<SelectSpan>State</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="15%">
-															<SelectIconContainer
-																style={{
-																	justifyContent: 'initial'
-																}}
-															>
-																<SelectSpan>is TaxForPurchase</SelectSpan>
+															<SelectIconContainer>
+																<SelectSpan>Country</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="15%">
-															<SelectIconContainer
-															// style={{
-															// 	justifyContent: 'initial'
-															// }}
-															>
+															<SelectIconContainer>
 																<SelectSpan>Status</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
@@ -354,13 +321,13 @@ class TaxRule extends React.Component {
 															</SelectIconContainer>
 														</TableHeaders>
 													</TableRow>
-													{this.renderTaxRules()}
+													{this.renderLocations()}
 												</TableBody>
 											</BodyTable>
-											{this.state.taxRules.length === 0 ? (
+											{this.state.locations.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No TaxRules Available</EmptyRowTag>
+													<EmptyRowTag>No Locations Available</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined
@@ -383,6 +350,6 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(TaxRule);
+export default connect(mapStateToProps, { clearErrors, getVariables })(Locations);
 
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

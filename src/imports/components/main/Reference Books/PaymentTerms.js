@@ -282,7 +282,7 @@ class PaymentTerms extends React.Component {
 											{this.state.paymentTerms.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No PaymentTerm</EmptyRowTag>
+													<EmptyRowTag>No PaymentTerm Available</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined

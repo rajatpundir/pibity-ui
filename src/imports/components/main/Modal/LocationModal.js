@@ -20,40 +20,51 @@ import {
 	ModalCustomStyles,
 	ModalSubmitButton,
 	SelectWrapper,
-	CheckBoxInput,
-	CheckBoxLabel,
-	CheckBoxContainer,
 	ModalCloseButton
 } from '../../../styles/main/Modal';
 
-class TaxRuleModal extends React.Component {
+class LocationModal extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
 			prevProptypeVariable: {},
 			prevtypeVariable: new Map(),
 			typeVariable: new Map([
-				[ 'typeName', 'TaxRule' ],
+				[ 'typeName', 'Location' ],
 				[ 'variableName', '' ],
 				[
 					'values',
 					new Map([
 						[ 'status', '' ],
-						[ 'taxPercentage', '' ],
-						[ 'isTaxForSale', false ],
-						[ 'isTaxForPurchase', false ],
-						[ 'taxType', '' ]
+						[
+							'address',
+							new Map([
+								[ 'variableName', '' ],
+								[
+									'values',
+									new Map([
+										[ 'line1', '' ],
+										[ 'line2', '' ],
+										[ 'city', '' ],
+										[ 'state', '' ],
+										[ 'postCode', '' ],
+										[ 'country', '' ]
+									])
+								]
+							])
+						]
 					])
 				]
 			])
 		};
 		this.onChange = this.onChange.bind(this);
+		this.onAddressChange = this.onAddressChange.bind(this);
 		this.onClose = this.onClose.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variableName !== '' && nextProps.variables.TaxRule) {
-			const variable = nextProps.variables.TaxRule.filter(
+		if (nextProps.variableName !== '' && nextProps.variables.Location) {
+			const variable = nextProps.variables.Location.filter(
 				(variable) => variable.variableName === nextProps.variableName
 			)[0];
 			if (variable && prevState.prevProptypeVariable !== variable) {
@@ -68,6 +79,18 @@ class TaxRuleModal extends React.Component {
 			}
 		}
 		return prevState;
+	}
+
+	onAddressChange(e) {
+		const typeVariable = cloneDeep(this.state.typeVariable);
+		const values = typeVariable.get('values');
+		const address = values.get('address');
+		const addressValues = address.get('values');
+		addressValues.set(e.target.name, e.target.value);
+		address.set('values', addressValues);
+		values.set('address', address);
+		typeVariable.set('values', values);
+		this.setState({ typeVariable: typeVariable });
 	}
 
 	onChange(e) {
@@ -86,16 +109,29 @@ class TaxRuleModal extends React.Component {
 		const prevProptypeVariable = {};
 		const prevtypeVariable = new Map();
 		const typeVariable = new Map([
-			[ 'typeName', 'TaxRule' ],
+			[ 'typeName', 'Location' ],
 			[ 'variableName', '' ],
 			[
 				'values',
 				new Map([
 					[ 'status', '' ],
-					[ 'taxPercentage', '' ],
-					[ 'isTaxForSale', false ],
-					[ 'isTaxForPurchase', false ],
-					[ 'taxType', '' ]
+					[
+						'address',
+						new Map([
+							[ 'variableName', '' ],
+							[
+								'values',
+								new Map([
+									[ 'line1', '' ],
+									[ 'line2', '' ],
+									[ 'city', '' ],
+									[ 'state', '' ],
+									[ 'postCode', '' ],
+									[ 'country', '' ]
+								])
+							]
+						])
+					]
 				])
 			]
 		]);
@@ -111,7 +147,7 @@ class TaxRuleModal extends React.Component {
 		return (
 			<Modal
 				isOpen={this.props.isOpen}
-				contentLabel="create TaxRule"
+				contentLabel="create Location"
 				onRequestClose={this.onClose}
 				className="boxed-view__box"
 				style={ModalCustomStyles}
@@ -119,7 +155,7 @@ class TaxRuleModal extends React.Component {
 				overlayClassName="boxed-view boxed-view--modal"
 			>
 				<ModalHeader>
-					<ModalTitle>Tax Rule</ModalTitle>
+					<ModalTitle>Location</ModalTitle>
 					<ModalHeaderCloseButton
 						onClick={(e) => {
 							this.onClose(e);
@@ -149,35 +185,119 @@ class TaxRuleModal extends React.Component {
 							</FormControl>
 							<FormControl>
 								<Input
-									name="taxPercentage"
-									type="Number"
+									name="line1"
+									type="Text"
 									placeholder=""
-									value={this.state.typeVariable.get('values').get('taxPercentage')}
+									value={this.state.typeVariable
+										.get('values')
+										.get('address')
+										.get('values')
+										.get('line1')}
 									onChange={(e) => {
-										this.onChange(e);
+										this.onAddressChange(e);
 									}}
 									minWidth="300px"
 								/>{' '}
 								<InputLabel>
-									Tax Percentage
+									Line 1
 									<Required>*</Required>
+								</InputLabel>
+							</FormControl>
+							<FormControl>
+								<Input
+									name="line2"
+									type="Text"
+									placeholder=""
+									value={this.state.typeVariable
+										.get('values')
+										.get('address')
+										.get('values')
+										.get('line2')}
+									onChange={(e) => {
+										this.onAddressChange(e);
+									}}
+									minWidth="300px"
+								/>{' '}
+								<InputLabel>Line 2</InputLabel>
+							</FormControl>
+							<FormControl>
+								<Input
+									name="city"
+									type="Text"
+									placeholder=""
+									value={this.state.typeVariable
+										.get('values')
+										.get('address')
+										.get('values')
+										.get('city')}
+									onChange={(e) => {
+										this.onAddressChange(e);
+									}}
+									minWidth="300px"
+								/>{' '}
+								<InputLabel>City</InputLabel>
+							</FormControl>
+							<FormControl>
+								<Input
+									name="postCode"
+									type="Text"
+									placeholder=""
+									value={this.state.typeVariable
+										.get('values')
+										.get('address')
+										.get('values')
+										.get('postCode')}
+									onChange={(e) => {
+										this.onAddressChange(e);
+									}}
+									minWidth="300px"
+								/>{' '}
+								<InputLabel>
+									PostCode <Required>*</Required>
+								</InputLabel>
+							</FormControl>
+							<FormControl>
+								<Input
+									name="state"
+									type="Text"
+									placeholder=""
+									value={this.state.typeVariable
+										.get('values')
+										.get('address')
+										.get('values')
+										.get('state')}
+									onChange={(e) => {
+										this.onAddressChange(e);
+									}}
+									minWidth="300px"
+								/>{' '}
+								<InputLabel>
+									State <Required>*</Required>
 								</InputLabel>
 							</FormControl>
 							<FormControl>
 								<SelectWrapper minWidth="200px">
 									<Select
 										value={{
-											value: this.state.typeVariable.get('values').get('taxType'),
-											label: this.state.typeVariable.get('values').get('taxType')
+											value: this.state.typeVariable
+												.get('values')
+												.get('address')
+												.get('values')
+												.get('country'),
+											label: this.state.typeVariable
+												.get('values')
+												.get('address')
+												.get('values')
+												.get('country')
 										}}
 										onChange={(option) => {
-											this.onChange({
-												target: { name: 'taxType', value: option.value }
+											this.onAddressChange({
+												target: { name: 'country', value: option.value }
 											});
 										}}
 										options={
-											this.props.variables.TaxRuleType !== undefined ? (
-												this.props.variables.TaxRuleType.map((variable) => {
+											this.props.variables.Country !== undefined ? (
+												this.props.variables.Country.map((variable) => {
 													return {
 														value: variable.variableName,
 														label: variable.variableName
@@ -190,7 +310,7 @@ class TaxRuleModal extends React.Component {
 									/>
 								</SelectWrapper>
 								<InputLabel>
-									Inclusive/Exclusive
+									Country
 									<Required>*</Required>
 								</InputLabel>
 							</FormControl>
@@ -225,42 +345,6 @@ class TaxRuleModal extends React.Component {
 									<Required>*</Required>
 								</InputLabel>
 							</FormControl>
-							<FormControl>
-								<CheckBoxContainer margin="10px 0">
-									<CheckBoxInput
-										type="checkbox"
-										checked={this.state.typeVariable.get('values').get('isTaxForSale')}
-										tabindex="55"
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'isTaxForSale',
-													value: !this.state.typeVariable.get('values').get('isTaxForSale')
-												}
-											});
-										}}
-									/>
-									<CheckBoxLabel>is TaxForSale</CheckBoxLabel>
-								</CheckBoxContainer>
-								<CheckBoxContainer margin="10px 0">
-									<CheckBoxInput
-										type="checkbox"
-										checked={this.state.typeVariable.get('values').get('isTaxForPurchase')}
-										tabindex="55"
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'isTaxForPurchase',
-													value: !this.state.typeVariable
-														.get('values')
-														.get('isTaxForPurchase')
-												}
-											});
-										}}
-									/>
-									<CheckBoxLabel>is TaxForPurchase</CheckBoxLabel>
-								</CheckBoxContainer>
-							</FormControl>
 						</InputRowWrapper>
 					</InputFieldContainer>
 				</ModalBody>
@@ -273,14 +357,14 @@ class TaxRuleModal extends React.Component {
 									.then((status) => {
 										if (status === 200) {
 											this.onClose(e);
-											successMessage(`Tax Rule Updated Succesfully`);
+											successMessage(`Location Updated Succesfully`);
 										}
 									});
 							} else {
 								this.props.createVariable(this.state.typeVariable).then((response) => {
 									if (response.status === 200) {
 										this.onClose(e);
-										successMessage(`Tax Rule Added Succesfully`);
+										successMessage(`Location Added Succesfully`);
 									}
 								});
 							}
@@ -309,4 +393,4 @@ const mapStateToProps = (state) => ({
 export default connect(mapStateToProps, {
 	createVariable,
 	updateVariable
-})(TaxRuleModal);
+})(LocationModal);

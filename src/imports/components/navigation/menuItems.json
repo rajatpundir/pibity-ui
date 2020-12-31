@@ -22,6 +22,9 @@
 					"url": "/stockAdjustment"
 				},
 				{
+					"name": "Locations ",
+					"url": "/locations"
+				},{
 					"name": "Unit Of Measure ",
 					"url": "/unitOfMeasure"
 				},

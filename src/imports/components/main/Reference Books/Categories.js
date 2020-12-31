@@ -198,7 +198,7 @@ class Categories extends React.Component {
 											{this.state.productCategories.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Product Category</EmptyRowTag>
+													<EmptyRowTag>No Product Category Available</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined

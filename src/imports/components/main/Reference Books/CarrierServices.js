@@ -198,7 +198,7 @@ class CarrierService extends React.Component {
 											{this.state.carrierServices.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Carrier Services</EmptyRowTag>
+													<EmptyRowTag>No Carrier Services Available</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined

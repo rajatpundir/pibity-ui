@@ -37,6 +37,7 @@ import Categories from '../components/main/Reference Books/Categories';
 import UnitOfMeasure from '../components/main/Reference Books/UnitOfMeasure';
 import PaymentTerms from '../components/main/Reference Books/PaymentTerms';
 import TaxRules from '../components/main/Reference Books/TaxRules';
+import Locations from '../components/main/Reference Books/Locations';
 import ReferenceBook from '../components/main/Reference Books/ReferenceBook';
 
 export const AppRouter = () => (
@@ -96,6 +97,7 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/unitOfMeasure" render={(props) => <UnitOfMeasure {...props} />} />
 			<PrivateRoute exact path="/paymentTerms" render={(props) => <PaymentTerms {...props} />} />
 			<PrivateRoute exact path="/taxRules" render={(props) => <TaxRules {...props} />} />
+			<PrivateRoute exact path="/locations" render={(props) => <Locations {...props} />} />
 			<PrivateRoute exact path="/referenceBook" render={(props) => <ReferenceBook {...props} />} />
 
 			{/* user management */}
