@@ -694,7 +694,7 @@ class SimpleSalesInvoice extends React.Component {
 								onClick={(e) => {
 									this.props.createVariable(this.state.variable).then((response) => {
 										if (response.status === 200) {
-											successMessage(' Purchase Invoice Created');
+											successMessage(' Sales Invoice Created');
 										}
 									});
 								}}

@@ -54,10 +54,10 @@ class ServicePurchaseGeneralDetails extends React.Component {
 	onVariableNameChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		const address = cloneDeep(this.state.address);
-		const addressValues = address.get('values');
-		const contact = cloneDeep(this.state.contact);
-		const contactValues = contact.get('values');
+		const supplierAddress = cloneDeep(this.state.address);
+		const addressValues = supplierAddress.get('values');
+		const supplierContact = cloneDeep(this.state.contact);
+		const contactValues = supplierContact.get('values');
 		values.set('supplierName', e.target.value);
 		if (e.target.data.contacts.length !== 0) {
 			const contact = values.get('contact');
@@ -66,27 +66,27 @@ class ServicePurchaseGeneralDetails extends React.Component {
 			values.set('contact', contact);
 			contactValues.set('name', e.target.data.contacts[0].values.name);
 			contactValues.set('phone', e.target.data.contacts[0].values.phone);
-			contact.set('variableName', e.target.data.contacts[0].variableName);
+			supplierContact.set('variableName', e.target.data.contacts[0].variableName);
 		}
 		if (e.target.data.addresses.length !== 0) {
-			const address = values.get('vendorAddressLine1');
+			const address = values.get('address');
 			address.set('variableName', e.target.data.addresses[0].variableName);
 			address.set('context', e.target.data.addresses[0].context);
 			values.set('address', address);
 			addressValues.set('line1', e.target.data.addresses[0].values.line1);
 			addressValues.set('line2', e.target.data.addresses[0].values.line2);
-			address.set('variableName', addressValues);
+			supplierAddress.set('variableName',  e.target.data.addresses[0].variableName);
 		}
 		values.set('term', e.target.data.general.values.paymentTerm);
 		values.set('taxRule', e.target.data.general.values.taxRule);
 		variable.set('variableName', e.target.value);
 		variable.set('values', values);
-		address.set('values', addressValues);
-		contact.set('values', contactValues);
-		this.setState({ variable: variable, address: address, contact: contact });
-		this.props.updateDetails(variable, address, contact);
+		supplierAddress.set('values', addressValues);
+		supplierContact.set('values', contactValues);
+		this.setState({ variable: variable, address: supplierAddress, contact: supplierContact });
+		this.props.updateDetails(variable, supplierAddress, supplierContact);
 	}
-
+	
 	onChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');

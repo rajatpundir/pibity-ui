@@ -56,37 +56,37 @@ class ServiceSalesGeneralDetails extends React.Component {
 	onVariableNameChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		const address = cloneDeep(this.state.address);
-		const addressValues = address.get('values');
-		const contact = cloneDeep(this.state.contact);
-		const contactValues = contact.get('values');
+		const customerAddress = cloneDeep(this.state.address);
+		const addressValues = customerAddress.get('values');
+		const customerContact = cloneDeep(this.state.contact);
+		const contactValues = customerContact.get('values');
 		values.set('customerName', e.target.value);
 		if (e.target.data.contacts.length !== 0) {
 			const contact = values.get('contact');
 			contact.set('variableName', e.target.data.contacts[0].variableName);
 			contact.set('context', e.target.data.contacts[0].context);
 			values.set('contact', contact);
-			contactValues.set('name', e.target.data.contact[0].values.name);
+			contactValues.set('name', e.target.data.contacts[0].values.name);
 			contactValues.set('phone', e.target.data.contacts[0].values.phone);
-			contact.set('variableName', e.target.data.contacts[0].variableName);
+			customerContact.set('variableName', e.target.data.contacts[0].variableName);
 		}
 		if (e.target.data.addresses.length !== 0) {
-			const address = values.get('vendorAddressLine1');
+			const address = values.get('address');
 			address.set('variableName', e.target.data.addresses[0].variableName);
 			address.set('context', e.target.data.addresses[0].context);
 			values.set('address', address);
 			addressValues.set('line1', e.target.data.addresses[0].values.line1);
 			addressValues.set('line2', e.target.data.addresses[0].values.line2);
-			address.set('variableName', addressValues);
+			customerAddress.set('variableName', e.target.data.addresses[0].variableName);
 		}
 		values.set('term', e.target.data.general.values.paymentTerm);
 		values.set('taxRule', e.target.data.general.values.taxRule);
 		variable.set('variableName', e.target.value);
 		variable.set('values', values);
-		address.set('values', addressValues);
-		contact.set('values', contactValues);
-		this.setState({ variable: variable, address: address, contact: contact });
-		this.props.updateDetails(variable, address, contact);
+		customerAddress.set('values', addressValues);
+		customerContact.set('values', contactValues);
+		this.setState({ variable: variable, address: customerAddress, contact: customerContact });
+		this.props.updateDetails(variable, customerAddress, customerContact);
 	}
 
 	onChange(e) {
@@ -234,8 +234,7 @@ class ServiceSalesGeneralDetails extends React.Component {
 								<FormControl>
 									<Input
 										name="requiredBy"
-										type="text"
-										placeholder="requiredy"
+										type="date"
 										value={this.state.variable.get('values').get('requiredBy')}
 										onChange={this.onChange}
 									/>
@@ -315,7 +314,6 @@ class ServiceSalesGeneralDetails extends React.Component {
 									<Input
 										name="date"
 										type="date"
-										placeholder="date"
 										value={this.state.variable.get('values').get('date')}
 										onChange={this.onChange}
 										style={{ height: '38px' }}
