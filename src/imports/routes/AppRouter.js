@@ -39,6 +39,7 @@ import PaymentTerms from '../components/main/Reference Books/PaymentTerms';
 import TaxRules from '../components/main/Reference Books/TaxRules';
 import Locations from '../components/main/Reference Books/Locations';
 import ReferenceBook from '../components/main/Reference Books/ReferenceBook';
+import ProductStore from '../components/inventory/Product/Product Store/ProductStore';
 
 export const AppRouter = () => (
 	<BrowserRouter>
@@ -98,6 +99,7 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/paymentTerms" render={(props) => <PaymentTerms {...props} />} />
 			<PrivateRoute exact path="/taxRules" render={(props) => <TaxRules {...props} />} />
 			<PrivateRoute exact path="/locations" render={(props) => <Locations {...props} />} />
+			<PrivateRoute exact path="/productStores" render={(props) => <ProductStore {...props} />} />
 			<PrivateRoute exact path="/referenceBook" render={(props) => <ReferenceBook {...props} />} />
 
 			{/* user management */}
