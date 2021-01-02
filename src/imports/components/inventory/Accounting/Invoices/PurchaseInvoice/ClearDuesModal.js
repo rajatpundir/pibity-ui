@@ -2,7 +2,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import Select from 'react-select';
-import { executeFuntion, updatePurchaseInvoice } from '../../../../../redux/actions/executeFuntion';
+import { executePaymentInvoiceFuntion, updatePurchaseInvoice } from '../../../../../redux/actions/executeFuntion';
 import { getVariables } from '../../../../../redux/actions/variables';
 import { successMessage, customErrorMessage } from '../../../../main/Notification';
 import {
@@ -79,7 +79,7 @@ class ClearDuesModal extends React.Component {
 			paymentMode: this.state.paymentMode
 		};
 		if (this.state.amount <= this.props.invoice.values.balanceDue) {
-			this.props.executeFuntion(args, 'createAccountTransaction').then((data) => {
+			this.props.executePaymentInvoiceFuntion(args, 'createAccountTransaction').then((data) => {
 				if (data.status === 200) {
 					const request = {
 						orgId: localStorage.getItem('selectedOrganization'),
@@ -289,7 +289,7 @@ const mapStateToProps = (state) => ({
 });
 
 export default connect(mapStateToProps, {
-	executeFuntion,
+	executePaymentInvoiceFuntion,
 	getVariables,
 	updatePurchaseInvoice
 })(ClearDuesModal);

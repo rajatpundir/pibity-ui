@@ -3,7 +3,7 @@ import { domain } from '../config';
 import { updateErrors } from './errors';
 import {replaceVariable} from './variables'
 
-export const executeFuntion = (args: Object, funtionName:String) => async (dispatch) => {
+export const executePaymentInvoiceFuntion = (args: Object, funtionName:String) => async (dispatch) => {
 	try {
 		const url = domain + '/function/execute';
 		const request = {
