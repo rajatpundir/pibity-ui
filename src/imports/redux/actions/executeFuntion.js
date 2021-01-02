@@ -24,7 +24,7 @@ export const executePaymentInvoiceFuntion = (args: Object, funtionName:String) =
 			}
 		} else {
 			updateErrors(dispatch, response.data);
-			return response.status;
+			return response;
 		}
 	} catch (error) {
 		if (error.response) {
@@ -34,6 +34,32 @@ export const executePaymentInvoiceFuntion = (args: Object, funtionName:String) =
 	}
 };
 
+export const executeFuntion = (args: Object, funtionName:String) => async (dispatch) => {
+	try {
+		const url = domain + '/function/execute';
+		const request = {
+			...{ args: args },
+			...{ orgId: localStorage.getItem('selectedOrganization') },
+			...{ functionName:funtionName },
+		};
+		console.log(request);
+		const response = await axios.post(url, request);
+		console.log(response);
+		if (response.status === 200) {
+			if (response.data !== undefined) {
+				return response;
+			}
+		} else {
+			updateErrors(dispatch, response.data);
+			return response;
+		}
+	} catch (error) {
+		if (error.response) {
+			updateErrors(dispatch, error.response.data);
+			return false;
+		}
+	}
+};
 export const updatePurchaseInvoice = (request: Object,) => async (dispatch) => {
 	try {
 		const url = domain + '/variable/update';

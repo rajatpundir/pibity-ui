@@ -18,6 +18,10 @@
 					"url": "/product"
 				},
 				{
+					"name": "Add Product Movement Order",
+					"url": "/productMovementOrder" 
+				},
+				{
 					"name": "Adjust Stock",
 					"url": "/stockAdjustment"
 				},

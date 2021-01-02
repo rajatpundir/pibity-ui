@@ -19,6 +19,7 @@ import CustomerList from '../components/inventory/Customer/CustomerList/Customer
 //product
 import Product from '../components/inventory/Product/Product';
 import ProductList from '../components/inventory/Product/ProductList';
+import ProductMovementOrder from '../components/inventory/Product/Product Stock Movement/Product Movement Order/ProductMovementOrder'
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
 import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
 //accounts
@@ -69,6 +70,9 @@ export const AppRouter = () => (
 				path="/stockAdjustmentList/:variableName"
 				render={(props) => <StockAdjustment {...props} />}
 			/>
+			<PrivateRoute exact path="/productMovementOrder" render={(props) => <ProductMovementOrder {...props} />} />
+			<PrivateRoute exact path="/productMovementOrder/:variableName" render={(props) => <ProductMovementOrder {...props} />} />
+
 
 			{/* sales And Purchase */}
 			<PrivateRoute exact path="/purchase" render={(props) => <Purchase {...props} />} />
