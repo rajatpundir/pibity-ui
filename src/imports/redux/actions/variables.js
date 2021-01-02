@@ -106,6 +106,36 @@ export const getVariables = (typeName: String, limit: Number = 500, offset: Numb
 	}
 };
 
+export const queryData = (typeName: String, limit: Number = 500, offset: Number = 0 ,values:Object ={}) => async (dispatch) => {
+	try {
+		await loadVariables(dispatch, typeName);
+		const url = domain + '/variable/query';
+		const request = {
+			orgId: localStorage.getItem('selectedOrganization'),
+			typeName: typeName,
+			limit: limit,
+			offset: offset,
+			query: {
+				values: values
+			}
+		};
+		const response = await axios.post(url, request);
+		if (response.status === 200) {
+			if (response.data !== undefined) {
+				return response;
+			}
+		} else {
+			updateErrors(dispatch, response.data);
+			return response.status;
+		}
+	} catch (error) {
+		if (error.response) {
+			updateErrors(dispatch, error.response.data);
+			return false;
+		}
+	}
+};
+
 export const createAccount = (variable: Map) => async (dispatch) => {
 	try {
 		const url = domain + '/variable/create';

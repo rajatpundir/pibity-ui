@@ -41,8 +41,8 @@ class ProductStores extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-            productStores: [],
-            products:[],
+			productStores: [],
+			products: [],
 			isOpen: false,
 			isCreateProductStoreModalOpen: false,
 			activeProductStore: false,
@@ -60,8 +60,8 @@ class ProductStores extends React.Component {
 		} else {
 			this.props.clearErrors();
 			this.props.getVariables('ProductStore');
-            this.props.getVariables('Product');
-            this.props.getVariables('Location');
+			this.props.getVariables('Product');
+			this.props.getVariables('Location');
 			this.props.getVariables('Status');
 		}
 	}
@@ -78,12 +78,10 @@ class ProductStores extends React.Component {
 		this.props.getVariables('ProductStore');
 	}
 
-
-
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
-            ...prevState,
-            products:
+			...prevState,
+			products:
 				nextProps.variables !== undefined
 					? nextProps.variables.Product !== undefined ? nextProps.variables.Product : []
 					: [],
@@ -100,7 +98,9 @@ class ProductStores extends React.Component {
 			? this.state.productStores.filter((productStore) => productStore.values.status === 'Active')
 			: this.state.productStores;
 		list.forEach((productStore) => {
-            const product=this.state.products.filter((product)=>product.variableName===productStore.values.product)[0]
+			const product = this.state.products.filter(
+				(product) => product.variableName === productStore.values.product
+			)[0];
 			rows.push(
 				<TableRow key={productStore.variableName}>
 					<TableData left="0px" />
@@ -112,7 +112,7 @@ class ProductStores extends React.Component {
 								marginLeft: '5px'
 							}}
 						>
-							{product.values.general.values.productName}
+							{product ? product.values.general.values.productName : ''}
 						</TableHeaderInner>
 					</TableData>
 					<TableData>
@@ -155,7 +155,7 @@ class ProductStores extends React.Component {
 							{productStore.values.onOrder}
 						</TableHeaderInner>
 					</TableData>
-                    <TableData>
+					<TableData>
 						<TableHeaderInner
 							overflow="hidden"
 							style={{
@@ -313,7 +313,7 @@ class ProductStores extends React.Component {
 																<SelectSpan>onOrder</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-                                                        <TableHeaders width="15%">
+														<TableHeaders width="15%">
 															<SelectIconContainer>
 																<SelectSpan>Allocated</SelectSpan>
 															</SelectIconContainer>

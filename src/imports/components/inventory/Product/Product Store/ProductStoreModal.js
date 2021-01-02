@@ -3,8 +3,8 @@ import Modal from 'react-modal';
 import Select from 'react-select';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { createVariable, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
-import { successMessage } from '../../../main/Notification';
+import { createVariable, updateVariable, objToMapRec, queryData } from '../../../../redux/actions/variables';
+import { customErrorMessage, successMessage } from '../../../main/Notification';
 import {
 	InputRowWrapper,
 	InputFieldContainer,
@@ -244,10 +244,22 @@ class ProductStoreModal extends React.Component {
 						onClick={(e) => {
 							if (this.props.variableName !== '') {
 							} else {
-								this.props.createVariable(this.state.typeVariable).then((response) => {
+								const values = {
+									product: this.state.typeVariable.get('values').get('product'),
+									location: this.state.typeVariable.get('values').get('location')
+								};
+								this.props.queryData('ProductStore', 1, 0, values).then((response) => {
 									if (response.status === 200) {
-										this.onClose(e);
-										successMessage(`Produuct Store Added Succesfully`);
+										if (response.data.length === 0) {
+											this.props.createVariable(this.state.typeVariable).then((response) => {
+												if (response.status === 200) {
+													this.onClose(e);
+													successMessage(`Produuct Store Added Succesfully`);
+												}
+											});
+										} else {
+											customErrorMessage(`Produuct Store Already Exists `);
+										}
 									}
 								});
 							}
@@ -275,5 +287,6 @@ const mapStateToProps = (state) => ({
 
 export default connect(mapStateToProps, {
 	createVariable,
-	updateVariable
+	updateVariable,
+	queryData
 })(ProductStoreModal);
