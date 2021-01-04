@@ -1,3 +1,4 @@
+import { red } from '@material-ui/core/colors';
 import styled from 'styled-components';
 
 //------------------------------Containers--------------------------//
@@ -426,16 +427,23 @@ export const RoundBlockInnerDiv = styled.div`
 `;
 // background color based on status
 export const StatusBackgroundColor = {
+	approved:'#70dca1',
+	rejected:'#e86a6a',
 	active: '#d6f3e3',
-	depricated: '#fee8e8'
+	depricated: '#fee8e8',
+	pending:'#f5f576bf'
 };
 
 export const StatusSpan = styled.span.attrs((props) => ({
 	backgroundColor: props.backgroundColor || '#d6f3e3',
-	marginRight: props.marginRight || 0
+	marginRight: props.marginRight || 0,
+	color: props.color || '#f1f6fb',
+
 }))`
 	background-color:${(props) => props.backgroundColor}; 
 	margin-right:${(props) => props.marginRight} ;
+	border: 1px solid ${(props) => props.backgroundColor};
+	color: ${(props) => props.color};
 	padding: 4px 10px 4px 10px;
 	border-radius: 3px;
 	display: inline-block;
@@ -517,7 +525,8 @@ export const LeftItemFormControl = styled.div`
 
 export const LeftItemWrapper = styled.div.attrs((props) => ({
 	backgroundColor: props.backgroundColor,
-	color: props.color || '#f1f6fb'
+	color: props.color || '#f1f6fb',
+	margin: props.margin|| "0 10px 0 0"
 }))`
 	background-color: ${(props) => props.backgroundColor};
 	border: 1px solid ${(props) => props.backgroundColor};
@@ -526,7 +535,7 @@ export const LeftItemWrapper = styled.div.attrs((props) => ({
 	border-radius: 3px;
 	display: inline-block;
 	font-weight: 500;
-	margin-right: 10px;
+	margin: ${(props) => props.margin};;
 	font-size: 100%;
 	font: inherit;
 	font-family: 'IBM Plex Sans', sans-serif;
