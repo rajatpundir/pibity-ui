@@ -36,6 +36,7 @@ class SideDrawer extends React.Component {
 export default SideDrawer;
 
 export const SideDrawerContainer = styled.div`
+    padding-right: 20px;
 	z-index: 1200;
 	position: fixed;
 	left: 240px;
@@ -94,7 +95,9 @@ export const List = styled.ul`
 	height: 100%;
 	list-style: none;
 `;
-export const ListItem = styled.li``;
+export const ListItem = styled.li`
+    margin-bottom: 5px;
+`;
 
 const LS = {};
 LS.NavFixedItem_LINK = styled(Link)`
