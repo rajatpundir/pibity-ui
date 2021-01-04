@@ -21,6 +21,7 @@ import Product from '../components/inventory/Product/Product';
 import ProductList from '../components/inventory/Product/ProductList';
 import ProductMovementOrder from '../components/inventory/Product/Product Stock Movement/Product Movement Order/ProductMovementOrder'
 import ProductMovementOrderPlacedList from '../components/inventory/Product/Product Stock Movement/Product Movement Order/Product Movement Order List/ProductMovementOrderPlacedList'
+import ProductMovementOrderReceivedList from '../components/inventory/Product/Product Stock Movement/Product Movement Order/Product Movement Order List/ProductMovementOrderReceivedList'
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
 import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
 //accounts
@@ -73,10 +74,11 @@ export const AppRouter = () => (
 				render={(props) => <StockAdjustment {...props} />}
 			/>
 			<PrivateRoute exact path="/productMovementOrder" render={(props) => <ProductMovementOrder {...props} />} />
-			<PrivateRoute exact path="/productMovementOrderList/:variableName" render={(props) => <ProductMovementOrder {...props} />} />
-			<PrivateRoute exact path="/productMovementOrderList" render={(props) => <ProductMovementOrderPlacedList {...props} />} />
+			<PrivateRoute exact path="/productMovementOrder/:variableName" render={(props) => <ProductMovementOrder {...props} />} />
+			<PrivateRoute exact path="/productMovementOrderList/orderPlcaed" render={(props) => <ProductMovementOrderPlacedList {...props} />} />
+			<PrivateRoute exact path="/productMovementOrderList/orderReceived" render={(props) => <ProductMovementOrderReceivedList {...props} />} />
 
-
+			
 			{/* sales And Purchase */}
 			<PrivateRoute exact path="/purchase" render={(props) => <Purchase {...props} />} />
 			<PrivateRoute exact path="/purchaseList" render={(props) => <PurchaseList {...props} />} />

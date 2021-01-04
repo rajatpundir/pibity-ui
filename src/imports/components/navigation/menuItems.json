@@ -23,7 +23,11 @@
 				},
 				{
 					"name": "Stock Movement Placed Orders",
-					"url": "/productMovementOrderList" 
+					"url": "/productMovementOrderList/orderPlcaed" 
+				},
+				{
+					"name": "Stock Movement Recieved Orders",
+					"url": "/productMovementOrderList/orderReceived" 
 				},
 				{
 					"name": "Adjust Stock",

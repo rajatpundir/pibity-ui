@@ -33,7 +33,7 @@ class ProductMovementOrderData extends React.Component {
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">
-							<Link to={'/productMovementOrderList/' + encodeURIComponent(this.props.data.variableName)}>
+							<Link to={'/productMovementOrder/' + encodeURIComponent(this.props.data.variableName)}>
 								{this.props.data.values.product}
 							</Link>
 						</TableHeaderInner>
