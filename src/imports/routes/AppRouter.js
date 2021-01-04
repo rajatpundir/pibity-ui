@@ -20,6 +20,7 @@ import CustomerList from '../components/inventory/Customer/CustomerList/Customer
 import Product from '../components/inventory/Product/Product';
 import ProductList from '../components/inventory/Product/ProductList';
 import ProductMovementOrder from '../components/inventory/Product/Product Stock Movement/Product Movement Order/ProductMovementOrder'
+import ProductMovementOrderPlacedList from '../components/inventory/Product/Product Stock Movement/Product Movement Order/Product Movement Order List/ProductMovementOrderPlacedList'
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
 import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
 //accounts
@@ -41,6 +42,7 @@ import TaxRules from '../components/main/Reference Books/TaxRules';
 import Locations from '../components/main/Reference Books/Locations';
 import ReferenceBook from '../components/main/Reference Books/ReferenceBook';
 import ProductStore from '../components/inventory/Product/Product Store/ProductStore';
+
 
 export const AppRouter = () => (
 	<BrowserRouter>
@@ -71,7 +73,8 @@ export const AppRouter = () => (
 				render={(props) => <StockAdjustment {...props} />}
 			/>
 			<PrivateRoute exact path="/productMovementOrder" render={(props) => <ProductMovementOrder {...props} />} />
-			<PrivateRoute exact path="/productMovementOrder/:variableName" render={(props) => <ProductMovementOrder {...props} />} />
+			<PrivateRoute exact path="/productMovementOrderList/:variableName" render={(props) => <ProductMovementOrder {...props} />} />
+			<PrivateRoute exact path="/productMovementOrderList" render={(props) => <ProductMovementOrderPlacedList {...props} />} />
 
 
 			{/* sales And Purchase */}
