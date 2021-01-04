@@ -18,11 +18,11 @@
 					"url": "/product"
 				},
 				{
-					"name": "Add Product Movement Order",
+					"name": "Add Stock Movement Order",
 					"url": "/productMovementOrder" 
 				},
 				{
-					"name": "Product Movement Order Placed",
+					"name": "Stock Movement Placed Orders",
 					"url": "/productMovementOrderList" 
 				},
 				{

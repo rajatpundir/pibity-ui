@@ -248,8 +248,9 @@ class ProductStoreModal extends React.Component {
 									product: this.state.typeVariable.get('values').get('product'),
 									location: this.state.typeVariable.get('values').get('location')
 								};
-								this.props.queryData('ProductStore', 1, 0, values).then((response) => {
+								this.props.queryData('ProductStore', 100, 0, values).then((response) => {
 									if (response.status === 200) {
+										console.log(response.data)
 										if (response.data.length === 0) {
 											this.props.createVariable(this.state.typeVariable).then((response) => {
 												if (response.status === 200) {

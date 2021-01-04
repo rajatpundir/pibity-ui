@@ -27,7 +27,10 @@ class ProductMovementOrderData extends React.Component {
 		return (
 			<React.Fragment key={this.props.data.variableName}>
 				<TableRow key={this.props.data.variableName}>
-					<TableData width="5%" />
+					<TableData width="5%" >
+					<TableHeaderInner overflow="hidden">{this.props.data.values.date}</TableHeaderInner>
+	
+					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">
 							<Link to={'/productMovementOrderList/' + encodeURIComponent(this.props.data.variableName)}>
@@ -36,13 +39,13 @@ class ProductMovementOrderData extends React.Component {
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">{this.props.data.values.toLocation}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">{this.props.data.values.fromLocation}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">{this.props.data.values.requiredQuantity}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">{this.props.data.values.toLocation}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">{this.props.data.values.requestedQuantity}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<StatusSpan>{this.props.data.values.status}</StatusSpan>

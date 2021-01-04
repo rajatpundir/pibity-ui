@@ -32,8 +32,10 @@ import {
 	TableHeaders,
 	TableFieldContainer,
 	SelectWrapper,
-	Custombutton
+	Custombutton,
+	InputLabel
 } from '../../../../../../styles/inventory/Style';
+import { FormControl } from '@material-ui/core';
 
 class ProductMovementOrderPlacedList extends React.Component {
 	constructor(props) {
@@ -86,7 +88,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 
 	onResetDefaults() {
 		this.setState({
-			location: 'ALL',
+			location: 'ALL'
 		});
 	}
 
@@ -117,7 +119,9 @@ class ProductMovementOrderPlacedList extends React.Component {
 		const rows = [];
 		const filteredList =
 			this.state.location !== 'ALL'
-				? this.state.productMovementOrders.filter((productMovementOrder) => productMovementOrder.values.tolocation === this.state.location)
+				? this.state.productMovementOrders.filter(
+						(productMovementOrder) => productMovementOrder.values.fromLocation === this.state.location
+					)
 				: this.state.productMovementOrders;
 
 		filteredList.forEach((productMovementOrder) => {
@@ -142,14 +146,14 @@ class ProductMovementOrderPlacedList extends React.Component {
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarItems>
-								<LeftItemH1>Product Movement Orders</LeftItemH1>
+								<LeftItemH1>Product Movement Order Placed</LeftItemH1>
 							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="right">
 								<Custombutton padding="0 10px" minWidth="70px" height="32px">
 									<FontAwsomeIcon className="fa fa-plus" />
-									Add Account
+									Place Movement Order
 								</Custombutton>
 								<Custombutton
 									padding="0 10px"
@@ -183,18 +187,21 @@ class ProductMovementOrderPlacedList extends React.Component {
 								</Custombutton>
 							</PageBarAlign>
 							<PageBarAlign padding="10px 20px" float="left">
-								<SelectWrapper minWidth="150px">
-									<Select
-										value={{
-											value: this.state.location,
-											label: this.state.location
-										}}
-										onChange={(option) => {
-											this.onChange({ target: { name: 'location', value: option.value } });
-										}}
-										options={this.state.locations}
-									/>
-								</SelectWrapper>
+								<FormControl>
+									<SelectWrapper minWidth="150px">
+										<Select
+											value={{
+												value: this.state.location,
+												label: this.state.location
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'location', value: option.value } });
+											}}
+											options={this.state.locations}
+										/>
+									</SelectWrapper>
+									<InputLabel>Curent Location</InputLabel>
+								</FormControl>
 							</PageBarAlign>
 						</PageToolbar>
 						<InputBody borderTop="0" padding="0">
@@ -207,9 +214,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%">
 															<SelectIconContainer>
-																<SelectSpan>
-																	
-																</SelectSpan>
+															<SelectSpan>Date</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
@@ -219,19 +224,19 @@ class ProductMovementOrderPlacedList extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Location</SelectSpan>
+																<SelectSpan> From Location</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>From Location</SelectSpan>
+																<SelectSpan> To Location</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Requested Quantity</SelectSpan>
+																<SelectSpan>Ordered Quantity</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
