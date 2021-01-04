@@ -62,6 +62,8 @@ class ProductMovementOrderDetails extends React.Component {
 				variable.set('fromProductStore', '');
 				variable.set('toLocation', '');
 				variable.set('fromLocation', '');
+				variable.set('availableQuantity', '');
+
 				break;
 			case 'toLocation':
 				variable.set(e.target.name, e.target.value);

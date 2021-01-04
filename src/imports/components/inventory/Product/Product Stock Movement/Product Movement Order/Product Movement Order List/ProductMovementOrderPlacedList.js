@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Select from 'react-select';
-import ProductMovementOrderData from './ProductMovementOrderData';
+import { Link } from 'react-router-dom';
 // import CreateAccountModal from './CreateAccountsModal';
 import { clearErrors } from '../../../../../../redux/actions/errors';
 import { getVariables } from '../../../../../../redux/actions/variables';
@@ -33,7 +33,10 @@ import {
 	TableFieldContainer,
 	SelectWrapper,
 	Custombutton,
-	InputLabel
+	InputLabel,
+	TableData,
+	TableHeaderInner,
+	StatusSpan
 } from '../../../../../../styles/inventory/Style';
 import { FormControl } from '@material-ui/core';
 
@@ -120,20 +123,43 @@ class ProductMovementOrderPlacedList extends React.Component {
 		const filteredList =
 			this.state.location !== 'ALL'
 				? this.state.productMovementOrders.filter(
-						(productMovementOrder) => productMovementOrder.values.fromLocation === this.state.location
+						(productMovementOrder) => productMovementOrder.values.toLocation === this.state.location
 					)
 				: this.state.productMovementOrders;
 
 		filteredList.forEach((productMovementOrder) => {
-			rows.push(<ProductMovementOrderData data={productMovementOrder} key={productMovementOrder.variableName} />);
+			rows.push(
+				<TableRow key={productMovementOrder.variableName}>
+					<TableData width="5%">
+						<TableHeaderInner overflow="hidden">{productMovementOrder.values.date}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">
+							<Link to={'/productMovementOrder/' + encodeURIComponent(productMovementOrder.variableName)}>
+								{productMovementOrder.values.product}
+							</Link>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">{productMovementOrder.values.toLocation}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">{productMovementOrder.values.fromLocation}</TableHeaderInner>
+					</TableData>
+					
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">
+							{productMovementOrder.values.requestedQuantity}
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<StatusSpan>{productMovementOrder.values.status}</StatusSpan>
+					</TableData>
+				</TableRow>
+			);
 		});
 		return rows;
-		// return this.state.rowsPerPage > 0
-		// 	? rows.slice(
-		// 			this.state.page * this.state.rowsPerPage,
-		// 			this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
-		// 		)
-		// 	: rows;
+	
 	}
 
 	render() {
@@ -214,7 +240,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%">
 															<SelectIconContainer>
-															<SelectSpan>Date</SelectSpan>
+																<SelectSpan>Date</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
@@ -224,13 +250,13 @@ class ProductMovementOrderPlacedList extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan> From Location</SelectSpan>
+																<SelectSpan> Location</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan> To Location</SelectSpan>
+																<SelectSpan> From Location</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 

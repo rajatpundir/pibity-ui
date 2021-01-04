@@ -120,7 +120,7 @@ class ProductMovementOrderReceivedList extends React.Component {
 		const filteredList =
 			this.state.location !== 'ALL'
 				? this.state.productMovementOrders.filter(
-						(productMovementOrder) => productMovementOrder.values.toLocation === this.state.location
+						(productMovementOrder) => productMovementOrder.values.fromLocation === this.state.location
 					)
 				: this.state.productMovementOrders;
 
@@ -220,7 +220,7 @@ class ProductMovementOrderReceivedList extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan> From Location</SelectSpan>
+																<SelectSpan> Location</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 
