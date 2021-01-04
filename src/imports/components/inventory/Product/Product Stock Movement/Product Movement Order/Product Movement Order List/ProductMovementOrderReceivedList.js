@@ -1,8 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import Select from 'react-select';
-import ProductMovementOrderData from './ProductMovementOrderData';
-// import CreateAccountModal from './CreateAccountsModal';
+import { Link } from 'react-router-dom';
 import { clearErrors } from '../../../../../../redux/actions/errors';
 import { getVariables } from '../../../../../../redux/actions/variables';
 import { CustomNotification } from '../../../../../main/Notification';
@@ -33,7 +32,10 @@ import {
 	TableFieldContainer,
 	SelectWrapper,
 	Custombutton,
-	InputLabel
+	InputLabel,
+	TableData,
+	TableHeaderInner,
+	StatusSpan
 } from '../../../../../../styles/inventory/Style';
 import { FormControl } from '@material-ui/core';
 
@@ -125,7 +127,37 @@ class ProductMovementOrderReceivedList extends React.Component {
 				: this.state.productMovementOrders;
 
 		filteredList.forEach((productMovementOrder) => {
-			rows.push(<ProductMovementOrderData data={productMovementOrder} key={productMovementOrder.variableName} />);
+			rows.push(
+				<TableRow key={productMovementOrder.variableName}>
+					<TableData width="5%">
+						<TableHeaderInner overflow="hidden">{productMovementOrder.values.date}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">
+							<Link to={'/productMovementOrder/' + encodeURIComponent(productMovementOrder.variableName)}>
+								{productMovementOrder.values.product}
+							</Link>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">
+							{productMovementOrder.values.fromLocation}
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">{productMovementOrder.values.toLocation}</TableHeaderInner>
+					</TableData>
+
+					<TableData width="10%">
+						<TableHeaderInner overflow="hidden">
+							{productMovementOrder.values.requestedQuantity}
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<StatusSpan>{productMovementOrder.values.status}</StatusSpan>
+					</TableData>
+				</TableRow>
+			);
 		});
 		return rows;
 		// return this.state.rowsPerPage > 0
@@ -210,7 +242,7 @@ class ProductMovementOrderReceivedList extends React.Component {
 													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
 														<TableHeaders width="5%">
 															<SelectIconContainer>
-															<SelectSpan>Date</SelectSpan>
+																<SelectSpan>Date</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">

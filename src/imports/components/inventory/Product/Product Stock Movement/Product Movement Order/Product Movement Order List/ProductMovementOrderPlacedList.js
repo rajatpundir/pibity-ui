@@ -2,7 +2,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Select from 'react-select';
 import { Link } from 'react-router-dom';
-// import CreateAccountModal from './CreateAccountsModal';
 import { clearErrors } from '../../../../../../redux/actions/errors';
 import { getVariables } from '../../../../../../redux/actions/variables';
 import { CustomNotification } from '../../../../../main/Notification';
@@ -144,9 +143,11 @@ class ProductMovementOrderPlacedList extends React.Component {
 						<TableHeaderInner overflow="hidden">{productMovementOrder.values.toLocation}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">{productMovementOrder.values.fromLocation}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">
+							{productMovementOrder.values.fromLocation}
+						</TableHeaderInner>
 					</TableData>
-					
+
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">
 							{productMovementOrder.values.requestedQuantity}
@@ -159,7 +160,6 @@ class ProductMovementOrderPlacedList extends React.Component {
 			);
 		});
 		return rows;
-	
 	}
 
 	render() {
