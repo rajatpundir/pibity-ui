@@ -83,10 +83,12 @@ export function objToMapRec(obj) {
 	return map;
 }
 
-export const getVariables = (typeName: String, limit: Number = 500, offset: Number = 0 ,values:Object ={}) => async (dispatch) => {
+export const getVariables = (typeName: String, limit: Number = 500, offset: Number = 0, values: Object = {}) => async (
+	dispatch
+) => {
 	try {
 		await loadVariables(dispatch, typeName);
-		const url = domain + '/variable/query';
+		const url = domain + '/variables/query';
 		const request = {
 			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
@@ -106,10 +108,12 @@ export const getVariables = (typeName: String, limit: Number = 500, offset: Numb
 	}
 };
 
-export const queryData = (typeName: String, limit: Number = 500, offset: Number = 0 ,values:Object ={}) => async (dispatch) => {
+export const queryData = (typeName: String, limit: Number = 500, offset: Number = 0, values: Object = {}) => async (
+	dispatch
+) => {
 	try {
 		await loadVariables(dispatch, typeName);
-		const url = domain + '/variable/query';
+		const url = domain + '/variables/query';
 		const request = {
 			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
@@ -138,12 +142,16 @@ export const queryData = (typeName: String, limit: Number = 500, offset: Number 
 
 export const createAccount = (variable: Map) => async (dispatch) => {
 	try {
-		const url = domain + '/variable/create';
+		const url = domain + '/variables/mutate';
 		const request = mapToObjectRec(variable);
 		console.log('--REQUEST--');
 		console.log(request);
 		const orgId = localStorage.getItem('selectedOrganization');
-		const response = await axios.post(url, { ...request, ...{ orgId: orgId } });
+		const response = await axios.post(url, {
+			...request,
+			...{ orgId: orgId },
+			...{ op: 'create' }
+		});
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
@@ -169,12 +177,16 @@ export const createAccount = (variable: Map) => async (dispatch) => {
 
 export const createVariable = (variable: Map) => async (dispatch) => {
 	try {
-		const url = domain + '/variable/create';
+		const url = domain + '/variables/mutate';
 		const request = mapToObjectRec(variable);
 		console.log('--REQUEST--');
 		console.log(request);
 		const orgId = localStorage.getItem('selectedOrganization');
-		const response = await axios.post(url, { ...request, ...{ orgId: orgId } });
+		const response = await axios.post(url, {
+			...request,
+			...{ orgId: orgId },
+			...{ op: 'create' }
+		});
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
@@ -197,7 +209,7 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 export const getVariable = (typeName: String, variableName: String) => async (dispatch) => {
 	try {
 		await loadVariable(dispatch, typeName, variableName);
-		const url = domain + '/variable/query';
+		const url = domain + '/variables/query';
 		const request = {
 			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: typeName,
@@ -229,8 +241,9 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 export const updateVariable = (prevVariable: Map, newVariable: Map) => async (dispatch) => {
 	try {
 		console.log(prevVariable);
-		const url = domain + '/variable/update';
+		const url = domain + '/variables/mutate';
 		const request = {
+			op: 'update',
 			orgId: localStorage.getItem('selectedOrganization'),
 			typeName: prevVariable.get('typeName'),
 			variableName: prevVariable.get('variableName'),
@@ -260,7 +273,7 @@ export const updateVariable = (prevVariable: Map, newVariable: Map) => async (di
 
 export const updateProductStockVariable = (variable: Map) => async (dispatch) => {
 	try {
-		const url = domain + '/variable/update';
+		const url = domain + '/variables/mutate';
 		console.log(JSON.stringify(variable));
 		const response = await axios.post(url, variable);
 		console.log('--RESPONSE--');
