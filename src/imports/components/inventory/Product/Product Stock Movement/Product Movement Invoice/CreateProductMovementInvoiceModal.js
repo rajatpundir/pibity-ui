@@ -51,6 +51,7 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
+	EmptyRow,
 	TextArea,
 	TextAreaContainer,
 	SelectWrapper
@@ -496,41 +497,50 @@ class CreateProductMovementModal extends React.Component {
 							/>
 							<InputLabel>Requested Quantity</InputLabel>
 						</FormControl>
-						<ModalInputColumnWrapper>
-							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
-								<Input
-									name="product"
-									type="text"
-									value={this.props.product.values.general.values.productName}
-									backgroundColor="hsl(0,0%,95%)"
-									borderColor="hsl(0,0%,95%)"
-									readOnly
-								/>{' '}
-								<InputLabel>Product</InputLabel>
-							</FormControl>
-							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
-								<Input
-									name="toLocation"
-									type="text"
-									value={this.state.invoice.get('values').get('toLocation')}
-									backgroundColor="hsl(0,0%,95%)"
-									borderColor="hsl(0,0%,95%)"
-									readOnly
-								/>{' '}
-								<InputLabel>To Location</InputLabel>
-							</FormControl>
-							<FormControl flexBasis={style.flexBasis}>
-								<Input
-									name="fromLocation"
-									type="text"
-									value={this.state.invoice.get('values').get('fromLocation')}
-									backgroundColor="hsl(0,0%,95%)"
-									borderColor="hsl(0,0%,95%)"
-									readOnly
-								/>{' '}
-								<InputLabel>From Location</InputLabel>
-							</FormControl>
-						</ModalInputColumnWrapper>
+						<FormControl flexBasis={style.flexBasis}>
+							<Input
+								name="product"
+								type="text"
+								value={this.props.product.variableName}
+								backgroundColor="hsl(0,0%,95%)"
+								borderColor="hsl(0,0%,95%)"
+								readOnly
+							/>{' '}
+							<InputLabel>Product SKU</InputLabel>
+						</FormControl>
+						<FormControl flexBasis={style.flexBasis}>
+							<Input
+								name="product"
+								type="text"
+								value={this.props.product.values.general.values.productName}
+								backgroundColor="hsl(0,0%,95%)"
+								borderColor="hsl(0,0%,95%)"
+								readOnly
+							/>{' '}
+							<InputLabel>Product</InputLabel>
+						</FormControl>
+						<FormControl flexBasis={style.flexBasis}>
+							<Input
+								name="toLocation"
+								type="text"
+								value={this.state.invoice.get('values').get('toLocation')}
+								backgroundColor="hsl(0,0%,95%)"
+								borderColor="hsl(0,0%,95%)"
+								readOnly
+							/>{' '}
+							<InputLabel>To Location</InputLabel>
+						</FormControl>
+						<FormControl flexBasis={style.flexBasis}>
+							<Input
+								name="fromLocation"
+								type="text"
+								value={this.state.invoice.get('values').get('fromLocation')}
+								backgroundColor="hsl(0,0%,95%)"
+								borderColor="hsl(0,0%,95%)"
+								readOnly
+							/>{' '}
+							<InputLabel>From Location</InputLabel>
+						</FormControl>
 
 						<ModalInputColumnWrapper>
 							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
@@ -623,10 +633,15 @@ class CreateProductMovementModal extends React.Component {
 											<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 										</BodyTable>
 									</HeaderBody>
+									{this.state.invoice.get('values').get('additionalCost').length === 0 ? (
+										<EmptyRow>You do not have any Additional Cost Lines.</EmptyRow>
+									) : (
+										undefined
+									)}
 								</HeaderBodyContainer>
 								<AddMoreBlock>
 									<AddMoreButton onClick={(e) => this.addVariableToadditionalCostList()}>
-										<i className="large material-icons">add</i>Add more items
+										<i className="large material-icons">add</i>Add Additional Services Charges
 									</AddMoreButton>
 								</AddMoreBlock>
 							</TableFieldContainer>
@@ -637,7 +652,7 @@ class CreateProductMovementModal extends React.Component {
 						<LeftBlock>
 							<TextAreaContainer>
 								<TextArea
-									name="purchaseOrderMemo"
+									name="comments"
 									value=""
 									placeholder="Write a note here..."
 									onChange={this.onChange}

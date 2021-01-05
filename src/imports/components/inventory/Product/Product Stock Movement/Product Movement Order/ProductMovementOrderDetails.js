@@ -23,6 +23,8 @@ import {
 	Custombutton,
 	FontAwsomeIcon,
 	LeftItemWrapper,
+	TextAreaContainer,
+	TextArea,
 	StatusBackgroundColor
 } from '../../../../../styles/inventory/Style';
 const style = {
@@ -377,17 +379,18 @@ class ProductMovementOrderDetails extends React.Component {
 							</InputColumnWrapper>
 
 							<InputRowWrapper>
-								<FormControl>
-									<Input
-										name="comments"
-										type="text"
-										placeholder="comments"
-										value=""
-										disabled
-										// onChange={this.onChange}
-									/>
-									<InputLabel>Comment</InputLabel>
-								</FormControl>
+								
+							<TextAreaContainer>
+								<TextArea
+									name="comments"
+									type="text"
+									placeholder="Wrtie a note here"
+									value=""
+									height="50px"
+								/>
+								<InputLabel>Note</InputLabel>
+							</TextAreaContainer>
+								
 							</InputRowWrapper>
 						</InputFieldContainer>
 					</InputBody>

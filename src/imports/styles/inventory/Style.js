@@ -915,9 +915,15 @@ export const TextAreaContainer = styled.div`
 	color: #3b3b3b;
 	text-align: left;
 	letter-spacing: -0.2px;
+	padding-bottom: 10px;
+
 `;
 
-export const TextArea = styled.textarea`
+export const TextArea = styled.textarea.attrs((props)=>({
+	resize: props.resize||'none',
+	height: props.height||'40px'
+}))`
+    overflow:scroll;
 	padding: 10px;
 	width: 100%;
 	height: 100% !important;
@@ -930,9 +936,9 @@ export const TextArea = styled.textarea`
 	font-weight: 400;
 	min-width: 100px;
 	flex: 1;
-	min-height: 40px;
+	min-height: ${(props)=>props.height};
 	background-color: #fff;
-	resize: none;
+	resize: ${(props)=>props.resize};
 `;
 export const AddMoreBlock = styled.div`
 	flex-flow: row wrap;
