@@ -519,17 +519,7 @@ class CreateProductMovementModal extends React.Component {
 							/>{' '}
 							<InputLabel>Product</InputLabel>
 						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="toLocation"
-								type="text"
-								value={this.state.invoice.get('values').get('toLocation')}
-								backgroundColor="hsl(0,0%,95%)"
-								borderColor="hsl(0,0%,95%)"
-								readOnly
-							/>{' '}
-							<InputLabel>To Location</InputLabel>
-						</FormControl>
+						
 						<FormControl flexBasis={style.flexBasis}>
 							<Input
 								name="fromLocation"
@@ -541,7 +531,17 @@ class CreateProductMovementModal extends React.Component {
 							/>{' '}
 							<InputLabel>From Location</InputLabel>
 						</FormControl>
-
+                        <FormControl flexBasis={style.flexBasis}>
+							<Input
+								name="toLocation"
+								type="text"
+								value={this.state.invoice.get('values').get('toLocation')}
+								backgroundColor="hsl(0,0%,95%)"
+								borderColor="hsl(0,0%,95%)"
+								readOnly
+							/>{' '}
+							<InputLabel>To Location</InputLabel>
+						</FormControl>
 						<ModalInputColumnWrapper>
 							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
 								<Input
