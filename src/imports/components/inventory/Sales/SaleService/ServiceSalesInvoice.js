@@ -257,7 +257,9 @@ class ServiceSalesInvoice extends React.Component {
 		});
 		values.set('additionalCost', list);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable },() => {
+			this.onCalculateTotal();
+		});
 	}
 
 	onCalculateTotal() {

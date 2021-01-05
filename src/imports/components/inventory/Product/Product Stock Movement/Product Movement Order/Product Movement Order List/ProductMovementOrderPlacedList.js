@@ -36,10 +36,9 @@ import {
 	TableData,
 	TableHeaderInner,
 	StatusSpan,
-	StatusBackgroundColor
+	StatusBackgroundColor,
+	FormControl
 } from '../../../../../../styles/inventory/Style';
-import { FormControl } from '@material-ui/core';
-import { green, red } from '@material-ui/core/colors';
 
 class ProductMovementOrderPlacedList extends React.Component {
 	constructor(props) {
@@ -121,7 +120,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 
 	renderProductMovementOrders() {
 		const rows = [];
-	
+
 		const filteredList =
 			this.state.location !== 'ALL'
 				? this.state.productMovementOrders.filter(
@@ -134,11 +133,11 @@ class ProductMovementOrderPlacedList extends React.Component {
 			switch (productMovementOrder.values.status) {
 				case 'Pending Approval':
 					backgroundColor = StatusBackgroundColor.pending;
-					color = '#1a1b1be6';
+					color = '#4c4f4f';
 					break;
 				case 'Awaiting Order Confirmation':
 					backgroundColor = StatusBackgroundColor.pending;
-					color = '#1a1b1be6';
+					color = '#4c4f4f';
 					break;
 				case 'Canceled':
 					backgroundColor = StatusBackgroundColor.rejected;
@@ -152,7 +151,6 @@ class ProductMovementOrderPlacedList extends React.Component {
 				default:
 					break;
 			}
-
 			rows.push(
 				<TableRow key={productMovementOrder.variableName}>
 					<TableData width="5%">
@@ -180,7 +178,9 @@ class ProductMovementOrderPlacedList extends React.Component {
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<StatusSpan backgroundColor={backgroundColor} color={color}>{productMovementOrder.values.status}</StatusSpan>
+						<StatusSpan backgroundColor={backgroundColor} color={color}>
+							{productMovementOrder.values.status}
+						</StatusSpan>
 					</TableData>
 				</TableRow>
 			);

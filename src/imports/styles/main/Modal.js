@@ -10,7 +10,7 @@ export {
 	TextAreaInput,
 	CheckBoxInput,
 	CheckBoxLabel,
-	CheckBoxContainer,
+	CheckBoxContainer
 } from '../inventory/Style';
 
 export const ModalCustomStyles = {
@@ -186,4 +186,10 @@ export const ModalBodyHeading = styled.h3`
 	line-height: 20px;
 	margin-top: 5px;
 	margin-bottom: 5px;
+`;
+
+export const ModalInputColumnWrapper = styled.div`
+	flex-basis: 100% !important;
+	justify-content: space-between;
+	display: flex;
 `;

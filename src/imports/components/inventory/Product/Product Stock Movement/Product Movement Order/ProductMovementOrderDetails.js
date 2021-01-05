@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../../../redux/actions/errors';
 import { getVariables } from '../../../../../redux/actions/variables';
+import { executeFuntion } from '../../../../../redux/actions/executeFuntion';
 import {
 	InputColumnWrapper,
 	InputRowWrapper,
@@ -36,10 +37,12 @@ class ProductMovementOrderDetails extends React.Component {
 			variable: props.variable,
 			selectedProduct: '',
 			selectedProductStockLocations: [],
-			selectedLocationVariable: {},
-			open: true
+			selectedLocationVariable: {}
+
 		};
 		this.onChange = this.onChange.bind(this);
+		this.updateStatus = this.updateStatus.bind(this);
+		
 	}
 
 	// clear form errors
@@ -86,294 +89,309 @@ class ProductMovementOrderDetails extends React.Component {
 		this.props.updateDetails(variable, this.state.selectedProduct, this.state.selectedLocationVariable);
 	}
 
+	updateStatus(e, funtionName) {
+		const args = {
+			productMovementOrder: this.props.variableName
+		};
+		this.props.executeFuntion(args, funtionName).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('ProductMovementOrder');
+			}
+		});
+	}
+
 	render() {
 		return (
-			<PageBlock paddingBottom="0">
-				<PageToolbar>
-					<ToolbarItems>
-						<LeftItemH1>Product Movement Order</LeftItemH1>
-						{this.props.isdisabled &&
-						this.state.variable.get('status') === 'Pending Approval' ? (
-							<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.pending} color="#1a1b1be6">
-								Pending Approval
-							</LeftItemWrapper>
-						) : (
-							undefined
-						)}
-						{this.props.isdisabled &&
-						this.state.variable.get('status') === 'Awaiting Order Confirmation' ? (
-							<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.pending} color="#1a1b1be6">
-								Awaiting Order Confirmation
-							</LeftItemWrapper>
-						) : (
-							undefined
-						)}
-						{this.props.isdisabled &&
-						this.state.variable.get('status') === 'Canceled' ? (
-							<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.rejected}>
-								Canceled
-							</LeftItemWrapper>
-						) : (
-							undefined
-						)}
-						{this.props.isdisabled &&
-						this.state.variable.get('status') === 'Order Accepted' ? (
-							<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.approved}>
-								Order Accepted
-							</LeftItemWrapper>
-						) : (
-							undefined
-						)}
-						{this.props.isdisabled &&
-						this.state.variable.get('status') === 'Order rejected' ? (
-							<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.rejected}>
-								Order rejected
-							</LeftItemWrapper>
-						) : (
-							undefined
-						)}
-					</ToolbarItems>
-					<PageBarAlign padding="0 20px" float="left">
-						{this.props.isdisabled && this.state.variable.get('status') === 'Pending Approval' ? (
-							<React.Fragment>
-								<Custombutton
-									padding="0 10px"
-									minWidth="70px"
-									height="32px"
-									margin="0 5px"
-									onClick={this.onResetDefaults}
-									backgroundColor="#05cb9a"
-									borderColor="#05cb9a"
-									borderOnHover="#0bc295"
-									backgroundOnHover="#0bc295"
+				<PageBlock paddingBottom="0">
+					<PageToolbar>
+						<ToolbarItems>
+							<LeftItemH1>Product Movement Order</LeftItemH1>
+							{this.props.isdisabled && this.state.variable.get('status') === 'Pending Approval' ? (
+								<LeftItemWrapper
+									margin="0 0 0 10px "
+									backgroundColor={StatusBackgroundColor.pending}
+									color="#1a1b1be6"
 								>
-									<FontAwsomeIcon className="fa fa-check-circle" />
-									Approve
-								</Custombutton>
-								<Custombutton
-									padding="0 10px"
-									minWidth="70px"
-									height="32px"
-									color="#f7f3f3"
-									backgroundColor="#ed3636"
-									borderColor="#ed3636"
-									borderOnHover="#d82b2b"
-									backgroundOnHover="#d82b2b"
-									margin="0 5px"
-									onClick={this.onResetDefaults}
+									Pending Approval
+								</LeftItemWrapper>
+							) : (
+								undefined
+							)}
+							{this.props.isdisabled &&
+							this.state.variable.get('status') === 'Awaiting Order Confirmation' ? (
+								<LeftItemWrapper
+									margin="0 0 0 10px "
+									backgroundColor={StatusBackgroundColor.pending}
+									color="#1a1b1be6"
 								>
-									<FontAwsomeIcon className="fa fa-times " />
-									Cancel
-								</Custombutton>
-							</React.Fragment>
-						) : (
-							undefined
-						)}
-						{this.props.isdisabled && this.state.variable.get('status') === 'Awaiting Order Confirmation' ? (
-							<React.Fragment>
-								<Custombutton
-									padding="0 10px"
-									minWidth="70px"
-									height="32px"
-									margin="0 5px"
-									onClick={this.onResetDefaults}
-									backgroundColor="#05cb9a"
-									borderColor="#05cb9a"
-									borderOnHover="#0bc295"
-									backgroundOnHover="#0bc295"
-								>
-									<FontAwsomeIcon className="fa fa-check-circle" />
-									Accept Order
-								</Custombutton>
-								<Custombutton
-									padding="0 10px"
-									minWidth="70px"
-									height="32px"
-									color="#f7f3f3"
-									backgroundColor="#ed3636"
-									borderColor="#ed3636"
-									borderOnHover="#d82b2b"
-									backgroundOnHover="#d82b2b"
-									margin="0 5px"
-									onClick={this.onResetDefaults}
-								>
-									<FontAwsomeIcon className="fa fa-times " />
-									Reject Order
-								</Custombutton>
-							</React.Fragment>
-						) : (
-							undefined
-						)}
-
-					</PageBarAlign>
-				</PageToolbar>
-				<InputBody overflow="visible">
-					<InputFieldContainer>
-						<InputColumnWrapper flexBasis={style.flexBasis} width={style.width}>
-							<FormControl>
-								<SelectWrapper>
-									<Select
-										value={{
-											value: this.state.variable.get('product'),
-											label: this.state.variable.get('product')
-										}}
-										onChange={(option) => {
-											this.onChange({
-												target: { name: 'product', value: option.value }
-											});
-										}}
-										options={
-											this.props.variables.Product !== undefined ? (
-												this.props.variables.Product.map((variable) => {
-													return {
-														value: variable.variableName,
-														label: variable.variableName
-													};
-												})
-											) : (
-												[]
-											)
-										}
-									/>
-								</SelectWrapper>
-								<InputLabel>
-									Product<Required>*</Required>
-								</InputLabel>
-							</FormControl>
-							<FormControl>
-								<SelectWrapper>
-									<Select
-										value={{
-											value: this.state.variable.get('toLocation'),
-											label: this.state.variable.get('toLocation')
-										}}
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'toLocation',
-													value: option.value,
-													data: option.data
-												}
-											});
-										}}
-										options={
-											this.props.variables.ProductStore !== undefined ? (
-												this.props.variables.ProductStore
-													.filter(
-														(productStore) =>
-															productStore.values.product ===
-															this.state.variable.get('product')
-													)
-													.map((variable) => {
+									Awaiting Order Confirmation
+								</LeftItemWrapper>
+							) : (
+								undefined
+							)}
+							{this.props.isdisabled && this.state.variable.get('status') === 'Canceled' ? (
+								<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.rejected}>
+									Canceled
+								</LeftItemWrapper>
+							) : (
+								undefined
+							)}
+							{this.props.isdisabled && this.state.variable.get('status') === 'Order Accepted' ? (
+								<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.approved}>
+									Order Accepted
+								</LeftItemWrapper>
+							) : (
+								undefined
+							)}
+							{this.props.isdisabled && this.state.variable.get('status') === 'Order rejected' ? (
+								<LeftItemWrapper margin="0 0 0 10px " backgroundColor={StatusBackgroundColor.rejected}>
+									Order rejected
+								</LeftItemWrapper>
+							) : (
+								undefined
+							)}
+						</ToolbarItems>
+						<PageBarAlign padding="0 20px" float="left">
+							{this.props.isdisabled && this.state.variable.get('status') === 'Pending Approval' ? (
+								<React.Fragment>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										margin="0 5px"
+										backgroundColor="#05cb9a"
+										borderColor="#05cb9a"
+										borderOnHover="#0bc295"
+										backgroundOnHover="#0bc295"
+										onClick={(e) => this.updateStatus(e, 'approveProductMovementOrder')}
+									>
+										<FontAwsomeIcon className="fa fa-check-circle" />
+										Approve
+									</Custombutton>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										color="#f7f3f3"
+										backgroundColor="#ed3636"
+										borderColor="#ed3636"
+										borderOnHover="#d82b2b"
+										backgroundOnHover="#d82b2b"
+										margin="0 5px"
+										onClick={(e) => this.updateStatus(e, 'cancelProductMovementOrder')}
+									>
+										<FontAwsomeIcon className="fa fa-times " />
+										Cancel
+									</Custombutton>
+								</React.Fragment>
+							) : (
+								undefined
+							)}
+							{this.props.isdisabled &&
+							this.state.variable.get('status') === 'Awaiting Order Confirmation' ? (
+								<React.Fragment>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										margin="0 5px"
+										backgroundColor="#05cb9a"
+										borderColor="#05cb9a"
+										borderOnHover="#0bc295"
+										backgroundOnHover="#0bc295"
+										onClick={(e) => this.props.onOpenCreateInvoiceModal()}
+									>
+										<FontAwsomeIcon className="fa fa-check-circle" />
+										Accept Order
+									</Custombutton>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										color="#f7f3f3"
+										backgroundColor="#ed3636"
+										borderColor="#ed3636"
+										borderOnHover="#d82b2b"
+										backgroundOnHover="#d82b2b"
+										margin="0 5px"
+										onClick={(e) => this.updateStatus(e, 'rejectProductMovementOrder')}
+									>
+										<FontAwsomeIcon className="fa fa-times " />
+										Reject Order
+									</Custombutton>
+								</React.Fragment>
+							) : (
+								undefined
+							)}
+						</PageBarAlign>
+					</PageToolbar>
+					<InputBody overflow="visible">
+						<InputFieldContainer>
+							<InputColumnWrapper flexBasis={style.flexBasis} width={style.width}>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('product'),
+												label: this.state.variable.get('product')
+											}}
+											onChange={(option) => {
+												this.onChange({
+													target: { name: 'product', value: option.value }
+												});
+											}}
+											options={
+												this.props.variables.Product !== undefined ? (
+													this.props.variables.Product.map((variable) => {
 														return {
-															value: variable.values.location,
-															label: variable.values.location,
-															data: variable
+															value: variable.variableName,
+															label: variable.variableName
 														};
 													})
-											) : (
-												[]
-											)
-										}
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										Product<Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('toLocation'),
+												label: this.state.variable.get('toLocation')
+											}}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'toLocation',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={
+												this.props.variables.ProductStore !== undefined ? (
+													this.props.variables.ProductStore
+														.filter(
+															(productStore) =>
+																productStore.values.product ===
+																this.state.variable.get('product')
+														)
+														.map((variable) => {
+															return {
+																value: variable.values.location,
+																label: variable.values.location,
+																data: variable
+															};
+														})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										To Location <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('fromLocation'),
+												label: this.state.variable.get('fromLocation')
+											}}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'fromLocation',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={
+												this.props.variables.ProductStore !== undefined ? (
+													this.props.variables.ProductStore
+														.filter(
+															(productStore) =>
+																productStore.values.product ===
+																	this.state.variable.get('product') &&
+																productStore.values.location !==
+																	this.state.variable.get('toLocation')
+														)
+														.map((variable) => {
+															return {
+																value: variable.values.location,
+																label: variable.values.location,
+																data: variable
+															};
+														})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										From Location <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
+							<InputColumnWrapper flexBasis={style.flexBasis} width={style.width}>
+								<FormControl>
+									<Input
+										name="date"
+										type="date"
+										placeholder="date"
+										value={this.state.variable.get('date')}
+										onChange={this.onChange}
 									/>
-								</SelectWrapper>
-								<InputLabel>
-									To Location <Required>*</Required>
-								</InputLabel>
-							</FormControl>
-							<FormControl>
-								<SelectWrapper>
-									<Select
-										value={{
-											value: this.state.variable.get('fromLocation'),
-											label: this.state.variable.get('fromLocation')
-										}}
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'fromLocation',
-													value: option.value,
-													data: option.data
-												}
-											});
-										}}
-										options={
-											this.props.variables.ProductStore !== undefined ? (
-												this.props.variables.ProductStore
-													.filter(
-														(productStore) =>
-															productStore.values.product ===
-																this.state.variable.get('product') &&
-															productStore.values.location !==
-																this.state.variable.get('toLocation')
-													)
-													.map((variable) => {
-														return {
-															value: variable.values.location,
-															label: variable.values.location,
-															data: variable
-														};
-													})
-											) : (
-												[]
-											)
-										}
+									<InputLabel> Date</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="availableQuantity"
+										type="number"
+										placeholder="0"
+										value={this.state.variable.get('availableQuantity')}
+										readOnly
 									/>
-								</SelectWrapper>
-								<InputLabel>
-									From Location <Required>*</Required>
-								</InputLabel>
-							</FormControl>
-						</InputColumnWrapper>
-						<InputColumnWrapper flexBasis={style.flexBasis} width={style.width}>
-							<FormControl>
-								<Input
-									name="date"
-									type="date"
-									placeholder="date"
-									value={this.state.variable.get('date')}
-									onChange={this.onChange}
-								/>
-								<InputLabel> Date</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="availableQuantity"
-									type="number"
-									placeholder="0"
-									value={this.state.variable.get('availableQuantity')}
-									readOnly
-								/>
-								<InputLabel> Available Quantity</InputLabel>
-							</FormControl>
-							<FormControl>
-								<Input
-									name="requestedQuantity"
-									type="number"
-									placeholder="0"
-									value={this.state.variable.get('requestedQuantity')}
-									onChange={this.onChange}
-								/>
-								<InputLabel> Requested Quantity</InputLabel>
-							</FormControl>
-						</InputColumnWrapper>
+									<InputLabel> Available Quantity</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="requestedQuantity"
+										type="number"
+										placeholder="0"
+										value={this.state.variable.get('requestedQuantity')}
+										onChange={this.onChange}
+									/>
+									<InputLabel> Requested Quantity</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
 
-						<InputRowWrapper>
-							<FormControl>
-								<Input
-									name="comments"
-									type="text"
-									placeholder="comments"
-									value=""
-									disabled
-									// onChange={this.onChange}
-								/>
-								<InputLabel>Comment</InputLabel>
-							</FormControl>
-						</InputRowWrapper>
-					</InputFieldContainer>
-				</InputBody>
-			</PageBlock>
+							<InputRowWrapper>
+								<FormControl>
+									<Input
+										name="comments"
+										type="text"
+										placeholder="comments"
+										value=""
+										disabled
+										// onChange={this.onChange}
+									/>
+									<InputLabel>Comment</InputLabel>
+								</FormControl>
+							</InputRowWrapper>
+						</InputFieldContainer>
+					</InputBody>
+				</PageBlock>
 		);
 	}
 }
@@ -386,5 +404,6 @@ const mapStateToProps = (state, ownProps) => ({
 
 export default connect(mapStateToProps, {
 	clearErrors,
-	getVariables
+	getVariables,
+	executeFuntion
 })(ProductMovementOrderDetails);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Route, Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Header from '../components/main/Header';
 import styled from 'styled-components';

@@ -5,12 +5,7 @@ import styled from 'styled-components';
 import Select from 'react-select';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
-import {
-	createVariable,
-	getVariables,
-	updateVariable,
-	objToMapRec
-} from '../../../../redux/actions/variables';
+import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -342,7 +337,9 @@ class SimpleSalesInvoice extends React.Component {
 		});
 		values.set('productInvoiceDetails', list);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable }, () => {
+			this.onCalculateTotal();
+		});
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
@@ -353,7 +350,9 @@ class SimpleSalesInvoice extends React.Component {
 		});
 		values.set('additionalCost', list);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable }, () => {
+			this.onCalculateTotal();
+		});
 	}
 
 	onCalculateTotal() {
@@ -434,7 +433,7 @@ class SimpleSalesInvoice extends React.Component {
 		values.get('additionalCost').forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="6%" >
+					<TableData width="6%">
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -443,9 +442,9 @@ class SimpleSalesInvoice extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" >
-					<TableHeaderInner>
-						<SelectWrapper>
+					<TableData width="11%">
+						<TableHeaderInner>
+							<SelectWrapper>
 								<Select
 									value={{
 										value: listVariable.get('values').get('description'),
@@ -459,9 +458,16 @@ class SimpleSalesInvoice extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.filter((product)=>product.values.general.values.productType === "Service").map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.Product
+												.filter(
+													(product) => product.values.general.values.productType === 'Service'
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -500,7 +506,7 @@ class SimpleSalesInvoice extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -526,9 +532,14 @@ class SimpleSalesInvoice extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForSale===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForSale === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -584,9 +595,16 @@ class SimpleSalesInvoice extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.filter((product)=>product.values.general.values.productType !== "Service").map((variable) => {
-												return { value: variable.variableName, label: variable.values.general.values.productName };
-											})
+											this.props.variables.Product
+												.filter(
+													(product) => product.values.general.values.productType !== 'Service'
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.values.general.values.productName
+													};
+												})
 										) : (
 											[]
 										)
@@ -653,9 +671,14 @@ class SimpleSalesInvoice extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForSale===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForSale === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)

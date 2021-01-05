@@ -16,6 +16,7 @@ import {
 	SaveButton
 } from '../../../../../styles/inventory/Style';
 import ProductMovementOrderDetails from './ProductMovementOrderDetails';
+import CreateProductMovementModal from '../Product Movement Invoice/CreateProductMovementInvoiceModal';
 
 class ProductMovementOrder extends React.Component {
 	constructor(props) {
@@ -23,8 +24,11 @@ class ProductMovementOrder extends React.Component {
 		this.state = {
 			isOpen: false,
 			createProductMovementOrder: true,
+			isCreateInvoiceModalOpen: false,
 			prevPropVariable: {},
 			prevVariable: new Map(),
+			fromProductStore: {},
+			productOrdered: {},
 			variable: new Map([
 				[ 'typeName', 'ProductMovementOrder' ],
 				[ 'variableName', '' ],
@@ -48,14 +52,28 @@ class ProductMovementOrder extends React.Component {
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.onClose = this.onClose.bind(this);
+		this.onCloseCreateInvoiceModal = this.onCloseCreateInvoiceModal.bind(this);
+		this.onOpenCreateInvoiceModal = this.onOpenCreateInvoiceModal.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.ProductMovementOrder) {
+		if (
+			nextProps.match.params.variableName &&
+			nextProps.variables.ProductMovementOrder &&
+			nextProps.variables.ProductStore &&
+			nextProps.variables.Product
+		) {
 			const variable = nextProps.variables.ProductMovementOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const fromProductStore = nextProps.variables.ProductStore.filter(
+					(productStore) => productStore.variableName === variable.values.fromProductStore
+				)[0];
+				const productOrdered = nextProps.variables.Product.filter(
+					(product) => product.variableName === variable.values.product
+				)[0];
+				console.log(fromProductStore);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -64,7 +82,9 @@ class ProductMovementOrder extends React.Component {
 					...prevState,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
+					prevVariable: prevVariableMap,
+					fromProductStore: fromProductStore,
+					productOrdered: productOrdered
 				};
 			}
 		}
@@ -74,6 +94,7 @@ class ProductMovementOrder extends React.Component {
 	getData() {
 		this.props.clearErrors();
 		this.props.getVariables('Product');
+		this.props.getVariables('TaxRule');
 		this.props.getVariables('ProductStore');
 		this.props.getVariables('Location');
 		this.props.getVariables('ProductMovementType');
@@ -138,11 +159,31 @@ class ProductMovementOrder extends React.Component {
 		});
 	}
 
+	onOpenCreateInvoiceModal() {
+		this.setState({ isCreateInvoiceModalOpen: true });
+	}
+
+	onCloseCreateInvoiceModal() {
+		this.setState({ isCreateInvoiceModalOpen: false });
+	}
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit={2} />
+				{this.props.match.params.variableName &&
+				this.state.variable.get('values').get('status') === 'Awaiting Order Confirmation' ? (
+					<CreateProductMovementModal
+						isOpen={this.state.isCreateInvoiceModalOpen}
+						onClose={this.onCloseCreateInvoiceModal}
+						productMovementOrder={mapToObjectRec(this.state.variable)}
+						fromProductStore={this.state.fromProductStore}
+						product={this.state.productOrdered}
+					/>
+				) : (
+					undefined
+				)}
 				<PageWrapper>
 					<PageBody>
 						{this.props.match.params.variableName ? (
@@ -155,11 +196,16 @@ class ProductMovementOrder extends React.Component {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
 											if (this.state.createProductMovementOrder) {
-												this.props.executeFuntion(mapToObjectRec(this.state.variable.get('values')),"createProductMovementOrder").then((response) => {
-													if (response.status === 200) {
-														successMessage('Order Placed');
-													}
-												});
+												this.props
+													.executeFuntion(
+														mapToObjectRec(this.state.variable.get('values')),
+														'createProductMovementOrder'
+													)
+													.then((response) => {
+														if (response.status === 200) {
+															successMessage('Order Placed');
+														}
+													});
 											}
 											this.setState({ createProductMovementOrder: true });
 										});
@@ -172,7 +218,9 @@ class ProductMovementOrder extends React.Component {
 						<ProductMovementOrderDetails
 							variable={this.state.variable.get('values')}
 							updateDetails={this.updateDetails}
+							variableName={this.props.match.params.variableName}
 							isdisabled={this.props.match.params.variableName ? true : false}
+							onOpenCreateInvoiceModal={this.onOpenCreateInvoiceModal}
 						/>
 					</PageBody>
 				</PageWrapper>

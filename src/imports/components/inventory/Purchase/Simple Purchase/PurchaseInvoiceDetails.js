@@ -339,7 +339,9 @@ class PurchaseInvoiceDetails extends React.Component {
 		});
 		values.set('productInvoiceDetails', list);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable },() => {
+			this.onCalculateTotal();
+		});
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
@@ -350,7 +352,9 @@ class PurchaseInvoiceDetails extends React.Component {
 		});
 		values.set('additionalCost', list);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ variable: variable },() => {
+			this.onCalculateTotal();
+		});
 	}
 
 	onCalculateTotal() {

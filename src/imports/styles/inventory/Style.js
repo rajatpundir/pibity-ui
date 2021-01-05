@@ -427,18 +427,17 @@ export const RoundBlockInnerDiv = styled.div`
 `;
 // background color based on status
 export const StatusBackgroundColor = {
-	approved:'#70dca1',
-	rejected:'#e86a6a',
-	active: '#d6f3e3',
-	depricated: '#fee8e8',
-	pending:'#f5f576bf'
+	approved: '#70dca1',
+	rejected: '#e86a6a',
+	active: '#54c675',
+	depricated: '#e76767',
+	pending: '#f5f5b0'
 };
 
 export const StatusSpan = styled.span.attrs((props) => ({
 	backgroundColor: props.backgroundColor || '#d6f3e3',
 	marginRight: props.marginRight || 0,
-	color: props.color || '#f1f6fb',
-
+	color: props.color || '#f1f6fb'
 }))`
 	background-color:${(props) => props.backgroundColor}; 
 	margin-right:${(props) => props.marginRight} ;
@@ -488,9 +487,11 @@ flex-basis: ${(props) => props.flexBasis};`;
 export const FormControl = styled.div.attrs((props) => ({
 	minHeight: props.minHeight || '60px',
 	paddingBottom: props.paddingBottom || '20px',
+	paddingRight: props.paddingRight,
 	flexBasis: props.flexBasis
 }))`
 	padding-bottom: ${(props) => props.paddingBottom};
+	padding-right: ${(props) => props.paddingRight};
 	min-height:${(props) => props.minHeight};
 	position: relative;
 	display: flex;
@@ -526,7 +527,7 @@ export const LeftItemFormControl = styled.div`
 export const LeftItemWrapper = styled.div.attrs((props) => ({
 	backgroundColor: props.backgroundColor,
 	color: props.color || '#f1f6fb',
-	margin: props.margin|| "0 10px 0 0"
+	margin: props.margin || '0 10px 0 0'
 }))`
 	background-color: ${(props) => props.backgroundColor};
 	border: 1px solid ${(props) => props.backgroundColor};
@@ -646,28 +647,29 @@ export const SelectAddButton = styled.button`
 export const Input = styled.input.attrs((props) => ({
 	width: props.width || 'inherit',
 	height: props.height || '38px',
-	padding: props.padding || '11px 10px 10px 10px'
+	padding: props.padding || '11px 10px 10px 10px',
+	backgroundColor: props.backgroundColor || ' #fff',
+	borderColor: props.borderColor || '#b9bdce'
 }))`
 	width: ${(props) => props.width};
-	outline: none !important;
-	border-width: 1px;
-	border-style: solid;
-	border-radius: 4px;
-	border-color: #b9bdce;
+	min-height: ${(props) => props.height};
 	padding: ${(props) => props.padding};
 	color: #3b3b3b;
 	font-size: 13px;
 	font-weight: 400;
 	font-family: inherit;
 	flex: 1;
-	min-height: ${(props) => props.height};
-	background-color: #fff;
+	outline: none !important;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 4px;
+	border-color:${(props) => props.borderColor};
+	background-color: ${(props) => props.backgroundColor};
 	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	font-family: "IBM Plex Sans", sans-serif !important;
 	line-height: normal;
 	font-size: 100%;
 	margin: 0;
