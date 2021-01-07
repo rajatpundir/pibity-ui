@@ -57,11 +57,11 @@ import {
 	TableRow,
 	EmptyRow
 } from '../../../../../styles/inventory/Style';
-const style = {
-	flexBasis: 'calc(100% / 3 - 12px) !important',
-	width: '30%'
-};
 
+const style = {
+	flexBasis: 'calc(100% / 2 - 12px) !important',
+	width: '50%'
+};
 class ProductMovementOrderDetails extends React.Component {
 	constructor(props) {
 		super(props);
@@ -83,6 +83,7 @@ class ProductMovementOrderDetails extends React.Component {
 		return {
 			...prevState,
 			variable: nextProps.variable,
+			orderItems: nextProps.orderItems,
 			productStore:
 				nextProps.variables !== undefined
 					? nextProps.variables.ProductStore !== undefined ? nextProps.variables.ProductStore : []
@@ -201,13 +202,17 @@ class ProductMovementOrderDetails extends React.Component {
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="5%">
-						<i
-							name={listVariable.get('variableName')}
-							className="large material-icons"
-							onClick={(e) => this.onRemoveOrderItem(e, listVariable.get('variableName'))}
-						>
-							remove_circle_outline
-						</i>
+						{this.props.isdisabled ? (
+							undefined
+						) : (
+							<i
+								name={listVariable.get('variableName')}
+								className="large material-icons"
+								onClick={(e) => this.onRemoveOrderItem(e, listVariable.get('variableName'))}
+							>
+								remove_circle_outline
+							</i>
+						)}
 					</TableData>
 					<TableData width="35%">
 						<TableHeaderInner>
@@ -237,6 +242,7 @@ class ProductMovementOrderDetails extends React.Component {
 											[]
 										)
 									}
+									isDisabled={this.props.isdisabled}
 								/>
 							</SelectWrapper>
 						</TableHeaderInner>
@@ -254,10 +260,12 @@ class ProductMovementOrderDetails extends React.Component {
 					<TableData width="30%">
 						<TableHeaderInner>
 							<Input
+							   
 								name="requestedQuantity"
 								type="text"
 								value={listVariable.get('values').get('requestedQuantity')}
 								onChange={(e) => this.onOrderItemChange(e, listVariable.get('variableName'))}
+								readOnly={this.props.isdisabled}
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -394,10 +402,11 @@ class ProductMovementOrderDetails extends React.Component {
 				</PageToolbar>
 				<InputBody overflow="visible">
 					<InputFieldContainer>
-						<InputColumnWrapper>
-							<FormControl>
+						<InputRowWrapper>
+							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
 								<SelectWrapper>
 									<Select
+										isDisabled={this.props.isdisabled}
 										value={{
 											value: this.state.variable.get('toLocation'),
 											label: this.state.variable.get('toLocation')
@@ -428,9 +437,10 @@ class ProductMovementOrderDetails extends React.Component {
 									To Location <Required>*</Required>
 								</InputLabel>
 							</FormControl>
-							<FormControl>
+							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
 								<SelectWrapper>
 									<Select
+										isDisabled={this.props.isdisabled}
 										value={{
 											value: this.state.variable.get('fromLocation'),
 											label: this.state.variable.get('fromLocation')
@@ -467,17 +477,21 @@ class ProductMovementOrderDetails extends React.Component {
 									From Location <Required>*</Required>
 								</InputLabel>
 							</FormControl>
-							<FormControl>
+							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
 								<Input
+									style={{
+										height: ' 38px'
+									}}
 									name="date"
 									type="date"
 									placeholder="date"
 									value={this.state.variable.get('date')}
 									onChange={this.onChange}
+									readOnly={this.props.isdisabled}
 								/>
 								<InputLabel> Date</InputLabel>
 							</FormControl>
-						</InputColumnWrapper>
+						</InputRowWrapper>
 
 						<RoundedBlock overflow="visible">
 							<TableFieldContainer overflow="visible">
@@ -521,15 +535,19 @@ class ProductMovementOrderDetails extends React.Component {
 										undefined
 									)}
 								</HeaderBodyContainer>
-								<AddMoreBlock>
-									<AddMoreButton onClick={(e) => this.addItems()}>
-										<i className="large material-icons">add</i>Add Additional Services Charges
-									</AddMoreButton>
-								</AddMoreBlock>
+								{this.props.isdisabled ? (
+									undefined
+								) : (
+									<AddMoreBlock>
+										<AddMoreButton onClick={(e) => this.addItems()}>
+											<i className="large material-icons">add</i>Add Additional Services Charges
+										</AddMoreButton>
+									</AddMoreBlock>
+								)}
 							</TableFieldContainer>
 						</RoundedBlock>
 
-						<InputRowWrapper>
+						<InputRowWrapper paddingTop="15px">
 							<TextAreaContainer>
 								<TextArea
 									name="comments"

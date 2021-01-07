@@ -480,9 +480,13 @@ export const InputColumnWrapper = styled.div.attrs((props) => ({
 `;
 
 export const InputRowWrapper = styled.div.attrs((props) => ({
-	flexBasis: props.flexBasis || '100%'
+	flexBasis: props.flexBasis || '100%',
+	paddingTop: props.paddingTop
 }))`
-flex-basis: ${(props) => props.flexBasis};`;
+justify-content: space-between;
+display: flex;
+flex-basis: ${(props) => props.flexBasis};
+padding-top: ${(props) => props.paddingTop};`;
 
 export const FormControl = styled.div.attrs((props) => ({
 	minHeight: props.minHeight || '60px',

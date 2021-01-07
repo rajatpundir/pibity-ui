@@ -72,8 +72,9 @@ class ProductMovementOrder extends React.Component {
 			if (variable && prevState.prevPropVariable !== variable) {
 				const orderItems = nextProps.variables.ProductMovementOrderItems.filter(
 					(items) => items.values.orderId === variable.variableName
-				);
-				console.log(orderItems)
+				).map((item)=>{
+					return objToMapRec(item)
+				});
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -172,7 +173,6 @@ class ProductMovementOrder extends React.Component {
 	}
 
 	render() {
-		console.log(this.state.orderItems)
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
@@ -184,7 +184,7 @@ class ProductMovementOrder extends React.Component {
 					// 	onClose={this.onCloseCreateInvoiceModal}
 					// 	productMovementOrder={mapToObjectRec(this.state.variable)}
 					// />
-					<div>2</div>
+					<div></div>
 				) : (
 					undefined
 				)}
