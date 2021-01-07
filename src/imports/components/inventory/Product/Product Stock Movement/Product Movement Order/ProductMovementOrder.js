@@ -5,7 +5,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import { customErrorMessage, successMessage, CustomNotification } from '../../../../main/Notification';
 import { clearErrors } from '../../../../../redux/actions/errors';
 import CheckIcon from '@material-ui/icons/Check';
-import { getVariable, objToMapRec, getVariables, mapToObjectRec } from '../../../../../redux/actions/variables';
+import {
+	getVariable,
+	objToMapRec,
+	getVariables,
+	mapToObjectRec,
+	createVariables
+} from '../../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../../redux/actions/executeFuntion';
 import SelectorganizationModal from '../../../../main/Modal/SelectorganizationModal';
 import {
@@ -35,22 +41,19 @@ class ProductMovementOrder extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'product', '' ],
 						[ 'date', '' ],
 						[ 'toLocation', '' ],
 						[ 'fromLocation', '' ],
-						[ 'toProductStore', '' ],
-						[ 'fromProductStore', '' ],
-						[ 'availableQuantity', '' ],
-						[ 'requestedQuantity', '' ],
 						[ 'movementType', 'Internal' ],
 						[ 'status', '' ],
 						[ 'comments', '' ]
 					])
 				]
-			])
+			]),
+			orderItems: []
 		};
 		this.updateDetails = this.updateDetails.bind(this);
+		this.updateOrderItems = this.updateOrderItems.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCloseCreateInvoiceModal = this.onCloseCreateInvoiceModal.bind(this);
 		this.onOpenCreateInvoiceModal = this.onOpenCreateInvoiceModal.bind(this);
@@ -60,20 +63,17 @@ class ProductMovementOrder extends React.Component {
 		if (
 			nextProps.match.params.variableName &&
 			nextProps.variables.ProductMovementOrder &&
-			nextProps.variables.ProductStore &&
-			nextProps.variables.Product
+			nextProps.variables.ProductMovementOrderItems
+			
 		) {
 			const variable = nextProps.variables.ProductMovementOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
-				const fromProductStore = nextProps.variables.ProductStore.filter(
-					(productStore) => productStore.variableName === variable.values.fromProductStore
-				)[0];
-				const productOrdered = nextProps.variables.Product.filter(
-					(product) => product.variableName === variable.values.product
-				)[0];
-				console.log(fromProductStore);
+				const orderItems = nextProps.variables.ProductMovementOrderItems.filter(
+					(items) => items.values.orderId === variable.variableName
+				);
+				console.log(orderItems)
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -83,8 +83,7 @@ class ProductMovementOrder extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					fromProductStore: fromProductStore,
-					productOrdered: productOrdered
+					orderItems:orderItems
 				};
 			}
 		}
@@ -99,6 +98,7 @@ class ProductMovementOrder extends React.Component {
 		this.props.getVariables('Location');
 		this.props.getVariables('ProductMovementType');
 		this.props.getVariables('ProductMovementOrderStatus');
+		this.props.getVariables('ProductMovementOrderItems');
 	}
 
 	componentDidMount() {
@@ -122,13 +122,17 @@ class ProductMovementOrder extends React.Component {
 		this.getData();
 	}
 
+	addKeyToList(items, key, value) {
+		return items.map((listVariable) => {
+			const values = listVariable.get('values');
+			values.set(key, value);
+			listVariable.set('values', values);
+			return listVariable;
+		});
+	}
+
 	checkRequiredField(variable) {
 		// let message = ''; // To show error in one popUp
-		if (variable.get('product') === '') {
-			// message = message + ' Please provide a Customer Name  \n';
-			customErrorMessage(' Product Name is missing');
-			this.setState({ createProductMovementOrder: false });
-		}
 		if (variable.get('toLocation') === '') {
 			// message = message + ' Please choose the Status \n';
 			customErrorMessage('location is missing');
@@ -144,18 +148,18 @@ class ProductMovementOrder extends React.Component {
 			customErrorMessage(' Date is missing');
 			this.setState({ createProductMovementOrder: false });
 		}
-		if (variable.get('requestedQuantity') === '') {
-			// message = message + ' Please choose the TaxRule  \n';
-			customErrorMessage(' requestedQuantity is missing');
-			this.setState({ createProductMovementOrder: false });
-		}
 	}
 
-	updateDetails(details, selectedProduct, selectedLocationVariable) {
+	updateDetails(details) {
 		const variable = cloneDeep(this.state.variable);
 		variable.set('values', details);
 		this.setState({
 			variable: variable
+		});
+	}
+	updateOrderItems(orderItems) {
+		this.setState({
+			orderItems: orderItems
 		});
 	}
 
@@ -168,19 +172,19 @@ class ProductMovementOrder extends React.Component {
 	}
 
 	render() {
+		console.log(this.state.orderItems)
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
 				<CustomNotification limit={2} />
 				{this.props.match.params.variableName &&
 				this.state.variable.get('values').get('status') === 'Awaiting Order Confirmation' ? (
-					<CreateProductMovementModal
-						isOpen={this.state.isCreateInvoiceModalOpen}
-						onClose={this.onCloseCreateInvoiceModal}
-						productMovementOrder={mapToObjectRec(this.state.variable)}
-						fromProductStore={this.state.fromProductStore}
-						product={this.state.productOrdered}
-					/>
+					// <CreateProductMovementModal
+					// 	isOpen={this.state.isCreateInvoiceModalOpen}
+					// 	onClose={this.onCloseCreateInvoiceModal}
+					// 	productMovementOrder={mapToObjectRec(this.state.variable)}
+					// />
+					<div>2</div>
 				) : (
 					undefined
 				)}
@@ -192,6 +196,8 @@ class ProductMovementOrder extends React.Component {
 							<SaveButtonContaier>
 								<SaveButton
 									onClick={(e) => {
+										console.log(this.state);
+
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
@@ -203,6 +209,14 @@ class ProductMovementOrder extends React.Component {
 													)
 													.then((response) => {
 														if (response.status === 200) {
+															console.log(response.data.variableName)
+															this.props.createVariables(
+																this.addKeyToList(
+																	this.state.orderItems,
+																	'orderId',
+																	response.data.productMovementOrder.variableName
+																)
+															);
 															successMessage('Order Placed');
 														}
 													});
@@ -217,7 +231,9 @@ class ProductMovementOrder extends React.Component {
 						)}
 						<ProductMovementOrderDetails
 							variable={this.state.variable.get('values')}
+							orderItems={this.state.orderItems}
 							updateDetails={this.updateDetails}
+							updateOrderItems={this.updateOrderItems}
 							variableName={this.props.match.params.variableName}
 							isdisabled={this.props.match.params.variableName ? true : false}
 							onOpenCreateInvoiceModal={this.onOpenCreateInvoiceModal}
@@ -239,5 +255,6 @@ export default connect(mapStateToProps, {
 	clearErrors,
 	getVariable,
 	getVariables,
-	executeFuntion
+	executeFuntion,
+	createVariables
 })(ProductMovementOrder);

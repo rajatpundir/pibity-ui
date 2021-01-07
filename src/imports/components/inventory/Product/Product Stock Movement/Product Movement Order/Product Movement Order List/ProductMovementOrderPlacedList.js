@@ -159,7 +159,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">
 							<Link to={'/productMovementOrder/' + encodeURIComponent(productMovementOrder.variableName)}>
-								{productMovementOrder.values.product}
+								{productMovementOrder.variableName}
 							</Link>
 						</TableHeaderInner>
 					</TableData>
@@ -169,12 +169,6 @@ class ProductMovementOrderPlacedList extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">
 							{productMovementOrder.values.fromLocation}
-						</TableHeaderInner>
-					</TableData>
-
-					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							{productMovementOrder.values.requestedQuantity}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
@@ -271,7 +265,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Product</SelectSpan>
+																<SelectSpan>OrderId</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
@@ -283,12 +277,6 @@ class ProductMovementOrderPlacedList extends React.Component {
 														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan> From Location</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Ordered Quantity</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">

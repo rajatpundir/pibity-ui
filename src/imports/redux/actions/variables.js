@@ -209,9 +209,53 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		console.log(response);
 		if (response.status === 200) {
 			if (response.data[0][0] !== undefined) {
-				 await replaceVariable(dispatch, response.data[0][0]);
+				await replaceVariable(dispatch, response.data[0][0]);
+				const resp = {
+					data: response.data[0][0],
+					status: response.status
+				};
+				return resp;
+			}
+		} else {
+			updateErrors(dispatch, response.data);
+			return response.status;
+		}
+	} catch (error) {
+		if (error.response) {
+			updateErrors(dispatch, error.response.data[0]);
+			return false;
+		}
+	}
+};
+
+export const createVariables = (variables: Array) => async (dispatch) => {
+	try {
+		const url = domain + '/variables/mutate';
+
+		const requestBody = variables.map((variable) => {
+			const request = { ...mapToObjectRec(variable), ...{ op: 'create' } };
+			return request;
+		});
+
+		const queue = [ requestBody ];
+
+		console.log('--REQUEST--');
+		console.log(queue);
+		const orgId = localStorage.getItem('selectedOrganization');
+		console.log({
+			...{ queue: queue },
+			...{ orgId: orgId }
+		});
+		const response = await axios.post(url, {
+			...{ queue: queue },
+			...{ orgId: orgId }
+		});
+		console.log('--RESPONSE--');
+		console.log(response);
+		if (response.status === 200) {
+			if (response.data !== undefined) {
 				const resp={
-					data:response.data[0][0],
+					data:response.data,
 					status:response.status
 				}
 				return resp;
@@ -245,7 +289,7 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 		const response = await axios.post(url, request);
 		if (response.status === 200) {
 			if (response.data !== undefined) {
-				 await replaceVariable(dispatch, response.data[0]);
+				await replaceVariable(dispatch, response.data[0]);
 				return response.status;
 			}
 		} else {

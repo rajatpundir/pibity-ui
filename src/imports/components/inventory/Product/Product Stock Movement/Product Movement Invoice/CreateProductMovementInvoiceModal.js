@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import Select from 'react-select';
 import { cloneDeep } from 'lodash';
 import { createVariable, getVariables } from '../../../../../redux/actions/variables';
+import { executeFuntion } from '../../../../../redux/actions/executeFuntion';
 import { successMessage, customErrorMessage } from '../../../../main/Notification';
 import {
 	InputLabel,
@@ -101,7 +102,7 @@ class CreateProductMovementModal extends React.Component {
 		this.state = {
 			invoice: new Map([
 				[ 'typeName', 'ProductMovementOrderInvoice' ],
-				[ 'variableName', '' ],
+				[ 'variableName', props.productMovementOrder.variableName ],
 				[
 					'values',
 					new Map([
@@ -139,6 +140,9 @@ class CreateProductMovementModal extends React.Component {
 		const invoice = cloneDeep(this.state.invoice);
 		const values = invoice.get('values');
 		values.set(e.target.name, e.target.value);
+		if (e.target.name === 'invoiceDate') {
+			values.set('date', e.target.value);
+		}
 		invoice.set('values', values);
 		this.setState({ invoice: invoice });
 	}
@@ -150,18 +154,45 @@ class CreateProductMovementModal extends React.Component {
 	onCreateInvoice() {
 		this.props.createVariable(this.state.invoice).then((response) => {
 			if (response.status === 200) {
-				const args = {
-					productMovementOrder: this.props.productMovementOrder.variableName
-				};
-				this.props.executeFuntion(args, 'acceptProductMovementOrder').then((response) => {
+				const movementRecord = new Map([
+					[ 'typeName', 'ProductMovementRecord' ],
+					[ 'variableName', '' ],
+					[
+						'values',
+						new Map([
+							[ 'product', this.props.product.variableName ],
+							[ 'movementType', this.props.productMovementOrder.values.movementType ],
+							[ 'productMovementOrder', this.props.productMovementOrder.variableName ],
+							[ 'fromProductStore', this.props.productMovementOrder.values.fromProductStore ],
+							[ 'toProductStore', this.props.productMovementOrder.values.toProductStore ],
+							[ 'toLocation', this.props.productMovementOrder.values.toLocation ],
+							[ 'fromLocation', this.props.productMovementOrder.values.fromLocation ],
+							[ 'requestedQuantity', this.props.productMovementOrder.values.requestedQuantity ],
+							[ 'quantity', this.props.productMovementOrder.values.requestedQuantity ],
+							[ 'status', 'Waiting For Dispatch' ],
+							[ 'date', 1609925432248 ],
+							[ 'total', response.data.values.total ],
+							[ 'totalProductCost', response.data.values.total ],
+							[ 'referenceInvoice', response.data.variableName ]
+						])
+					]
+				]);
+				this.props.createVariable(movementRecord).then((response) => {
 					if (response.status === 200) {
-						successMessage('Invoice Created Succesfully');
+						const args = {
+							productMovementOrder: this.props.productMovementOrder.variableName
+						};
+						this.props.executeFuntion(args, 'acceptProductMovementOrder').then((response) => {
+							if (response.status === 200) {
+								this.props.getVariables('ProductMovementOrder');
+								this.props.getVariables('ProductMovementOrderInvoice');
+								successMessage('Invoice Created Succesfully');
+							}
+						});
 					}
 				});
 			}
 		});
-		this.props.getVariables('ProductMovementOrder');
-		this.props.getVariables('ProductMovementOrderInvoice');
 		this.onClose();
 	}
 
@@ -415,7 +446,7 @@ class CreateProductMovementModal extends React.Component {
 								name="total"
 								type="number"
 								value={listVariable.get('values').get('total')}
-								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
+								readOnly
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -519,7 +550,7 @@ class CreateProductMovementModal extends React.Component {
 							/>{' '}
 							<InputLabel>Product</InputLabel>
 						</FormControl>
-						
+
 						<FormControl flexBasis={style.flexBasis}>
 							<Input
 								name="fromLocation"
@@ -531,7 +562,7 @@ class CreateProductMovementModal extends React.Component {
 							/>{' '}
 							<InputLabel>From Location</InputLabel>
 						</FormControl>
-                        <FormControl flexBasis={style.flexBasis}>
+						<FormControl flexBasis={style.flexBasis}>
 							<Input
 								name="toLocation"
 								type="text"
@@ -755,4 +786,4 @@ const mapStateToProps = (state) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { createVariable, getVariables })(CreateProductMovementModal);
+export default connect(mapStateToProps, { createVariable, getVariables,executeFuntion })(CreateProductMovementModal);
