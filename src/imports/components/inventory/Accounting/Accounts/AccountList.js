@@ -152,7 +152,7 @@ class AccountList extends React.Component {
 	}
 
 	render() {
-		const { rowsPerPage, page } = this.state;
+		// const { rowsPerPage, page } = this.state;
 		return (
 			<Container mediaPadding="0" backgroundColor="white">
 				<CustomNotification limit={3} />

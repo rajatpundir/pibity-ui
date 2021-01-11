@@ -109,6 +109,7 @@ class ProductMovementOrder extends React.Component {
 			if (this.props.match.params.variableName) {
 				const variable = decodeURIComponent(this.props.match.params.variableName);
 				this.props.getVariable(this.state.variable.get('typeName'), variable);
+				this.props.getVariables('ProductMovementOrderItems');
 			}
 			this.getData();
 		}
@@ -179,12 +180,12 @@ class ProductMovementOrder extends React.Component {
 				<CustomNotification limit={2} />
 				{this.props.match.params.variableName &&
 				this.state.variable.get('values').get('status') === 'Awaiting Order Confirmation' ? (
-					// <CreateProductMovementModal
-					// 	isOpen={this.state.isCreateInvoiceModalOpen}
-					// 	onClose={this.onCloseCreateInvoiceModal}
-					// 	productMovementOrder={mapToObjectRec(this.state.variable)}
-					// />
-					<div></div>
+					<CreateProductMovementModal
+						isOpen={this.state.isCreateInvoiceModalOpen}
+						onClose={this.onCloseCreateInvoiceModal}
+						productMovementOrder={mapToObjectRec(this.state.variable)}
+					    orderItems={(this.state.orderItems)}
+					/>
 				) : (
 					undefined
 				)}

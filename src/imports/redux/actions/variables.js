@@ -208,11 +208,17 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
-			if (response.data[0][0] !== undefined) {
+			if (response.data[0][0] !== undefined && response.data.length===2) {
 				await replaceVariable(dispatch, response.data[0][0]);
 				const resp = {
 					data: response.data[0][0],
 					status: response.status
+				};
+				return resp;
+			}else{
+				const resp = {
+					data: response.data[0][0],
+					status: 400
 				};
 				return resp;
 			}
@@ -253,10 +259,16 @@ export const createVariables = (variables: Array) => async (dispatch) => {
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
-			if (response.data !== undefined) {
+			if (response.data !== undefined && response.data.length===2) {
 				const resp={
-					data:response.data,
+					data:response.data[0],
 					status:response.status
+				}
+				return resp;
+			}else{
+				const resp={
+					data:response.data[0],
+					status:400
 				}
 				return resp;
 			}

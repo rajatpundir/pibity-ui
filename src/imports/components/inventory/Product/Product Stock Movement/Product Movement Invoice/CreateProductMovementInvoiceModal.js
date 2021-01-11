@@ -3,9 +3,16 @@ import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import Select from 'react-select';
 import { cloneDeep } from 'lodash';
-import { createVariable, getVariables } from '../../../../../redux/actions/variables';
+import {
+	getVariable,
+	objToMapRec,
+	getVariables,
+	mapToObjectRec,
+	createVariables,
+	createVariable
+} from '../../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../../redux/actions/executeFuntion';
-import { successMessage, customErrorMessage } from '../../../../main/Notification';
+import { successMessage, customErrorMessage, CustomNotification } from '../../../../main/Notification';
 import {
 	InputLabel,
 	Input,
@@ -55,7 +62,11 @@ import {
 	EmptyRow,
 	TextArea,
 	TextAreaContainer,
-	SelectWrapper
+	SelectWrapper,
+	InputRowWrapper,
+	CheckBoxContainer,
+	CheckBoxInput,
+	CheckBoxLabel
 } from '../../../../../styles/inventory/Style';
 const style = {
 	flexBasis: 'calc(100% / 2 - 12px) !important',
@@ -63,7 +74,7 @@ const style = {
 };
 const ModalCustomStyles = {
 	overlay: {
-		zIndex: 8000,
+		zIndex: 1300,
 		display: 'block',
 		overflowX: 'hidden',
 		overflowY: 'auto',
@@ -100,22 +111,18 @@ class CreateProductMovementModal extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
+			includeProductPrice: false,
+			productStore: [],
 			invoice: new Map([
 				[ 'typeName', 'ProductMovementOrderInvoice' ],
 				[ 'variableName', props.productMovementOrder.variableName ],
 				[
 					'values',
 					new Map([
-						[ 'product', props.product.variableName ],
 						[ 'movementType', props.productMovementOrder.values.movementType ],
 						[ 'productMovementOrder', props.productMovementOrder.variableName ],
-						[ 'fromProductStore', props.productMovementOrder.values.fromProductStore ],
-						[ 'toProductStore', props.productMovementOrder.values.toProductStore ],
 						[ 'toLocation', props.productMovementOrder.values.toLocation ],
 						[ 'fromLocation', props.productMovementOrder.values.fromLocation ],
-						[ 'availableQuantity', props.fromProductStore.values.available ],
-						[ 'requestedQuantity', props.productMovementOrder.values.requestedQuantity ],
-						[ 'quantity', props.productMovementOrder.values.requestedQuantity ],
 						[ 'invoiceDate', '' ],
 						[ 'invoiceNumber', '' ],
 						[ 'date', '' ],
@@ -123,20 +130,74 @@ class CreateProductMovementModal extends React.Component {
 						[ 'total', 0 ],
 						[ 'balanceDue', 0 ],
 						[ 'paymentStatus', 'Due' ],
-						[ 'totalCostBeforeTax', 0 ],
-						[ 'totalTax', 0 ],
-						[ 'productPrice', 0 ],
-						[ 'additionalCost', [] ]
+						[ 'totalAdditionalCostBeforeTax', 0 ],
+						[ 'totalTaxOnAdditionalCost', 0 ],
+						[ 'totalProductCostBeforeTax', 0 ],
+						[ 'totalTaxOnProduct', 0 ],
+						[ 'comments', '' ]
 					])
 				]
-			])
+			]),
+			additionalCost: [],
+			orderItems: []
 		};
 		this.onChange = this.onChange.bind(this);
+		this.onInvocieChange = this.onInvocieChange.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCreateInvoice = this.onCreateInvoice.bind(this);
 	}
 
-	onChange(e) {
+	addKeyToList(items, key, value) {
+		return items.map((listVariable) => {
+			const values = listVariable.get('values');
+			values.set(key, value);
+			listVariable.set('values', values);
+			return listVariable;
+		});
+	}
+
+	componentDidMount() {
+		if (this.props.orderItems.length !== 0) {
+			const orderItems = this.props.orderItems.map((order) => {
+				const fromProductStore = this.state.productStore.filter(
+					(store) => store.variableName === order.get('values').get('fromProductStore')
+				)[0];
+				return new Map([
+					[ 'variableName', order.get('variableName') ],
+					[ 'typeName', 'ProductMovementOrderInvoiceItems' ],
+					[
+						'values',
+						new Map([
+							[ 'orderId', '' ],
+							[ 'product', order.get('values').get('product') ],
+							[ 'fromProductStore', order.get('values').get('fromProductStore') ],
+							[ 'toProductStore', order.get('values').get('toProductStore') ],
+							[ 'quantity', 0 ],
+							[ 'availableQuantity', fromProductStore.values.available ],
+							[ 'requestedQuantity', order.get('values').get('requestedQuantity') ],
+							[ 'price', 0 ],
+							[ 'total', 0 ],
+							[ 'taxRule', '0%' ],
+							[ 'discount', 0 ]
+						])
+					]
+				]);
+			});
+			this.setState({ orderItems });
+		}
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			productStore:
+				nextProps.variables !== undefined
+					? nextProps.variables.ProductStore !== undefined ? nextProps.variables.ProductStore : []
+					: []
+		};
+	}
+
+	onInvocieChange(e) {
 		const invoice = cloneDeep(this.state.invoice);
 		const values = invoice.get('values');
 		values.set(e.target.name, e.target.value);
@@ -147,6 +208,12 @@ class CreateProductMovementModal extends React.Component {
 		this.setState({ invoice: invoice });
 	}
 
+	onChange(e) {
+		this.setState({ [e.target.name]: e.target.value }, () => {
+			this.onCalculateTotal();
+		});
+	}
+
 	onClose() {
 		this.props.onClose();
 	}
@@ -154,52 +221,44 @@ class CreateProductMovementModal extends React.Component {
 	onCreateInvoice() {
 		this.props.createVariable(this.state.invoice).then((response) => {
 			if (response.status === 200) {
-				const movementRecord = new Map([
-					[ 'typeName', 'ProductMovementRecord' ],
-					[ 'variableName', '' ],
-					[
-						'values',
-						new Map([
-							[ 'product', this.props.product.variableName ],
-							[ 'movementType', this.props.productMovementOrder.values.movementType ],
-							[ 'productMovementOrder', this.props.productMovementOrder.variableName ],
-							[ 'fromProductStore', this.props.productMovementOrder.values.fromProductStore ],
-							[ 'toProductStore', this.props.productMovementOrder.values.toProductStore ],
-							[ 'toLocation', this.props.productMovementOrder.values.toLocation ],
-							[ 'fromLocation', this.props.productMovementOrder.values.fromLocation ],
-							[ 'requestedQuantity', this.props.productMovementOrder.values.requestedQuantity ],
-							[ 'quantity', this.props.productMovementOrder.values.requestedQuantity ],
-							[ 'status', 'Waiting For Dispatch' ],
-							[ 'date', 1609925432248 ],
-							[ 'total', response.data.values.total ],
-							[ 'totalProductCost', response.data.values.total ],
-							[ 'referenceInvoice', response.data.variableName ]
-						])
-					]
-				]);
-				this.props.createVariable(movementRecord).then((response) => {
-					if (response.status === 200) {
-						const args = {
-							productMovementOrder: this.props.productMovementOrder.variableName
-						};
-						this.props.executeFuntion(args, 'acceptProductMovementOrder').then((response) => {
-							if (response.status === 200) {
-								this.props.getVariables('ProductMovementOrder');
-								this.props.getVariables('ProductMovementOrderInvoice');
-								successMessage('Invoice Created Succesfully');
-							}
-						});
-					}
+				this.props.createVariables(
+					this.addKeyToList(this.state.additionalCost, 'orderId', response.data.variableName)
+				);
+				this.props
+					.createVariables(this.addKeyToList(this.state.orderItems, 'orderId', response.data.variableName))
+					.then((response) => {
+						if (response.status === 200) {
+							response.data.forEach((data) => {
+								const args={
+									productMovementItems:data.variableName,
+									productStore:data.values.fromProductStore
+								}
+								this.props.executeFuntion(args, 'updateAvailableQuantityInProductStore');
+							});
+							const args = {
+								productMovementOrder: this.props.productMovementOrder.variableName
+							};
+							this.props.executeFuntion(args, 'acceptProductMovementOrder').then((response) => {
+								if (response.status === 200) {
+									this.props.getVariables('ProductMovementOrder');
+									successMessage('Order Placed');
+								}
+							});
+						}
+					});
+			} else {
+				Object.entries(response.data).forEach((item) => {
+					console.log(item);
 				});
+				//Todo error handling
+				// customErrorMessage(response.data)
 			}
 		});
-		this.onClose();
 	}
 
-	onAdditionalCostChange(e, variableName) {
-		const invoice = cloneDeep(this.state.invoice);
-		const values = invoice.get('values');
-		const list = values.get('additionalCost').map((listVariable) => {
+	onItemChange(e, variableName, listName) {
+		const Items = listName === 'orderItems' ? this.state.orderItems : this.state.additionalCost;
+		const list = Items.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -240,99 +299,261 @@ class CreateProductMovementModal extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('additionalCost', list);
-		invoice.set('values', values);
-		this.setState({ invoice: invoice }, () => {
-			this.onCalculateTotal();
-		});
+		if (listName === 'orderItems') {
+			this.setState({ orderItems: list }, () => {
+				this.onCalculateTotal();
+			});
+		} else {
+			this.setState({ additionalCost: list }, () => {
+				this.onCalculateTotal();
+			});
+		}
 	}
 
 	addVariableToadditionalCostList() {
-		const invoice = cloneDeep(this.state.invoice);
-		const values = invoice.get('values');
-		const list = values.get('additionalCost');
-		list.unshift(
+		const list = cloneDeep(this.state.additionalCost);
+		list.push(
 			new Map([
 				[
 					'variableName',
 					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
 				],
+				[ 'typeName', 'ProductMovementInvoiceAdditionalCost' ],
+
 				[
 					'values',
 					new Map([
-						[ 'description', '' ],
+						[ 'orderId', '' ],
+						[ 'service', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
 						[ 'quantity', 0 ],
-						[ 'reference', '' ],
 						[ 'taxRule', '' ],
 						[ 'total', 0 ]
 					])
 				]
 			])
 		);
-		values.set('additionalCost', list);
-		invoice.set('values', values);
-		this.setState({ invoice: invoice });
+		this.setState({ additionalCost: list });
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const invoice = cloneDeep(this.state.invoice);
-		const values = invoice.get('values');
-		const list = values.get('additionalCost').filter((listVariable) => {
+		const list = this.state.additionalCost.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('additionalCost', list);
-		invoice.set('values', values);
-		this.setState({ invoice: invoice }, () => {
+		this.setState({ additionalCost: list }, () => {
 			this.onCalculateTotal();
 		});
 	}
 
 	onCalculateTotal() {
-		var totalCostBeforeTax = 0;
-		var totalTax = 0;
-		const values = this.state.invoice.get('values');
-		values.get('additionalCost').forEach((listVariable) => {
+		var productCostBeforeTax = 0;
+		var totalTaxOnProduct = 0;
+		var additionalCostBeforeTax = 0;
+		var totalTaxOnAdditionalCost = 0;
+		var totalCost = 0;
+		// Product Cost
+		this.state.orderItems.forEach((listVariable) => {
 			const taxRule = this.props.variables.TaxRule.filter(
 				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
 			)[0];
 			if (taxRule) {
 				switch (taxRule.values.taxType) {
 					case 'Exclusive':
-						totalTax =
-							totalTax + listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
-						totalCostBeforeTax = totalCostBeforeTax + listVariable.get('values').get('total');
+						totalTaxOnProduct =
+							totalTaxOnProduct +
+							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total');
 						break;
 					case 'Inclusive':
 						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
-						totalTax = totalTax + tax;
-						totalCostBeforeTax = totalCostBeforeTax + listVariable.get('values').get('total') - tax;
+						totalTaxOnProduct = totalTaxOnProduct + tax;
+						productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total') - tax;
 						break;
 					default:
 						break;
 				}
 			} else {
-				totalCostBeforeTax = totalCostBeforeTax + listVariable.get('values').get('total');
+				productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total');
 			}
 		});
-		const totalCost = totalCostBeforeTax + totalTax;
-		const invoice = cloneDeep(this.state.invoice);
-		const Variablevalues = invoice.get('values');
-		Variablevalues.set('balanceDue', totalCost);
-		Variablevalues.set('total', totalCost);
-		Variablevalues.set('totalCostBeforeTax', totalCostBeforeTax);
-		Variablevalues.set('totalTax', totalTax);
-		invoice.set('values', Variablevalues);
-		this.setState({
-			invoice
+		//AdditionalCost
+		this.state.additionalCost.forEach((listVariable) => {
+			const taxRule = this.props.variables.TaxRule.filter(
+				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
+			)[0];
+			if (taxRule) {
+				switch (taxRule.values.taxType) {
+					case 'Exclusive':
+						totalTaxOnAdditionalCost =
+							totalTaxOnAdditionalCost +
+							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+						break;
+					case 'Inclusive':
+						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						totalTaxOnAdditionalCost = totalTaxOnAdditionalCost + tax;
+						additionalCostBeforeTax =
+							additionalCostBeforeTax + listVariable.get('values').get('total') - tax;
+						break;
+					default:
+						break;
+				}
+			} else {
+				additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+			}
 		});
+		if (this.state.includeProductPrice) {
+			totalCost = productCostBeforeTax + totalTaxOnProduct + additionalCostBeforeTax + totalTaxOnAdditionalCost;
+		} else {
+			totalCost = additionalCostBeforeTax + totalTaxOnAdditionalCost;
+		}
+		const variable = cloneDeep(this.state.invoice);
+		const values = variable.get('values');
+		values.set('balanceDue', totalCost);
+		values.set('total', totalCost);
+		values.set('totalProductCostBeforeTax', productCostBeforeTax);
+		values.set('totalTaxOnProduct', totalTaxOnProduct);
+		values.set('totalAdditionalCostBeforeTax', additionalCostBeforeTax);
+		values.set('totalTaxOnAdditionalCost', totalTaxOnAdditionalCost);
+		if (totalCost === 0) {
+			values.set('paymentStatus', 'Paid');
+		} else {
+			values.set('paymentStatus', 'Due');
+		}
+		variable.set('values', values);
+		this.setState({
+			invoice: variable
+		});
+	}
+
+	renderOrderItemsFields() {
+		const rows = [];
+		this.state.orderItems.forEach((listVariable) =>
+			rows.push(
+				<TableRow key={listVariable.get('variableName')}>
+					<TableData width="6%">
+						<i
+							name={listVariable.get('variableName')}
+							className="large material-icons"
+							onClick={(e) => this.onRemoveAdditionalCostListKey(e, listVariable.get('variableName'))}
+						>
+							remove_circle_outline
+						</i>
+					</TableData>
+
+					<TableData width="10%">
+						<TableHeaderInner>
+							<Input
+								name="product"
+								type="text"
+								value={listVariable.get('values').get('product')}
+								readOnly
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>
+							<Input
+								name="availableQuantity"
+								type="number"
+								value={listVariable.get('values').get('availableQuantity')}
+								readOnly
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>
+							<Input
+								name="requestedQuantity"
+								type="number"
+								value={listVariable.get('values').get('requestedQuantity')}
+								readOnly
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>
+							<Input
+								name="quantity"
+								type="number"
+								value={listVariable.get('values').get('quantity')}
+								onChange={(e) => this.onItemChange(e, listVariable.get('variableName'), 'orderItems')}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>
+							<Input
+								name="price"
+								type="text"
+								value={listVariable.get('values').get('price')}
+								onChange={(e) => this.onItemChange(e, listVariable.get('variableName'), 'orderItems')}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					{/* <TableData width="10%">
+						<TableHeaderInner>
+							<Input
+								name="discount"
+								type="text"
+								value={listVariable.get('values').get('discount')}
+								onChange={(e) => this.onItemChange(e, listVariable.get('variableName'),'orderItems')}
+							/>
+						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('taxRule'),
+										label: listVariable.get('values').get('taxRule')
+									}}
+									onChange={(option) => {
+										this.onItemChange(
+											{ target: { name: 'taxRule', value: option.value } },
+											listVariable.get('variableName'),
+											'orderItems'
+										);
+									}}
+									options={
+										this.props.variables.TaxRule !== undefined ? (
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForPurchase === true)
+												.map((invoice) => {
+													return {
+														value: invoice.variableName,
+														label: invoice.variableName
+													};
+												})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData> */}
+					<TableData width="10%">
+						<TableHeaderInner>
+							<Input
+								name="total"
+								type="number"
+								value={listVariable.get('values').get('total')}
+								readOnly
+							/>
+						</TableHeaderInner>
+					</TableData>
+				</TableRow>
+			)
+		);
+		return rows;
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		const values = this.state.invoice.get('values');
-		values.get('additionalCost').forEach((listVariable) =>
+		this.state.additionalCost.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%">
@@ -349,13 +570,14 @@ class CreateProductMovementModal extends React.Component {
 							<SelectWrapper>
 								<Select
 									value={{
-										value: listVariable.get('values').get('description'),
-										label: listVariable.get('values').get('description')
+										value: listVariable.get('values').get('service'),
+										label: listVariable.get('values').get('service')
 									}}
 									onChange={(option) => {
-										this.onAdditionalCostChange(
-											{ target: { name: 'description', value: option.value } },
-											listVariable.get('variableName')
+										this.onItemChange(
+											{ target: { name: 'service', value: option.value } },
+											listVariable.get('variableName'),
+											'additionalCost'
 										);
 									}}
 									options={
@@ -384,7 +606,8 @@ class CreateProductMovementModal extends React.Component {
 								name="quantity"
 								type="number"
 								value={listVariable.get('values').get('quantity')}
-								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
+								onChange={(e) =>
+									this.onItemChange(e, listVariable.get('variableName'), 'additionalCost')}
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -394,7 +617,8 @@ class CreateProductMovementModal extends React.Component {
 								name="price"
 								type="text"
 								value={listVariable.get('values').get('price')}
-								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
+								onChange={(e) =>
+									this.onItemChange(e, listVariable.get('variableName'), 'additionalCost')}
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -404,7 +628,8 @@ class CreateProductMovementModal extends React.Component {
 								name="discount"
 								type="text"
 								value={listVariable.get('values').get('discount')}
-								onChange={(e) => this.onAdditionalCostChange(e, listVariable.get('variableName'))}
+								onChange={(e) =>
+									this.onItemChange(e, listVariable.get('variableName'), 'additionalCost')}
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -417,9 +642,10 @@ class CreateProductMovementModal extends React.Component {
 										label: listVariable.get('values').get('taxRule')
 									}}
 									onChange={(option) => {
-										this.onAdditionalCostChange(
+										this.onItemChange(
 											{ target: { name: 'taxRule', value: option.value } },
-											listVariable.get('variableName')
+											listVariable.get('variableName'),
+											'additionalCost'
 										);
 									}}
 									options={
@@ -461,7 +687,6 @@ class CreateProductMovementModal extends React.Component {
 			<Modal
 				isOpen={this.props.isOpen}
 				contentLabel="create Product Movement invoice"
-				onRequestClose={this.onClose}
 				className="boxed-view__box"
 				style={ModalCustomStyles}
 				ariaHideApp={false}
@@ -478,6 +703,7 @@ class CreateProductMovementModal extends React.Component {
 					</ModalHeaderCloseButton>
 				</ModalHeader>
 				<ModalBody>
+					<CustomNotification limit={2} />
 					<InputBody borderTop="0" overflow="visible">
 						<FormControl flexBasis={style.flexBasis}>
 							<Input
@@ -487,10 +713,10 @@ class CreateProductMovementModal extends React.Component {
 								name="invoiceDate"
 								type="date"
 								value={this.state.invoice.get('values').get('invoiceDate')}
-								onChange={this.onChange}
+								onChange={this.onInvocieChange}
 							/>{' '}
 							<InputLabel>
-								Date
+								Invoice Date
 								<Required>*</Required>
 							</InputLabel>
 						</FormControl>
@@ -499,58 +725,13 @@ class CreateProductMovementModal extends React.Component {
 								name="invoiceNumber"
 								type="text"
 								value={this.state.invoice.get('values').get('invoicenUmber')}
-								onChange={this.onChange}
+								onChange={this.onInvocieChange}
 							/>{' '}
 							<InputLabel>
 								Invoice Number
 								<Required>*</Required>
 							</InputLabel>
 						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="availableQuantity"
-								type="number"
-								value={this.state.invoice.get('values').get('availableQuantity')}
-								backgroundColor="hsl(0,0%,95%)"
-								borderColor="hsl(0,0%,95%)"
-								readOnly
-							/>
-							<InputLabel>Available Quantity</InputLabel>
-						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="requestedQuantity"
-								type="number"
-								value={this.state.invoice.get('values').get('requestedQuantity')}
-								backgroundColor="hsl(0,0%,95%)"
-								borderColor="hsl(0,0%,95%)"
-								readOnly
-							/>
-							<InputLabel>Requested Quantity</InputLabel>
-						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="product"
-								type="text"
-								value={this.props.product.variableName}
-								backgroundColor="hsl(0,0%,95%)"
-								borderColor="hsl(0,0%,95%)"
-								readOnly
-							/>{' '}
-							<InputLabel>Product SKU</InputLabel>
-						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="product"
-								type="text"
-								value={this.props.product.values.general.values.productName}
-								backgroundColor="hsl(0,0%,95%)"
-								borderColor="hsl(0,0%,95%)"
-								readOnly
-							/>{' '}
-							<InputLabel>Product</InputLabel>
-						</FormControl>
-
 						<FormControl flexBasis={style.flexBasis}>
 							<Input
 								name="fromLocation"
@@ -573,39 +754,90 @@ class CreateProductMovementModal extends React.Component {
 							/>{' '}
 							<InputLabel>To Location</InputLabel>
 						</FormControl>
-						<ModalInputColumnWrapper>
-							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
-								<Input
-									name="quantity"
-									type="number"
-									value={this.state.invoice.get('values').get('quantity')}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>Quantity</InputLabel>
-							</FormControl>
-							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
-								<Input
-									name="productPrice"
-									type="number"
-									value={this.state.invoice.get('values').get('productPrice')}
-									onChange={this.onChange}
-								/>{' '}
-								<InputLabel>Price</InputLabel>
-							</FormControl>
-							<FormControl flexBasis={style.flexBasis}>
-								<Input
-									name="total"
-									type="number"
-									value={
-										this.state.invoice.get('values').get('quantity') *
-										this.state.invoice.get('values').get('productPrice')
-									}
-									readOnly
-								/>{' '}
-								<InputLabel>Total Product Price</InputLabel>
-							</FormControl>
-						</ModalInputColumnWrapper>
 						<RoundedBlock overflow="visible">
+							<TableFieldContainer overflow="visible">
+								<Headers>
+									<HeaderContainer>
+										<HeaderBody>
+											<BodyTable>
+												<TableBody>
+													<TableRow>
+														<TableHeaders width="6%" left="0px">
+															<SelectIconContainer>
+																<SelectSpan>
+																	<SelectSpanInner>
+																		<i className="large material-icons">create</i>
+																	</SelectSpanInner>
+																</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%" left="8%">
+															<SelectIconContainer>
+																<SelectSpan>Product</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%" left="35%">
+															<SelectIconContainer>
+																<SelectSpan>Available Quantity</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%" left="50%">
+															<SelectIconContainer>
+																<SelectSpan>Requested Quantity</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%" left="50%">
+															<SelectIconContainer>
+																<SelectSpan>Quantity</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%" left="60%">
+															<SelectIconContainer>
+																<SelectSpan>Price</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														{/* <TableHeaders width="10%" left="60%">
+															<SelectIconContainer>
+																<SelectSpan>Discount</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%" left="73%">
+															<SelectIconContainer>
+																<SelectSpan>Tax Rule</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders> */}
+														<TableHeaders width="10%" left="85%">
+															<SelectIconContainer>
+																<SelectSpan>Total</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+													</TableRow>
+												</TableBody>
+											</BodyTable>
+										</HeaderBody>
+									</HeaderContainer>
+								</Headers>
+								<HeaderBodyContainer>
+									<HeaderBody>
+										<BodyTable>
+											<TableBody>{this.renderOrderItemsFields()}</TableBody>
+										</BodyTable>
+									</HeaderBody>
+									{this.state.orderItems.length === 0 ? (
+										<EmptyRow>You do not have any Order Lines.</EmptyRow>
+									) : (
+										undefined
+									)}
+								</HeaderBodyContainer>
+								{/* <AddMoreBlock>
+									<AddMoreButton onClick={(e) => this.addVariableToadditionalCostList()}>
+										<i className="large material-icons">add</i>Add Additional Services Charges
+									</AddMoreButton>
+								</AddMoreBlock> */}
+							</TableFieldContainer>
+						</RoundedBlock>
+
+						<RoundedBlock overflow="visible" marginTop="20px">
 							<TableFieldContainer overflow="visible">
 								<Headers>
 									<HeaderContainer>
@@ -624,7 +856,7 @@ class CreateProductMovementModal extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="11%" left="8%">
 															<SelectIconContainer>
-																<SelectSpan>Services</SelectSpan>
+																<SelectSpan>Service</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="11%" left="35%">
@@ -664,7 +896,7 @@ class CreateProductMovementModal extends React.Component {
 											<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 										</BodyTable>
 									</HeaderBody>
-									{this.state.invoice.get('values').get('additionalCost').length === 0 ? (
+									{this.state.additionalCost.length === 0 ? (
 										<EmptyRow>You do not have any Additional Cost Lines.</EmptyRow>
 									) : (
 										undefined
@@ -677,11 +909,39 @@ class CreateProductMovementModal extends React.Component {
 								</AddMoreBlock>
 							</TableFieldContainer>
 						</RoundedBlock>
+						<InputRowWrapper paddingTop="15px">
+							<TextAreaContainer>
+								<TextArea
+									name="comments"
+									type="text"
+									placeholder="Wrtie a note here"
+									value={this.state.invoice.get('values').get('comments')}
+									height="50px"
+									onChange={this.onChange}
+								/>
+								<InputLabel>Note</InputLabel>
+							</TextAreaContainer>
+						</InputRowWrapper>
 					</InputBody>
-
 					<EqualBlockContainer>
 						<LeftBlock>
-							<TextAreaContainer>
+							<CheckBoxContainer>
+								<CheckBoxInput
+									type="checkbox"
+									checked={this.state.includeProductPrice}
+									tabindex="55"
+									onChange={(option) => {
+										this.onChange({
+											target: {
+												name: 'includeProductPrice',
+												value: !this.state.includeProductPrice
+											}
+										});
+									}}
+								/>
+								<CheckBoxLabel>Only active taxRules</CheckBoxLabel>
+							</CheckBoxContainer>
+							{/* <TextAreaContainer>
 								<TextArea
 									name="comments"
 									value=""
@@ -689,14 +949,16 @@ class CreateProductMovementModal extends React.Component {
 									onChange={this.onChange}
 								/>
 								<InputLabel>Note</InputLabel>
-							</TextAreaContainer>
+							</TextAreaContainer> */}
 						</LeftBlock>
 						<RightBlock>
 							<RightBlockTable>
 								<BlockTableHead>
 									<TableRow>
-										<BlockTableHeader width="20%" />
-										<BlockTableHeader width="10%">Total</BlockTableHeader>
+										<BlockTableHeader width="25%" />
+										<BlockTableHeader width="25%">Product Lines</BlockTableHeader>
+										<BlockTableHeader width="25%">Additional Cost</BlockTableHeader>
+										<BlockTableHeader width="25%">Total</BlockTableHeader>
 									</TableRow>
 								</BlockTableHead>
 								<BlockTableBody>
@@ -727,12 +989,80 @@ class CreateProductMovementModal extends React.Component {
 												<TableBody>
 													<TableRow>
 														<BlockTableTd>
-															{this.state.invoice.get('values').get('totalCostBeforeTax')}
+															{this.state.invoice
+																.get('values')
+																.get('totalProductCostBeforeTax')}
 														</BlockTableTd>
 													</TableRow>
 													<TableRow>
 														<BlockTableTd>
-															{this.state.invoice.get('values').get('totalTax')}
+															{this.state.invoice.get('values').get('totalTaxOnProduct')}
+														</BlockTableTd>
+													</TableRow>
+													<TableRow>
+														<BlockTableTd>
+															{this.state.invoice
+																.get('values')
+																.get('totalProductCostBeforeTax') +
+																this.state.invoice
+																	.get('values')
+																	.get('totalTaxOnProduct')}
+														</BlockTableTd>
+													</TableRow>
+												</TableBody>
+											</BlockInnerTable>
+										</BlockTableTd>
+										<BlockTableTd style={{ border: 'none' }}>
+											<BlockInnerTable>
+												<TableBody>
+													<TableRow>
+														<BlockTableTd>
+															{this.state.invoice
+																.get('values')
+																.get('totalAdditionalCostBeforeTax')}
+														</BlockTableTd>
+													</TableRow>
+													<TableRow>
+														<BlockTableTd>
+															{this.state.invoice
+																.get('values')
+																.get('totalTaxOnAdditionalCost')}
+														</BlockTableTd>
+													</TableRow>
+													<TableRow>
+														<BlockTableTd>
+															{this.state.invoice
+																.get('values')
+																.get('totalAdditionalCostBeforeTax') +
+																this.state.invoice
+																	.get('values')
+																	.get('totalTaxOnAdditionalCost')}
+														</BlockTableTd>
+													</TableRow>
+												</TableBody>
+											</BlockInnerTable>
+										</BlockTableTd>
+										<BlockTableTd style={{ border: 'none' }}>
+											<BlockInnerTable>
+												<TableBody>
+													<TableRow>
+														<BlockTableTd>
+															{this.state.invoice
+																.get('values')
+																.get('totalProductCostBeforeTax') +
+																this.state.invoice
+																	.get('values')
+																	.get('totalAdditionalCostBeforeTax')}
+														</BlockTableTd>
+													</TableRow>
+													<TableRow>
+														<BlockTableTd>
+															{this.state.invoice
+																.get('values')
+																.get('totalTaxOnAdditionalCost') +
+																this.state.invoice
+																	.get('values')
+																	.get('totalTaxOnProduct')}
 														</BlockTableTd>
 													</TableRow>
 													<TableRow>
@@ -748,6 +1078,7 @@ class CreateProductMovementModal extends React.Component {
 							</RightBlockTable>
 						</RightBlock>
 					</EqualBlockContainer>
+
 					<InputBody style={{ border: 'none' }} overflow="visible">
 						<RoundedBlock style={{ marginTop: '20px' }}>
 							<RoundBlockOuterDiv>
@@ -786,4 +1117,6 @@ const mapStateToProps = (state) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { createVariable, getVariables,executeFuntion })(CreateProductMovementModal);
+export default connect(mapStateToProps, { createVariable, createVariables, getVariables, executeFuntion })(
+	CreateProductMovementModal
+);

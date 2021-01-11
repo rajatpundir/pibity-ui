@@ -485,6 +485,7 @@ export const InputRowWrapper = styled.div.attrs((props) => ({
 }))`
 justify-content: space-between;
 display: flex;
+flex-wrap: inherit;
 flex-basis: ${(props) => props.flexBasis};
 padding-top: ${(props) => props.paddingTop};`;
 
@@ -501,6 +502,8 @@ export const FormControl = styled.div.attrs((props) => ({
 	display: flex;
 	align-items: start;
 	flex-basis:${(props) => props.flexBasis};
+	 width: 100%;
+
 	@media (max-width: 991px) {
 		flex-basis: calc(100% / 2 - 9px) !important;
 	}

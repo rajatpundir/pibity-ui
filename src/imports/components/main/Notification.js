@@ -38,6 +38,7 @@ export const CustomNotification = styled(ToastContainer).attrs(
 	.Toastify__toast-container {}
 	.Toastify__toast {}
 	.Toastify__toast--error {
+		z-index:9000;
 		margin: 0 0 6px;
 		padding: 10px 15px;
 		-moz-border-radius: 6px;
@@ -47,6 +48,7 @@ export const CustomNotification = styled(ToastContainer).attrs(
 		background-color: #fd4a4a;
 	}
 	.Toastify__toast--warning {
+		z-index:9000;
 		margin: 0 0 6px;
 		padding: 16px 42px 16px 55px;
 		-moz-border-radius: 6px;
@@ -56,6 +58,7 @@ export const CustomNotification = styled(ToastContainer).attrs(
 		background-color: #0e24e6f5;
 	}
 	.Toastify__toast--success {
+		z-index:9000;
 		margin: 0 0 6px;
 		padding: 16px 42px 16px 55px;
 		-moz-border-radius: 6px;
