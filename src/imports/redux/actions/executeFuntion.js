@@ -63,13 +63,11 @@ export const executeFuntion = (args: Object, funtionName:String) => async (dispa
 export const updatePurchaseInvoice = (request: Object,) => async (dispatch) => {
 	try {
 		const url = domain + '/variable/update';
-		console.log(JSON.stringify(request));
 		const response = await axios.post(url, request);
 		console.log('--RESPONSE--');
-		console.log(response.data);
+		console.log(response);
 		if (response.status === 200) {
 			if (response.data !== undefined) {
-				console.log(response.data);
 				await replaceVariable(dispatch, response.data);
 				return response.status;
 			}

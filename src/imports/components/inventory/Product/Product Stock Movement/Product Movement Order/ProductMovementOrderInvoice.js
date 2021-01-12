@@ -1,33 +1,11 @@
 import React from 'react';
-import Modal from 'react-modal';
 import { connect } from 'react-redux';
-import Select from 'react-select';
 import { cloneDeep } from 'lodash';
-import {
-	getVariable,
-	objToMapRec,
-	getVariables,
-	mapToObjectRec,
-	createVariables,
-	createVariable
-} from '../../../../../redux/actions/variables';
-import { executeFuntion } from '../../../../../redux/actions/executeFuntion';
-import { successMessage, customErrorMessage, CustomNotification } from '../../../../main/Notification';
-import {
-	InputLabel,
-	Input,
-	Required,
-	FormControl,
-	ModalHeader,
-	ModalBody,
-	ModalFooter,
-	ModalHeaderCloseButton,
-	ModalTitle,
-	ModalSubmitButton,
-	ModalCloseButton,
-	ModalInputColumnWrapper
-} from '../../../../../styles/main/Modal';
-
+import styled from 'styled-components';
+import Select from 'react-select';
+import { clearErrors } from '../../../../../redux/actions/errors';
+import { successMessage } from '../../../../main/Notification';
+import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../../redux/actions/variables';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -37,13 +15,26 @@ import {
 	BlockTableHeader,
 	BlockTableTd,
 	BodyTable,
+	EmptyRow,
 	EqualBlockContainer,
+	FormControl,
+	H3,
 	HeaderBody,
 	HeaderBodyContainer,
 	HeaderContainer,
 	Headers,
+	Input,
 	InputBody,
+	InputColumnWrapper,
+	InputLabel,
 	LeftBlock,
+	LeftItemH1,
+	PageBar,
+	PageBarAlign,
+	PageBlock,
+	PageToolbar,
+	PlusButton,
+	Required,
 	RightBlock,
 	RightBlockTable,
 	RoundBlockInnerDiv,
@@ -53,76 +44,46 @@ import {
 	SelectIconContainer,
 	SelectSpan,
 	SelectSpanInner,
+	SelectWrapper,
 	TableBody,
 	TableData,
 	TableFieldContainer,
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	EmptyRow,
 	TextArea,
 	TextAreaContainer,
-	SelectWrapper,
+	ToolbarItems,
+	Custombutton,
 	InputRowWrapper,
 	CheckBoxContainer,
 	CheckBoxInput,
 	CheckBoxLabel
 } from '../../../../../styles/inventory/Style';
+
 const style = {
 	flexBasis: 'calc(100% / 2 - 12px) !important',
 	width: '50%'
 };
-const ModalCustomStyles = {
-	overlay: {
-		zIndex: 1300,
-		display: 'block',
-		overflowX: 'hidden',
-		overflowY: 'auto',
-		position: 'fixed',
-		top: 0,
-		right: 0,
-		bottom: 0,
-		left: 0,
-		width: '100%',
-		height: '100% ',
-		outline: 0,
-		margin: '0 !important',
-		backgroundColor: '#12121275 '
-	},
-	content: {
-		position: 'relative',
-		padding: 0,
-		maxWidth: '65%',
-		minWidth: '520px',
-		display: 'flex',
-		flexDirection: 'column',
-		width: '100%',
-		backgroundColor: '#fff',
-		margin: '1.75rem auto',
-		backgroundClip: 'padding-box',
-		border: '1px solid rgba(0,0,0,0.2)',
-		borderRadius: '10px',
-		boxShadow: '0 0.25rem 0.5rem rgba(0,0,0,0.2)',
-		outline: 0
-	}
-};
 
-class CreateProductMovementModal extends React.Component {
+class ProductMovementOrderInvoice extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
 			includeProductPrice: false,
 			productStore: [],
+			prevPropVariable: {},
+			prevVariable: new Map(),
 			invoice: new Map([
 				[ 'typeName', 'ProductMovementOrderInvoice' ],
-				[ 'variableName', props.productMovementOrder.variableName ],
+				[ 'variableName', '' ],
 				[
 					'values',
 					new Map([
-						[ 'movementType', props.productMovementOrder.values.movementType ],
-						[ 'productMovementOrder', props.productMovementOrder.variableName ],
-						[ 'toLocation', props.productMovementOrder.values.toLocation ],
-						[ 'fromLocation', props.productMovementOrder.values.fromLocation ],
+						[ 'movementType', '' ],
+						[ 'productMovementOrder', '' ],
+						[ 'toLocation', '' ],
+						[ 'fromLocation', '' ],
 						[ 'invoiceDate', '' ],
 						[ 'invoiceNumber', '' ],
 						[ 'date', '' ],
@@ -143,57 +104,52 @@ class CreateProductMovementModal extends React.Component {
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onInvocieChange = this.onInvocieChange.bind(this);
-		this.onClose = this.onClose.bind(this);
-		this.onCreateInvoice = this.onCreateInvoice.bind(this);
-	}
-
-	addKeyToList(items, key, value) {
-		return items.map((listVariable) => {
-			const values = listVariable.get('values');
-			values.set(key, value);
-			listVariable.set('values', values);
-			return listVariable;
-		});
 	}
 
 	componentDidMount() {
-		if (this.props.orderItems.length !== 0) {
-			const orderItems = this.props.orderItems.map((order) => {
-				const fromProductStore = this.state.productStore.filter(
-					(store) => store.variableName === order.get('values').get('fromProductStore')
-				)[0];
-				return new Map([
-					[ 'variableName', order.get('variableName') ],
-					[ 'typeName', 'ProductMovementOrderInvoiceItems' ],
-					[
-						'values',
-						new Map([
-							[ 'orderId', '' ],
-							[ 'product', order.get('values').get('product') ],
-							[ 'fromProductStore', order.get('values').get('fromProductStore') ],
-							[ 'toProductStore', order.get('values').get('toProductStore') ],
-							[ 'quantity', 0 ],
-							[ 'availableQuantity', fromProductStore.values.available ],
-							[ 'requestedQuantity', order.get('values').get('requestedQuantity') ],
-							[ 'price', 0 ],
-							[ 'total', 0 ],
-							[ 'taxRule', '0%' ],
-							[ 'discount', 0 ]
-						])
-					]
-				]);
-			});
-			this.setState({ orderItems });
-		}
+		this.props.getVariables('ProductMovementOrderInvoice');
+		this.props.getVariables('ProductMovementInvoiceAdditionalCost');
+		this.props.getVariables('ProductMovementOrderInvoiceItems');
+		this.props.clearErrors();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		if (
+			nextProps.variables.ProductMovementOrderInvoice &&
+			nextProps.variables.ProductMovementInvoiceAdditionalCost &&
+			nextProps.variables.ProductMovementOrderInvoiceItems
+		) {
+			const invoice = nextProps.variables.ProductMovementOrderInvoice.filter(
+				(variable) => variable.values.productMovementOrder === nextProps.productMovementOrder
+			)[0];
+
+			if (invoice && prevState.prevPropVariable !== invoice) {
+				const orderItems = nextProps.variables.ProductMovementOrderInvoiceItems
+					.filter((items) => items.values.orderId === invoice.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				console.log(nextProps.variables.ProductMovementInvoiceAdditionalCost);
+				const additionalCost = nextProps.variables.ProductMovementInvoiceAdditionalCost
+					.filter((additionalItem) => additionalItem.values.orderId === invoice.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				console.log(additionalCost);
+				const variableMap = objToMapRec(invoice);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+				return {
+					...prevState,
+					additionalCost: additionalCost,
+					orderItems: orderItems,
+					invoice: variableMap,
+					prevPropVariable: invoice,
+					prevVariable: prevVariableMap
+				};
+			}
+		}
 		return {
-			...prevState,
-			productStore:
-				nextProps.variables !== undefined
-					? nextProps.variables.ProductStore !== undefined ? nextProps.variables.ProductStore : []
-					: []
+			...prevState
 		};
 	}
 
@@ -212,60 +168,6 @@ class CreateProductMovementModal extends React.Component {
 		this.setState({ [e.target.name]: e.target.value }, () => {
 			this.onCalculateTotal();
 		});
-	}
-
-	onClose() {
-		this.props.onClose();
-	}
-
-	onCreateInvoice() {
-		console.log(this.addKeyToList(this.state.orderItems, 'orderId', 1));
-		this.props.createVariable(this.state.invoice).then((response) => {
-			if (response.status === 200) {
-				const invocie = response.data.variableName;
-				if (this.state.additionalCost.length !== 0) {
-					this.props.createVariables(
-						this.addKeyToList(this.state.additionalCost, 'orderId', response.data.variableName)
-					);
-				}
-				this.props
-					.createVariables(this.addKeyToList(this.state.orderItems, 'orderId', response.data.variableName))
-					.then((response) => {
-						if (response.status === 200) {
-							response.data.forEach((data) => {
-								const productStoreArgs={
-									productMovementItems:data.variableName,
-									productStore:data.values.fromProductStore
-								}
-								this.props.executeFuntion(productStoreArgs, 'updateAvailableQuantityInProductStore');
-								const productMovementRecordArgs = {
-									orderInvoice: invocie,
-									item: data.variableName
-								};
-								this.props.executeFuntion(productMovementRecordArgs, 'fun1').then((response) => {
-									console.log(response);
-								});
-							});
-
-							const args = {
-								productMovementOrder: this.props.productMovementOrder.variableName
-							};
-							this.props.executeFuntion(args, 'acceptProductMovementOrder').then((response) => {
-								if (response.status === 200) {
-									this.props.getVariables('ProductMovementOrder');
-									successMessage('Order Placed');
-								}
-							});
-						}
-					});
-			} else {
-				Object.entries(response.data).forEach((item) => {
-					console.log(item);
-				});
-			}
-		});
-		this.props.getVariables('ProductMovementOrder')
-		this.onClose()
 	}
 
 	onItemChange(e, variableName, listName) {
@@ -696,119 +598,108 @@ class CreateProductMovementModal extends React.Component {
 
 	render() {
 		return (
-			<Modal
-				isOpen={this.props.isOpen}
-				contentLabel="create Product Movement invoice"
-				className="boxed-view__box"
-				style={ModalCustomStyles}
-				ariaHideApp={false}
-				overlayClassName="boxed-view boxed-view--modal"
-			>
-				<ModalHeader>
-					<ModalTitle>Create Product Movement Invoice</ModalTitle>
-					<ModalHeaderCloseButton
-						onClick={(e) => {
-							this.onClose(e);
-						}}
-					>
-						<span>X</span>
-					</ModalHeaderCloseButton>
-				</ModalHeader>
-				<ModalBody>
-					<CustomNotification limit={2} />
-					<InputBody borderTop="0" overflow="visible">
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								style={{
-									height: ' 38px'
-								}}
-								name="invoiceDate"
-								type="date"
-								value={this.state.invoice.get('values').get('invoiceDate')}
-								onChange={this.onInvocieChange}
-							/>{' '}
-							<InputLabel>
-								Invoice Date
-								<Required>*</Required>
-							</InputLabel>
-						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="invoiceNumber"
-								type="text"
-								value={this.state.invoice.get('values').get('invoicenUmber')}
-								onChange={this.onInvocieChange}
-							/>{' '}
-							<InputLabel>
-								Invoice Number
-								<Required>*</Required>
-							</InputLabel>
-						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="fromLocation"
-								type="text"
-								value={this.state.invoice.get('values').get('fromLocation')}
-								backgroundColor="hsl(0,0%,95%)"
-								borderColor="hsl(0,0%,95%)"
-								readOnly
-							/>{' '}
-							<InputLabel>From Location</InputLabel>
-						</FormControl>
-						<FormControl flexBasis={style.flexBasis}>
-							<Input
-								name="toLocation"
-								type="text"
-								value={this.state.invoice.get('values').get('toLocation')}
-								backgroundColor="hsl(0,0%,95%)"
-								borderColor="hsl(0,0%,95%)"
-								readOnly
-							/>{' '}
-							<InputLabel>To Location</InputLabel>
-						</FormControl>
-						<RoundedBlock overflow="visible">
-							<TableFieldContainer overflow="visible">
-								<Headers>
-									<HeaderContainer>
-										<HeaderBody>
-											<BodyTable>
-												<TableBody>
-													<TableRow>
-														<TableHeaders width="6%" left="0px">
-															<SelectIconContainer>
-																<SelectSpan>
-																	<SelectSpanInner>
-																		<i className="large material-icons">create</i>
-																	</SelectSpanInner>
-																</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%" left="8%">
-															<SelectIconContainer>
-																<SelectSpan>Product</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%" left="35%">
-															<SelectIconContainer>
-																<SelectSpan>Available Quantity</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%" left="50%">
-															<SelectIconContainer>
-																<SelectSpan>Requested Quantity</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%" left="50%">
-															<SelectIconContainer>
-																<SelectSpan>Quantity</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%" left="60%">
-															<SelectIconContainer>
-																<SelectSpan>Price</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														{/* <TableHeaders width="10%" left="60%">
+			<PageBlock id="invoice">
+				<PageToolbar>
+					<ToolbarItems>
+						<LeftItemH1>Invoice</LeftItemH1>
+					</ToolbarItems>
+				</PageToolbar>
+				<PageBar>
+					<FormControl flexBasis={style.flexBasis}>
+						<Input
+							style={{
+								height: ' 38px'
+							}}
+							name="invoiceDate"
+							type="date"
+							value={this.state.invoice.get('values').get('invoiceDate')}
+							readOnly
+						/>{' '}
+						<InputLabel>
+							Invoice Date
+							<Required>*</Required>
+						</InputLabel>
+					</FormControl>
+					<FormControl flexBasis={style.flexBasis}>
+						<Input
+							name="invoiceNumber"
+							type="text"
+							value={this.state.invoice.get('values').get('invoiceNumber')}
+							readOnly
+						/>{' '}
+						<InputLabel>
+							Invoice Number
+							<Required>*</Required>
+						</InputLabel>
+					</FormControl>
+					<FormControl flexBasis={style.flexBasis}>
+						<Input
+							name="fromLocation"
+							type="text"
+							value={this.state.invoice.get('values').get('fromLocation')}
+							backgroundColor="hsl(0,0%,95%)"
+							borderColor="hsl(0,0%,95%)"
+							readOnly
+						/>{' '}
+						<InputLabel>From Location</InputLabel>
+					</FormControl>
+					<FormControl flexBasis={style.flexBasis}>
+						<Input
+							name="toLocation"
+							type="text"
+							value={this.state.invoice.get('values').get('toLocation')}
+							backgroundColor="hsl(0,0%,95%)"
+							borderColor="hsl(0,0%,95%)"
+							readOnly
+						/>{' '}
+						<InputLabel>To Location</InputLabel>
+					</FormControl>
+				</PageBar>
+
+				<InputBody borderTop="0" overflow="visible">
+					<RoundedBlock overflow="visible">
+						<TableFieldContainer overflow="visible">
+							<Headers>
+								<HeaderContainer>
+									<HeaderBody>
+										<BodyTable>
+											<TableBody>
+												<TableRow>
+													<TableHeaders width="6%" left="0px">
+														<SelectIconContainer>
+															<SelectSpan>
+																<SelectSpanInner>
+																	<i className="large material-icons">create</i>
+																</SelectSpanInner>
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="8%">
+														<SelectIconContainer>
+															<SelectSpan>Product</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="35%">
+														<SelectIconContainer>
+															<SelectSpan>Available Quantity</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="50%">
+														<SelectIconContainer>
+															<SelectSpan>Requested Quantity</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="50%">
+														<SelectIconContainer>
+															<SelectSpan>Quantity</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="60%">
+														<SelectIconContainer>
+															<SelectSpan>Price</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													{/* <TableHeaders width="10%" left="60%">
 															<SelectIconContainer>
 																<SelectSpan>Discount</SelectSpan>
 															</SelectIconContainer>
@@ -818,123 +709,122 @@ class CreateProductMovementModal extends React.Component {
 																<SelectSpan>Tax Rule</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders> */}
-														<TableHeaders width="10%" left="85%">
-															<SelectIconContainer>
-																<SelectSpan>Total</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-													</TableRow>
-												</TableBody>
-											</BodyTable>
-										</HeaderBody>
-									</HeaderContainer>
-								</Headers>
-								<HeaderBodyContainer>
-									<HeaderBody>
-										<BodyTable>
-											<TableBody>{this.renderOrderItemsFields()}</TableBody>
+													<TableHeaders width="10%" left="85%">
+														<SelectIconContainer>
+															<SelectSpan>Total</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+												</TableRow>
+											</TableBody>
 										</BodyTable>
 									</HeaderBody>
-									{this.state.orderItems.length === 0 ? (
-										<EmptyRow>You do not have any Order Lines.</EmptyRow>
-									) : (
-										undefined
-									)}
-								</HeaderBodyContainer>
-								{/* <AddMoreBlock>
+								</HeaderContainer>
+							</Headers>
+							<HeaderBodyContainer>
+								<HeaderBody>
+									<BodyTable>
+										<TableBody>{this.renderOrderItemsFields()}</TableBody>
+									</BodyTable>
+								</HeaderBody>
+								{this.state.orderItems.length === 0 ? (
+									<EmptyRow>You do not have any Order Lines.</EmptyRow>
+								) : (
+									undefined
+								)}
+							</HeaderBodyContainer>
+							{/* <AddMoreBlock>
 									<AddMoreButton onClick={(e) => this.addVariableToadditionalCostList()}>
 										<i className="large material-icons">add</i>Add Additional Services Charges
 									</AddMoreButton>
 								</AddMoreBlock> */}
-							</TableFieldContainer>
-						</RoundedBlock>
+						</TableFieldContainer>
+					</RoundedBlock>
 
-						<RoundedBlock overflow="visible" marginTop="20px">
-							<TableFieldContainer overflow="visible">
-								<Headers>
-									<HeaderContainer>
-										<HeaderBody>
-											<BodyTable>
-												<TableBody>
-													<TableRow>
-														<TableHeaders width="6%" left="0px">
-															<SelectIconContainer>
-																<SelectSpan>
-																	<SelectSpanInner>
-																		<i className="large material-icons">create</i>
-																	</SelectSpanInner>
-																</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="11%" left="8%">
-															<SelectIconContainer>
-																<SelectSpan>Service</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="11%" left="35%">
-															<SelectIconContainer>
-																<SelectSpan>Quantity</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="8%" left="50%">
-															<SelectIconContainer>
-																<SelectSpan>Price</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="11%" left="60%">
-															<SelectIconContainer>
-																<SelectSpan>Discount</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%" left="73%">
-															<SelectIconContainer>
-																<SelectSpan>Tax Rule</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%" left="85%">
-															<SelectIconContainer>
-																<SelectSpan>Total</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-													</TableRow>
-												</TableBody>
-											</BodyTable>
-										</HeaderBody>
-									</HeaderContainer>
-								</Headers>
-								<HeaderBodyContainer>
+					<RoundedBlock overflow="visible" marginTop="20px">
+						<TableFieldContainer overflow="visible">
+							<Headers>
+								<HeaderContainer>
 									<HeaderBody>
 										<BodyTable>
-											<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
+											<TableBody>
+												<TableRow>
+													<TableHeaders width="6%" left="0px">
+														<SelectIconContainer>
+															<SelectSpan>
+																<SelectSpanInner>
+																	<i className="large material-icons">create</i>
+																</SelectSpanInner>
+															</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="11%" left="8%">
+														<SelectIconContainer>
+															<SelectSpan>Service</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="11%" left="35%">
+														<SelectIconContainer>
+															<SelectSpan>Quantity</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="8%" left="50%">
+														<SelectIconContainer>
+															<SelectSpan>Price</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="11%" left="60%">
+														<SelectIconContainer>
+															<SelectSpan>Discount</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="73%">
+														<SelectIconContainer>
+															<SelectSpan>Tax Rule</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%" left="85%">
+														<SelectIconContainer>
+															<SelectSpan>Total</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+												</TableRow>
+											</TableBody>
 										</BodyTable>
 									</HeaderBody>
-									{this.state.additionalCost.length === 0 ? (
-										<EmptyRow>You do not have any Additional Cost Lines.</EmptyRow>
-									) : (
-										undefined
-									)}
-								</HeaderBodyContainer>
-								<AddMoreBlock>
-									<AddMoreButton onClick={(e) => this.addVariableToadditionalCostList()}>
-										<i className="large material-icons">add</i>Add Additional Services Charges
-									</AddMoreButton>
-								</AddMoreBlock>
-							</TableFieldContainer>
-						</RoundedBlock>
-						<InputRowWrapper paddingTop="15px">
-							<TextAreaContainer>
-								<TextArea
-									name="comments"
-									type="text"
-									placeholder="Wrtie a note here"
-									value={this.state.invoice.get('values').get('comments')}
-									height="50px"
-									onChange={this.onChange}
-								/>
-								<InputLabel>Note</InputLabel>
-							</TextAreaContainer>
-						</InputRowWrapper>
-					</InputBody>
+								</HeaderContainer>
+							</Headers>
+							<HeaderBodyContainer>
+								<HeaderBody>
+									<BodyTable>
+										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
+									</BodyTable>
+								</HeaderBody>
+								{this.state.additionalCost.length === 0 ? (
+									<EmptyRow>You do not have any Additional Cost Lines.</EmptyRow>
+								) : (
+									undefined
+								)}
+							</HeaderBodyContainer>
+							<AddMoreBlock>
+								<AddMoreButton onClick={(e) => this.addVariableToadditionalCostList()}>
+									<i className="large material-icons">add</i>Add Additional Services Charges
+								</AddMoreButton>
+							</AddMoreBlock>
+						</TableFieldContainer>
+					</RoundedBlock>
+					<InputRowWrapper paddingTop="15px">
+						<TextAreaContainer>
+							<TextArea
+								name="comments"
+								type="text"
+								placeholder="Wrtie a note here"
+								value={this.state.invoice.get('values').get('comments')}
+								height="50px"
+								onChange={this.onChange}
+							/>
+							<InputLabel>Note</InputLabel>
+						</TextAreaContainer>
+					</InputRowWrapper>
 					<EqualBlockContainer>
 						<LeftBlock>
 							<CheckBoxContainer>
@@ -1090,45 +980,28 @@ class CreateProductMovementModal extends React.Component {
 							</RightBlockTable>
 						</RightBlock>
 					</EqualBlockContainer>
-
-					<InputBody style={{ border: 'none' }} overflow="visible">
-						<RoundedBlock style={{ marginTop: '20px' }}>
-							<RoundBlockOuterDiv>
-								<RoundBlockInnerDiv>
-									<Span color="#b5b9c2">Total</Span>
-									<Span color="#41454e" marginLeft="10px" />
-									{this.state.invoice.get('values').get('total')}
-								</RoundBlockInnerDiv>
-							</RoundBlockOuterDiv>
-						</RoundedBlock>
-					</InputBody>
-				</ModalBody>
-				<ModalFooter>
-					<ModalSubmitButton
-						onClick={(e) => {
-							this.onCreateInvoice();
-						}}
-					>
-						Save
-					</ModalSubmitButton>
-					<ModalCloseButton
-						onClick={(e) => {
-							this.onClose(e);
-						}}
-					>
-						Cancel
-					</ModalCloseButton>
-				</ModalFooter>
-			</Modal>
+					<RoundedBlock style={{ marginTop: '20px' }}>
+						<RoundBlockOuterDiv>
+							<RoundBlockInnerDiv>
+								<Span color="#b5b9c2">Total</Span>
+								<Span color="#41454e" marginLeft="10px" />
+								{this.state.invoice.get('values').get('total')}
+							</RoundBlockInnerDiv>
+						</RoundBlockOuterDiv>
+					</RoundedBlock>
+				</InputBody>
+			</PageBlock>
 		);
 	}
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
+	types: state.types,
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { createVariable, createVariables, getVariables, executeFuntion })(
-	CreateProductMovementModal
+export default connect(mapStateToProps, { clearErrors, getVariables, createVariable, updateVariable })(
+	ProductMovementOrderInvoice
 );
+export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

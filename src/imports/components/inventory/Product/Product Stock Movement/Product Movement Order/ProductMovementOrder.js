@@ -22,6 +22,7 @@ import {
 	SaveButton
 } from '../../../../../styles/inventory/Style';
 import ProductMovementOrderDetails from './ProductMovementOrderDetails';
+import ProductMovementOrderInvoice from './ProductMovementOrderInvoice';
 import CreateProductMovementModal from '../Product Movement Invoice/CreateProductMovementInvoiceModal';
 
 class ProductMovementOrder extends React.Component {
@@ -64,17 +65,16 @@ class ProductMovementOrder extends React.Component {
 			nextProps.match.params.variableName &&
 			nextProps.variables.ProductMovementOrder &&
 			nextProps.variables.ProductMovementOrderItems
-			
 		) {
 			const variable = nextProps.variables.ProductMovementOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
-				const orderItems = nextProps.variables.ProductMovementOrderItems.filter(
-					(items) => items.values.orderId === variable.variableName
-				).map((item)=>{
-					return objToMapRec(item)
-				});
+				const orderItems = nextProps.variables.ProductMovementOrderItems
+					.filter((items) => items.values.orderId === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -84,7 +84,7 @@ class ProductMovementOrder extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					orderItems:orderItems
+					orderItems: orderItems
 				};
 			}
 		}
@@ -99,6 +99,7 @@ class ProductMovementOrder extends React.Component {
 		this.props.getVariables('Location');
 		this.props.getVariables('ProductMovementType');
 		this.props.getVariables('ProductMovementOrderStatus');
+		this.props.getVariables('ProductMovementOrder');
 		this.props.getVariables('ProductMovementOrderItems');
 	}
 
@@ -109,7 +110,6 @@ class ProductMovementOrder extends React.Component {
 			if (this.props.match.params.variableName) {
 				const variable = decodeURIComponent(this.props.match.params.variableName);
 				this.props.getVariable(this.state.variable.get('typeName'), variable);
-				this.props.getVariables('ProductMovementOrderItems');
 			}
 			this.getData();
 		}
@@ -184,7 +184,7 @@ class ProductMovementOrder extends React.Component {
 						isOpen={this.state.isCreateInvoiceModalOpen}
 						onClose={this.onCloseCreateInvoiceModal}
 						productMovementOrder={mapToObjectRec(this.state.variable)}
-					    orderItems={(this.state.orderItems)}
+						orderItems={this.state.orderItems}
 					/>
 				) : (
 					undefined
@@ -210,7 +210,7 @@ class ProductMovementOrder extends React.Component {
 													)
 													.then((response) => {
 														if (response.status === 200) {
-															console.log(response.data.variableName)
+															console.log(response.data.variableName);
 															this.props.createVariables(
 																this.addKeyToList(
 																	this.state.orderItems,
@@ -239,6 +239,12 @@ class ProductMovementOrder extends React.Component {
 							isdisabled={this.props.match.params.variableName ? true : false}
 							onOpenCreateInvoiceModal={this.onOpenCreateInvoiceModal}
 						/>
+						<ProductMovementOrderInvoice productMovementOrder={this.props.match.params.variableName} />
+
+						{/* {this.state.variable.get('status') === 'Order Accepted' ? (
+						) : (
+							undefined
+						)} */}
 					</PageBody>
 				</PageWrapper>
 			</Container>

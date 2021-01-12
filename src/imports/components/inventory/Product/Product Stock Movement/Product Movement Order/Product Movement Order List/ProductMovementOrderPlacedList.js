@@ -75,6 +75,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 		} else {
 			this.props.clearErrors();
 			this.props.getVariables('ProductMovementOrder');
+			this.props.getVariables('ProductMovementOrderItems');
 			this.props.getVariables('Location');
 		}
 	}
@@ -83,10 +84,13 @@ class ProductMovementOrderPlacedList extends React.Component {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
 		this.props.getVariables('ProductMovementOrder');
+		this.props.getVariables('ProductMovementOrderItems');
+
 	}
 
 	onRefresh(e) {
 		this.props.getVariables('ProductMovementOrder');
+		this.props.getVariables('ProductMovementOrderItems');
 	}
 
 	onResetDefaults() {
