@@ -83,13 +83,14 @@ class ProductMovementOrderDetails extends React.Component {
 			case 'toLocation':
 				variable.set(e.target.name, e.target.value);
 				variable.set('fromLocation', '');
+				this.props.updateOrderItems([]);
 				break;
 			default:
 				variable.set(e.target.name, e.target.value);
 				break;
 		}
 		this.setState({ variable: variable });
-		this.props.updateDetails(variable, this.state.selectedProduct, this.state.selectedLocationVariable);
+		this.props.updateDetails(variable);
 	}
 
 	updateStatus(e, funtionName) {
@@ -111,7 +112,9 @@ class ProductMovementOrderDetails extends React.Component {
 				switch (e.target.name) {
 					case 'product':
 						const fromProductStore = this.state.productStore.filter(
-							(store) => store.values.product === e.target.value
+							(store) =>
+								store.values.product === e.target.value &&
+								store.values.location === this.state.variable.get('fromLocation')
 						)[0];
 						const toProductStore = this.state.productStore.filter(
 							(store) =>
@@ -246,7 +249,6 @@ class ProductMovementOrderDetails extends React.Component {
 					<TableData width="30%">
 						<TableHeaderInner>
 							<Input
-							   
 								name="requestedQuantity"
 								type="text"
 								value={listVariable.get('values').get('requestedQuantity')}

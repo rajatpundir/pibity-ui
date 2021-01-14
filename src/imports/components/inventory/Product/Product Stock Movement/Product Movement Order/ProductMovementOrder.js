@@ -104,6 +104,7 @@ class ProductMovementOrder extends React.Component {
 	}
 
 	componentDidMount() {
+		window.scrollTo(0, 0)
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
@@ -239,12 +240,12 @@ class ProductMovementOrder extends React.Component {
 							isdisabled={this.props.match.params.variableName ? true : false}
 							onOpenCreateInvoiceModal={this.onOpenCreateInvoiceModal}
 						/>
-						<ProductMovementOrderInvoice productMovementOrder={this.props.match.params.variableName} />
 
-						{/* {this.state.variable.get('status') === 'Order Accepted' ? (
+						{this.state.variable.get('values').get('status') === 'Order Accepted' ? (
+							<ProductMovementOrderInvoice productMovementOrder={this.props.match.params.variableName} />
 						) : (
 							undefined
-						)} */}
+						)}
 					</PageBody>
 				</PageWrapper>
 			</Container>

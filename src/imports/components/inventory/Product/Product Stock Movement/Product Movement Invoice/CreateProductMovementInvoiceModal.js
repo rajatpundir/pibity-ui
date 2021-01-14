@@ -219,41 +219,69 @@ class CreateProductMovementModal extends React.Component {
 	}
 
 	onCreateInvoice() {
-		console.log(this.addKeyToList(this.state.orderItems, 'orderId', 1));
+		const productMovementOrders = [];
 		this.props.createVariable(this.state.invoice).then((response) => {
 			if (response.status === 200) {
-				const invocie = response.data.variableName;
-				if (this.state.additionalCost.length !== 0) {
-					this.props.createVariables(
-						this.addKeyToList(this.state.additionalCost, 'orderId', response.data.variableName)
-					);
-				}
+				const invoice = response.data;
+				this.props.createVariables(
+					this.addKeyToList(this.state.additionalCost, 'orderId', invoice.variableName)
+				);
 				this.props
-					.createVariables(this.addKeyToList(this.state.orderItems, 'orderId', response.data.variableName))
+					.createVariables(this.addKeyToList(this.state.orderItems, 'orderId', invoice.variableName))
 					.then((response) => {
 						if (response.status === 200) {
 							response.data.forEach((data) => {
-								const productStoreArgs={
-									productMovementItems:data.variableName,
-									productStore:data.values.fromProductStore
-								}
-								this.props.executeFuntion(productStoreArgs, 'updateAvailableQuantityInProductStore');
-								const productMovementRecordArgs = {
-									orderInvoice: invocie,
-									item: data.variableName
+								const productStoreArgs = {
+									productMovementItems: data.variableName,
+									productStore: data.values.fromProductStore
 								};
-								this.props.executeFuntion(productMovementRecordArgs, 'fun1').then((response) => {
-									console.log(response);
-								});
+								this.props.executeFuntion(productStoreArgs, 'updateAvailableQuantityInProductStore');
+								// const productMovementRecordArgs = {
+								// 	orderInvoice: invoice,
+								// 	item: data.variableName
+								// };
+								// this.props.executeFuntion(
+								// 	productMovementRecordArgs,
+								// 	'createProductMovementOrderInvoiceItemsRecord'
+								// );
+								productMovementOrders.push(
+									new Map([
+										[ 'variableName', data.variableName ],
+										[ 'typeName', 'ProductMovementRecord' ],
+										[
+											'values',
+											new Map([
+												[ 'referenceInvoice', invoice.variableName ],
+												[ 'status', 'Waiting For Dispatch' ],
+												[ 'product', data.values.product ],
+												[ 'fromProductStore', data.values.fromProductStore ],
+												[ 'toProductStore', data.values.toProductStore ],
+												[ 'quantity', data.values.quantity ],
+												[ 'requestedQuantity', data.values.requestedQuantity ],
+												[ 'movementType', invoice.values.movementType ],
+												[ 'total', data.values.total ],
+												[ 'date', 1610606634582 ],
+												[ 'toLocation', invoice.values.toLocation ],
+												[ 'fromLocation', invoice.values.fromLocation ]
+											])
+										]
+									])
+								);
 							});
-
-							const args = {
-								productMovementOrder: this.props.productMovementOrder.variableName
-							};
-							this.props.executeFuntion(args, 'acceptProductMovementOrder').then((response) => {
+							this.props.createVariables(productMovementOrders).then((response) => {
 								if (response.status === 200) {
-									this.props.getVariables('ProductMovementOrder');
-									successMessage('Order Placed');
+									const args = {
+										productMovementOrder: this.props.productMovementOrder.variableName
+									};
+									this.props.executeFuntion(args, 'acceptProductMovementOrder').then((response) => {
+										if (response.status === 200) {
+											this.props.getVariables('ProductMovementOrder');
+											this.props.getVariables('ProductMovementOrderInvoice');
+											this.props.getVariables('ProductMovementInvoiceAdditionalCost');
+											this.props.getVariables('ProductMovementOrderInvoiceItems');
+											successMessage('Order Placed');
+										}
+									});
 								}
 							});
 						}
@@ -264,8 +292,7 @@ class CreateProductMovementModal extends React.Component {
 				});
 			}
 		});
-		this.props.getVariables('ProductMovementOrder')
-		this.onClose()
+		this.onClose();
 	}
 
 	onItemChange(e, variableName, listName) {

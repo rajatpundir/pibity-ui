@@ -246,7 +246,6 @@ export const createVariables = (variables: Array) => async (dispatch) => {
 		const queue = [ requestBody ];
 
 		console.log('--REQUEST--');
-		console.log(queue);
 		const orgId = localStorage.getItem('selectedOrganization');
 		console.log({
 			...{ queue: queue },

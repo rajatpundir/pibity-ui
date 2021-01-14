@@ -85,7 +85,6 @@ class ProductMovementOrderPlacedList extends React.Component {
 		this.props.clearErrors();
 		this.props.getVariables('ProductMovementOrder');
 		this.props.getVariables('ProductMovementOrderItems');
-
 	}
 
 	onRefresh(e) {
@@ -201,10 +200,12 @@ class ProductMovementOrderPlacedList extends React.Component {
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="right">
-								<Custombutton padding="0 10px" minWidth="70px" height="32px">
-									<FontAwsomeIcon className="fa fa-plus" />
-									Place Movement Order
-								</Custombutton>
+								<Link to="/productMovementOrder" style={{ textDecoration: 'none' }}>
+									<Custombutton padding="0 10px" minWidth="70px" height="32px">
+										<FontAwsomeIcon className="fa fa-plus" />
+										Place Movement Order
+									</Custombutton>
+								</Link>{' '}
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"

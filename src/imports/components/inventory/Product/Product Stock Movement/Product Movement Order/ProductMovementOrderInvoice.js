@@ -129,13 +129,11 @@ class ProductMovementOrderInvoice extends React.Component {
 					.map((item) => {
 						return objToMapRec(item);
 					});
-				console.log(nextProps.variables.ProductMovementInvoiceAdditionalCost);
 				const additionalCost = nextProps.variables.ProductMovementInvoiceAdditionalCost
 					.filter((additionalItem) => additionalItem.values.orderId === invoice.variableName)
 					.map((item) => {
 						return objToMapRec(item);
 					});
-				console.log(additionalCost);
 				const variableMap = objToMapRec(invoice);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				return {
@@ -841,7 +839,7 @@ class ProductMovementOrderInvoice extends React.Component {
 										});
 									}}
 								/>
-								<CheckBoxLabel>Only active taxRules</CheckBoxLabel>
+								<CheckBoxLabel>Include Product Price</CheckBoxLabel>
 							</CheckBoxContainer>
 							{/* <TextAreaContainer>
 								<TextArea
