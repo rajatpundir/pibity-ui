@@ -4,7 +4,6 @@ import { cloneDeep } from 'lodash';
 import styled from 'styled-components';
 import Select from 'react-select';
 import { clearErrors } from '../../../../../redux/actions/errors';
-import { successMessage } from '../../../../main/Notification';
 import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../../redux/actions/variables';
 import {
 	AddMoreBlock,
@@ -344,16 +343,8 @@ class ProductMovementOrderInvoice extends React.Component {
 		this.state.orderItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="6%">
-						<i
-							name={listVariable.get('variableName')}
-							className="large material-icons"
-							onClick={(e) => this.onRemoveAdditionalCostListKey(e, listVariable.get('variableName'))}
-						>
-							remove_circle_outline
-						</i>
+					<TableData width="2%">
 					</TableData>
-
 					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
@@ -663,14 +654,7 @@ class ProductMovementOrderInvoice extends React.Component {
 										<BodyTable>
 											<TableBody>
 												<TableRow>
-													<TableHeaders width="6%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
+													<TableHeaders width="2%" left="0px">
 													</TableHeaders>
 													<TableHeaders width="10%" left="8%">
 														<SelectIconContainer>

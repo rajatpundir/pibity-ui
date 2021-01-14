@@ -1133,7 +1133,7 @@ export const HoizontalBlockList = styled.ul.attrs((props) => ({
 	justify-content: start;
 	float: left;
 	overflow-x:auto;	
-	scroll-behavior: smooth;s
+	scroll-behavior: smooth;
 `;
 
 export const HoizontalBlockListItems = styled.li`

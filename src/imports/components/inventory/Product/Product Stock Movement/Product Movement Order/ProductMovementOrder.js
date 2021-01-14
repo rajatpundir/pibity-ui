@@ -19,22 +19,29 @@ import {
 	PageWrapper,
 	PageBody,
 	SaveButtonContaier,
-	SaveButton
+	SaveButton,
+	HorizontalListPageBlock,
+	HorizontalBlockListOuter,
+	HorizontalBlockListInnerWrapper,
+	HoizontalBlockList,
+	HoizontalBlockListItems,
+	BlockListItemButton
 } from '../../../../../styles/inventory/Style';
 import ProductMovementOrderDetails from './ProductMovementOrderDetails';
 import ProductMovementOrderInvoice from './ProductMovementOrderInvoice';
 import CreateProductMovementModal from '../Product Movement Invoice/CreateProductMovementInvoiceModal';
+import ProductMovementRecord from './ProductMovementRecord';
 
 class ProductMovementOrder extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
 			isOpen: false,
+			visibleSection:'invoice',
 			createProductMovementOrder: true,
 			isCreateInvoiceModalOpen: false,
 			prevPropVariable: {},
 			prevVariable: new Map(),
-			fromProductStore: {},
 			productOrdered: {},
 			variable: new Map([
 				[ 'typeName', 'ProductMovementOrder' ],
@@ -51,7 +58,8 @@ class ProductMovementOrder extends React.Component {
 					])
 				]
 			]),
-			orderItems: []
+			orderItems: [],
+			productMovementRecords: []
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateOrderItems = this.updateOrderItems.bind(this);
@@ -64,12 +72,20 @@ class ProductMovementOrder extends React.Component {
 		if (
 			nextProps.match.params.variableName &&
 			nextProps.variables.ProductMovementOrder &&
-			nextProps.variables.ProductMovementOrderItems
+			nextProps.variables.ProductMovementOrderItems &&
+			nextProps.variables.ProductMovementOrderInvoice &&
+			nextProps.variables.ProductMovementRecord
 		) {
 			const variable = nextProps.variables.ProductMovementOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const invoice = nextProps.variables.ProductMovementOrderInvoice.filter(
+					(variable) => variable.values.productMovementOrder === nextProps.match.params.variableName
+				)[0];
+				const productMovementRecords = nextProps.variables.ProductMovementRecord.filter(
+					(variable) => variable.values.referenceInvoice === invoice.variableName
+				);
 				const orderItems = nextProps.variables.ProductMovementOrderItems
 					.filter((items) => items.values.orderId === variable.variableName)
 					.map((item) => {
@@ -84,7 +100,20 @@ class ProductMovementOrder extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					orderItems: orderItems
+					orderItems: orderItems,
+					productMovementRecords: productMovementRecords
+				};
+			}
+			if (variable) {
+				const invoice = nextProps.variables.ProductMovementOrderInvoice.filter(
+					(variable) => variable.values.productMovementOrder === nextProps.match.params.variableName
+				)[0];
+				const productMovementRecords = nextProps.variables.ProductMovementRecord.filter(
+					(variable) => variable.values.referenceInvoice === invoice.variableName
+				);
+				return {
+					...prevState,
+					productMovementRecords: productMovementRecords
 				};
 			}
 		}
@@ -101,10 +130,12 @@ class ProductMovementOrder extends React.Component {
 		this.props.getVariables('ProductMovementOrderStatus');
 		this.props.getVariables('ProductMovementOrder');
 		this.props.getVariables('ProductMovementOrderItems');
+		this.props.getVariables('ProductMovementOrderInvoice');
+		this.props.getVariables('ProductMovementRecord');
 	}
 
 	componentDidMount() {
-		window.scrollTo(0, 0)
+		window.scrollTo(0, 0);
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
@@ -240,9 +271,41 @@ class ProductMovementOrder extends React.Component {
 							isdisabled={this.props.match.params.variableName ? true : false}
 							onOpenCreateInvoiceModal={this.onOpenCreateInvoiceModal}
 						/>
-
-						{this.state.variable.get('values').get('status') === 'Order Accepted' ? (
+						<HorizontalListPageBlock>
+							<HorizontalBlockListOuter>
+								<HorizontalBlockListInnerWrapper>
+									<HoizontalBlockList>
+										<HoizontalBlockListItems>
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'invoice' });
+												}}
+											>
+												Invocie
+											</BlockListItemButton>
+										</HoizontalBlockListItems>
+										<HoizontalBlockListItems>
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'movementRecord' });
+												}}
+											>
+												Product Movement Record
+											</BlockListItemButton>
+										</HoizontalBlockListItems>
+									</HoizontalBlockList>
+								</HorizontalBlockListInnerWrapper>
+							</HorizontalBlockListOuter>
+						</HorizontalListPageBlock>
+						{this.state.variable.get('values').get('status') === 'Order Accepted' &&
+						this.state.visibleSection === 'invoice' ? (
 							<ProductMovementOrderInvoice productMovementOrder={this.props.match.params.variableName} />
+						) : (
+							undefined
+						)}
+						{this.state.variable.get('values').get('status') === 'Order Accepted' &&
+						this.state.visibleSection === 'movementRecord' ? (
+							<ProductMovementRecord productMovementRecords={this.state.productMovementRecords} />
 						) : (
 							undefined
 						)}
