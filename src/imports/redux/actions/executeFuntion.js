@@ -1,25 +1,25 @@
 import axios from 'axios';
 import { domain } from '../config';
 import { updateErrors } from './errors';
-import {replaceVariable} from './variables'
+import { replaceVariable } from './variables';
 
-export const executePaymentInvoiceFuntion = (args: Object, funtionName:String) => async (dispatch) => {
+export const executePaymentInvoiceFuntion = (args: Object, funtionName: String) => async (dispatch) => {
 	try {
 		const url = domain + '/function/execute';
 		const request = {
 			...{ args: args },
 			...{ orgId: localStorage.getItem('selectedOrganization') },
-			...{ functionName:funtionName },
+			...{ functionName: funtionName }
 		};
 		console.log(request);
 		const response = await axios.post(url, request);
 		console.log(response);
 		if (response.status === 200) {
 			if (response.data !== undefined) {
-				const data={
-					status:response.status,
-					transaction:response.data.firstTransactionRecord
-				}
+				const data = {
+					status: response.status,
+					transaction: response.data.firstTransactionRecord
+				};
 				return data;
 			}
 		} else {
@@ -34,13 +34,13 @@ export const executePaymentInvoiceFuntion = (args: Object, funtionName:String) =
 	}
 };
 
-export const executeFuntion = (args: Object, funtionName:String) => async (dispatch) => {
+export const executeFuntion = (args: Object, funtionName: String) => async (dispatch) => {
 	try {
 		const url = domain + '/function/execute';
 		const request = {
 			...{ args: args },
 			...{ orgId: localStorage.getItem('selectedOrganization') },
-			...{ functionName:funtionName },
+			...{ functionName: funtionName }
 		};
 		console.log(request);
 		const response = await axios.post(url, request);
@@ -60,15 +60,27 @@ export const executeFuntion = (args: Object, funtionName:String) => async (dispa
 		}
 	}
 };
-export const updatePurchaseInvoice = (request: Object,) => async (dispatch) => {
+export const updatePurchaseInvoice = (request: Object) => async (dispatch) => {
 	try {
-		const url = domain + '/variable/update';
-		const response = await axios.post(url, request);
+		const url = domain + '/variables/mutate';
+		const queue = [
+			[
+				{
+					...request,
+					...{ op: 'update' }
+				}
+			]
+		];
+		const orgId = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, {
+			...{ queue: queue },
+			...{ orgId: orgId }
+		});
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
-			if (response.data !== undefined) {
-				await replaceVariable(dispatch, response.data);
+			if (response.data[0][0] !== undefined) {
+				await replaceVariable(dispatch, response.data[0][0]);
 				return response.status;
 			}
 		} else {

@@ -62,11 +62,14 @@ class ProductMovementRecord extends React.Component {
 		switch (funtionName) {
 			case 'dispatchShipmentAndUpdateProductMovementRecord':
 				const updateStore = {
-					type: 'Sent',
-					productMovementRecord: item.variableName,
+					updateType: 'Sent',
+					movementType:item.values.movementType,
+					quantity: item.values.quantity,
+					refProductStore:item.values.toProductStore,
+					refInvoice:item.values.referenceInvoice,
 					productStore: item.values.fromProductStore
 				};
-				this.props.executeFuntion(updateStore, 'reduceQuantityInProductStorenew').then((response) => {
+				this.props.executeFuntion(updateStore, 'reduceQuantityInProductStore').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
@@ -75,23 +78,37 @@ class ProductMovementRecord extends React.Component {
 						});
 					}
 				});
-
-				break;
-			case 'receiveShipmentAndUpdateProductMovementRecord':
-				this.props.executeFuntion(args, funtionName).then((response) => {
-					if (response.status === 200) {
-						this.props.getVariables('ProductMovementRecord');
-					}
-				});
 				break;
 			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
 				const update = {
-					type: 'Received',
-					productMovementRecord: item.variableName,
+					updateType: 'Received',
+					movementType:item.values.movementType,
+					quantity: item.values.quantity,
+					refProductStore:item.values.fromProductStore,
+					refInvoice:item.values.referenceInvoice,
 					productStore: item.values.toProductStore
                 };
                 //todo
-				this.props.executeFuntion(update, 'update25').then((response) => {
+				this.props.executeFuntion(update, 'updateQuantityInProductStore').then((response) => {
+					if (response.status === 200) {
+						this.props.executeFuntion(args, funtionName).then((response) => {
+							if (response.status === 200) {
+								this.props.getVariables('ProductMovementRecord');
+							}
+						});
+					}
+				});
+				break;
+			case 'receiveRejectedShipmentUpdateMovementRecord':
+				const reciveRejectedItem = {
+					updateType: "Returned",
+					movementType:item.values.movementType,
+					quantity: item.values.quantity,
+					refProductStore:item.values.toProductStore,
+					refInvoice:item.values.referenceInvoice,
+					productStore: item.values.fromProductStore
+				};
+				this.props.executeFuntion(reciveRejectedItem,'updateQuantityInProductStore').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
@@ -254,7 +271,7 @@ class ProductMovementRecord extends React.Component {
 							) : (
 								undefined
 							)}
-							{data.values.status === 'Waiting For Dispatch(Rejected Items)' ? (
+							{data.values.status === "Dispatching Rejected Item" ? (
 								<React.Fragment>
 									<Custombutton
 										padding="0 10px"
@@ -275,7 +292,7 @@ class ProductMovementRecord extends React.Component {
 							) : (
 								undefined
 							)}
-							{data.values.status === 'In Transit(Rejected Items)' ? (
+							{data.values.status === "Rejected Item In Transit" ? (
 								<React.Fragment>
 									<Custombutton
 										padding="0 10px"

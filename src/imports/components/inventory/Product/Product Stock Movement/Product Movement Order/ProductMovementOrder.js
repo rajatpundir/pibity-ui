@@ -83,9 +83,9 @@ class ProductMovementOrder extends React.Component {
 				const invoice = nextProps.variables.ProductMovementOrderInvoice.filter(
 					(variable) => variable.values.productMovementOrder === nextProps.match.params.variableName
 				)[0];
-				const productMovementRecords = nextProps.variables.ProductMovementRecord.filter(
+				const productMovementRecords =invoice!==undefined? nextProps.variables.ProductMovementRecord.filter(
 					(variable) => variable.values.referenceInvoice === invoice.variableName
-				);
+				):[];
 				const orderItems = nextProps.variables.ProductMovementOrderItems
 					.filter((items) => items.values.orderId === variable.variableName)
 					.map((item) => {
@@ -108,9 +108,9 @@ class ProductMovementOrder extends React.Component {
 				const invoice = nextProps.variables.ProductMovementOrderInvoice.filter(
 					(variable) => variable.values.productMovementOrder === nextProps.match.params.variableName
 				)[0];
-				const productMovementRecords = nextProps.variables.ProductMovementRecord.filter(
+				const productMovementRecords =invoice!==undefined? nextProps.variables.ProductMovementRecord.filter(
 					(variable) => variable.values.referenceInvoice === invoice.variableName
-				);
+				):[];
 				return {
 					...prevState,
 					productMovementRecords: productMovementRecords

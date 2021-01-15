@@ -279,6 +279,7 @@ class CreateProductMovementModal extends React.Component {
 											this.props.getVariables('ProductMovementOrderInvoice');
 											this.props.getVariables('ProductMovementInvoiceAdditionalCost');
 											this.props.getVariables('ProductMovementOrderInvoiceItems');
+											this.props.getVariables('ProductMovementRecord');
 											successMessage('Order Placed');
 										}
 									});

@@ -317,9 +317,7 @@ export const getVariable = (typeName: String, variableName: String) => async (di
 
 export const updateVariable = (prevVariable: Map, newVariable: Map) => async (dispatch) => {
 	try {
-		console.log(prevVariable);
 		const url = domain + '/variables/mutate';
-
 		const requestBody = {
 			op: 'update',
 			typeName: prevVariable.get('typeName'),
