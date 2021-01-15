@@ -79,9 +79,19 @@ export const updatePurchaseInvoice = (request: Object) => async (dispatch) => {
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
-			if (response.data[0][0] !== undefined) {
+			if (response.data[0][0] !== undefined && response.data.length===2) {
 				await replaceVariable(dispatch, response.data[0][0]);
-				return response.status;
+				const resp = {
+					data: response.data[0][0],
+					status: response.status
+				};
+				return resp;
+			}else{
+				const resp = {
+					data: response.data[0][0],
+					status: 400
+				};
+				return resp;
 			}
 		} else {
 			updateErrors(dispatch, response.data);

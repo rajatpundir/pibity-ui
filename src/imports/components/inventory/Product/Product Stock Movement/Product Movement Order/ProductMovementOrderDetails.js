@@ -1,6 +1,10 @@
 import React from 'react';
 import Select from 'react-select';
 import { connect } from 'react-redux';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../../../redux/actions/errors';
 import { getVariables } from '../../../../../redux/actions/variables';
@@ -52,6 +56,7 @@ class ProductMovementOrderDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			open:true,
 			variable: props.variable,
 			orderItems: props.orderItems,
 			productStore: []
@@ -69,6 +74,7 @@ class ProductMovementOrderDetails extends React.Component {
 		return {
 			...prevState,
 			variable: nextProps.variable,
+			open:true,
 			orderItems: nextProps.orderItems,
 			productStore:
 				nextProps.variables !== undefined
@@ -269,6 +275,18 @@ class ProductMovementOrderDetails extends React.Component {
 				<PageToolbar>
 					<ToolbarItems>
 						<LeftItemH1>Product Movement Order</LeftItemH1>
+						{/* {this.state.variable.get('status') === 'Order Accepted' ? (
+							<IconButton
+								aria-label="expand row"
+								size="small"
+								onClick={() => this.setState({ open: !this.state.open })}
+							>
+								{this.state.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+							</IconButton>
+						) : (
+							undefined
+						)} */}
+
 						{this.props.isdisabled && this.state.variable.get('status') === 'Pending Approval' ? (
 							<LeftItemWrapper
 								margin="0 0 0 10px "
@@ -388,6 +406,8 @@ class ProductMovementOrderDetails extends React.Component {
 						)}
 					</PageBarAlign>
 				</PageToolbar>
+				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
+
 				<InputBody overflow="visible">
 					<InputFieldContainer>
 						<InputRowWrapper>
@@ -534,7 +554,6 @@ class ProductMovementOrderDetails extends React.Component {
 								)}
 							</TableFieldContainer>
 						</RoundedBlock>
-
 						<InputRowWrapper paddingTop="15px">
 							<TextAreaContainer>
 								<TextArea
@@ -542,7 +561,7 @@ class ProductMovementOrderDetails extends React.Component {
 									type="text"
 									placeholder="Wrtie a note here"
 									value={this.state.variable.get('comments')}
-									height="50px"
+									height="60px"
 									onChange={this.onChange}
 								/>
 								<InputLabel>Note</InputLabel>
@@ -550,6 +569,7 @@ class ProductMovementOrderDetails extends React.Component {
 						</InputRowWrapper>
 					</InputFieldContainer>
 				</InputBody>
+				</Collapse>
 			</PageBlock>
 		);
 	}

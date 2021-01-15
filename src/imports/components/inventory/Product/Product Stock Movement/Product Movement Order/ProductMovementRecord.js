@@ -8,13 +8,11 @@ import {
 	HeaderBodyContainer,
 	InputBody,
 	LeftItemH1,
-	PageBarAlign,
 	PageBlock,
 	PageToolbar,
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
 	TableBody,
 	TableFieldContainer,
 	TableHeaders,
@@ -63,10 +61,10 @@ class ProductMovementRecord extends React.Component {
 			case 'dispatchShipmentAndUpdateProductMovementRecord':
 				const updateStore = {
 					updateType: 'Sent',
-					movementType:item.values.movementType,
+					movementType: item.values.movementType,
 					quantity: item.values.quantity,
-					refProductStore:item.values.toProductStore,
-					refInvoice:item.values.referenceInvoice,
+					refProductStore: item.values.toProductStore,
+					refInvoice: item.values.referenceInvoice,
 					productStore: item.values.fromProductStore
 				};
 				this.props.executeFuntion(updateStore, 'reduceQuantityInProductStore').then((response) => {
@@ -82,13 +80,13 @@ class ProductMovementRecord extends React.Component {
 			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
 				const update = {
 					updateType: 'Received',
-					movementType:item.values.movementType,
+					movementType: item.values.movementType,
 					quantity: item.values.quantity,
-					refProductStore:item.values.fromProductStore,
-					refInvoice:item.values.referenceInvoice,
+					refProductStore: item.values.fromProductStore,
+					refInvoice: item.values.referenceInvoice,
 					productStore: item.values.toProductStore
-                };
-                //todo
+				};
+				//todo
 				this.props.executeFuntion(update, 'updateQuantityInProductStore').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
@@ -101,14 +99,14 @@ class ProductMovementRecord extends React.Component {
 				break;
 			case 'receiveRejectedShipmentUpdateMovementRecord':
 				const reciveRejectedItem = {
-					updateType: "Returned",
-					movementType:item.values.movementType,
+					updateType: 'Returned',
+					movementType: item.values.movementType,
 					quantity: item.values.quantity,
-					refProductStore:item.values.toProductStore,
-					refInvoice:item.values.referenceInvoice,
+					refProductStore: item.values.toProductStore,
+					refInvoice: item.values.referenceInvoice,
 					productStore: item.values.fromProductStore
 				};
-				this.props.executeFuntion(reciveRejectedItem,'updateQuantityInProductStore').then((response) => {
+				this.props.executeFuntion(reciveRejectedItem, 'updateQuantityInProductStore').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
@@ -142,19 +140,19 @@ class ProductMovementRecord extends React.Component {
 					backgroundColor = StatusBackgroundColor.pending;
 					color = '#4c4f4f';
 					break;
-				case 'Waiting For Dispatch(Rejected Items)':
+				case 'Dispatching Rejected Item':
 					backgroundColor = StatusBackgroundColor.rejected;
 					break;
-				case 'In Transit(Rejected Items)':
+				case 'Rejected Item In Transit':
 					backgroundColor = StatusBackgroundColor.rejected;
 					break;
-				case 'Rejected Items Received':
+				case 'Rejected Item Received':
 					backgroundColor = StatusBackgroundColor.rejected;
-                    break;
-                case 'Received':
-                        backgroundColor = StatusBackgroundColor.approved;
-                        break;
-				case "Receive Approved":
+					break;
+				case 'Received':
+					backgroundColor = StatusBackgroundColor.approved;
+					break;
+				case 'Receive Approved':
 					backgroundColor = StatusBackgroundColor.approved;
 					break;
 				default:
@@ -271,7 +269,7 @@ class ProductMovementRecord extends React.Component {
 							) : (
 								undefined
 							)}
-							{data.values.status === "Dispatching Rejected Item" ? (
+							{data.values.status === 'Dispatching Rejected Item' ? (
 								<React.Fragment>
 									<Custombutton
 										padding="0 10px"
@@ -292,7 +290,7 @@ class ProductMovementRecord extends React.Component {
 							) : (
 								undefined
 							)}
-							{data.values.status === "Rejected Item In Transit" ? (
+							{data.values.status === 'Rejected Item In Transit' ? (
 								<React.Fragment>
 									<Custombutton
 										padding="0 10px"
@@ -310,6 +308,25 @@ class ProductMovementRecord extends React.Component {
 										Recieve Rejected Shipment
 									</Custombutton>
 								</React.Fragment>
+							) : (
+								undefined
+							)}
+							{data.values.status === 'Rejected Item Received' || 'Receive Approved' ? (
+								<Custombutton
+									padding="0 10px"
+									minWidth="70px"
+									height="2.5rem"
+									color="#3b3b3b"
+									backgroundColor="#F7FAFD"
+									borderColor="#b9bdce"
+									borderOnHover="#3b3b3b"
+									backgroundOnHover="#F7FAFD"
+									margin="0 5px"
+									onClick={this.onClose}
+								>
+									<FontAwsomeIcon className="fa fa-print" />
+									Print
+								</Custombutton>
 							) : (
 								undefined
 							)}
@@ -375,7 +392,7 @@ class ProductMovementRecord extends React.Component {
 									{this.state.productMovementRecords.length === 0 ? (
 										<EmptyRowImageContainer>
 											<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-											<EmptyRowTag>No Products</EmptyRowTag>
+											<EmptyRowTag>No Record</EmptyRowTag>
 										</EmptyRowImageContainer>
 									) : (
 										undefined

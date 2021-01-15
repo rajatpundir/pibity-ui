@@ -1,10 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import Select from 'react-select';
 import styled from 'styled-components';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { getVariables } from '../../../../redux/actions/variables';
 import { CustomNotification } from '../../../main/Notification';
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
+import ProductStoreData from './ProductStoreData';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
 import {
 	Container,
@@ -25,15 +27,14 @@ import {
 	TableBody,
 	TableRow,
 	TableHeaders,
-	TableData,
-	TableHeaderInner,
 	TableFieldContainer,
 	Custombutton,
-	StatusSpan,
 	CheckBoxInput,
 	CheckBoxLabel,
 	CheckBoxContainer,
-	StatusBackgroundColor
+	FormControl,
+	SelectWrapper,
+	InputLabel
 } from '../../../../styles/inventory/Style';
 import ProductStoreModal from './ProductStoreModal';
 
@@ -43,9 +44,12 @@ class ProductStores extends React.Component {
 		this.state = {
 			productStores: [],
 			products: [],
+			productStoreUpdateRecord: [],
 			isOpen: false,
 			isCreateProductStoreModalOpen: false,
 			activeProductStore: false,
+			location: 'ALL',
+			locations: [],
 			variableName: ''
 		};
 		this.onChange = this.onChange.bind(this);
@@ -63,6 +67,7 @@ class ProductStores extends React.Component {
 			this.props.getVariables('Product');
 			this.props.getVariables('Location');
 			this.props.getVariables('Status');
+			this.props.getVariables('ProductStoreUpdateRecord');
 		}
 	}
 
@@ -79,8 +84,19 @@ class ProductStores extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		const locations =
+			nextProps.variables.Location !== undefined
+				? nextProps.variables.Location.map((variable) => {
+						return {
+							value: variable.variableName,
+							label: variable.variableName
+						};
+					})
+				: [];
+		locations.unshift({ label: 'ALL', value: 'ALL' });
 		return {
 			...prevState,
+			locations: locations,
 			products:
 				nextProps.variables !== undefined
 					? nextProps.variables.Product !== undefined ? nextProps.variables.Product : []
@@ -88,6 +104,12 @@ class ProductStores extends React.Component {
 			productStores:
 				nextProps.variables !== undefined
 					? nextProps.variables.ProductStore !== undefined ? nextProps.variables.ProductStore : []
+					: [],
+			productStoreUpdateRecord:
+				nextProps.variables !== undefined
+					? nextProps.variables.ProductStoreUpdateRecord !== undefined
+						? nextProps.variables.ProductStoreUpdateRecord
+						: []
 					: []
 		};
 	}
@@ -97,101 +119,26 @@ class ProductStores extends React.Component {
 		const list = this.state.activeProductStore
 			? this.state.productStores.filter((productStore) => productStore.values.status === 'Active')
 			: this.state.productStores;
-		list.forEach((productStore) => {
+
+		const productStores =
+			this.state.location !== 'ALL'
+				? list.filter((store) => store.values.location === this.state.location)
+				: list;
+
+		productStores.forEach((productStore) => {
 			const product = this.state.products.filter(
 				(product) => product.variableName === productStore.values.product
 			)[0];
+			const updateRecords = this.state.productStoreUpdateRecord.filter(
+				(record) => record.values.productStore === productStore.variableName
+			);
 			rows.push(
-				<TableRow key={productStore.variableName}>
-					<TableData left="0px" />
-					<TableData>
-						<TableHeaderInner
-							overflow="hidden"
-							style={{
-								textAlign: 'initial',
-								marginLeft: '5px'
-							}}
-						>
-							{product ? product.values.general.values.productName : ''}
-						</TableHeaderInner>
-					</TableData>
-					<TableData>
-						<TableHeaderInner
-							overflow="hidden"
-							style={{
-								marginLeft: '5px'
-							}}
-						>
-							{productStore.values.location}
-						</TableHeaderInner>
-					</TableData>
-					<TableData>
-						<TableHeaderInner
-							overflow="hidden"
-							style={{
-								marginLeft: '5px'
-							}}
-						>
-							{productStore.values.onHand}
-						</TableHeaderInner>
-					</TableData>
-					<TableData>
-						<TableHeaderInner
-							overflow="hidden"
-							style={{
-								marginLeft: '5px'
-							}}
-						>
-							{productStore.values.available}
-						</TableHeaderInner>
-					</TableData>
-					<TableData>
-						<TableHeaderInner
-							overflow="hidden"
-							style={{
-								marginLeft: '5px'
-							}}
-						>
-							{productStore.values.onOrder}
-						</TableHeaderInner>
-					</TableData>
-					<TableData>
-						<TableHeaderInner
-							overflow="hidden"
-							style={{
-								marginLeft: '5px'
-							}}
-						>
-							{productStore.values.allocated}
-						</TableHeaderInner>
-					</TableData>
-					<TableData>
-						<StatusSpan
-							style={{
-								textAlign: 'initial',
-								marginLeft: '5px'
-							}}
-							backgroundColor={
-								productStore.values.status === 'Active' ? (
-									StatusBackgroundColor.active
-								) : (
-									StatusBackgroundColor.depricated
-								)
-							}
-						>
-							{productStore.values.status}
-						</StatusSpan>
-					</TableData>
-					<TableData left="0px">
-						<i
-							name={productStore.variableName}
-							className="large material-icons"
-							// onClick={(e) => this.onRemoveKey(e,)}
-						>
-							remove_circle_outline
-						</i>
-					</TableData>
-				</TableRow>
+				<ProductStoreData
+					key={productStore.variableName}
+					product={product}
+					productStore={productStore}
+					updateRecords={updateRecords}
+				/>
 			);
 		});
 		return rows;
@@ -273,6 +220,21 @@ class ProductStores extends React.Component {
 									/>
 									<CheckBoxLabel>Only active Product Stores</CheckBoxLabel>
 								</CheckBoxContainer>
+								<FormControl minHeight="0" paddingBottom="0">
+									<SelectWrapper minWidth="150px">
+										<Select
+											value={{
+												value: this.state.location,
+												label: this.state.location
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'location', value: option.value } });
+											}}
+											options={this.state.locations}
+										/>
+									</SelectWrapper>
+									<InputLabel>Curent Location</InputLabel>
+								</FormControl>
 							</PageBarAlign>
 						</PageToolbar>
 						<InputBody borderTop="0" padding="0">

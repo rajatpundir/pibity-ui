@@ -163,10 +163,13 @@ export const ItemData = styled.div`
 	padding-bottom: 10px;
 `;
 
-export const EmptyRowImageContainer = styled.div`
+export const EmptyRowImageContainer = styled.div.attrs((props)=>({
+	height:props.height||'345px'
+}))`
 	text-align: center;
 	vertical-align: middle;
-	height: 345px;
+	padding: 20px;
+	height: ${(props)=>props.height};
 `;
 
 export const EmptyRowImage = styled.img`

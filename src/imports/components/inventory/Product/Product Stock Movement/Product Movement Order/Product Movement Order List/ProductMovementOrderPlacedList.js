@@ -238,7 +238,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 								</Custombutton>
 							</PageBarAlign>
 							<PageBarAlign padding="10px 20px" float="left">
-								<FormControl>
+								<FormControl  minHeight="0" paddingBottom="0">
 									<SelectWrapper minWidth="150px">
 										<Select
 											value={{
