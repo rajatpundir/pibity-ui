@@ -1,16 +1,13 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Select from 'react-select';
-import AccountsData from './AccountsData';
-import CreateAccountModal from './CreateAccountsModal';
-import { clearErrors } from '../../../../redux/actions/errors';
-import { getVariables } from '../../../../redux/actions/variables';
-import { CustomNotification } from '../../../main/Notification';
-import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
+import { clearErrors } from '../../../../../../redux/actions/errors';
+import { getVariables } from '../../../../../../redux/actions/variables';
+import { CustomNotification } from '../../../../../main/Notification';
+import SelectorganizationModal from '../../../../../main/Modal/SelectorganizationModal';
 // import TablePagination from '@material-ui/core/TablePagination';
 // import TablePaginationActions from '../../../main/TablePagination';
 // import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
-import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
+import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../../../styles/main/Dashboard';
 import {
 	Container,
 	PageWrapper,
@@ -34,19 +31,19 @@ import {
 	CheckBoxLabel,
 	CheckBoxContainer,
 	TableFieldContainer,
-	SelectWrapper,
 	Custombutton
-} from '../../../../styles/inventory/Style';
+} from '../../../../../../styles/inventory/Style';
+import InternalProductMovementInvoiceData from './InternalProductMovementInvoiceData';
 
-class AccountList extends React.Component {
+class InternalProductMovementInvoiceList extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
+			invoice: [],
 			accounts: [],
+			suppliers:[],
 			expandedRows: [],
-			accountCategory: 'ALL',
-			accountCategories: [],
-			activeAccountsOnly: false,
+			paidInvoice: false,
 			isOpen: false,
 			isCreateAccountModalOpen: false,
 			page: 0,
@@ -54,8 +51,6 @@ class AccountList extends React.Component {
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
-		this.onCloseCreateAccountModal = this.onCloseCreateAccountModal.bind(this);
-		this.onOpenCreateAccountModal = this.onOpenCreateAccountModal.bind(this);
 		this.onResetDefaults = this.onResetDefaults.bind(this);
 	}
 
@@ -76,10 +71,9 @@ class AccountList extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('Account');
-			this.props.getVariables('AccountCategory');
-			this.props.getVariables('AccountType');
-			this.props.getVariables('AccountStatus');
+            this.props.getVariables('Account');
+            this.props.getVariables('PaymentMode');
+            this.props.getVariables('ProductMovementOrderInvoice');
 			this.props.getVariables('AccountTransaction');
 		}
 	}
@@ -87,63 +81,50 @@ class AccountList extends React.Component {
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('Account');
+        this.props.getVariables('Account');
+        this.props.getVariables('PaymentMode');
+		this.props.getVariables('ProductMovementOrderInvoice');
+		this.props.getVariables('AccountTransaction');
 	}
 
 	onRefresh(e) {
-		this.props.getVariables('Account');
+		this.props.getVariables('ProductMovementOrderInvoice');
 	}
 
 	onResetDefaults() {
 		this.setState({
-			accountCategory: 'ALL',
-			activeAccountsOnly: false
+			paidInvoice: false
 		});
 	}
 
-	onOpenCreateAccountModal() {
-		this.setState({ isCreateAccountModalOpen: true });
-	}
-
-	onCloseCreateAccountModal() {
-		this.setState({ isCreateAccountModalOpen: false });
-	}
-
 	static getDerivedStateFromProps(nextProps, prevState) {
-		const categories =
-			nextProps.variables.AccountCategory !== undefined
-				? nextProps.variables.AccountCategory.map((variable) => {
-						return {
-							value: variable.variableName,
-							label: variable.variableName
-						};
-					})
-				: [];
-		categories.unshift({ label: 'ALL', value: 'ALL' });
 		return {
 			...prevState,
-			accountCategories: categories,
 			accounts:
 				nextProps.variables !== undefined
 					? nextProps.variables.Account !== undefined ? nextProps.variables.Account : []
+					: [],
+			invoice:
+				nextProps.variables !== undefined
+					? nextProps.variables.ProductMovementOrderInvoice !== undefined ? nextProps.variables.ProductMovementOrderInvoice : []
 					: []
 		};
 	}
 
-	renderAccounts() {
+	renderInvoice() {
 		const rows = [];
-		const filteredList =
-			this.state.accountCategory !== 'ALL'
-				? this.state.accounts.filter((account) => account.values.accountCategory === this.state.accountCategory)
-				: this.state.accounts;
-
-		const list = this.state.activeAccountsOnly
-			? filteredList.filter((account) => account.values.status === 'Active')
-			: filteredList;
-		list.forEach((account) => {
-			rows.push(<AccountsData data={account} key={account.variableName} />);
+		const list = this.state.paidInvoice
+			? this.state.invoice.filter((invoice) => invoice.values.paymentStatus === 'Paid')
+			: this.state.invoice;
+		list.forEach((invoice) => {
+			rows.push(<InternalProductMovementInvoiceData data={invoice} key={invoice.variableName} />);
 		});
-		return rows;
+		return this.state.rowsPerPage > 0
+			? rows.slice(
+					this.state.page * this.state.rowsPerPage,
+					this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
+				)
+			: rows;
 		// return this.state.rowsPerPage > 0
 		// 	? rows.slice(
 		// 			this.state.page * this.state.rowsPerPage,
@@ -158,28 +139,16 @@ class AccountList extends React.Component {
 			<Container mediaPadding="0" backgroundColor="white">
 				<CustomNotification limit={3} />
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<CreateAccountModal
-					isOpen={this.state.isCreateAccountModalOpen}
-					onClose={this.onCloseCreateAccountModal}
-				/>
+
 				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarItems>
-								<LeftItemH1>Chart Of Accounts</LeftItemH1>
+								<LeftItemH1>Purchase Invoices</LeftItemH1>
 							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="right">
-								<Custombutton
-									padding="0 10px"
-									minWidth="70px"
-									height="32px"
-									onClick={this.onOpenCreateAccountModal}
-								>
-									<FontAwsomeIcon className="fa fa-plus" />
-									Add Account
-								</Custombutton>
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"
@@ -215,31 +184,19 @@ class AccountList extends React.Component {
 								<CheckBoxContainer>
 									<CheckBoxInput
 										type="checkbox"
-										checked={this.state.activeAccountsOnly}
+										checked={this.state.paidInvoice}
 										tabindex="55"
 										onChange={(option) => {
 											this.onChange({
 												target: {
-													name: 'activeAccountsOnly',
-													value: !this.state.activeAccountsOnly
+													name: 'paidInvoice',
+													value: !this.state.paidInvoice
 												}
 											});
 										}}
 									/>
-									<CheckBoxLabel>Only active Accounts</CheckBoxLabel>
+									<CheckBoxLabel>Paid Invoice</CheckBoxLabel>
 								</CheckBoxContainer>
-								<SelectWrapper minWidth="150px">
-									<Select
-										value={{
-											value: this.state.accountCategory,
-											label: this.state.accountCategory
-										}}
-										onChange={(option) => {
-											this.onChange({ target: { name: 'accountCategory', value: option.value } });
-										}}
-										options={this.state.accountCategories}
-									/>
-								</SelectWrapper>
 							</PageBarAlign>
 						</PageToolbar>
 						<InputBody borderTop="0" padding="0">
@@ -250,50 +207,52 @@ class AccountList extends React.Component {
 											<BodyTable>
 												<TableBody>
 													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
-														{/* <TableHeaders width="5%">
-															<SelectIconContainer>
-																<SelectSpan>
-																	<SelectSpanInner>
-																		<i className="large material-icons">create</i>
-																	</SelectSpanInner>
-																</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders> */}
+														<TableHeaders width="5%">
+															<SelectIconContainer />
+														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Name</SelectSpan>
+																<SelectSpan>Date</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Code</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Category</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Type</SelectSpan>
+																<SelectSpan>Invoice Number</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Status</SelectSpan>
+																<SelectSpan>Product Movement Order</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%">
+															<SelectIconContainer>
+																<SelectSpan>Total</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%">
+															<SelectIconContainer>
+																<SelectSpan> Due Amount</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%">
+															<SelectIconContainer>
+																<SelectSpan>Payment Status</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%">
+															<SelectIconContainer>
+																<SelectSpan>Actions</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 													</TableRow>
-													{this.renderAccounts()}
+													{this.renderInvoice()}
 												</TableBody>
 											</BodyTable>
-											{this.state.accounts.length === 0 ? (
+											{this.state.invoice.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Accounts</EmptyRowTag>
+													<EmptyRowTag>No Invoice</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined
@@ -331,4 +290,4 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(AccountList);
+export default connect(mapStateToProps, { clearErrors, getVariables })(InternalProductMovementInvoiceList);

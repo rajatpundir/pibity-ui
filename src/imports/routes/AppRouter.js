@@ -29,6 +29,8 @@ import AccountList from '../components/inventory/Accounting/Accounts/AccountList
 import Account from '../components/inventory/Accounting/Accounts/Account';
 import PurchaseInvoiceList from '../components/inventory/Accounting/Invoices/PurchaseInvoice/PurchaseInvoiceList';
 import SalesInvoiceList from '../components/inventory/Accounting/Invoices/SalesInvoice/SalesInvoiceList'
+import InternalProductMovementInvoiceList from '../components/inventory/Accounting/Invoices/Product Movement Invoice/Internal/InternalProductMovementInvoiceList'
+
 //extras
 import NotFound from '../components/main/NotFound';
 import Dashboard from '../components/main/Dashboard/Dashboard';
@@ -100,6 +102,7 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/accounts/:variableName" render={(props) => <Account {...props} />} />
 			<PrivateRoute exact path="/purchaseinvocies" render={(props) => <PurchaseInvoiceList {...props} />} />
 			<PrivateRoute exact path="/salesinvocies" render={(props) => <SalesInvoiceList {...props} />} />
+			<PrivateRoute exact path="/internalProductMovementInvocies" render={(props) => <InternalProductMovementInvoiceList {...props} />} />
 
 			<PrivateRoute exact path="/brands" render={(props) => <Brands {...props} />} />
 			<PrivateRoute exact path="/carrierServices" render={(props) => <CarrierServices {...props} />} />

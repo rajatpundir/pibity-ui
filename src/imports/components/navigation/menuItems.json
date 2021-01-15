@@ -132,6 +132,10 @@
 					"url": "/salesinvocies"
 				},
 				{
+					"name":"Internal Product Movement Invoice",
+					"url":"/internalProductMovementInvocies"
+				},
+				{
 					"name": "Tax Rules ",
 					"url": "/taxRules"
 				},
@@ -139,6 +143,7 @@
 					"name": "Payment Terms ",
 					"url": "/paymentTerms"
 				}
+				
 			]
 		},
 		{
