@@ -203,7 +203,7 @@ class CustomerList extends React.Component {
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
 							<PageBarAlign padding="10px 20px" float="left">
-								<Link to="/supplier" style={{ textDecoration: 'none' }}>
+								<Link to="/customer" style={{ textDecoration: 'none' }}>
 									<Custombutton padding="10px" margin="0 5px" minWidth="32px" height="32px">
 										<FontAwsomeIcon marginRight="0" className="fa fa-plus" />
 									</Custombutton>
