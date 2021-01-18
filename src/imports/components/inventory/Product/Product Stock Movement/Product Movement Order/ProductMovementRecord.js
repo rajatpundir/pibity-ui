@@ -311,7 +311,7 @@ class ProductMovementRecord extends React.Component {
 							) : (
 								undefined
 							)}
-							{data.values.status === 'Rejected Item Received' || 'Receive Approved' ? (
+							{data.values.status === 'Rejected Item Received' || data.values.status === 'Receive Approved' ? (
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"

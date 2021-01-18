@@ -208,19 +208,26 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
-			if (response.data[0][0] !== undefined && response.data.length===2) {
-				await replaceVariable(dispatch, response.data[0][0]);
-				const resp = {
-					data: response.data[0][0],
-					status: response.status
-				};
-				return resp;
-			}else{
-				const resp = {
-					data: response.data[0][0],
+			if (response.data.length === 2) {
+				console.log("123")
+				if(response.data[0][0] !== undefined){
+					await replaceVariable(dispatch, response.data[0][0]);
+					return {
+						data: response.data[0][0],
+						status: response.status
+					};
+				}
+				else{
+					return {
+						data: response.data[0][0],
+						status: 400
+					};
+				}
+			} else {
+				return {
+					data: response.data,
 					status: 400
 				};
-				return resp;
 			}
 		} else {
 			updateErrors(dispatch, response.data);
@@ -258,17 +265,17 @@ export const createVariables = (variables: Array) => async (dispatch) => {
 		console.log('--RESPONSE--');
 		console.log(response);
 		if (response.status === 200) {
-			if (response.data !== undefined && response.data.length===2) {
-				const resp={
-					data:response.data[0],
-					status:response.status
-				}
+			if (response.data !== undefined && response.data.length === 2) {
+				const resp = {
+					data: response.data[0],
+					status: response.status
+				};
 				return resp;
-			}else{
-				const resp={
-					data:response.data[0],
-					status:400
-				}
+			} else {
+				const resp = {
+					data: response.data[0],
+					status: 400
+				};
 				return resp;
 			}
 		} else {
@@ -342,14 +349,14 @@ export const updateVariable = (prevVariable: Map, newVariable: Map) => async (di
 		console.log('--RESPONSE--');
 		console.log(response.data);
 		if (response.status === 200) {
-			if (response.data[0][0] !== undefined && response.data.length===2) {
+			if (response.data[0][0] !== undefined && response.data.length === 2) {
 				await replaceVariable(dispatch, response.data[0][0]);
 				const resp = {
 					data: response.data[0][0],
 					status: response.status
 				};
 				return resp;
-			}else{
+			} else {
 				const resp = {
 					data: response.data[0][0],
 					status: 400

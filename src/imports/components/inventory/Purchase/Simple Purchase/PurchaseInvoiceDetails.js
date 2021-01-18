@@ -5,7 +5,15 @@ import styled from 'styled-components';
 import Select from 'react-select';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
-import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
+import {
+	createVariable,
+	createVariables,
+	getVariables,
+	updateVariable,
+	objToMapRec
+} from '../../../../redux/actions/variables';
+import { executeFuntion } from '../../../../redux/actions/executeFuntion';
+
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -101,6 +109,7 @@ class PurchaseInvoiceDetails extends React.Component {
 
 	componentDidMount() {
 		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('ProductStore');
 		this.props.clearErrors();
 	}
 
@@ -339,7 +348,7 @@ class PurchaseInvoiceDetails extends React.Component {
 		});
 		values.set('productInvoiceDetails', list);
 		variable.set('values', values);
-		this.setState({ variable: variable },() => {
+		this.setState({ variable: variable }, () => {
 			this.onCalculateTotal();
 		});
 	}
@@ -352,7 +361,7 @@ class PurchaseInvoiceDetails extends React.Component {
 		});
 		values.set('additionalCost', list);
 		variable.set('values', values);
-		this.setState({ variable: variable },() => {
+		this.setState({ variable: variable }, () => {
 			this.onCalculateTotal();
 		});
 	}
@@ -742,6 +751,47 @@ class PurchaseInvoiceDetails extends React.Component {
 		return rows;
 	}
 
+	createStockItems(invoice, purchaseStockRecord) {
+		console.log(purchaseStockRecord);
+		console.log(invoice);
+
+		const purchaseStockItems = [];
+		invoice.values.productInvoiceDetails.forEach((data) => {
+			const productStore =
+				this.props.variables.ProductStore !== undefined
+					? this.props.variables.ProductStore.filter(
+							(store) =>
+								store.values.location === this.props.location &&
+								store.values.product === data.values.product
+						)[0]
+					: [];
+			purchaseStockItems.push(
+				new Map([
+					[ 'variableName', data.variableName ],
+					[ 'typeName', 'PurchaseOrderStockRecordItem' ],
+					[
+						'values',
+						new Map([
+							[ 'date', 1610606634582 ],
+							[ 'purchaseOrder', invoice.values.purchaseOrder ],
+							[ 'purchaseStockRecord', purchaseStockRecord.variableName ],
+							[ 'status', purchaseStockRecord.values.status ],
+							[ 'movementType', purchaseStockRecord.values.movementType ],
+							[ 'location', purchaseStockRecord.values.toLocation ],
+							[ 'fromSupplier', invoice.values.supplier ],
+							[ 'toProductStore', productStore.variableName ],
+							[ 'product', data.values.product ],
+							[ 'price', data.values.price ],
+							[ 'quantity', data.values.quantity ],
+							[ 'total', data.values.total ]
+						])
+					]
+				])
+			);
+		});
+		return purchaseStockItems;
+	}
+
 	render() {
 		return (
 			<PageBlock id="invoice">
@@ -756,7 +806,36 @@ class PurchaseInvoiceDetails extends React.Component {
 								onClick={(e) => {
 									this.props.createVariable(this.state.variable).then((response) => {
 										if (response.status === 200) {
-											successMessage(' Purchase Invoice Created');
+											console.log(response.data);
+											const invoice = response.data;
+											const args = {
+												fromSupplier: response.data.values.supplier,
+												total: response.data.values.total,
+												productCostBeforeTax: response.data.values.productCostBeforeTax,
+												additionalCostBeforeTax: response.data.values.additionalCostBeforeTax,
+												totalTaxOnProduct: response.data.values.totalTaxOnProduct,
+												totalTaxOnAdditionalCost: response.data.values.totalTaxOnAdditionalCost,
+												purchaseOrder: response.data.values.purchaseOrder,
+												toLocation: this.props.location
+											};
+											this.props
+												.executeFuntion(args, 'createPurchaseOrderStockReceivedRecord1')
+												.then((response) => {
+													if (response.status === 200) {
+														this.props
+															.createVariables(
+																this.createStockItems(
+																	invoice,
+																	response.data.purchaseStockRecord
+																)
+															)
+															.then((response) => {
+																if (response.status === 200) {
+																	successMessage(' Purchase Invoice Created');
+																}
+															});
+													}
+												});
 										}
 									});
 								}}
@@ -1259,7 +1338,12 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables, createVariable, updateVariable })(
-	PurchaseInvoiceDetails
-);
+export default connect(mapStateToProps, {
+	clearErrors,
+	createVariables,
+	executeFuntion,
+	getVariables,
+	createVariable,
+	updateVariable
+})(PurchaseInvoiceDetails);
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

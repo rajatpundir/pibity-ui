@@ -14,6 +14,7 @@ import {
 import PurchaseGeneralDetails from './PurchaseGeneralDetails';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
 import PurchaseInvoiceDetails from './PurchaseInvoiceDetails';
+import PurchasStockReceived from './PurchaseStockReceived'
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
 import {
@@ -126,6 +127,8 @@ class Purchase extends React.Component {
 		this.props.getVariables('TaxRule');
 		this.props.getVariables('Product');
 		this.props.getVariables('UnitOfMeasure');
+		this.props.getVariables('ProductStore');
+
 	}
 
 	componentDidMount() {
@@ -390,20 +393,20 @@ class Purchase extends React.Component {
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
 											<BlockListItemButton
-												style={{
-													opacity: this.state.variable.get('values').get('invoiceCreated')
-														? '1'
-														: '0.5',
-													pointerEvents: this.state.variable
-														.get('values')
-														.get('invoiceCreated')
-														? 'all'
-														: 'none'
-												}}
-												onClick={(e) =>
-													this.state.variable.get('values').get('invoiceCreated')
-														? this.setState({ visibleSection: 'stockReceived' })
-														: undefined}
+												// style={{
+												// 	opacity: this.state.variable.get('values').get('invoiceCreated')
+												// 		? '1'
+												// 		: '0.5',
+												// 	pointerEvents: this.state.variable
+												// 		.get('values')
+												// 		.get('invoiceCreated')
+												// 		? 'all'
+												// 		: 'none'
+												// }}
+												onClick={(e) =>this.setState({ visibleSection: 'stockReceived' })}
+													// this.state.variable.get('values').get('invoiceCreated')
+													// 	? this.setState({ visibleSection: 'stockReceived' })
+													// 	: undefined}
 											>
 												Stock Received
 											</BlockListItemButton>
@@ -459,13 +462,20 @@ class Purchase extends React.Component {
 								updateOrder={this.updateOrder}
 							/>
 						)}
-						{/* {this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />} */}
 						{this.state.visibleSection === 'invoice' && (
 							<PurchaseInvoiceDetails
 								purchaseOrder={this.state.purchaseOrderVariableName}
 								supplier={this.state.supplier}
 								account={this.state.account}
 								orderDetails={objToMapRec(this.state.orderDetails)}
+								location={this.state.variable.get('values').get('general').get('values').get('location')}
+							/>
+						)}
+						{this.state.visibleSection === 'stockReceived' && (
+							<PurchasStockReceived
+								purchaseOrder={this.state.purchaseOrderVariableName}
+								supplier={this.state.supplier}
+								location={this.state.variable.get('values').get('general').get('values').get('location')}
 							/>
 						)}
 					</PageBody>

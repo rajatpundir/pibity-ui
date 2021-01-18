@@ -1,26 +1,47 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
-import { clearErrors } from '../../../../redux/actions/errors';
-import { getVariables } from '../../../../redux/actions/variables';
+import styled from 'styled-components';
 import Select from 'react-select';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { successMessage } from '../../../main/Notification';
+import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
+import { executeFuntion } from '../../../../redux/actions/executeFuntion';
 import {
 	AddMoreBlock,
 	AddMoreButton,
-	Custombutton,
-	HeaderBody,
-	HeaderBodyContainer,
+	BlockInnerTable,
+	BlockTableBody,
+	BlockTableHead,
+	BlockTableHeader,
+	BlockTableTd,
 	BodyTable,
 	EmptyRow,
+	EqualBlockContainer,
+	FormControl,
+	H3,
+	HeaderBody,
+	HeaderBodyContainer,
+	HeaderContainer,
+	Headers,
 	Input,
 	InputBody,
+	InputColumnWrapper,
+	InputLabel,
+	LeftBlock,
 	LeftItemH1,
 	PageBar,
 	PageBarAlign,
 	PageBlock,
 	PageToolbar,
 	PlusButton,
+	Required,
+	RightBlock,
+	RightBlockTable,
+	RoundBlockInnerDiv,
+	RoundBlockOuterDiv,
 	RoundedBlock,
+	Span,
 	SelectIconContainer,
 	SelectSpan,
 	SelectSpanInner,
@@ -31,305 +52,423 @@ import {
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	ToolbarItems
+	TextArea,
+	TextAreaContainer,
+	StatusSpan,
+	StatusBackgroundColor,
+	ToolbarItems,
+	Custombutton
 } from '../../../../styles/inventory/Style';
+import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
 
-class PurchaseStockReceived extends React.Component {
+class PurchaseStockRecord extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			list: props.list
+			createInvoice: true,
+			updateInvoice: false,
+			prevPropVariable: {},
+			prevVariable: new Map(),
+			variable: new Map([
+				[ 'typeName', 'PurchaseInvoice' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'date', '' ],
+						[ 'status', '' ],
+						[ 'movementType', '' ],
+						[ 'total', 0 ],
+						[ 'fromSupplier', '' ],
+						[ 'toLocation', '' ],
+						[ 'purchaseOrder', '' ],
+						[ 'productCostBeforeTax', 0 ],
+						[ 'additionalCostBeforeTax', 0 ],
+						[ 'totalTaxOnProduct', 0 ],
+						[ 'totalTaxOnAdditionalCost', 0 ]
+					])
+				]
+			]),
+			stockItems:[]
 		};
 		this.onChange = this.onChange.bind(this);
 	}
 
-	// clear form errors
 	componentDidMount() {
+		this.props.getVariables('PurchaseOrderStockRecordItem');
+		this.props.getVariables('PurchaseOrderStockReceivedRecord');
 		this.props.clearErrors();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		if (nextProps.variables.PurchaseOrderStockReceivedRecord && nextProps.variables.PurchaseOrderStockRecordItem) {
+			const variable = nextProps.variables.PurchaseOrderStockReceivedRecord.filter(
+				(variable) => variable.values.purchaseOrder === nextProps.purchaseOrder
+			)[0];
+			const stockItems = nextProps.variables.PurchaseOrderStockRecordItem.filter(
+				(item) => item.values.purchaseOrder === nextProps.purchaseOrder
+			);
+			if (variable) {
+				const variableMap = objToMapRec(variable);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+				return {
+					...prevState,
+					stockItems:stockItems,
+					variable: variableMap,
+					prevPropVariable: variable,
+					prevVariable: prevVariableMap
+				};
+			}
+		}
 		return {
-			...prevState,
-			list: nextProps.list
+			...prevState
 		};
 	}
 
-	onChange(e, variableName) {
-		const list = cloneDeep(this.state.list).map((listVariable) => {
-			if (listVariable.get('variableName') === variableName) {
-				const values = listVariable.get('values');
-				values.set(e.target.name, e.target.value);
-				listVariable.set('values', values);
-				return listVariable;
-			} else {
-				return listVariable;
-			}
-		});
-		this.setState({ list: list });
-		this.props.updateStock(list);
+	onChange(e) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set(e.target.name, e.target.value);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+	}
+	updateStatus(e, item, funtionName) {
+		const args = {
+			productMovementRecord: item.variableName
+		};
+		switch (funtionName) {
+			case 'dispatchShipmentAndUpdateProductMovementRecord':
+				break;
+			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
+				const update = {
+					updateType: 'Received',
+					movementType: item.values.movementType,
+					quantity: item.values.quantity,
+					refProductStore: item.values.fromSupplier,
+					refInvoice: item.values.purchaseOrder,
+					productStore: item.values.toProductStore
+				};
+				//todo
+				this.props.executeFuntion(update, 'updateQuantityInProductStore').then((response) => {
+					if (response.status === 200) {
+						// this.props.executeFuntion(args, funtionName).then((response) => {
+						// 	if (response.status === 200) {
+						// 		this.props.getVariables('ProductMovementRecord');
+						// 	}
+						// });
+					}
+				});
+				break;
+			case 'receiveRejectedShipmentUpdateMovementRecord':
+				const reciveRejectedItem = {
+					updateType: 'Returned',
+					movementType: item.values.movementType,
+					quantity: item.values.quantity,
+					refProductStore: item.values.toProductStore,
+					refInvoice: item.values.referenceInvoice,
+					productStore: item.values.fromProductStore
+				};
+				this.props.executeFuntion(reciveRejectedItem, 'updateQuantityInProductStore').then((response) => {
+					if (response.status === 200) {
+						this.props.executeFuntion(args, funtionName).then((response) => {
+							if (response.status === 200) {
+								this.props.getVariables('ProductMovementRecord');
+							}
+						});
+					}
+				});
+				break;
+			default:
+				this.props.executeFuntion(args, funtionName).then((response) => {
+					if (response.status === 200) {
+						this.props.getVariables('ProductMovementRecord');
+					}
+				});
+				break;
+		}
 	}
 
-	addVariableToList() {
-		const list = cloneDeep(this.state.list);
-		list.unshift(
-			new Map([
-				[
-					'variableName',
-					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
-				],
-				[
-					'values',
-					new Map([
-						[ 'product', '' ],
-						[ 'batch', '' ],
-						[ 'dateRecieved', '' ],
-						[ 'expiryDate', '' ],
-						[ 'supplierSku', '' ],
-						[ 'quantity', '' ],
-						[ 'unit', '' ],
-						[ 'location', '' ],
-						[ 'recieved', '' ]
-					])
-				]
-			])
-		);
-		this.setState({ list: list });
-		this.props.updateStock(list);
-	}
-
-	onRemoveKey(e, variableName) {
-		const list = cloneDeep(this.state.list).filter((listVariable) => {
-			return listVariable.get('variableName') !== variableName;
-		});
-		this.setState({ list: list });
-		this.props.updateStock(list);
-	}
-
-	renderInputFields() {
+	renderPurchaseItemRecord() {
 		const rows = [];
-		this.state.list.forEach((listVariable) =>
+		this.state.stockItems.forEach((data) => {
+			var backgroundColor;
+			var color = '#f1f6fb';
+			switch (data.values.status) {
+				case 'Waiting For Dispatch':
+					backgroundColor = StatusBackgroundColor.pending;
+					color = '#4c4f4f';
+					break;
+				case 'In Transit':
+					backgroundColor = StatusBackgroundColor.pending;
+					color = '#4c4f4f';
+					break;
+				case 'Dispatching Rejected Item':
+					backgroundColor = StatusBackgroundColor.rejected;
+					break;
+				case 'Rejected Item In Transit':
+					backgroundColor = StatusBackgroundColor.rejected;
+					break;
+				case 'Rejected Item Received':
+					backgroundColor = StatusBackgroundColor.rejected;
+					break;
+				case 'Received':
+					backgroundColor = StatusBackgroundColor.approved;
+					break;
+				case 'Receive Approved':
+					backgroundColor = StatusBackgroundColor.approved;
+					break;
+				default:
+					break;
+			}
 			rows.push(
-				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="5%" left="0px">
-						<i
-							name={listVariable.get('variableName')}
-							className="large material-icons"
-							onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}
-						>
-							remove_circle_outline
-						</i>
+				<TableRow key={data.variableName}>
+					<TableData width="5%" />
+					<TableData width="20%">
+						<TableHeaderInner>{data.values.product}</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="5%">
+					<TableData width="10%">
+						<TableHeaderInner>{data.values.quantity}</TableHeaderInner>
+					</TableData>
+					<TableData width="20%">
 						<TableHeaderInner>
-							<SelectWrapper>
-								<Select
-									value={{
-										value: listVariable.get('values').get('product'),
-										label: listVariable.get('values').get('product')
-									}}
-									onChange={(option) => {
-										this.onChange(
-											{ target: { name: 'product', value: option.value } },
-											listVariable.get('variableName')
-										);
-									}}
-									options={
-										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
-										) : (
-											[]
-										)
-									}
-								/>
-							</SelectWrapper>
+							<StatusSpan backgroundColor={backgroundColor} color={color}>
+								{data.values.status}
+							</StatusSpan>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="14%">
+					<TableData width="30%">
 						<TableHeaderInner>
-							<Input
-								name="batch"
-								type="text"
-								value={listVariable.get('values').get('batch')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="11%" left="26%">
-						<TableHeaderInner>
-							<Input
-								name="expiryDate"
-								type="text"
-								value={listVariable.get('values').get('expiryDate')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="12%" left="37%">
-						<TableHeaderInner>
-							<Input
-								name="supplierSKU"
-								type="text"
-								value={listVariable.get('values').get('supplierSKU')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="46%">
-						<TableHeaderInner>
-							<Input
-								name="unit"
-								type="number"
-								value={listVariable.get('values').get('unit')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="54%">
-						<TableHeaderInner>
-							<Input
-								name="quantity"
-								type="number"
-								value={listVariable.get('values').get('quantity')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="65%">
-						<TableHeaderInner>
-							<SelectWrapper>
-								<Select
-									value={{
-										value: listVariable.get('values').get('location'),
-										label: listVariable.get('values').get('location')
-									}}
-									onChange={(option) => {
-										this.onProductOrderInputChange(
-											{ target: { name: 'location', value: option.value } },
-											listVariable.get('variableName')
-										);
-									}}
-									options={
-										this.props.variables.Location !== undefined ? (
-											this.props.variables.Location.map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
-										) : (
-											[]
-										)
-									}
-								/>
-							</SelectWrapper>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="11%" left="77%">
-						<TableHeaderInner>
-							<Input
-								name="dateRecieved"
-								type="text"
-								value={listVariable.get('values').get('dateRecieved')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
+							{data.values.status === 'Waiting For Dispatch' ? (
+								<React.Fragment>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										margin="0 5px"
+										backgroundColor="#05cb9a"
+										borderColor="#05cb9a"
+										borderOnHover="#0bc295"
+										backgroundOnHover="#0bc295"
+										onClick={(e) =>
+											this.updateStatus(
+												e,
+												data,
+												'dispatchShipmentAndUpdateProductMovementRecord'
+											)}
+									>
+										<FontAwsomeIcon className="fa fa-check-circle" />
+										Dispatch
+									</Custombutton>
+								</React.Fragment>
+							) : (
+								undefined
+							)}
+							{data.values.status === 'In Transit' ? (
+								<React.Fragment>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										margin="0 5px"
+										backgroundColor="#05cb9a"
+										borderColor="#05cb9a"
+										borderOnHover="#0bc295"
+										backgroundOnHover="#0bc295"
+										onClick={(e) =>
+											this.updateStatus(e, data, 'approveShipmentReceivedAndUpdateProductMovementRecord')}
+									>
+										<FontAwsomeIcon className="fa fa-check-circle" />
+										Recieve
+									</Custombutton>
+								</React.Fragment>
+							) : (
+								undefined
+							)}
+							{data.values.status === 'Received' ? (
+								<React.Fragment>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										margin="0 5px"
+										backgroundColor="#05cb9a"
+										borderColor="#05cb9a"
+										borderOnHover="#0bc295"
+										backgroundOnHover="#0bc295"
+										onClick={(e) =>
+											this.updateStatus(
+												e,
+												data,
+												'approveShipmentReceivedAndUpdateProductMovementRecord'
+											)}
+									>
+										<FontAwsomeIcon className="fa fa-check-circle" />
+										Approve Recieve
+									</Custombutton>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										color="#f7f3f3"
+										backgroundColor="#ed3636"
+										borderColor="#ed3636"
+										borderOnHover="#d82b2b"
+										backgroundOnHover="#d82b2b"
+										margin="0 5px"
+										onClick={(e) =>
+											this.updateStatus(e, data, 'rejectShipmentAndUpdateProductMovementRecord')}
+									>
+										<FontAwsomeIcon className="fa fa-times " />
+										Reject Shipment
+									</Custombutton>
+								</React.Fragment>
+							) : (
+								undefined
+							)}
+							{data.values.status === 'Dispatching Rejected Item' ? (
+								<React.Fragment>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										margin="0 5px"
+										backgroundColor="#05cb9a"
+										borderColor="#05cb9a"
+										borderOnHover="#0bc295"
+										backgroundOnHover="#0bc295"
+										onClick={(e) =>
+											this.updateStatus(e, data, 'dispatchRejectedShipmentUpdateMovementRecord')}
+									>
+										<FontAwsomeIcon className="fa fa-check-circle" />
+										Dispatch Rejected Shipment
+									</Custombutton>
+								</React.Fragment>
+							) : (
+								undefined
+							)}
+							{data.values.status === 'Rejected Item In Transit' ? (
+								<React.Fragment>
+									<Custombutton
+										padding="0 10px"
+										minWidth="70px"
+										height="32px"
+										margin="0 5px"
+										backgroundColor="#05cb9a"
+										borderColor="#05cb9a"
+										borderOnHover="#0bc295"
+										backgroundOnHover="#0bc295"
+										onClick={(e) =>
+											this.updateStatus(e, data, 'receiveRejectedShipmentUpdateMovementRecord')}
+									>
+										<FontAwsomeIcon className="fa fa-check-circle" />
+										Recieve Rejected Shipment
+									</Custombutton>
+								</React.Fragment>
+							) : (
+								undefined
+							)}
+							{data.values.status === 'Rejected Item Received' || 'Receive Approved' ? (
+								<Custombutton
+									padding="0 10px"
+									minWidth="70px"
+									height="2.5rem"
+									color="#3b3b3b"
+									backgroundColor="#F7FAFD"
+									borderColor="#b9bdce"
+									borderOnHover="#3b3b3b"
+									backgroundOnHover="#F7FAFD"
+									margin="0 5px"
+									onClick={this.onClose}
+								>
+									<FontAwsomeIcon className="fa fa-print" />
+									Print
+								</Custombutton>
+							) : (
+								undefined
+							)}
 						</TableHeaderInner>
 					</TableData>
 				</TableRow>
-			)
-		);
+			);
+		});
 		return rows;
 	}
 
 	render() {
 		return (
-			<PageBlock id="stockReceived">
+			<PageBlock id="invoice">
 				<PageToolbar>
 					<ToolbarItems>
-						<LeftItemH1>STOCK RECEIVED</LeftItemH1>
+						<LeftItemH1>Stock Received</LeftItemH1>
 					</ToolbarItems>
-					<Custombutton>Authorize</Custombutton>
 				</PageToolbar>
 				<PageBar>
-					<PageBarAlign>
-						<PlusButton onClick={(e) => this.addVariableToList()}>
-							<i className="large material-icons">add</i>
-						</PlusButton>
-					</PageBarAlign>
+					<InputColumnWrapper>
+						<FormControl>
+							<Input
+								name="fromSupplier"
+								type="text"
+								value={this.state.variable.get('values').get('fromSupplier')}
+								readOnly
+							/>
+							<InputLabel>
+								Supplier
+							</InputLabel>
+						</FormControl>
+						<FormControl>
+							<Input
+								name="toLocation"
+								type="text"
+								value={this.state.variable.get('values').get('toLocation')}
+							    readOnly		
+							/>
+							<InputLabel>Location</InputLabel>
+						</FormControl>
+					</InputColumnWrapper>
 				</PageBar>
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
 							<HeaderBodyContainer>
 								<HeaderBody>
-									<BodyTable>
+									<BodyTable width="inherit">
 										<TableBody>
 											<TableRow>
-												<TableHeaders width="5%" left="0px">
-													<SelectIconContainer>
-														<SelectSpan>
-															<SelectSpanInner>
-																<i className="large material-icons">create</i>
-															</SelectSpanInner>
-														</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%" left="5%">
+												<TableHeaders width="5%" />
+												<TableHeaders width="20%">
 													<SelectIconContainer>
 														<SelectSpan>Product</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
-												<TableHeaders width="10%" left="14%">
+												<TableHeaders width="10%">
 													<SelectIconContainer>
-														<SelectSpan textAlign="right">Batch/ Serial</SelectSpan>
+														<SelectSpan>Quantity</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
-												<TableHeaders width="11%" left="26%">
+												<TableHeaders width="20%">
 													<SelectIconContainer>
-														<SelectSpan>Expirey Date </SelectSpan>
+														<SelectSpan> Status</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
-												<TableHeaders width="12%" left="36%">
+												<TableHeaders width="30%">
 													<SelectIconContainer>
-														<SelectSpan>Supplier SKU </SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="8%" left="46%">
-													<SelectIconContainer>
-														<SelectSpan>Unit </SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%" left="54%">
-													<SelectIconContainer>
-														<SelectSpan>Quantity </SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%" left="65%">
-													<SelectIconContainer>
-														<SelectSpan>Location </SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="11%" left="77%">
-													<SelectIconContainer>
-														<SelectSpan>Date Recieved </SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%" left="88%">
-													<SelectIconContainer>
-														<SelectSpan>Received </SelectSpan>
+														<SelectSpan>Actions</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 											</TableRow>
-											{this.renderInputFields()}
+											{this.renderPurchaseItemRecord()}
 										</TableBody>
 									</BodyTable>
+									{this.state.stockItems.length === 0 ? (
+										<EmptyRowImageContainer>
+											<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
+											<EmptyRowTag>No Record</EmptyRowTag>
+										</EmptyRowImageContainer>
+									) : (
+										undefined
+									)}
 								</HeaderBody>
-								{this.state.list.length === 0 ? <EmptyRow>No Contacts found.</EmptyRow> : undefined}
 							</HeaderBodyContainer>
-							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addVariableToList()}>
-									<i className="large material-icons">add</i>Add More Items
-								</AddMoreButton>
-							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>
@@ -340,8 +479,11 @@ class PurchaseStockReceived extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
+	types: state.types,
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseStockReceived);
-
+export default connect(mapStateToProps, { executeFuntion,clearErrors, getVariables, createVariable, updateVariable })(
+	PurchaseStockRecord
+);
+export const FontAwsomeIcon = styled.i`margin-right: 5px;`;
