@@ -768,7 +768,7 @@ class PurchaseInvoiceDetails extends React.Component {
 			purchaseStockItems.push(
 				new Map([
 					[ 'variableName', data.variableName ],
-					[ 'typeName', 'PurchaseOrderStockRecordItem' ],
+					[ 'typeName', 'PurchaseOrderStockItemRecord' ],
 					[
 						'values',
 						new Map([

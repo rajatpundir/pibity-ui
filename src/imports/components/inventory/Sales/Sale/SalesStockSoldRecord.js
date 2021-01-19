@@ -2,58 +2,32 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import styled from 'styled-components';
-import Select from 'react-select';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
 import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
 import {
-	AddMoreBlock,
-	AddMoreButton,
-	BlockInnerTable,
-	BlockTableBody,
-	BlockTableHead,
-	BlockTableHeader,
-	BlockTableTd,
 	BodyTable,
-	EmptyRow,
-	EqualBlockContainer,
 	FormControl,
-	H3,
 	HeaderBody,
 	HeaderBodyContainer,
-	HeaderContainer,
-	Headers,
 	Input,
 	InputBody,
 	InputColumnWrapper,
 	InputLabel,
-	LeftBlock,
 	LeftItemH1,
 	PageBar,
-	PageBarAlign,
 	PageBlock,
 	PageToolbar,
-	PlusButton,
-	Required,
-	RightBlock,
-	RightBlockTable,
-	RoundBlockInnerDiv,
-	RoundBlockOuterDiv,
 	RoundedBlock,
-	Span,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
-	SelectWrapper,
 	TableBody,
 	TableData,
 	TableFieldContainer,
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	TextArea,
-	TextAreaContainer,
 	StatusSpan,
 	StatusBackgroundColor,
 	ToolbarItems,
@@ -61,7 +35,7 @@ import {
 } from '../../../../styles/inventory/Style';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../styles/main/Dashboard';
 
-class PurchaseStockRecord extends React.Component {
+class SalesStockSoldRecord extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
@@ -70,7 +44,7 @@ class PurchaseStockRecord extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'typeName', 'PurchaseOrderStockItemRecord' ],
+				[ 'typeName', 'SalesOrderStockSoldRecord' ],
 				[ 'variableName', '' ],
 				[
 					'values',
@@ -79,9 +53,9 @@ class PurchaseStockRecord extends React.Component {
 						[ 'status', '' ],
 						[ 'movementType', '' ],
 						[ 'total', 0 ],
-						[ 'fromSupplier', '' ],
-						[ 'toLocation', '' ],
-						[ 'purchaseOrder', '' ],
+						[ 'fromCustomer', '' ],
+						[ 'fromLocation', '' ],
+						[ 'salesOrder', '' ],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
 						[ 'totalTaxOnProduct', 0 ],
@@ -89,31 +63,31 @@ class PurchaseStockRecord extends React.Component {
 					])
 				]
 			]),
-			stockItems:[]
+			stockItems: []
 		};
 		this.onChange = this.onChange.bind(this);
 	}
 
 	componentDidMount() {
-		this.props.getVariables('PurchaseOrderStockItemRecord');
-		this.props.getVariables('PurchaseOrderStockReceivedRecord');
+		this.props.getVariables('SalesOrderStockItemRecord');
+		this.props.getVariables('SalesOrderStockSoldRecord');
 		this.props.clearErrors();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variables.PurchaseOrderStockReceivedRecord && nextProps.variables.PurchaseOrderStockItemRecord) {
-			const variable = nextProps.variables.PurchaseOrderStockReceivedRecord.filter(
-				(variable) => variable.values.purchaseOrder === nextProps.purchaseOrder
+		if (nextProps.variables.SalesOrderStockSoldRecord && nextProps.variables.SalesOrderStockItemRecord) {
+			const variable = nextProps.variables.SalesOrderStockSoldRecord.filter(
+				(variable) => variable.values.salesOrder === nextProps.salesOrder
 			)[0];
-			const stockItems = nextProps.variables.PurchaseOrderStockItemRecord.filter(
-				(item) => item.values.purchaseOrder === nextProps.purchaseOrder
+			const stockItems = nextProps.variables.SalesOrderStockItemRecord.filter(
+				(item) => item.values.salesOrder === nextProps.salesOrder
 			);
 			if (variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				return {
 					...prevState,
-					stockItems:stockItems,
+					stockItems: stockItems,
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap
@@ -134,24 +108,23 @@ class PurchaseStockRecord extends React.Component {
 	}
 	updateStatus(e, item, funtionName) {
 		const args = {
-			productMovementRecord: item.variableName
+			salesOrderStockItemRecord: item.variableName
 		};
 		switch (funtionName) {
-			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
+			case 'dispatchSalesOrderProduct':
 				const update = {
 					updateType: 'Received',
 					movementType: item.values.movementType,
 					quantity: item.values.quantity,
-					refProductStore: item.values.fromSupplier,
-					refInvoice: item.values.purchaseOrder,
-					productStore: item.values.toProductStore
+					refProductStore: item.values.fromCustomer,
+					refInvoice: item.values.salesOrder,
+					productStore: item.values.fromProductStore
 				};
-				//todo
-				this.props.executeFuntion(update, 'updateQuantityInProductStore').then((response) => {
+				this.props.executeFuntion(update, 'reduceQuantityInProductStore').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
-								this.props.getVariables('PurchaseOrderStockItemRecord');
+								this.props.getVariables('SalesOrderStockItemRecord');
 							}
 						});
 					}
@@ -160,7 +133,7 @@ class PurchaseStockRecord extends React.Component {
 			default:
 				this.props.executeFuntion(args, funtionName).then((response) => {
 					if (response.status === 200) {
-						this.props.getVariables('PurchaseOrderStockItemRecord');
+						this.props.getVariables('SalesOrderStockItemRecord');
 					}
 				});
 				break;
@@ -217,28 +190,7 @@ class PurchaseStockRecord extends React.Component {
 					</TableData>
 					<TableData width="30%">
 						<TableHeaderInner>
-							{data.values.status === 'In Transit' ? (
-								<React.Fragment>
-									<Custombutton
-										padding="0 10px"
-										minWidth="70px"
-										height="32px"
-										margin="0 5px"
-										backgroundColor="#05cb9a"
-										borderColor="#05cb9a"
-										borderOnHover="#0bc295"
-										backgroundOnHover="#0bc295"
-										onClick={(e) =>
-											this.updateStatus(e, data, 'receivePurchasedItem')}
-									>
-										<FontAwsomeIcon className="fa fa-check-circle" />
-										Recieve
-									</Custombutton>
-								</React.Fragment>
-							) : (
-								undefined
-							)}
-							{data.values.status === 'Received' ? (
+                        {data.values.status === 'Waiting For Dispatch' ? (
 								<React.Fragment>
 									<Custombutton
 										padding="0 10px"
@@ -253,54 +205,18 @@ class PurchaseStockRecord extends React.Component {
 											this.updateStatus(
 												e,
 												data,
-												'approveReceivedPurchasedItem'
+												'dispatchSalesOrderProduct'
 											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
-										Approve Recieve
-									</Custombutton>
-									<Custombutton
-										padding="0 10px"
-										minWidth="70px"
-										height="32px"
-										color="#f7f3f3"
-										backgroundColor="#ed3636"
-										borderColor="#ed3636"
-										borderOnHover="#d82b2b"
-										backgroundOnHover="#d82b2b"
-										margin="0 5px"
-										onClick={(e) =>
-											this.updateStatus(e, data, 'rejectReceivedPurchasedItem')}
-									>
-										<FontAwsomeIcon className="fa fa-times " />
-										Reject Shipment
+										Dispatch
 									</Custombutton>
 								</React.Fragment>
 							) : (
 								undefined
 							)}
-							{/* {data.values.status === 'Dispatching Rejected Item' ? (
-								<React.Fragment>
-									<Custombutton
-										padding="0 10px"
-										minWidth="70px"
-										height="32px"
-										margin="0 5px"
-										backgroundColor="#05cb9a"
-										borderColor="#05cb9a"
-										borderOnHover="#0bc295"
-										backgroundOnHover="#0bc295"
-										onClick={(e) =>
-											this.updateStatus(e, data, 'dispatchRejectedShipmentUpdateMovementRecord')}
-									>
-										<FontAwsomeIcon className="fa fa-check-circle" />
-										Dispatch Rejected Shipment
-									</Custombutton>
-								</React.Fragment>
-							) : (
-								undefined
-							)} */}
-							{data.values.status === 'Rejected Item In Transit' || 'Receive Approved' ? (
+
+							{data.values.status === 'In Transit' ? (
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"
@@ -332,28 +248,26 @@ class PurchaseStockRecord extends React.Component {
 			<PageBlock id="invoice">
 				<PageToolbar>
 					<ToolbarItems>
-						<LeftItemH1>Stock Received</LeftItemH1>
+						<LeftItemH1>Stock Sold</LeftItemH1>
 					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<InputColumnWrapper>
 						<FormControl>
 							<Input
-								name="fromSupplier"
+								name="fromCustomer"
 								type="text"
-								value={this.state.variable.get('values').get('fromSupplier')}
+								value={this.state.variable.get('values').get('fromCustomer')}
 								readOnly
 							/>
-							<InputLabel>
-								Supplier
-							</InputLabel>
+							<InputLabel>Customer</InputLabel>
 						</FormControl>
 						<FormControl>
 							<Input
-								name="toLocation"
+								name="fromLocation"
 								type="text"
-								value={this.state.variable.get('values').get('toLocation')}
-							    readOnly		
+								value={this.state.variable.get('values').get('fromLocation')}
+								readOnly
 							/>
 							<InputLabel>Location</InputLabel>
 						</FormControl>
@@ -416,7 +330,7 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { executeFuntion,clearErrors, getVariables, createVariable, updateVariable })(
-	PurchaseStockRecord
+export default connect(mapStateToProps, { executeFuntion, clearErrors, getVariables, createVariable, updateVariable })(
+	SalesStockSoldRecord
 );
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

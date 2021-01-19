@@ -5,7 +5,15 @@ import styled from 'styled-components';
 import Select from 'react-select';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
-import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
+import {
+	createVariable,
+	createVariables,
+	getVariables,
+	updateVariable,
+	objToMapRec
+} from '../../../../redux/actions/variables';
+import { executeFuntion } from '../../../../redux/actions/executeFuntion';
+
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -101,6 +109,7 @@ class SimpleSalesInvoice extends React.Component {
 
 	componentDidMount() {
 		this.props.getVariables('SalesInvoice');
+		this.props.getVariables('ProductStore');
 		this.props.clearErrors();
 	}
 
@@ -703,6 +712,44 @@ class SimpleSalesInvoice extends React.Component {
 		return rows;
 	}
 
+	createStockItems(invoice, salesStockRecord) {
+		const salesStockItems = [];
+		invoice.values.productInvoiceDetails.forEach((data) => {
+			const productStore =
+				this.props.variables.ProductStore !== undefined
+					? this.props.variables.ProductStore.filter(
+							(store) =>
+								store.values.location === this.props.location &&
+								store.values.product === data.values.product
+						)[0]
+					: [];
+			salesStockItems.push(
+				new Map([
+					[ 'variableName', data.variableName ],
+					[ 'typeName', 'SalesOrderStockItemRecord' ],
+					[
+						'values',
+						new Map([
+							[ 'date', 1610606634582 ],
+							[ 'salesOrder', invoice.values.salesOrder ],
+							[ 'salesStockRecord', salesStockRecord.variableName ],
+							[ 'status', salesStockRecord.values.status ],
+							[ 'movementType', salesStockRecord.values.movementType ],
+							[ 'location', salesStockRecord.values.fromLocation ],
+							[ 'fromCustomer', invoice.values.customer ],
+							[ 'fromProductStore', productStore.variableName ],
+							[ 'product', data.values.product ],
+							[ 'price', data.values.price ],
+							[ 'quantity', data.values.quantity ],
+							[ 'total', data.values.total ]
+						])
+					]
+				])
+			);
+		});
+		console.log(salesStockItems);
+		return salesStockItems;
+	}
 	render() {
 		return (
 			<PageBlock id="invoice">
@@ -717,7 +764,59 @@ class SimpleSalesInvoice extends React.Component {
 								onClick={(e) => {
 									this.props.createVariable(this.state.variable).then((response) => {
 										if (response.status === 200) {
-											successMessage(' Sales Invoice Created');
+											console.log(response.data);
+											const invoice = response.data;
+											const args = {
+												fromCustomer: response.data.values.customer,
+												total: response.data.values.total,
+												productCostBeforeTax: response.data.values.productCostBeforeTax,
+												additionalCostBeforeTax: response.data.values.additionalCostBeforeTax,
+												totalTaxOnProduct: response.data.values.totalTaxOnProduct,
+												totalTaxOnAdditionalCost: response.data.values.totalTaxOnAdditionalCost,
+												salesOrder: response.data.values.salesOrder,
+												fromLocation: this.props.location
+											};
+											this.props
+												.executeFuntion(args, 'createSalesOrderStockSoldRecord')
+												.then((response) => {
+													if (response.status === 200) {
+														this.props
+															.createVariables(
+																this.createStockItems(
+																	invoice,
+																	response.data.salesStockRecord
+																)
+															)
+															.then((response) => {
+																if (response.status === 200) {
+																	response.data.forEach((data) => {
+																		const update = {
+																			quantity: data.values.quantity,
+																			productStore: data.values.fromProductStore
+																		};
+																		this.props
+																			.executeFuntion(
+																				update,
+																				'updateAllocatedQuantityInProductStore'
+																			)
+																			.then((response) => {
+																				if (response.status === 200) {
+																					this.props.getVariables(
+																						'SalesOrderStockItemRecord'
+																					);
+																					this.props.getVariables(
+																						'SalesOrderStockSoldRecord'
+																					);
+																					successMessage(
+																						' Sales Invoice Created'
+																					);
+																				}
+																			});
+																	});
+																}
+															});
+													}
+												});
 										}
 									});
 								}}
@@ -1210,7 +1309,12 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables, createVariable, updateVariable })(
-	SimpleSalesInvoice
-);
+export default connect(mapStateToProps, {
+	clearErrors,
+	executeFuntion,
+	getVariables,
+	createVariables,
+	createVariable,
+	updateVariable
+})(SimpleSalesInvoice);
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

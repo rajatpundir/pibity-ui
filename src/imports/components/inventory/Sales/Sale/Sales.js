@@ -14,6 +14,7 @@ import {
 import SalesGeneralDetails from './SalesGeneralDetails';
 import SimpleSalesOrder from './SimpleSalesOrder';
 import SimpleSalesInvoice from './SimpleSalesInvoice';
+import SalesStockSoldRecord from './SalesStockSoldRecord'
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
 import {
@@ -125,6 +126,9 @@ class SimpleSale extends React.Component {
 		this.props.getVariables('TaxRule');
 		this.props.getVariables('Product');
 		this.props.getVariables('UnitOfMeasure');
+		this.props.getVariables('ProductStore');
+		this.props.getVariables('SalesOrderStockItemRecord');
+		this.props.getVariables('SalesOrderStockSoldRecord');
 	}
 
 	componentDidMount() {
@@ -407,38 +411,27 @@ class SimpleSale extends React.Component {
 												Stock Received
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
-										{/* <HoizontalBlockListItems>
+										<HoizontalBlockListItems>
 											<BlockListItemButton
-												style={{
-													opacity: this.state.variable.get('values').get('invoiceCreated')
-														? '1'
-														: '0.5',
-													pointerEvents: this.state.variable
-														.get('values')
-														.get('invoiceCreated')
-														? 'all'
-														: 'none'
-												}}
-												onClick={
-													this.state.variable.get('values').get('invoiceCreated') ? (
-														this.setState({ visibleSection: 'creditNote' })
-													) : (
-														undefined
-													)
-												}
-											>
-												Credit Note
-											</BlockListItemButton>
-										</HoizontalBlockListItems> */}
-										{/* <HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'unStock' });
-												}}
+												// style={{
+												// 	opacity: this.state.variable.get('values').get('invoiceCreated')
+												// 		? '1'
+												// 		: '0.5',
+												// 	pointerEvents: this.state.variable
+												// 		.get('values')
+												// 		.get('invoiceCreated')
+												// 		? 'all'
+												// 		: 'none'
+												// }}
+												onClick={(e) =>this.setState({ visibleSection: 'unstock' })}
+													// this.state.variable.get('values').get('invoiceCreated')
+													// 	? this.setState({ visibleSection: 'stockReceived' })
+													// 	: undefined}
 											>
 												Unstock
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
+										{/* 
 										<HoizontalBlockListItems>
 											<BlockListItemButton
 												onClick={(e) => {
@@ -465,6 +458,14 @@ class SimpleSale extends React.Component {
 								customer={this.state.customer}
 								account={this.state.account}
 								orderDetails={objToMapRec(this.state.orderDetails)}
+								location={this.state.variable.get('values').get('general').get('values').get('location')}
+							/>
+						)}
+						{this.state.visibleSection === 'unstock' && (
+							<SalesStockSoldRecord
+								salesOrder={this.state.salesOrderVariableName}
+								customer={this.state.customer}
+								location={this.state.variable.get('values').get('general').get('values').get('location')}
 							/>
 						)}
 					</PageBody>
