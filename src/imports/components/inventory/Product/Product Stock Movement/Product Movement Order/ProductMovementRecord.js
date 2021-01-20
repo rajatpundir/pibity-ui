@@ -27,15 +27,21 @@ import {
 } from '../../../../../styles/inventory/Style';
 import { executeFuntion } from '../../../../../redux/actions/executeFuntion';
 import { EmptyRowImageContainer, EmptyRowImage, EmptyRowTag } from '../../../../../styles/main/Dashboard';
+import AcceptOrderModal from './AcceptOrderModal';
 
 class ProductMovementRecord extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			productMovementRecords: []
+			productMovementRecords: [],
+			internalMovementProductLog:[],
+			acceptOrderModal: false,
+			selectedRecord:{}
 		};
 		this.onChange = this.onChange.bind(this);
 		this.renderProductMovementItemRecord = this.renderProductMovementItemRecord.bind(this);
+		this.onCloseAcceptOrderModal = this.onCloseAcceptOrderModal.bind(this);
+		this.onOpenAcceptOrderModal = this.onOpenAcceptOrderModal.bind(this);
 	}
 
 	componentDidMount() {
@@ -45,12 +51,24 @@ class ProductMovementRecord extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			productMovementRecords: nextProps.productMovementRecords
+			productMovementRecords: nextProps.productMovementRecords,
+			internalMovementProductLog:nextProps.internalMovementProductLog
 		};
 	}
 
 	onChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
+	}
+
+	onOpenAcceptOrderModal(selectedRecord) {
+		this.setState({
+			acceptOrderModal: true,
+			selectedRecord:selectedRecord
+		});
+	}
+
+	onCloseAcceptOrderModal() {
+		this.setState({ acceptOrderModal: false });
 	}
 
 	updateStatus(e, item, funtionName) {
@@ -64,38 +82,21 @@ class ProductMovementRecord extends React.Component {
 					movementType: item.values.movementType,
 					quantity: item.values.quantity,
 					refProductStore: item.values.toProductStore,
-					refInvoice: item.values.referenceInvoice,
+					refInvoice: item.values.productMovementInvoice,
 					productStore: item.values.fromProductStore
 				};
 				this.props.executeFuntion(updateStore, 'reduceQuantityInProductStore').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
-								this.props.getVariables('ProductMovementRecord');
+								this.props.getVariables('InternalProductMovementItemRecord');
 							}
 						});
 					}
 				});
 				break;
 			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
-				const update = {
-					updateType: 'Received',
-					movementType: item.values.movementType,
-					quantity: item.values.quantity,
-					refProductStore: item.values.fromProductStore,
-					refInvoice: item.values.referenceInvoice,
-					productStore: item.values.toProductStore
-				};
-				//todo
-				this.props.executeFuntion(update, 'updateQuantityInProductStore').then((response) => {
-					if (response.status === 200) {
-						this.props.executeFuntion(args, funtionName).then((response) => {
-							if (response.status === 200) {
-								this.props.getVariables('ProductMovementRecord');
-							}
-						});
-					}
-				});
+				this.onOpenAcceptOrderModal(item);
 				break;
 			case 'receiveRejectedShipmentUpdateMovementRecord':
 				const reciveRejectedItem = {
@@ -103,14 +104,14 @@ class ProductMovementRecord extends React.Component {
 					movementType: item.values.movementType,
 					quantity: item.values.quantity,
 					refProductStore: item.values.toProductStore,
-					refInvoice: item.values.referenceInvoice,
+					refInvoice: item.values.productMovementInvoice,
 					productStore: item.values.fromProductStore
 				};
 				this.props.executeFuntion(reciveRejectedItem, 'updateQuantityInProductStore').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
-								this.props.getVariables('ProductMovementRecord');
+								this.props.getVariables('InternalProductMovementItemRecord');
 							}
 						});
 					}
@@ -119,7 +120,7 @@ class ProductMovementRecord extends React.Component {
 			default:
 				this.props.executeFuntion(args, funtionName).then((response) => {
 					if (response.status === 200) {
-						this.props.getVariables('ProductMovementRecord');
+						this.props.getVariables('InternalProductMovementItemRecord');
 					}
 				});
 				break;
@@ -311,7 +312,8 @@ class ProductMovementRecord extends React.Component {
 							) : (
 								undefined
 							)}
-							{data.values.status === 'Rejected Item Received' || data.values.status === 'Receive Approved' ? (
+							{data.values.status === 'Rejected Item Received' ||
+							data.values.status === 'Receive Approved' ? (
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"
@@ -337,10 +339,34 @@ class ProductMovementRecord extends React.Component {
 		});
 		return rows;
 	}
+	renderProductLog(){
+		const rows = [];
+		this.state.internalMovementProductLog.forEach((data) => {	
+			rows.push(
+				<TableRow key={data.variableName}>
+					<TableData width="2%" />
+					<TableData width="10%">
+						<TableHeaderInner>{data.values.date}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{data.values.product}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{data.values.acceptedQuantity}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{data.values.rejectedQuantity}</TableHeaderInner>
+					</TableData>
+				</TableRow>
+			);
+		});
+		return rows;
+	}
 
 	render() {
 		return (
 			<PageBlock>
+				<AcceptOrderModal isOpen={this.state.acceptOrderModal} onClose={this.onCloseAcceptOrderModal} selectedRecord={this.state.selectedRecord} />
 				<PageToolbar borderBottom="1px solid #e0e1e7">
 					<ToolbarItems>
 						<LeftItemH1>Item Movement Record</LeftItemH1>
@@ -387,6 +413,52 @@ class ProductMovementRecord extends React.Component {
 												</TableHeaders>
 											</TableRow>
 											{this.renderProductMovementItemRecord()}
+										</TableBody>
+									</BodyTable>
+									{this.state.productMovementRecords.length === 0 ? (
+										<EmptyRowImageContainer>
+											<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
+											<EmptyRowTag>No Record</EmptyRowTag>
+										</EmptyRowImageContainer>
+									) : (
+										undefined
+									)}
+								</HeaderBody>
+							</HeaderBodyContainer>
+						</TableFieldContainer>
+					</RoundedBlock>
+				</InputBody>
+				<InputBody borderTop="0" overflow="visible">
+					<RoundedBlock overflow="visible">
+						<TableFieldContainer overflow="visible">
+							<HeaderBodyContainer>
+								<HeaderBody>
+									<BodyTable width="auto">
+										<TableBody>
+											<TableRow>
+												<TableHeaders width="2%" />
+												<TableHeaders width="10%">
+													<SelectIconContainer>
+														<SelectSpan>Date</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%">
+													<SelectIconContainer>
+														<SelectSpan>Product</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%">
+													<SelectIconContainer>
+														<SelectSpan>Accepted Quantity</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%">
+													<SelectIconContainer>
+														<SelectSpan>Rejected Quantity</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+											</TableRow>
+											{this.renderProductLog()}
 										</TableBody>
 									</BodyTable>
 									{this.state.productMovementRecords.length === 0 ? (

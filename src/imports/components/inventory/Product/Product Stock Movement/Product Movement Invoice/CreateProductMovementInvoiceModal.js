@@ -247,11 +247,12 @@ class CreateProductMovementModal extends React.Component {
 								productMovementOrders.push(
 									new Map([
 										[ 'variableName', data.variableName ],
-										[ 'typeName', 'ProductMovementRecord' ],
+										[ 'typeName', 'InternalProductMovementItemRecord' ],
 										[
 											'values',
 											new Map([
-												[ 'referenceInvoice', invoice.variableName ],
+												[ 'productMovementInvoice', invoice.variableName ],
+												[ 'productMovementOrder', invoice.values.productMovementOrder ],
 												[ 'status', 'Waiting For Dispatch' ],
 												[ 'product', data.values.product ],
 												[ 'fromProductStore', data.values.fromProductStore ],
@@ -279,7 +280,7 @@ class CreateProductMovementModal extends React.Component {
 											this.props.getVariables('ProductMovementOrderInvoice');
 											this.props.getVariables('ProductMovementInvoiceAdditionalCost');
 											this.props.getVariables('ProductMovementOrderInvoiceItems');
-											this.props.getVariables('ProductMovementRecord');
+											this.props.getVariables('InternalProductMovementItemRecord');
 											successMessage('Order Placed');
 										}
 									});

@@ -85,6 +85,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 		this.props.clearErrors();
 		this.props.getVariables('ProductMovementOrder');
 		this.props.getVariables('ProductMovementOrderItems');
+		this.props.getVariables('InternalProductMovementItemRecord');
 	}
 
 	onRefresh(e) {

@@ -37,7 +37,7 @@ class ProductMovementOrder extends React.Component {
 		super();
 		this.state = {
 			isOpen: false,
-			visibleSection:'invoice',
+			visibleSection: 'invoice',
 			createProductMovementOrder: true,
 			isCreateInvoiceModalOpen: false,
 			prevPropVariable: {},
@@ -59,7 +59,8 @@ class ProductMovementOrder extends React.Component {
 				]
 			]),
 			orderItems: [],
-			productMovementRecords: []
+			productMovementRecords: [],
+			internalMovementProductLog: []
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateOrderItems = this.updateOrderItems.bind(this);
@@ -74,18 +75,19 @@ class ProductMovementOrder extends React.Component {
 			nextProps.variables.ProductMovementOrder &&
 			nextProps.variables.ProductMovementOrderItems &&
 			nextProps.variables.ProductMovementOrderInvoice &&
-			nextProps.variables.ProductMovementRecord
+			nextProps.variables.InternalProductMovementItemRecord &&
+			nextProps.variables.InternalMovementProductLog
 		) {
 			const variable = nextProps.variables.ProductMovementOrder.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
-				const invoice = nextProps.variables.ProductMovementOrderInvoice.filter(
+				const productMovementRecords = nextProps.variables.InternalProductMovementItemRecord.filter(
 					(variable) => variable.values.productMovementOrder === nextProps.match.params.variableName
-				)[0];
-				const productMovementRecords =invoice!==undefined? nextProps.variables.ProductMovementRecord.filter(
-					(variable) => variable.values.referenceInvoice === invoice.variableName
-				):[];
+				);
+				const internalMovementProductLog = nextProps.variables.InternalMovementProductLog.filter(
+					(log) => log.values.productMovementOrder === nextProps.match.params.variableName
+				);
 				const orderItems = nextProps.variables.ProductMovementOrderItems
 					.filter((items) => items.values.orderId === variable.variableName)
 					.map((item) => {
@@ -101,19 +103,21 @@ class ProductMovementOrder extends React.Component {
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
 					orderItems: orderItems,
-					productMovementRecords: productMovementRecords
+					productMovementRecords: productMovementRecords,
+					internalMovementProductLog: internalMovementProductLog
 				};
 			}
 			if (variable) {
-				const invoice = nextProps.variables.ProductMovementOrderInvoice.filter(
+				const productMovementRecords = nextProps.variables.InternalProductMovementItemRecord.filter(
 					(variable) => variable.values.productMovementOrder === nextProps.match.params.variableName
-				)[0];
-				const productMovementRecords =invoice!==undefined? nextProps.variables.ProductMovementRecord.filter(
-					(variable) => variable.values.referenceInvoice === invoice.variableName
-				):[];
+				);
+				const internalMovementProductLog = nextProps.variables.InternalMovementProductLog.filter(
+					(log) => log.values.productMovementOrder === nextProps.match.params.variableName
+				);
 				return {
 					...prevState,
-					productMovementRecords: productMovementRecords
+					productMovementRecords: productMovementRecords,
+					internalMovementProductLog: internalMovementProductLog
 				};
 			}
 		}
@@ -131,7 +135,8 @@ class ProductMovementOrder extends React.Component {
 		this.props.getVariables('ProductMovementOrder');
 		this.props.getVariables('ProductMovementOrderItems');
 		this.props.getVariables('ProductMovementOrderInvoice');
-		this.props.getVariables('ProductMovementRecord');
+		this.props.getVariables('InternalProductMovementItemRecord');
+		this.props.getVariables('InternalMovementProductLog');
 	}
 
 	componentDidMount() {
@@ -305,7 +310,10 @@ class ProductMovementOrder extends React.Component {
 						)}
 						{this.state.variable.get('values').get('status') === 'Order Accepted' &&
 						this.state.visibleSection === 'movementRecord' ? (
-							<ProductMovementRecord productMovementRecords={this.state.productMovementRecords} />
+							<ProductMovementRecord
+								productMovementRecords={this.state.productMovementRecords}
+								internalMovementProductLog={this.state.internalMovementProductLog}
+							/>
 						) : (
 							undefined
 						)}
