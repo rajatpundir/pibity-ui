@@ -28,8 +28,9 @@ class RecievePaymentModal extends React.Component {
 		super();
 		this.state = {
 			amount: '',
-			paymentMode:'',
-			paymentReferenceId:'',
+			paymentMode: '',
+			makePayment: true,
+			paymentReferenceId: '',
 			invoiceAccount: {
 				values: {
 					name: ''
@@ -39,6 +40,7 @@ class RecievePaymentModal extends React.Component {
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onClearDues = this.onClearDues.bind(this);
+		this.checkRequiredField = this.checkRequiredField.bind(this);
 	}
 
 	componentDidMount() {
@@ -69,6 +71,23 @@ class RecievePaymentModal extends React.Component {
 		this.props.onClose();
 	}
 
+	checkRequiredField(variable) {
+		console.log(variable);
+		console.log(this.props.invoice.values.balanceDue);
+		if (variable.paymentReferenceId === '') {
+			customErrorMessage('PaymentReferenceId  is missing');
+			this.setState({ makePayment: false });
+		}
+		if (variable.paymentMode === '') {
+			customErrorMessage('PaymentMode  is missing');
+			this.setState({ makePayment: false });
+		}
+		if (variable.amount > this.props.invoice.values.balanceDue) {
+			customErrorMessage('amount  is grater than BalanceDue');
+			this.setState({ makePayment: false });
+		}
+	}
+
 	onClearDues() {
 		const args = {
 			amount: this.state.amount,
@@ -78,29 +97,44 @@ class RecievePaymentModal extends React.Component {
 			paymentReferenceId: this.state.paymentReferenceId,
 			paymentMode: this.state.paymentMode
 		};
-		if (this.state.amount <= this.props.invoice.values.balanceDue) {
-			this.props.executePaymentInvoiceFuntion(args, 'createSalesAccountTransaction').then((data) => {
-				if (data.status === 200) {
-					const request = {
-						orgId: localStorage.getItem('selectedOrganization'),
-						typeName: 'SalesInvoice',
-						variableName: this.props.invoice.variableName,
-						values: {
-							transactions: {
-								add: [ data.transaction.variableName ]
+
+		new Promise((resolve) => {
+			resolve(this.checkRequiredField(args));
+		}).then(() => {
+			if (this.state.makePayment) {
+				this.props.executePaymentInvoiceFuntion(args, 'createSalesAccountTransaction').then((data) => {
+					if (data.status === 200) {
+						const request = {
+							orgId: localStorage.getItem('selectedOrganization'),
+							typeName: 'SalesInvoice',
+							variableName: this.props.invoice.variableName,
+							values: {
+								transactions: {
+									add: [ data.transaction.variableName ]
+								}
 							}
-						}
-					};
-					this.props.updatePurchaseInvoice(request).then((status) => {
-						successMessage('Transaction Compleated Successfully');
-					});
-					this.props.getVariables('SalesInvoice');
-					this.onClose();
-				}
-			});
-		} else {
-			customErrorMessage('amount is grater than Balnce Due');
-		}
+						};
+						this.props.updatePurchaseInvoice(request).then((status) => {
+							successMessage('Transaction Compleated Successfully');
+						});
+						this.props.getVariables('SalesInvoice');
+						this.setState({
+							amount: '',
+							paymentMode: '',
+							makePayment: true,
+							paymentReferenceId: '',
+							invoiceAccount: {
+								values: {
+									name: ''
+								}
+							}
+						});
+						this.onClose();
+					}
+				});
+			}
+			this.setState({ makePayment: true });
+		});
 	}
 
 	render() {
@@ -195,9 +229,7 @@ class RecievePaymentModal extends React.Component {
 										this.onChange(e);
 									}}
 								/>{' '}
-								<InputLabel>
-									Payment Mode Reference Id
-								</InputLabel>
+								<InputLabel>Payment Mode Reference Id</InputLabel>
 							</FormControl>
 							<FormControl>
 								<Input

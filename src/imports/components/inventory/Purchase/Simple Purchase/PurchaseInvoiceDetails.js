@@ -819,7 +819,7 @@ class PurchaseInvoiceDetails extends React.Component {
 												toLocation: this.props.location
 											};
 											this.props
-												.executeFuntion(args, 'createPurchaseOrderStockReceivedRecord1')
+												.executeFuntion(args, 'createPurchaseOrderStockReceivedRecord')
 												.then((response) => {
 													if (response.status === 200) {
 														this.props

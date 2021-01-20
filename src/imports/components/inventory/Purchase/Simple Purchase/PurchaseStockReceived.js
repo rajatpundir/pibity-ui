@@ -134,10 +134,10 @@ class PurchaseStockRecord extends React.Component {
 	}
 	updateStatus(e, item, funtionName) {
 		const args = {
-			productMovementRecord: item.variableName
+			purchaseOrderStockItemRecord: item.variableName
 		};
 		switch (funtionName) {
-			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
+			case 'approveReceivedPurchasedItem':
 				const update = {
 					updateType: 'Received',
 					movementType: item.values.movementType,
@@ -300,7 +300,7 @@ class PurchaseStockRecord extends React.Component {
 							) : (
 								undefined
 							)} */}
-							{data.values.status === 'Rejected Item In Transit' || 'Receive Approved' ? (
+							{data.values.status === 'Rejected Item In Transit' || data.values.status === 'Receive Approved' ? (
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"
