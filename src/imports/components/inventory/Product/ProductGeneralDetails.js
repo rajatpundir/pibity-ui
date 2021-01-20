@@ -434,13 +434,6 @@ class ProductGeneralDetails extends React.Component {
 											/>
 										</SelectWrapper>
 										<InputLabel>Product Discount</InputLabel>
-										<SelectAddButton
-											onClick={(e) => {
-												this.openCreateVariableModal('ProductDiscount');
-											}}
-										>
-											<AddIcon fontSize="large" />{' '}
-										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<Input
@@ -519,13 +512,6 @@ class ProductGeneralDetails extends React.Component {
 											/>
 										</SelectWrapper>
 										<InputLabel>Default Location</InputLabel>
-										<SelectAddButton
-											onClick={(e) => {
-												this.openCreateVariableModal('Location');
-											}}
-										>
-											<AddIcon fontSize="large" />{' '}
-										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<SelectWrapper>

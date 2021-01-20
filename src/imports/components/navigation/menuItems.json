@@ -30,10 +30,6 @@
 					"url": "/productMovementOrderList/orderReceived" 
 				},
 				{
-					"name": "Adjust Stock",
-					"url": "/stockAdjustment"
-				},
-				{
 					"name": "Product Stores ",
 					"url": "/productStores"
 				},
@@ -52,10 +48,6 @@
 				{
 					"name": "Brands",
 					"url": "/brands"
-				},
-				{
-					"name": "Stock Adjustment Record",
-					"url": "/stockAdjustmentList"
 				}
 			]
 		},
