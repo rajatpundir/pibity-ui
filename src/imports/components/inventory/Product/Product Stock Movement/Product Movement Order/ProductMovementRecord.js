@@ -34,9 +34,9 @@ class ProductMovementRecord extends React.Component {
 		super();
 		this.state = {
 			productMovementRecords: [],
-			internalMovementProductLog:[],
+			internalMovementProductLog: [],
 			acceptOrderModal: false,
-			selectedRecord:{}
+			selectedRecord: {}
 		};
 		this.onChange = this.onChange.bind(this);
 		this.renderProductMovementItemRecord = this.renderProductMovementItemRecord.bind(this);
@@ -52,7 +52,7 @@ class ProductMovementRecord extends React.Component {
 		return {
 			...prevState,
 			productMovementRecords: nextProps.productMovementRecords,
-			internalMovementProductLog:nextProps.internalMovementProductLog
+			internalMovementProductLog: nextProps.internalMovementProductLog
 		};
 	}
 
@@ -63,7 +63,7 @@ class ProductMovementRecord extends React.Component {
 	onOpenAcceptOrderModal(selectedRecord) {
 		this.setState({
 			acceptOrderModal: true,
-			selectedRecord:selectedRecord
+			selectedRecord: selectedRecord
 		});
 	}
 
@@ -130,6 +130,9 @@ class ProductMovementRecord extends React.Component {
 	renderProductMovementItemRecord() {
 		const rows = [];
 		this.state.productMovementRecords.forEach((data) => {
+			const log = this.state.internalMovementProductLog.filter(
+				(log) => log.values.referenceItemRecord === data.variableName
+			)[0];
 			var backgroundColor;
 			var color = '#f1f6fb';
 			switch (data.values.status) {
@@ -173,6 +176,12 @@ class ProductMovementRecord extends React.Component {
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>{data.values.quantity}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{log !== undefined ? log.values.acceptedQuantity : '-'}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{log !== undefined ? log.values.rejectedQuantity : '-'}</TableHeaderInner>
 					</TableData>
 					<TableData width="0%">
 						<TableHeaderInner>
@@ -285,7 +294,7 @@ class ProductMovementRecord extends React.Component {
 											this.updateStatus(e, data, 'dispatchRejectedShipmentUpdateMovementRecord')}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
-										Dispatch Rejected Shipment
+										Dispatch Shipment
 									</Custombutton>
 								</React.Fragment>
 							) : (
@@ -339,34 +348,15 @@ class ProductMovementRecord extends React.Component {
 		});
 		return rows;
 	}
-	renderProductLog(){
-		const rows = [];
-		this.state.internalMovementProductLog.forEach((data) => {	
-			rows.push(
-				<TableRow key={data.variableName}>
-					<TableData width="2%" />
-					<TableData width="10%">
-						<TableHeaderInner>{data.values.date}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>{data.values.product}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>{data.values.acceptedQuantity}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>{data.values.rejectedQuantity}</TableHeaderInner>
-					</TableData>
-				</TableRow>
-			);
-		});
-		return rows;
-	}
 
 	render() {
 		return (
 			<PageBlock>
-				<AcceptOrderModal isOpen={this.state.acceptOrderModal} onClose={this.onCloseAcceptOrderModal} selectedRecord={this.state.selectedRecord} />
+				<AcceptOrderModal
+					isOpen={this.state.acceptOrderModal}
+					onClose={this.onCloseAcceptOrderModal}
+					selectedRecord={this.state.selectedRecord}
+				/>
 				<PageToolbar borderBottom="1px solid #e0e1e7">
 					<ToolbarItems>
 						<LeftItemH1>Item Movement Record</LeftItemH1>
@@ -403,6 +393,16 @@ class ProductMovementRecord extends React.Component {
 												</TableHeaders>
 												<TableHeaders width="10%">
 													<SelectIconContainer>
+														<SelectSpan>Accepted Quantity</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%">
+													<SelectIconContainer>
+														<SelectSpan>Rejected Quantity</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%">
+													<SelectIconContainer>
 														<SelectSpan> Status</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
@@ -413,52 +413,6 @@ class ProductMovementRecord extends React.Component {
 												</TableHeaders>
 											</TableRow>
 											{this.renderProductMovementItemRecord()}
-										</TableBody>
-									</BodyTable>
-									{this.state.productMovementRecords.length === 0 ? (
-										<EmptyRowImageContainer>
-											<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-											<EmptyRowTag>No Record</EmptyRowTag>
-										</EmptyRowImageContainer>
-									) : (
-										undefined
-									)}
-								</HeaderBody>
-							</HeaderBodyContainer>
-						</TableFieldContainer>
-					</RoundedBlock>
-				</InputBody>
-				<InputBody borderTop="0" overflow="visible">
-					<RoundedBlock overflow="visible">
-						<TableFieldContainer overflow="visible">
-							<HeaderBodyContainer>
-								<HeaderBody>
-									<BodyTable width="auto">
-										<TableBody>
-											<TableRow>
-												<TableHeaders width="2%" />
-												<TableHeaders width="10%">
-													<SelectIconContainer>
-														<SelectSpan>Date</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%">
-													<SelectIconContainer>
-														<SelectSpan>Product</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%">
-													<SelectIconContainer>
-														<SelectSpan>Accepted Quantity</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-												<TableHeaders width="10%">
-													<SelectIconContainer>
-														<SelectSpan>Rejected Quantity</SelectSpan>
-													</SelectIconContainer>
-												</TableHeaders>
-											</TableRow>
-											{this.renderProductLog()}
 										</TableBody>
 									</BodyTable>
 									{this.state.productMovementRecords.length === 0 ? (

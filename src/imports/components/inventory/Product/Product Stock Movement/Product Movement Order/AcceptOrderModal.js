@@ -84,9 +84,8 @@ class AcceptOrderModal extends React.Component {
 		this.props.executeFuntion(update, 'updateQuantityInProductStore').then((response) => {
 			if (response.status === 200) {
 				if (this.state.rejectedQuantity !== 0) {
-					this.props.executeFuntion(args, 'approveShipmentReceivedAndUpdateProductMovementRecord');
 					this.props
-						.executeFuntion(createRecordArgs, 'createRejectedItemProductMovementRecord')
+						.executeFuntion(createRecordArgs, 'approveAndCreateRejectedItemProductMovementRecord')
 						.then((response) => {
 							if (response.status === 200) {
 								this.props.getVariables('InternalProductMovementItemRecord');
