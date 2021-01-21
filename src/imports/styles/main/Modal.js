@@ -3,7 +3,6 @@ export {
 	SelectWrapper,
 	InputFieldContainer,
 	InputLabel,
-	FormControl,
 	Input,
 	InputRowWrapper,
 	Required,
@@ -12,6 +11,27 @@ export {
 	CheckBoxLabel,
 	CheckBoxContainer
 } from '../inventory/Style';
+
+export const FormControl = styled.div.attrs((props) => ({
+	minHeight: props.minHeight || '60px',
+	paddingBottom: props.paddingBottom || '20px',
+	paddingRight: props.paddingRight,
+	flexBasis: props.flexBasis ,
+}))`
+	padding-bottom: ${(props) => props.paddingBottom};
+	padding-right: ${(props) => props.paddingRight};
+	min-height:${(props) => props.minHeight};
+	position: relative;
+	display: flex;
+	align-items: start;
+	flex-basis:${(props) => props.flexBasis};
+	 width: 100%;
+
+	@media (max-width: 991px) {
+		flex-basis:auto !important;
+	}
+`;
+
 
 export const ModalCustomStyles = {
 	overlay: {

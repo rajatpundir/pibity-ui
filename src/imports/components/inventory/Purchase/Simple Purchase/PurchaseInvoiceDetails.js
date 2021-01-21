@@ -99,12 +99,14 @@ class PurchaseInvoiceDetails extends React.Component {
 						[ 'totalTaxOnAdditionalCost', 0 ]
 					])
 				]
-			])
+			]),
+			purchaseStockItems: []
 		};
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 		this.onCopyProductOrderFromOrder = this.onCopyProductOrderFromOrder.bind(this);
 		this.onCalculateTotal = this.onCalculateTotal.bind(this);
+		this.createStockItems = this.createStockItems.bind(this);
 	}
 
 	componentDidMount() {
@@ -751,11 +753,44 @@ class PurchaseInvoiceDetails extends React.Component {
 		return rows;
 	}
 
-	createStockItems(invoice, purchaseStockRecord) {
-		console.log(purchaseStockRecord);
-		console.log(invoice);
+	createStore(invoice) {
+		const productStores = [];
+		invoice.values.productInvoiceDetails.forEach((data) => {
+			const store =
+				this.props.variables.ProductStore !== undefined
+					? this.props.variables.ProductStore.filter(
+							(store) =>
+								store.values.location === this.props.location &&
+								store.values.product === data.values.product
+						)[0]
+					: undefined;
+			if (store === undefined) {
+				productStores.push(
+					new Map([
+						[ 'typeName', 'ProductStore' ],
+						[ 'variableName', '' ],
+						[
+							'values',
+							new Map([
+								[ 'status', 'Active' ],
+								[ 'location', this.props.location ],
+								[ 'product', data.values.product ],
+								[ 'onHand', 0 ],
+								[ 'onOrder', 0 ],
+								[ 'available', 0 ],
+								[ 'allocated', 0 ]
+							])
+						]
+					])
+				);
+			}
+		});
+		return productStores;
+	}
 
+	createStockItems(invoice, purchaseStockRecord) {
 		const purchaseStockItems = [];
+		console.log(this.props.variables.ProductStore);
 		invoice.values.productInvoiceDetails.forEach((data) => {
 			const productStore =
 				this.props.variables.ProductStore !== undefined
@@ -764,10 +799,11 @@ class PurchaseInvoiceDetails extends React.Component {
 								store.values.location === this.props.location &&
 								store.values.product === data.values.product
 						)[0]
-					: [];
+					: undefined;
+
 			purchaseStockItems.push(
 				new Map([
-					[ 'variableName', data.variableName ],
+					[ 'variableName', '' ],
 					[ 'typeName', 'PurchaseOrderStockItemRecord' ],
 					[
 						'values',
@@ -789,6 +825,9 @@ class PurchaseInvoiceDetails extends React.Component {
 				])
 			);
 		});
+
+		console.log(purchaseStockItems.length);
+		console.log(purchaseStockItems);
 		return purchaseStockItems;
 	}
 
@@ -822,18 +861,37 @@ class PurchaseInvoiceDetails extends React.Component {
 												.executeFuntion(args, 'createPurchaseOrderStockReceivedRecord')
 												.then((response) => {
 													if (response.status === 200) {
-														this.props
-															.createVariables(
-																this.createStockItems(
-																	invoice,
-																	response.data.purchaseStockRecord
-																)
-															)
-															.then((response) => {
-																if (response.status === 200) {
-																	successMessage(' Purchase Invoice Created');
-																}
+														new Promise((resolve) => {
+															resolve(
+																this.props.createVariables(this.createStore(invoice))
+															);
+														}).then(() => {
+															this.props.getVariables('ProductStore').then(() => {
+																// this.createStockItems(
+																// 	invoice,
+																// 	response.data.purchaseStockRecord
+																// );
+																this.props
+																	.createVariables(
+																		this.createStockItems(
+																			invoice,
+																			response.data.purchaseStockRecord
+																		)
+																	)
+																	.then((response) => {
+																		console.log(response);
+																		if (response.status === 200) {
+																			this.props.getVariables(
+																				'PurchaseOrderStockItemRecord'
+																			);
+																			this.props.getVariables(
+																				'PurchaseOrderStockReceivedRecord'
+																			);
+																			successMessage(' Purchase Invoice Created');
+																		}
+																	});
 															});
+														});
 													}
 												});
 										}

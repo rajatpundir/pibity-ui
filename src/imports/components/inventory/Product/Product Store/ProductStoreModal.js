@@ -248,10 +248,16 @@ class ProductStoreModal extends React.Component {
 									product: this.state.typeVariable.get('values').get('product'),
 									location: this.state.typeVariable.get('values').get('location')
 								};
-								this.props.queryData('ProductStore', 100, 0, values).then((response) => {
+								//Todo (Temporary Solution Added)
+								this.props.queryData('ProductStore', 100, 0).then((response) => {
 									if (response.status === 200) {
-										console.log(response.data)
-										if (response.data.length === 0) {
+										//Temporary Solution
+										const store = response.data.filter(
+											(data) =>
+												data.values.product === values.product &&
+												data.values.location === values.location
+										);
+										if (store.length === 0) {
 											this.props.createVariable(this.state.typeVariable).then((response) => {
 												if (response.status === 200) {
 													this.onClose(e);
@@ -261,6 +267,17 @@ class ProductStoreModal extends React.Component {
 										} else {
 											customErrorMessage(`Produuct Store Already Exists `);
 										}
+										// Permanet Solution
+										// if (response.data.length === 0) {
+										// 	this.props.createVariable(this.state.typeVariable).then((response) => {
+										// 		if (response.status === 200) {
+										// 			this.onClose(e);
+										// 			successMessage(`Produuct Store Added Succesfully`);
+										// 		}
+										// 	});
+										// } else {
+										// 	customErrorMessage(`Produuct Store Already Exists `);
+										// }
 									}
 								});
 							}

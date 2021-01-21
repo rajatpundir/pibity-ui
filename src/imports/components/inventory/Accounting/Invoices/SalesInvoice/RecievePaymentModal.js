@@ -94,6 +94,7 @@ class RecievePaymentModal extends React.Component {
 			invoice: this.props.invoice.variableName,
 			voucher: 'Sales',
 			account: this.props.account.variableName,
+			refAccount:this.props.invoice.values.account,
 			paymentReferenceId: this.state.paymentReferenceId,
 			paymentMode: this.state.paymentMode
 		};

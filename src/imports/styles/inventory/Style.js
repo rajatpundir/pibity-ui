@@ -493,7 +493,8 @@ export const FormControl = styled.div.attrs((props) => ({
 	minHeight: props.minHeight || '60px',
 	paddingBottom: props.paddingBottom || '20px',
 	paddingRight: props.paddingRight,
-	flexBasis: props.flexBasis
+	flexBasis: props.flexBasis ,
+	mediaFlexBasis: props.mediaFlexBasis ||'calc(100% / 2 - 9px)'
 }))`
 	padding-bottom: ${(props) => props.paddingBottom};
 	padding-right: ${(props) => props.paddingRight};
@@ -505,7 +506,7 @@ export const FormControl = styled.div.attrs((props) => ({
 	 width: 100%;
 
 	@media (max-width: 991px) {
-		flex-basis: calc(100% / 2 - 9px) !important;
+		flex-basis:${(props) => props.mediaFlexBasis} !important;
 	}
 `;
 

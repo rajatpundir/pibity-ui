@@ -245,6 +245,8 @@ export const createVariables = (variables: Array) => async (dispatch) => {
 	try {
 		const url = domain + '/variables/mutate';
 
+		console.log(variables);
+		
 		const requestBody = variables.map((variable) => {
 			const request = { ...mapToObjectRec(variable), ...{ op: 'create' } };
 			return request;
