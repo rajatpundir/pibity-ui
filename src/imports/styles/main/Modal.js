@@ -3,12 +3,35 @@ export {
 	SelectWrapper,
 	InputFieldContainer,
 	InputLabel,
-	FormControl,
 	Input,
 	InputRowWrapper,
 	Required,
-	TextAreaInput
+	TextAreaInput,
+	CheckBoxInput,
+	CheckBoxLabel,
+	CheckBoxContainer
 } from '../inventory/Style';
+
+export const FormControl = styled.div.attrs((props) => ({
+	minHeight: props.minHeight || '60px',
+	paddingBottom: props.paddingBottom || '20px',
+	paddingRight: props.paddingRight,
+	flexBasis: props.flexBasis ,
+}))`
+	padding-bottom: ${(props) => props.paddingBottom};
+	padding-right: ${(props) => props.paddingRight};
+	min-height:${(props) => props.minHeight};
+	position: relative;
+	display: flex;
+	align-items: start;
+	flex-basis:${(props) => props.flexBasis};
+	 width: 100%;
+
+	@media (max-width: 991px) {
+		flex-basis:auto !important;
+	}
+`;
+
 
 export const ModalCustomStyles = {
 	overlay: {
@@ -183,4 +206,10 @@ export const ModalBodyHeading = styled.h3`
 	line-height: 20px;
 	margin-top: 5px;
 	margin-bottom: 5px;
+`;
+
+export const ModalInputColumnWrapper = styled.div`
+	flex-basis: 100% !important;
+	justify-content: space-between;
+	display: flex;
 `;

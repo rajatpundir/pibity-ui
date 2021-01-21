@@ -1,0 +1,411 @@
+import React from 'react';
+import styled from 'styled-components';
+import Select from 'react-select';
+import { connect } from 'react-redux';
+import { cloneDeep } from 'lodash';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { getVariables } from '../../../../redux/actions/variables';
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import {
+	Input,
+	PageBlock,
+	PageToolbar,
+	ToolbarItems,
+	LeftItemWrapper,
+	LeftItemH1,
+	InputBody,
+	InputFieldContainer,
+	InputColumnWrapper,
+	InputRowWrapper,
+	FormControl,
+	SelectWrapper,
+	InputLabel,
+	Required
+} from '../../../../styles/inventory/Style';
+
+class ServiceSalesGeneralDetails extends React.Component {
+	constructor(props) {
+		super();
+		this.state = {
+			variable: props.variable,
+			address: props.address,
+			contact: props.contact,
+			open: true
+		};
+		this.onChange = this.onChange.bind(this);
+		this.onVariableNameChange = this.onVariableNameChange.bind(this);
+	}
+
+	// clear form errors
+	componentDidMount() {
+		this.props.clearErrors();
+	}
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		return {
+			...prevState,
+			variable: nextProps.variable,
+			address: nextProps.address,
+			contact: nextProps.contact
+		};
+	}
+
+	onVariableNameChange(e) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		const customerAddress = cloneDeep(this.state.address);
+		const addressValues = customerAddress.get('values');
+		const customerContact = cloneDeep(this.state.contact);
+		const contactValues = customerContact.get('values');
+		values.set('customerName', e.target.value);
+		if (e.target.data.contacts.length !== 0) {
+			const contact = values.get('contact');
+			contact.set('variableName', e.target.data.contacts[0].variableName);
+			contact.set('context', e.target.data.contacts[0].context);
+			values.set('contact', contact);
+			contactValues.set('name', e.target.data.contacts[0].values.name);
+			contactValues.set('phone', e.target.data.contacts[0].values.phone);
+			customerContact.set('variableName', e.target.data.contacts[0].variableName);
+		}
+		if (e.target.data.addresses.length !== 0) {
+			const address = values.get('address');
+			address.set('variableName', e.target.data.addresses[0].variableName);
+			address.set('context', e.target.data.addresses[0].context);
+			values.set('address', address);
+			addressValues.set('line1', e.target.data.addresses[0].values.line1);
+			addressValues.set('line2', e.target.data.addresses[0].values.line2);
+			customerAddress.set('variableName', e.target.data.addresses[0].variableName);
+		}
+		values.set('term', e.target.data.general.values.paymentTerm);
+		values.set('taxRule', e.target.data.general.values.taxRule);
+		variable.set('variableName', e.target.value);
+		variable.set('values', values);
+		customerAddress.set('values', addressValues);
+		customerContact.set('values', contactValues);
+		this.setState({ variable: variable, address: customerAddress, contact: customerContact });
+		this.props.updateDetails(variable, customerAddress, customerContact);
+	}
+
+	onChange(e) {
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set(e.target.name, e.target.value);
+		variable.set('values', values);
+		this.setState({ variable: variable });
+		this.props.updateDetails(variable, this.state.address, this.state.contact);
+	}
+
+	render() {
+		return (
+			<PageBlock style={{ display: 'block' }} paddingBottom="0">
+				<PageToolbar>
+					<ToolbarItems>
+						<LeftItemWrapper backgroundColor="#f9e491" color="black">
+							Draft
+						</LeftItemWrapper>
+						<LeftItemH1>Simple Sale</LeftItemH1>
+					</ToolbarItems>
+					<IconButton
+						aria-label="expand row"
+						size="small"
+						onClick={() => this.setState({ open: !this.state.open })}
+					>
+						{this.state.open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+					</IconButton>
+				</PageToolbar>
+				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
+					<InputBody overflow="visible">
+						<InputFieldContainer>
+							<InputColumnWrapper>
+								<H3>Customer Details</H3>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('customerName'),
+												label: this.state.variable.get('values').get('customerName')
+											}}
+											isDisabled={this.props.creatable}
+											onChange={(option) => {
+												this.onVariableNameChange({
+													target: {
+														name: 'customerName',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={
+												this.props.variables.Customer !== undefined ? (
+													this.props.variables.Customer
+														.filter(
+															(customer) =>
+																customer.values.general.values.status === 'Active'
+														)
+														.map((variable) => {
+															return {
+																value: variable.variableName,
+																label: variable.variableName,
+																data: variable.values
+															};
+														})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										Customer
+										<Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="contact"
+										type="text"
+										value={this.state.contact.get('values').get('name')}
+										readOnly
+									/>
+									<InputLabel>Contact</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="phone"
+										type="text"
+										value={this.state.contact.get('values').get('phone')}
+										readOnly
+									/>
+									<InputLabel>
+										Phone
+										<Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="addressLine1"
+										type="text"
+										value={this.state.address.get('values').get('line1')}
+										readOnly
+									/>
+									<InputLabel>Billing Address Line 1</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="addressLine2"
+										type="text"
+										value={this.state.address.get('values').get('line2')}
+										readOnly
+									/>
+									<InputLabel> Billing Address Line 2</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
+							<InputColumnWrapper>
+								<H3>Accounting Details</H3>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('term'),
+												label: this.state.variable.get('values').get('term')
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'term', value: option.value } });
+											}}
+											options={
+												this.props.variables.PaymentTerm !== undefined ? (
+													this.props.variables.PaymentTerm.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel> Payment Term</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="requiredBy"
+										type="date"
+										value={this.state.variable.get('values').get('requiredBy')}
+										onChange={this.onChange}
+									/>
+									<InputLabel>Required By</InputLabel>
+								</FormControl>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('account'),
+												label: this.state.variable.get('values').get('account')
+											}}
+											isDisabled={this.props.creatable}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'account',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={
+												this.props.variables.Account !== undefined ? (
+													this.props.variables.Account.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName,
+															data: variable.values
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>Sales Account</InputLabel>
+								</FormControl>
+
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('taxRule'),
+												label: this.state.variable.get('values').get('taxRule')
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'taxRule', value: option.value } });
+											}}
+											options={
+												this.props.variables.TaxRule !== undefined ? (
+													this.props.variables.TaxRule
+														.filter((taxRule) => taxRule.values.isTaxForSale === true)
+														.map((variable) => {
+															return {
+																value: variable.variableName,
+																label: variable.variableName
+															};
+														})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+
+									<InputLabel>
+										Tax Rule <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
+							<InputColumnWrapper>
+								<H3>Shipping Details</H3>
+
+								<FormControl>
+									<Input
+										name="date"
+										type="date"
+										value={this.state.variable.get('values').get('date')}
+										onChange={this.onChange}
+										style={{ height: '38px' }}
+									/>{' '}
+									<InputLabel>
+										Date <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.variable.get('values').get('location'),
+												label: this.state.variable.get('values').get('location')
+											}}
+											onChange={(option) => {
+												this.onChange({ target: { name: 'location', value: option.value } });
+											}}
+											options={
+												this.props.variables.Location !== undefined ? (
+													this.props.variables.Location.map((variable) => {
+														return {
+															value: variable.variableName,
+															label: variable.variableName
+														};
+													})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										Location <Required>*</Required>{' '}
+									</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="shippingAddress1"
+										type="text"
+										placeholder="Default"
+										value={this.state.variable.get('values').get('shippingAddress1')}
+										onChange={this.onChange}
+									/>{' '}
+									<InputLabel>Shipping Address Line 1</InputLabel>
+								</FormControl>
+								<FormControl>
+									<Input
+										name="shippingAddress2"
+										type="text"
+										placeholder="Default"
+										value={this.state.variable.get('values').get('shippingAddress2')}
+										onChange={this.onChange}
+									/>{' '}
+									<InputLabel>Shipping Address Line 2</InputLabel>
+								</FormControl>
+							</InputColumnWrapper>
+							<InputRowWrapper>
+								<FormControl>
+									<Input
+										name="comments"
+										type="text"
+										placeholder="comment"
+										value={this.state.variable.get('values').get('comments')}
+										onChange={this.onChange}
+									/>{' '}
+									<InputLabel>Comment</InputLabel>
+								</FormControl>
+							</InputRowWrapper>
+						</InputFieldContainer>
+					</InputBody>
+				</Collapse>
+			</PageBlock>
+		);
+	}
+}
+const mapStateToProps = (state, ownProps) => ({
+	errors: state.errors,
+	types: state.types,
+	variables: state.variables
+});
+
+export default connect(mapStateToProps, {
+	clearErrors,
+	getVariables
+})(ServiceSalesGeneralDetails);
+
+const H3 = styled.h3`
+	padding-bottom: 15px;
+	color: #3b3b3b;
+	font-weight: bold;
+	font-size: 15px;
+	display: block;
+	width: 100%;
+`;

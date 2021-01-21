@@ -79,7 +79,7 @@ class SupplierDetails extends React.Component {
 					</IconButton>
 				</PageToolbar>
 				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
-					<InputBody>
+					<InputBody overflow="visible">
 						<InputFieldContainer>
 							<InputColumnWrapper>
 								<FormControl>
@@ -89,6 +89,7 @@ class SupplierDetails extends React.Component {
 										placeholder="Supplier Name"
 										value={this.state.variable.get('variableName')}
 										onChange={this.onVariableNameChange}
+										disabled={this.props.params.variableName?true:false}
 									/>{' '}
 									<InputLabel>
 										Name<Required>*</Required>

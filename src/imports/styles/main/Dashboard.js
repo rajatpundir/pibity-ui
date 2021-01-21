@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 export const PageLabelContainer = styled.div`
 	width: 100%;
@@ -65,7 +66,7 @@ export const PageSubTitleAnchor = styled.a`
 
 export const Block = styled.div`
 	display: block;
-	widht: 100%;
+	width: 100%;
 	margin-left: 10px;
 	margin-right: 10px;
 	margin-bottom: 20px;
@@ -118,37 +119,39 @@ export const ItemBlock = styled.div`
 	justify-content: space-between;
 `;
 
-export const Item = styled.button`
-font-weight: normal;
-    font-size: 12px;
-    line-height: 16px;
+export const Item = styled(Link)`
+    text-decoration:none;
+	font-weight: normal;
+	font-size: 12px;
+	line-height: 16px;
 	width: 18.7%;
 	flex-direction: column;
-    background: #F1F6FB;
-    height: auto;
-    border-radius: 6px;
-    margin-left: 4px;
-	margin-right: 4px
+	background: #f1f6fb;
+	height: auto;
+	border-radius: 6px;
+	margin-left: 4px;
+	margin-right: 4px;
 	border-width: 1px;
-    border-style: solid;
-    border-color: transparent;
+	border-style: solid;
+	border-color: transparent;
 	font-family: inherit;
 	text-align: center;
 	text-decoration: none;
-    display: inline-flex;
+	display: inline-flex;
 	vertical-align: middle;
 	justify-content: center;
-    align-items: center;
-    color: #3b3b3b;
-    white-space: nowrap;
-    padding: 0 16px;
-    cursor: pointer;
-	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out, opacity 0.15s ease-in-out;
+	align-items: center;
+	color: #3b3b3b;
+	white-space: nowrap;
+	padding: 0 16px;
+	cursor: pointer;
+	transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+	opacity 0.15s ease-in-out;
 `;
 
 export const ItemHeading = styled.div`
 	padding-top: 10px;
-	text-decoration: underline;
+	text-decoration: none;
 `;
 
 export const ItemData = styled.div`
@@ -160,10 +163,13 @@ export const ItemData = styled.div`
 	padding-bottom: 10px;
 `;
 
-export const EmptyRowImageContainer = styled.div`
+export const EmptyRowImageContainer = styled.div.attrs((props)=>({
+	height:props.height||'345px'
+}))`
 	text-align: center;
 	vertical-align: middle;
-	height: 345px;
+	padding: 20px;
+	height: ${(props)=>props.height};
 `;
 
 export const EmptyRowImage = styled.img`
@@ -171,7 +177,7 @@ export const EmptyRowImage = styled.img`
 	margin-top: 5px;
 `;
 
-export const EmptyRowTag=styled.div`
-color: #5f696f;
-    font-size: 12pt;
-`
+export const EmptyRowTag = styled.div`
+	color: #5f696f;
+	font-size: 12pt;
+`;

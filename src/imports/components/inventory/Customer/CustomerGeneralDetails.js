@@ -74,7 +74,7 @@ class CustomerGeneralDetails extends React.Component {
 			<PageBlock paddingBottom="0">
 				<PageToolbar>
 					<ToolbarItems>
-						<LeftItemH1>New Customer</LeftItemH1>
+						<LeftItemH1>Customer</LeftItemH1>
 					</ToolbarItems>
 					<IconButton
 						aria-label="expand row"

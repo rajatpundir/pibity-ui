@@ -86,8 +86,8 @@ class CreateAccountModal extends React.Component {
 
 	onCreateAccount() {
 		console.log(this.state.account);
-		this.props.createVariable(this.state.account).then((status) => {
-			if (status === 200) {
+		this.props.createVariable(this.state.account).then((response) => {
+			if (response.status === 200) {
 				successMessage('Account Added Succesfully');
 			}
 		});

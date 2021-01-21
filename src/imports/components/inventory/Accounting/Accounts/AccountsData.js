@@ -1,11 +1,8 @@
 import React from 'react';
 import { withStyles } from '@material-ui/core/styles';
-// import styled from 'styled-components';
-// import { Link } from 'react-router-dom';
-// import clsx from 'clsx';
+import { Link } from 'react-router-dom';
 // import Collapse from '@material-ui/core/Collapse';
 // import IconButton from '@material-ui/core/IconButton';
-// import TableCell from '@material-ui/core/TableCell';
 // import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 // import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import {
@@ -53,10 +50,14 @@ class AccountData extends React.Component {
 						</IconButton>
 					</TableData> */}
 					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">{this.props.data.values.code}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">
+							<Link to={'/accounts/' + encodeURIComponent(this.props.data.variableName)}>
+								{this.props.data.values.name}
+							</Link>
+						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">{this.props.data.values.name}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">{this.props.data.values.code}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">{this.props.data.values.accountCategory}</TableHeaderInner>

@@ -127,7 +127,7 @@ class Categories extends React.Component {
                 <GlobalVariableModal
 					onClose={this.onCloseCreateProductCategoryModal}
 					isOpen={this.state.isCreateProductCategoryModalOpen}
-					typeName='CarrierService'
+					typeName='ProductCategory'
 				/>
 				<PageWrapper mediaMargin="0" mediaWidth="100%">
 					<PageBody mediaWidth="100%">
@@ -198,7 +198,7 @@ class Categories extends React.Component {
 											{this.state.productCategories.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Product Category</EmptyRowTag>
+													<EmptyRowTag>No Product Category Available</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined

@@ -198,7 +198,7 @@ class UnitOfMeasure extends React.Component {
 											{this.state.unitOfMeasures.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Product Category</EmptyRowTag>
+													<EmptyRowTag>No Unit For Measure Available</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined

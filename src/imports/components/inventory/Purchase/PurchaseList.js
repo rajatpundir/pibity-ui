@@ -22,7 +22,6 @@ import {
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
 	HeaderBodyContainer,
 	HeaderBody,
 	BodyTable,
@@ -30,12 +29,7 @@ import {
 	TableRow,
 	TableHeaders,
 	TableData,
-	Anchor,
-	CheckBoxInput,
-	CheckBoxLabel,
-	CheckBoxContainer,
-	TableHeaderInner,
-	Span
+	TableHeaderInner
 } from '../../../styles/inventory/Style';
 import { TablePaginationStyle } from '../../../styles/main/TablePagination';
 
@@ -85,8 +79,8 @@ class PurchaseOrderList extends React.Component {
 			...prevState,
 			purchaseOrder:
 				nextProps.variables !== undefined
-					? nextProps.variables.purchaseOrder !== undefined
-						? nextProps.variables.purchaseOrder.map((x, i) => ({ ...x, Id: i }))
+					? nextProps.variables.PurchaseOrder !== undefined
+						? nextProps.variables.PurchaseOrder.map((x, i) => ({ ...x, Id: i }))
 						: []
 					: []
 		};
@@ -94,67 +88,45 @@ class PurchaseOrderList extends React.Component {
 
 	renderInputFields() {
 		const rows = [];
-		const list = this.state.activeCustomerOnly
-			? this.state.purchaseOrder.filter(
-					(purchaseOrder) => purchaseOrder.values.general.values.status === 'Active'
-				)
-			: this.state.purchaseOrder;
-		list.forEach((purchaseOrder) => {
+		this.state.purchaseOrder.forEach((purchaseOrder) => {
 			rows.push(
 				<TableRow onClick={this.handleRowClick} key={purchaseOrder.variableName}>
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Link to={'/purchaseOrder/' + purchaseOrder.variableName}>
-								{purchaseOrder.variableName}
-							</Link>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>{purchaseOrder.values.contacts[0].values.name}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={'tel:' + purchaseOrder.values.contacts[0].values.phone}>
-								{purchaseOrder.values.contacts[0].values.phone}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={'mailto:' + purchaseOrder.values.contacts[0].values.email} target="_blank">
-								{purchaseOrder.values.contacts[0].values.email}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Anchor href={purchaseOrder.values.contacts[0].values.website} target="_blank">
-								{purchaseOrder.values.contacts[0].values.website}
-							</Anchor>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="20%">
-						<TableHeaderInner>
-							{purchaseOrder.values.addresses[0] !== undefined ? (
-								purchaseOrder.values.addresses[0].values.line1 || 'no address found'
+							{purchaseOrder.values.orderType === 'Simple' ? (
+								<Link to={'/purchase/' + purchaseOrder.variableName}>{purchaseOrder.variableName}</Link>
 							) : (
-								'no address found'
+								<Link to={'/servicePurchase/' + purchaseOrder.variableName}>
+									{purchaseOrder.variableName}
+								</Link>
 							)}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>0.00</TableHeaderInner>
+						<TableHeaderInner>
+							<Link to={'/supplierList/' + purchaseOrder.values.general.values.supplierName}>
+								{purchaseOrder.values.general.values.supplierName}
+							</Link>
+						</TableHeaderInner>{' '}
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{purchaseOrder.values.general.values.date}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Span>{purchaseOrder.values.general.values.status}</Span>
+							{purchaseOrder.values.orderDetails[0].values.additionalCostBeforeTax +
+								purchaseOrder.values.orderDetails[0].values.productCostBeforeTax}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.general.values.onCreditHold === false ? 'NO' : 'Yes'}
+							{purchaseOrder.values.orderDetails[0].values.totalTaxOnAdditionalCost +
+								purchaseOrder.values.orderDetails[0].values.totalTaxOnProduct}
 						</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{purchaseOrder.values.orderDetails[0].values.total}</TableHeaderInner>
 					</TableData>
 				</TableRow>
 			);
@@ -177,7 +149,7 @@ class PurchaseOrderList extends React.Component {
 					<PageBody mediaWidth="100%">
 						<PageToolbar borderBottom="1px solid #e0e1e7">
 							<ToolbarItems>
-								<LeftItemH1>PurchaseOrder</LeftItemH1>
+								<LeftItemH1>Purchase Orders</LeftItemH1>
 							</ToolbarItems>
 						</PageToolbar>
 						<PageToolbar padding="6px 0 !important" borderBottom="1px solid #e0e1e7">
@@ -194,24 +166,6 @@ class PurchaseOrderList extends React.Component {
 									<ButtonWithOutline>Search</ButtonWithOutline>
 								</LeftItemFormControl>
 							</PageBarAlign>
-							<PageBarAlign padding="10px 20px" float="left">
-								<CheckBoxContainer>
-									<CheckBoxInput
-										type="checkbox"
-										checked={this.state.activeCustomerOnly}
-										tabindex="55"
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'activeCustomerOnly',
-													value: !this.state.activeCustomerOnly
-												}
-											});
-										}}
-									/>
-									<CheckBoxLabel>Only active customers</CheckBoxLabel>
-								</CheckBoxContainer>
-							</PageBarAlign>
 						</PageToolbar>
 						<InputBody borderTop="0" padding="0">
 							<RoundedBlock border="none">
@@ -220,29 +174,11 @@ class PurchaseOrderList extends React.Component {
 										<HeaderBody>
 											<BodyTable>
 												<TableBody>
-													<TableRow style={{backgroundColor: '#f3f3f387'}}>
-														<TableHeaders width="5%">
-															<SelectIconContainer>
-																<SelectSpan>
-																	<SelectSpanInner>
-																		<i className="large material-icons">create</i>
-																	</SelectSpanInner>
-																</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
+													<TableRow style={{ backgroundColor: '#f3f3f387' }}>
+														<TableHeaders width="5%" />
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Status</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Order</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="15%">
-															<SelectIconContainer>
-																<SelectSpan textAlign="right">OrderDate</SelectSpan>
+																<SelectSpan>Purchase Order</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
@@ -252,15 +188,20 @@ class PurchaseOrderList extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Doccument</SelectSpan>
+																<SelectSpan>Date</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														<TableHeaders width="15%">
+														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Required By</SelectSpan>
+																<SelectSpan>Total Before Tax</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														<TableHeaders width="15%">
+														<TableHeaders width="10%">
+															<SelectIconContainer>
+																<SelectSpan>Tax</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan>Total</SelectSpan>
 															</SelectIconContainer>

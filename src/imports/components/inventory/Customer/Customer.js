@@ -16,6 +16,7 @@ import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
 import CustomerContact from './CustomerContact';
 import CheckIcon from '@material-ui/icons/Check';
+import CustomerOrders from './Customer Account/CustomerOrders';
 import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
@@ -84,13 +85,14 @@ class Customer extends React.Component {
 						[ 'name', '' ],
 						[ 'balance', 0 ],
 						[ 'openingBalance', 0 ],
-						['status',"Active"],
-						['accountCategory','ASSET'],
-						[ 'description', 'Supplier Account'],
+						[ 'status', 'Active' ],
+						[ 'accountCategory', 'ASSET' ],
+						[ 'description', 'Customer Account' ],
 						[ 'accountType', 'Debtor' ]
 					])
 				]
 			]),
+			customerAccount: '',
 			visibleSection: 'addresses'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -102,11 +104,15 @@ class Customer extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Customer) {
+		if (nextProps.match.params.variableName && nextProps.variables.Customer && nextProps.variables.Account) {
 			const variable = nextProps.variables.Customer.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
+			const account = nextProps.variables.Account.filter(
+				(account) => account.variableName === variable.values.account
+			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const accountMap = objToMapRec(account);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -116,9 +122,11 @@ class Customer extends React.Component {
 				variableMap.set('values', values);
 				return {
 					...prevState,
+					account: accountMap,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
+					prevVariable: prevVariableMap,
+					customerAccount: variable.values.account
 				};
 			}
 		}
@@ -128,6 +136,8 @@ class Customer extends React.Component {
 	getData() {
 		this.props.clearErrors();
 		this.props.getVariables('Country');
+		this.props.getVariables('States');
+		this.props.getVariables('PinCode');
 		this.props.getVariables('Currency');
 		this.props.getVariables('CarrierService');
 		this.props.getVariables('PaymentTerm');
@@ -137,6 +147,7 @@ class Customer extends React.Component {
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
 		this.props.getVariables('AddressType');
+		this.props.getVariables('SalesInvoice');
 	}
 
 	componentDidMount() {
@@ -144,6 +155,8 @@ class Customer extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			if (this.props.match.params.variableName) {
+				this.props.getVariables('Account');
+				this.props.getVariables('SalesInvoice');
 				const variable = decodeURIComponent(this.props.match.params.variableName);
 				this.props.getVariable(this.state.variable.get('typeName'), variable);
 			}
@@ -234,7 +247,10 @@ class Customer extends React.Component {
 		const values = variable.get('values');
 		values.set('account', accountName);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({
+			variable: variable,
+			customerAccount: accountName
+		});
 	}
 
 	render() {
@@ -248,7 +264,14 @@ class Customer extends React.Component {
 							<SaveButton
 								onClick={(e) => {
 									if (this.props.match.params.variableName) {
-										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+										this.props
+											.updateVariable(this.state.prevVariable, this.state.variable)
+											.then((status) => {
+												if (status === 200) {
+													this.onClose(e);
+													successMessage(`Updated Succesfully`);
+												}
+											});
 									} else {
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
@@ -264,8 +287,8 @@ class Customer extends React.Component {
 													.then(() => {
 														this.props
 															.createVariable(this.state.variable)
-															.then((status) => {
-																if (status === 200) {
+															.then((response) => {
+																if (response.status === 200) {
 																	successMessage(' Customer Created');
 																}
 															});
@@ -279,14 +302,29 @@ class Customer extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
-						<CustomerGeneralDetails
-							variable={this.state.variable.get('values').get('general')}
-							updateDetails={this.updateDetails}
-						/>
+						{this.state.visibleSection !== 'accounts' && (
+							<CustomerGeneralDetails
+								variable={this.state.variable.get('values').get('general')}
+								updateDetails={this.updateDetails}
+							/>
+						)}
 						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList>
+										{this.state.visibleSection === 'accounts' ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'details' });
+													}}
+												>
+													Customer Details
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
 										<HoizontalBlockListItems>
 											<BlockListItemButton
 												onClick={(e) => {
@@ -305,6 +343,20 @@ class Customer extends React.Component {
 												Contacts
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
+										{this.props.match.params.variableName ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'orders' });
+													}}
+												>
+													Customer Purchase
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
+									
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
@@ -321,6 +373,16 @@ class Customer extends React.Component {
 								updateAddresses={this.updateAddresses}
 							/>
 						)}
+
+						{this.props.match.params.variableName && this.state.visibleSection === 'orders' ? (
+							<CustomerOrders
+								customer={this.props.match.params.variableName}
+								customerAccount={this.state.customerAccount}
+							/>
+						) : (
+							undefined
+						)}
+						
 					</PageBody>
 				</PageWrapper>
 			</Container>

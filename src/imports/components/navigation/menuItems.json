@@ -6,61 +6,53 @@
 			"url": "/dashboard"
 		},
 		{
-			"name": "Product",
-			"icon": "storefront",
+			"name": "Inventory",
+			"icon": "inventory_2",
 			"children": [
 				{
 					"name": "Products",
 					"url": "/productList"
 				},
 				{
-					"name": "Create Product",
+					"name": "Add Product",
 					"url": "/product"
 				},
 				{
-					"name": "Adjust Stock",
-					"url": "/stockAdjustment"
+					"name": "Add Stock Movement Order",
+					"url": "/productMovementOrder" 
 				},
 				{
-					"name": "Stock Adjustment Record",
-					"url": "/stockAdjustmentList"
+					"name": "Stock Movement Placed Orders",
+					"url": "/productMovementOrderList/orderPlcaed" 
 				},
 				{
-					"name": "QuickBooks",
-					"url": "/expence"
+					"name": "Stock Movement Recieved Orders",
+					"url": "/productMovementOrderList/orderReceived" 
+				},
+				{
+					"name": "Product Stores ",
+					"url": "/productStores"
+				},
+				{
+					"name": "Locations ",
+					"url": "/locations"
+				},
+				{
+					"name": "Unit Of Measure ",
+					"url": "/unitOfMeasure"
+				},
+				{
+					"name": "Product Categories ",
+					"url": "/productCategories"
+				},
+				{
+					"name": "Brands",
+					"url": "/brands"
 				}
 			]
 		},
 		{
-			"name": "Customer",
-			"icon": "person",
-			"children": [
-				{
-					"name": "Customers",
-					"url": "/customerList"
-				},
-				{
-					"name": "New Customer",
-					"url": "/customer"
-				}
-			]
-		},
-		{
-			"name": "Supplier",
-			"icon": "assignment_ind",
-			"children": [
-				{
-					"name": "Suppliers",
-					"url": "/SupplierList"
-				},
-				{
-					"name": "New Supplier",
-					"url": "/supplier"
-				}
-			]
-		},
-		{
-			"name": "Purchase Order",
+			"name": "Purchase",
 			"icon": "shopping_cart",
 			"children": [
 				{
@@ -68,8 +60,50 @@
 					"url": "/purchaseList"
 				},
 				{
-					"name": "New Purchase Order",
+					"name": "Add Simple Purchase",
 					"url": "/purchase"
+				},
+				{
+					"name": "Add Service Purchase ",
+					"url": "/servicePurchase"
+				},
+				{
+					"name": "Suppliers",
+					"url": "/SupplierList"
+				},
+				{
+					"name": "Add Supplier",
+					"url": "/supplier"
+				}
+			]
+		},
+		{
+			"name": "Sales",
+			"icon": "local_offer",
+			"children": [
+				{
+					"name": "Sales",
+					"url": "/salesList"
+				},
+				{
+					"name": "Add Simple Sale",
+					"url": "/sales"
+				},
+				{
+					"name": " Add Service Sale",
+					"url": "/serviceSale"
+				},
+				{
+					"name": "Customers",
+					"url": "/customerList"
+				},
+				{
+					"name": "Add Customer",
+					"url": "/customer"
+				},
+				{
+					"name": "Carrier Services ",
+					"url": "/carrierServices"
 				}
 			]
 		},
@@ -78,52 +112,43 @@
 			"icon": "account_balance",
 			"children": [
 				{
-					"name":"Unit Of Measure ",
-					"url":"/unitOfMeasure"
+					"name": "Accounts",
+					"url": "/accounts"
 				},
 				{
-					"name":"Product Categories ",
-					"url":"/productCategories"
+					"name": "Purchase Invoice",
+					"url": "/purchaseinvocies"
 				},
 				{
-					"name":"Crrier Services ",
-					"url":"/carrierServices"
+					"name": "Sales Invoice",
+					"url": "/salesinvocies"
 				},
 				{
-					"name":"Brands",
-					"url":"/brands"
+					"name":"Internal Product Movement Invoice",
+					"url":"/internalProductMovementInvocies"
 				},
 				{
-					"name":"Accounts",
-					"url":"/accounts"
+					"name": "Tax Rules ",
+					"url": "/taxRules"
 				},
 				{
-					"name": "Invoice",
-					"url": "/Invoice"
+					"name": "Payment Terms ",
+					"url": "/paymentTerms"
+				}
+				
+			]
+		},
+		{
+			"name": "Admin Panel",
+			"icon": "admin_panel_settings",
+			"children": [
+				{
+					"name": "Add User",
+					"url": "/addNewUser"
 				},
 				{
-					"name": "Quotes",
-					"url": "/Quotes"
-				},
-				{
-					"name": "Bill",
-					"url": "/Bill"
-				},
-				{
-					"name": "PurchaseOrder",
-					"url": "/PurchaseOrder"
-				},
-				{
-					"name": "CreditNote",
-					"url": "/CreditNote"
-				},
-				{
-					"name": "DeditNote",
-					"url": "/debitNote"
-				},
-				{
-					"name":"Add User",
-					"url":"/addNewUser"
+					"name": "Reference Books",
+					"url": "/referenceBook"
 				}
 			]
 		}

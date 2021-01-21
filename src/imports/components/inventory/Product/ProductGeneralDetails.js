@@ -110,29 +110,29 @@ class ProductGeneralDetails extends React.Component {
 								<InputColumnWrapper>
 									<FormControl>
 										<Input
-											name="productSKU"
+											name="productName"
 											type="text"
-											placeholder="Product SKU"
-											value={this.state.variable.get('values').get('productSKU')}
+											placeholder="Product Name"
+											value={this.state.variable.get('values').get('productName')}
 											onChange={this.onChange}
 											
 										/>
 										<InputLabel>
-											SKU
+										Product Name
 											<Required>*</Required>
 										</InputLabel>
 									</FormControl>
 									<FormControl>
 										<Input
-											name="productName"
+											name="productSku"
 											type="text"
-											placeholder="Product Name"
+											placeholder="Product Sku"
 											value={this.state.variable.get('variableName')}
 											onChange={this.onVariableNameChange}
 											required
 										/>
 										<InputLabel>
-											Product Name
+											SKU
 											<Required>*</Required>
 										</InputLabel>
 									</FormControl>
@@ -434,13 +434,6 @@ class ProductGeneralDetails extends React.Component {
 											/>
 										</SelectWrapper>
 										<InputLabel>Product Discount</InputLabel>
-										<SelectAddButton
-											onClick={(e) => {
-												this.openCreateVariableModal('ProductDiscount');
-											}}
-										>
-											<AddIcon fontSize="large" />{' '}
-										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<Input
@@ -519,13 +512,6 @@ class ProductGeneralDetails extends React.Component {
 											/>
 										</SelectWrapper>
 										<InputLabel>Default Location</InputLabel>
-										<SelectAddButton
-											onClick={(e) => {
-												this.openCreateVariableModal('Location');
-											}}
-										>
-											<AddIcon fontSize="large" />{' '}
-										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<SelectWrapper>

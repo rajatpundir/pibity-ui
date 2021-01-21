@@ -17,9 +17,7 @@ import {
 	CheckBoxInput,
 	CheckBoxLabel,
 	InputRowWrapper,
-	PageToolbar,
-	CheckBoxWapper,
-	CheckBoxTable
+	PageToolbar
 } from '../../../styles/inventory/Style';
 import {
 	PageLabelContainer,
@@ -62,7 +60,13 @@ class Dashboard extends React.Component {
 		this.props.getVariables('Customer');
 		this.props.getVariables('Product');
 		this.props.getVariables('Supplier');
+		this.props.getVariables('Account');
+		this.props.getVariables('PurchaseOrder');
+		this.props.getVariables('SalesOrder');
+		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('SalesInvoice');
 	}
+
 	componentDidMount() {
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOrganizationModalOpen: true });
@@ -222,7 +226,7 @@ class Dashboard extends React.Component {
 								</InputRowWrapper>
 							</InputFieldContainer>
 						</ModalBody>
-						<ModalFooter>
+						{/* <ModalFooter>
 							<ModalSubmitButton
 								onClick={(e) => {
 									this.onClose(e);
@@ -230,7 +234,7 @@ class Dashboard extends React.Component {
 							>
 								Save
 							</ModalSubmitButton>
-						</ModalFooter>
+						</ModalFooter> */}
 					</Modal>
 				</Container>
 			</React.Fragment>
@@ -245,6 +249,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps, { getVariables })(Dashboard);
+
 export const FontAwsomeIcon = styled.i.attrs((props)=>({
 	marginRight:props.marginRight||'5px'
 }))`margin-right: ${(props)=>props.marginRight};`;

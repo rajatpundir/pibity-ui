@@ -1,3 +1,4 @@
+import { red } from '@material-ui/core/colors';
 import styled from 'styled-components';
 
 //------------------------------Containers--------------------------//
@@ -325,18 +326,18 @@ export const TableData = styled.td`
 	float: none !important;
 `;
 
-export const TableHeaderInner = styled.div.attrs((props)=>({
+export const TableHeaderInner = styled.div.attrs((props) => ({
 	whiteSpace: props.whiteSpace || 'nowrap',
-	overflow: props.overflow||'visible'
+	overflow: props.overflow || 'visible'
 }))`
     width:100%;
     padding: 0 3px;
     color: #41454e;
     vertical-align: middle;
     font-size: 13px;
-    white-space: ${(props)=>props.whiteSpace};
+    white-space: ${(props) => props.whiteSpace};
 	text-overflow: ellipsis;
-	overflow: ${(props)=>props.overflow};
+	overflow: ${(props) => props.overflow};
 `;
 
 export const EmptyRow = styled.div`
@@ -425,16 +426,23 @@ export const RoundBlockInnerDiv = styled.div`
 	box-sizing: border-box;
 `;
 // background color based on status
-export const StatusBackgroundColor={
-	active:'#d6f3e3',
-	depricated:'#fee8e8',
-}
+export const StatusBackgroundColor = {
+	approved: '#70dca1',
+	rejected: '#e86a6a',
+	active: '#54c675',
+	depricated: '#e76767',
+	pending: '#f5f5b0'
+};
 
-export const StatusSpan = styled.span.attrs((props)=>({
-	backgroundColor:props.backgroundColor ||'#d6f3e3'
+export const StatusSpan = styled.span.attrs((props) => ({
+	backgroundColor: props.backgroundColor || '#d6f3e3',
+	marginRight: props.marginRight || 0,
+	color: props.color || '#f1f6fb'
 }))`
 	background-color:${(props) => props.backgroundColor}; 
-	margin-right: 0 !important;
+	margin-right:${(props) => props.marginRight} ;
+	border: 1px solid ${(props) => props.backgroundColor};
+	color: ${(props) => props.color};
 	padding: 4px 10px 4px 10px;
 	border-radius: 3px;
 	display: inline-block;
@@ -458,7 +466,8 @@ margin-left: ${(props) => props.marginLeft};
 
 export const InputColumnWrapper = styled.div.attrs((props) => ({
 	flexBasis: props.flexBasis || 'calc(100% / 3 - 12px) !important',
-	width: props.width || '30%'
+	width: props.width || '30%',
+	flexFlow: props.flexFlow || 'wrap'
 }))`
 	flex-basis: ${(props) => props.flexBasis};
     width: ${(props) => props.width};
@@ -466,28 +475,38 @@ export const InputColumnWrapper = styled.div.attrs((props) => ({
        flex-basis: 100% !important;
        justify-content: space-between;
        display: flex;
-       flex-flow: wrap;
+       flex-flow: ${(props) => props.flexFlow};
     }
 `;
 
 export const InputRowWrapper = styled.div.attrs((props) => ({
-	flexBasis: props.flexBasis || '100%'
+	flexBasis: props.flexBasis || '100%',
+	paddingTop: props.paddingTop
 }))`
-flex-basis: ${(props) => props.flexBasis};`;
+justify-content: space-between;
+display: flex;
+flex-wrap: inherit;
+flex-basis: ${(props) => props.flexBasis};
+padding-top: ${(props) => props.paddingTop};`;
 
 export const FormControl = styled.div.attrs((props) => ({
 	minHeight: props.minHeight || '60px',
 	paddingBottom: props.paddingBottom || '20px',
-	flexBasis: props.flexBasis
+	paddingRight: props.paddingRight,
+	flexBasis: props.flexBasis ,
+	mediaFlexBasis: props.mediaFlexBasis ||'calc(100% / 2 - 9px)'
 }))`
 	padding-bottom: ${(props) => props.paddingBottom};
+	padding-right: ${(props) => props.paddingRight};
 	min-height:${(props) => props.minHeight};
 	position: relative;
 	display: flex;
 	align-items: start;
 	flex-basis:${(props) => props.flexBasis};
+	 width: 100%;
+
 	@media (max-width: 991px) {
-		flex-basis: calc(100% / 2 - 9px) !important;
+		flex-basis:${(props) => props.mediaFlexBasis} !important;
 	}
 `;
 
@@ -515,7 +534,8 @@ export const LeftItemFormControl = styled.div`
 
 export const LeftItemWrapper = styled.div.attrs((props) => ({
 	backgroundColor: props.backgroundColor,
-	color: props.color || '#f1f6fb'
+	color: props.color || '#f1f6fb',
+	margin: props.margin || '0 10px 0 0'
 }))`
 	background-color: ${(props) => props.backgroundColor};
 	border: 1px solid ${(props) => props.backgroundColor};
@@ -524,7 +544,7 @@ export const LeftItemWrapper = styled.div.attrs((props) => ({
 	border-radius: 3px;
 	display: inline-block;
 	font-weight: 500;
-	margin-right: 10px;
+	margin: ${(props) => props.margin};;
 	font-size: 100%;
 	font: inherit;
 	font-family: 'IBM Plex Sans', sans-serif;
@@ -635,28 +655,29 @@ export const SelectAddButton = styled.button`
 export const Input = styled.input.attrs((props) => ({
 	width: props.width || 'inherit',
 	height: props.height || '38px',
-	padding: props.padding || '11px 10px 10px 10px'
+	padding: props.padding || '11px 10px 10px 10px',
+	backgroundColor: props.backgroundColor || ' #fff',
+	borderColor: props.borderColor || '#b9bdce'
 }))`
 	width: ${(props) => props.width};
-	outline: none !important;
-	border-width: 1px;
-	border-style: solid;
-	border-radius: 4px;
-	border-color: #b9bdce;
+	min-height: ${(props) => props.height};
 	padding: ${(props) => props.padding};
 	color: #3b3b3b;
 	font-size: 13px;
 	font-weight: 400;
 	font-family: inherit;
 	flex: 1;
-	min-height: ${(props) => props.height};
-	background-color: #fff;
+	outline: none !important;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 4px;
+	border-color:${(props) => props.borderColor};
+	background-color: ${(props) => props.backgroundColor};
 	-webkit-transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 	transition: border-color 0.15s ease-in-out, background-color 0.15s ease-in-out;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	appearance: none;
-	font-family: "IBM Plex Sans", sans-serif !important;
 	line-height: normal;
 	font-size: 100%;
 	margin: 0;
@@ -822,14 +843,13 @@ export const CheckBoxInput = styled.input`
 	white-space: pre;
 	align-items: flex-start;
 	text-align: center;
-	
 `;
 
 //  export const CheckBoxLabel = styled.label`padding-left: 5px;`;
-export const CheckBoxContainer = styled.div.attrs((props)=>({
-	margin:props.margin||'5px 10px'
+export const CheckBoxContainer = styled.div.attrs((props) => ({
+	margin: props.margin || '5px 10px'
 }))`
-	margin: ${(props)=>props.margin};
+	margin: ${(props) => props.margin};
 	align-items: center;
 	margin-right: 10px !important;
 	position: relative;
@@ -837,9 +857,9 @@ export const CheckBoxContainer = styled.div.attrs((props)=>({
 `;
 
 export const CheckBoxLabel = styled.label`
-    height: 16px;
-    width: 100%;
-    text-align: initial;
+	height: 16px;
+	width: 100%;
+	text-align: initial;
 	position: static;
 	padding: 0 0 0 10px;
 	pointer-events: all !important;
@@ -852,7 +872,7 @@ export const CheckBoxLabel = styled.label`
 	line-height: 13px;
 	color: #3b3b3b;
 	background: transparent;
-	z-index: 20;
+	/* z-index: 20; */
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 `;
@@ -903,9 +923,15 @@ export const TextAreaContainer = styled.div`
 	color: #3b3b3b;
 	text-align: left;
 	letter-spacing: -0.2px;
+	padding-bottom: 10px;
+
 `;
 
-export const TextArea = styled.textarea`
+export const TextArea = styled.textarea.attrs((props)=>({
+	resize: props.resize||'none',
+	height: props.height||'40px'
+}))`
+    overflow:scroll;
 	padding: 10px;
 	width: 100%;
 	height: 100% !important;
@@ -918,8 +944,9 @@ export const TextArea = styled.textarea`
 	font-weight: 400;
 	min-width: 100px;
 	flex: 1;
-	min-height: 40px;
+	min-height: ${(props)=>props.height};
 	background-color: #fff;
+	resize: ${(props)=>props.resize};
 `;
 export const AddMoreBlock = styled.div`
 	flex-flow: row wrap;
@@ -992,6 +1019,9 @@ export const PlusButton = styled.button`
 	white-space: nowrap;
 	border-radius: 4px;
 `;
+export const FontAwsomeIcon = styled.i.attrs((props) => ({
+	marginRight: props.marginRight || '5px'
+}))`margin-right:${(props) => props.marginRight};`;
 
 export const Custombutton = styled.button.attrs((props) => ({
 	height: props.height || '40px',
@@ -1104,7 +1134,7 @@ export const HoizontalBlockList = styled.ul.attrs((props) => ({
 	justify-content: start;
 	float: left;
 	overflow-x:auto;	
-	scroll-behavior: smooth;s
+	scroll-behavior: smooth;
 `;
 
 export const HoizontalBlockListItems = styled.li`
@@ -1129,7 +1159,7 @@ export const BlockListItemButton = styled.button`
 	border-radius: 4px;
 	font-size: 13px;
 	font-weight: 300;
-	color: #3b3b3b;
+	color: #191313;
 	padding: 0 10px;
 	display: flex;
 	align-items: center;
@@ -1148,6 +1178,7 @@ export const BlockListItemButton = styled.button`
 
 	&:hover {
 		background-color: #25c99f;
+		color: black;
 	}
 
 	&:before,

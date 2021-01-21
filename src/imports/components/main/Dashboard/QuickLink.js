@@ -41,22 +41,40 @@ class QuickLinks extends React.Component {
                 <Collapse in={this.state.open} timeout="auto" unmountOnExit>
 				<ItemContainer>
 					<ItemBlock>
-						<Item>
+						<Item to="/productList">
 							<ItemHeading>Products</ItemHeading>
 							<ItemData>
 								{this.props.variables.Product !== undefined ? this.props.variables.Product.length : 0}
 							</ItemData>
 						</Item>
-						<Item>
+						<Item to="/supplierList">
 							<ItemHeading>Supplier</ItemHeading>
 							<ItemData>
 								{this.props.variables.Supplier !== undefined ? this.props.variables.Supplier.length : 0}
 							</ItemData>
 						</Item>
-						<Item>
+						<Item to="/customerList">
 							<ItemHeading>Customer</ItemHeading>
 							<ItemData>
 								{this.props.variables.Customer !== undefined ? this.props.variables.Customer.length : 0}
+							</ItemData>
+						</Item>
+						{/* <Item>
+							<ItemHeading>Accounts</ItemHeading>
+							<ItemData>
+								{this.props.variables.Account !== undefined ? this.props.variables.Account.length : 0}
+							</ItemData>
+						</Item> */}
+						<Item to='/purchaseList'>
+							<ItemHeading>Purchase Orders</ItemHeading>
+							<ItemData>
+								{this.props.variables.PurchaseOrder !== undefined ? this.props.variables.PurchaseOrder.length : 0}
+							</ItemData>
+						</Item>
+						<Item to="/salesList">
+							<ItemHeading>Sales Orders</ItemHeading>
+							<ItemData>
+								{this.props.variables.SalesOrder !== undefined ? this.props.variables.SalesOrder.length : 0}
 							</ItemData>
 						</Item>
 					</ItemBlock>

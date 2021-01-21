@@ -198,7 +198,7 @@ class Brands extends React.Component {
 											{this.state.brands.length === 0 ? (
 												<EmptyRowImageContainer>
 													<EmptyRowImage src="https://inventory.dearsystems.com/Content/Design2017/Images/Dashboard/no-data.png" />
-													<EmptyRowTag>No Brands</EmptyRowTag>
+													<EmptyRowTag>No Brands Available</EmptyRowTag>
 												</EmptyRowImageContainer>
 											) : (
 												undefined

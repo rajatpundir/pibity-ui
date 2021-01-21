@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
+import CheckIcon from '@material-ui/icons/Check';
 import 'react-toastify/dist/ReactToastify.css';
 import { customErrorMessage, successMessage, CustomNotification } from '../../main/Notification';
 import { clearErrors } from '../../../redux/actions/errors';
@@ -10,12 +11,14 @@ import {
 	getVariables,
 	getVariable,
 	updateVariable,
-	objToMapRec
+	objToMapRec,
+	mapToObjectRec
 } from '../../../redux/actions/variables';
 import SupplierDetails from './SupplierDetails';
 import SupplierAddresses from './SupplierAddresses';
 import SupplierContacts from './SupplierContacts';
-import CheckIcon from '@material-ui/icons/Check';
+import SupplierSales from './Supplier Account/SupplierSales';
+import SupplierAccount from './Supplier Account/SupplierAccount';
 import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
 import {
 	Container,
@@ -30,7 +33,6 @@ import {
 	HoizontalBlockList,
 	HoizontalBlockListItems
 } from '../../../styles/inventory/Style';
-import SupplierAccount from './Supplier Account/SupplierAccount';
 
 class Supplier extends React.Component {
 	constructor(props) {
@@ -79,16 +81,17 @@ class Supplier extends React.Component {
 					'values',
 					new Map([
 						[ 'name', '' ],
-						['code',''],
+						[ 'code', '' ],
 						[ 'balance', 0 ],
 						[ 'openingBalance', 0 ],
-						['status',"Active"],
+						[ 'status', 'Active' ],
 						[ 'accountType', 'Creditor' ],
-						['accountCategory','LIABILITY'],
+						[ 'accountCategory', 'LIABILITY' ],
 						[ 'description', 'Supplier Account' ]
 					])
 				]
 			]),
+			supplierAccount: '',
 			visibleSection: 'addresses'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -100,11 +103,15 @@ class Supplier extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Supplier) {
+		if (nextProps.match.params.variableName && nextProps.variables.Supplier && nextProps.variables.Account) {
 			const variable = nextProps.variables.Supplier.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
+			const account = nextProps.variables.Account.filter(
+				(account) => account.variableName === variable.values.account
+			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+			    const accountMap=objToMapRec(account);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -114,9 +121,11 @@ class Supplier extends React.Component {
 				variableMap.set('values', values);
 				return {
 					...prevState,
+					account:accountMap,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
+					prevVariable: prevVariableMap,
+					supplierAccount: variable.values.account
 				};
 			}
 		}
@@ -138,17 +147,18 @@ class Supplier extends React.Component {
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
 		this.props.getVariables('AddressType');
+
 	}
 
 	componentDidMount() {
-		this.props.getVariables('Account');
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
 			if (this.props.match.params.variableName) {
+				this.props.getVariables('Account');
+				this.props.getVariables('PurchaseInvoice');
 				const variable = decodeURIComponent(this.props.match.params.variableName);
 				this.props.getVariable(this.state.variable.get('typeName'), variable);
-				this.props.getVariables('PurchaseInvoice');
 			}
 			this.getData();
 		}
@@ -245,7 +255,10 @@ class Supplier extends React.Component {
 		const values = variable.get('values');
 		values.set('account', accountName);
 		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({
+			variable: variable,
+			supplierAccount: accountName
+		});
 	}
 
 	render() {
@@ -259,7 +272,14 @@ class Supplier extends React.Component {
 							<SaveButton
 								onClick={(e) => {
 									if (this.props.match.params.variableName) {
-										this.props.updateVariable(this.state.prevVariable, this.state.variable);
+										this.props
+											.updateVariable(this.state.prevVariable, this.state.variable)
+											.then((status) => {
+												if (status === 200) {
+													this.onClose(e);
+													successMessage(`Updated Succesfully`);
+												}
+											});
 									} else {
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
@@ -275,8 +295,8 @@ class Supplier extends React.Component {
 													.then(() => {
 														this.props
 															.createVariable(this.state.variable)
-															.then((status) => {
-																if (status === 200) {
+															.then((response) => {
+																if (response.status === 200) {
 																	successMessage(' Supplier Created');
 																}
 															});
@@ -294,6 +314,7 @@ class Supplier extends React.Component {
 							<SupplierDetails
 								variable={this.state.variable.get('values').get('general')}
 								updateDetails={this.updateDetails}
+								params={this.props.match.params}
 							/>
 						)}
 
@@ -336,6 +357,19 @@ class Supplier extends React.Component {
 											<HoizontalBlockListItems>
 												<BlockListItemButton
 													onClick={(e) => {
+														this.setState({ visibleSection: 'sales' });
+													}}
+												>
+													Supplier Sales
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										) : (
+											undefined
+										)}
+										{/* {this.props.match.params.variableName ? (
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
 														this.setState({ visibleSection: 'accounts' });
 													}}
 												>
@@ -344,7 +378,7 @@ class Supplier extends React.Component {
 											</HoizontalBlockListItems>
 										) : (
 											undefined
-										)}
+										)} */}
 									</HoizontalBlockList>
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
@@ -362,10 +396,20 @@ class Supplier extends React.Component {
 							/>
 						)}
 
-						{this.props.match.params.variableName ? this.state.visibleSection === 'accounts' ? (
-							<SupplierAccount supplier={this.props.match.params.variableName} />
+						{this.props.match.params.variableName && this.state.visibleSection === 'sales' ? (
+							<SupplierSales
+								supplier={this.props.match.params.variableName}
+								supplierAccount={this.state.supplierAccount}
+							/>
 						) : (
 							undefined
+						)}
+						{this.props.match.params.variableName && this.state.visibleSection === 'accounts' ? (
+							<SupplierAccount
+								supplier={this.props.match.params.variableName}
+								supplierAccount={this.state.supplierAccount}
+								supplierAccoutnDetail={mapToObjectRec(this.state.account)}
+							/>
 						) : (
 							undefined
 						)}
