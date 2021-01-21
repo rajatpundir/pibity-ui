@@ -71,7 +71,7 @@ class ProductMovementRecord extends React.Component {
 		this.setState({ acceptOrderModal: false });
 	}
 
-	updateStatus(e, item, funtionName) {
+	updateStatus(e, item, funtionName,rejectedQuantity) {
 		const args = {
 			productMovementRecord: item.variableName
 		};
@@ -102,7 +102,7 @@ class ProductMovementRecord extends React.Component {
 				const reciveRejectedItem = {
 					updateType: 'Returned',
 					movementType: item.values.movementType,
-					quantity: item.values.quantity,
+					quantity: rejectedQuantity,
 					refProductStore: item.values.toProductStore,
 					refInvoice: item.values.productMovementInvoice,
 					productStore: item.values.fromProductStore
@@ -207,7 +207,7 @@ class ProductMovementRecord extends React.Component {
 											this.updateStatus(
 												e,
 												data,
-												'dispatchShipmentAndUpdateProductMovementRecord'
+												'dispatchShipmentAndUpdateProductMovementRecord',0
 											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
@@ -229,7 +229,7 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'receiveShipmentAndUpdateProductMovementRecord')}
+											this.updateStatus(e, data, 'receiveShipmentAndUpdateProductMovementRecord',0)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Recieve
@@ -253,13 +253,13 @@ class ProductMovementRecord extends React.Component {
 											this.updateStatus(
 												e,
 												data,
-												'approveShipmentReceivedAndUpdateProductMovementRecord'
+												'approveShipmentReceivedAndUpdateProductMovementRecord',0
 											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Approve Recieve
 									</Custombutton>
-									<Custombutton
+									{/* <Custombutton
 										padding="0 10px"
 										minWidth="70px"
 										height="32px"
@@ -274,7 +274,7 @@ class ProductMovementRecord extends React.Component {
 									>
 										<FontAwsomeIcon className="fa fa-times " />
 										Reject Shipment
-									</Custombutton>
+									</Custombutton> */}
 								</React.Fragment>
 							) : (
 								undefined
@@ -291,7 +291,7 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'dispatchRejectedShipmentUpdateMovementRecord')}
+											this.updateStatus(e, data, 'dispatchRejectedShipmentUpdateMovementRecord',log.values.rejectedQuantity)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Dispatch Shipment
@@ -312,7 +312,7 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'receiveRejectedShipmentUpdateMovementRecord')}
+											this.updateStatus(e, data, 'receiveRejectedShipmentUpdateMovementRecord',log.values.rejectedQuantity)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Recieve Rejected Shipment

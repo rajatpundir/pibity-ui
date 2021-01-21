@@ -58,6 +58,11 @@ class AcceptOrderModal extends React.Component {
 	}
 
 	onClose() {
+		this.setState({
+			acceptedQuantity: 0,
+			rejectedQuantity: 0,
+			quantity: 0
+		});
 		this.props.onClose();
 	}
 
@@ -81,32 +86,30 @@ class AcceptOrderModal extends React.Component {
 		console.log(this.state);
 		console.log(update);
 		// //todo
-		this.props.executeFuntion(update, 'updateQuantityInProductStore').then((response) => {
-			if (response.status === 200) {
-				if (this.state.rejectedQuantity !== 0) {
-					this.props
-						.executeFuntion(createRecordArgs, 'approveAndCreateRejectedItemProductMovementRecord')
-						.then((response) => {
-							if (response.status === 200) {
-								this.props.getVariables('InternalProductMovementItemRecord');
-								this.props.getVariables('InternalMovementProductLog');
-								successMessage('Items accepted');
-							}
-						});
-				} else {
-					this.props
-						.executeFuntion(args, 'approveShipmentReceivedAndUpdateProductMovementRecord')
-						.then((response) => {
-							if (response.status === 200) {
-								this.props.getVariables('InternalProductMovementItemRecord');
-								this.props.getVariables('InternalMovementProductLog');
-								successMessage('Items accepted');
-							}
-						});
-				}
-			}
-        });
-        this.props.onClose();
+		this.props.executeFuntion(update, 'updateQuantityInProductStore')
+		if (this.state.rejectedQuantity > 0) {
+			this.props
+				.executeFuntion(createRecordArgs, 'approveAndCreateRejectedItemProductMovementRecord')
+				.then((response) => {
+					if (response.status === 200) {
+						this.props.getVariables('InternalProductMovementItemRecord');
+						this.props.getVariables('InternalMovementProductLog');
+						successMessage('Items Rejected');
+					}
+				});
+		} else {
+			this.props
+				.executeFuntion(args, 'approveShipmentReceivedAndUpdateProductMovementRecord')
+				.then((response) => {
+					if (response.status === 200) {
+						this.props.getVariables('InternalProductMovementItemRecord');
+						this.props.getVariables('InternalMovementProductLog');
+						successMessage('Items accepted');
+					}
+				});
+		}
+		
+		this.onClose();
 	}
 
 	render() {

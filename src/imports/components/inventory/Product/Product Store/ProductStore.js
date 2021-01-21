@@ -77,10 +77,12 @@ class ProductStores extends React.Component {
 		});
 		this.props.clearErrors();
 		this.props.getVariables('ProductStore');
+		this.props.getVariables('ProductStoreUpdateRecord');
 	}
 
 	onRefresh() {
 		this.props.getVariables('ProductStore');
+		this.props.getVariables('ProductStoreUpdateRecord');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
 import { customErrorMessage, successMessage, CustomNotification } from '../../../../main/Notification';
@@ -234,8 +235,6 @@ class ProductMovementOrder extends React.Component {
 							<SaveButtonContaier>
 								<SaveButton
 									onClick={(e) => {
-										console.log(this.state);
-
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable.get('values')));
 										}).then(() => {
@@ -255,11 +254,19 @@ class ProductMovementOrder extends React.Component {
 																	response.data.productMovementOrder.variableName
 																)
 															);
-															successMessage('Order Placed');
+															//TODo Add reidrect confirmation modal
+															new Promise((resolve) => {
+																resolve(successMessage('Order Placed'));
+															}).then(() => {
+																this.props.history.push(
+																	'/productMovementOrderList/orderPlcaed'
+																);
+															});
+
+															this.setState({ createProductMovementOrder: true });
 														}
 													});
 											}
-											this.setState({ createProductMovementOrder: true });
 										});
 									}}
 								>
