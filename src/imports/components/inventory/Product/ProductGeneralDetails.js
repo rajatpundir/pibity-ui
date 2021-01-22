@@ -169,11 +169,37 @@ class ProductGeneralDetails extends React.Component {
 										</InputLabel>
 									</FormControl>
 									<FormControl>
-										<Input />
-										<InputLabel>
-											Categoy
-											<Required>*</Required>
-										</InputLabel>
+										<SelectWrapper>
+											<Select
+												value={{
+													value: this.state.variable.get('values').get('category'),
+													label: this.state.variable.get('values').get('category')
+												}}
+												onChange={(option) => {
+													this.onChange({ target: { name: 'category', value: option.value } });
+												}}
+												options={
+													this.props.variables.ProductCategory !== undefined ? (
+														this.props.variables.ProductCategory.map((variable) => {
+															return {
+																value: variable.variableName,
+																label: variable.variableName
+															};
+														})
+													) : (
+														[]
+													)
+												}
+											/>
+										</SelectWrapper>
+										<InputLabel>Category</InputLabel>
+										<SelectAddButton
+											onClick={(e) => {
+												this.openCreateVariableModal('ProductCategory');
+											}}
+										>
+											<AddIcon fontSize="large" />{' '}
+										</SelectAddButton>
 									</FormControl>
 									<FormControl>
 										<SelectWrapper>

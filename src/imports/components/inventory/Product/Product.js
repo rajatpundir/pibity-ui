@@ -67,6 +67,7 @@ class Product extends React.Component {
 										[ 'barcode', '' ],
 										[ 'billOfMaterial', '' ],
 										[ 'brand', '' ],
+										[ 'category', '' ],
 										[ 'comment', '' ],
 										[ 'defaultLocation', '' ],
 										[ 'description', '' ],
