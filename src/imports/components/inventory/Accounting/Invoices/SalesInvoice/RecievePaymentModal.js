@@ -64,7 +64,13 @@ class RecievePaymentModal extends React.Component {
 	}
 
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		if (e.target.name === 'amount') {
+			if (e.target.value <= this.props.invoice.values.balanceDue) {
+				this.setState({ [e.target.name]: e.target.value });
+			}
+		} else {
+			this.setState({ [e.target.name]: e.target.value });
+		}
 	}
 
 	onClose() {
