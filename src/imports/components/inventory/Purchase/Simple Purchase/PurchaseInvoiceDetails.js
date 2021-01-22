@@ -790,7 +790,6 @@ class PurchaseInvoiceDetails extends React.Component {
 
 	createStockItems(invoice, purchaseStockRecord) {
 		const purchaseStockItems = [];
-		console.log(this.props.variables.ProductStore);
 		invoice.values.productInvoiceDetails.forEach((data) => {
 			const productStore =
 				this.props.variables.ProductStore !== undefined
@@ -825,9 +824,6 @@ class PurchaseInvoiceDetails extends React.Component {
 				])
 			);
 		});
-
-		console.log(purchaseStockItems.length);
-		console.log(purchaseStockItems);
 		return purchaseStockItems;
 	}
 
@@ -845,7 +841,6 @@ class PurchaseInvoiceDetails extends React.Component {
 								onClick={(e) => {
 									this.props.createVariable(this.state.variable).then((response) => {
 										if (response.status === 200) {
-											console.log(response.data);
 											const invoice = response.data;
 											const args = {
 												fromSupplier: response.data.values.supplier,
@@ -867,10 +862,6 @@ class PurchaseInvoiceDetails extends React.Component {
 															);
 														}).then(() => {
 															this.props.getVariables('ProductStore').then(() => {
-																// this.createStockItems(
-																// 	invoice,
-																// 	response.data.purchaseStockRecord
-																// );
 																this.props
 																	.createVariables(
 																		this.createStockItems(
