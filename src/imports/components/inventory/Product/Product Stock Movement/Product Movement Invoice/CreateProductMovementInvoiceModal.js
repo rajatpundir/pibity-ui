@@ -304,13 +304,26 @@ class CreateProductMovementModal extends React.Component {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
 					case 'quantity':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('price') *
-								e.target.value *
-								((100 - listVariable.get('values').get('discount')) / 100)
-						);
+						if (listName === 'orderItems') {
+							if (e.target.value <= listVariable.get('values').get('requestedQuantity')) {
+								values.set(e.target.name, e.target.value);
+								values.set(
+									'total',
+									listVariable.get('values').get('price') *
+										e.target.value *
+										((100 - listVariable.get('values').get('discount')) / 100)
+								);
+							}
+						} else {
+							values.set(e.target.name, e.target.value);
+							values.set(
+								'total',
+								listVariable.get('values').get('price') *
+									e.target.value *
+									((100 - listVariable.get('values').get('discount')) / 100)
+							);
+						}
+
 						break;
 					case 'price':
 						values.set(e.target.name, e.target.value);
