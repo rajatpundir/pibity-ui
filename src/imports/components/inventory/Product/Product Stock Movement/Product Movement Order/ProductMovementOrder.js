@@ -246,7 +246,6 @@ class ProductMovementOrder extends React.Component {
 													)
 													.then((response) => {
 														if (response.status === 200) {
-															console.log(response.data.variableName);
 															this.props.createVariables(
 																this.addKeyToList(
 																	this.state.orderItems,
@@ -257,13 +256,13 @@ class ProductMovementOrder extends React.Component {
 															//TODo Add reidrect confirmation modal
 															new Promise((resolve) => {
 																resolve(successMessage('Order Placed'));
+																this.setState({ createProductMovementOrder: true });
 															}).then(() => {
 																this.props.history.push(
 																	'/productMovementOrderList/orderPlcaed'
 																);
 															});
 
-															this.setState({ createProductMovementOrder: true });
 														}
 													});
 											}
