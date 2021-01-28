@@ -35,6 +35,8 @@ import ProductMovementRecord from './ProductMovementRecord';
 import Lottie from 'react-lottie';
 import * as loadingData from '../../../../main/loading.json';
 import LoadingOverlay from 'react-loading-overlay';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 const defaultOptions = {
 	loop: true,
@@ -81,6 +83,7 @@ class ProductMovementOrder extends React.Component {
 		this.onClose = this.onClose.bind(this);
 		this.onCloseCreateInvoiceModal = this.onCloseCreateInvoiceModal.bind(this);
 		this.onOpenCreateInvoiceModal = this.onOpenCreateInvoiceModal.bind(this);
+		this.onCloseAlert=this.onCloseAlert.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -223,6 +226,27 @@ class ProductMovementOrder extends React.Component {
 	onCloseCreateInvoiceModal() {
 		this.setState({ isCreateInvoiceModalOpen: false });
 	}
+	onCloseAlert(){
+		this.setState({
+			createProductMovementOrder: true,
+			variable: new Map([
+				[ 'typeName', 'ProductMovementOrder' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'date', '' ],
+						[ 'toLocation', '' ],
+						[ 'fromLocation', '' ],
+						[ 'movementType', 'Internal' ],
+						[ 'status', '' ],
+						[ 'comments', '' ]
+					])
+				]
+			]),
+			orderItems: []
+		})
+	}
 
 	render() {
 		return (
@@ -256,7 +280,7 @@ class ProductMovementOrder extends React.Component {
 												resolve(this.checkRequiredField(this.state.variable.get('values')));
 											}).then(() => {
 												if (this.state.createProductMovementOrder) {
-													this.setState({ loading: true });
+													// this.setState({ loading: true });
 													this.props
 														.executeFuntion(
 															mapToObjectRec(this.state.variable.get('values')),
@@ -273,20 +297,31 @@ class ProductMovementOrder extends React.Component {
 																);
 																//TODo Add reidrect confirmation modal
 																new Promise((resolve) => {
-																	resolve(
-																		setTimeout(() => {
-																			this.setState({ loading: false });
-																		}, 1000)
-																	);
+																	resolve(successMessage('Order Placed'));
 																}).then(() => {
-																	successMessage('Order Placed');
-																	this.setState({
-																		createProductMovementOrder: true
+																	// setTimeout(() => {
+																	// 	this.setState({ loading: false });
+																	// }, 1000)
+																	confirmAlert({
+																		title: 'Create New Order',
+																		buttons: [
+																			{
+																				label: 'Continue',
+																				onClick: () => this.onCloseAlert()
+																			},
+																			{
+																				label: 'Exit',
+																				onClick: () =>
+																					this.props.history.push(
+																						'/productMovementOrderList/orderPlcaed'
+																					)
+																			}
+																		],
+																		closeOnEscape: true,
+																		closeOnClickOutside: true
 																	});
-																	// this.props.history.push(
-																	// 	'/productMovementOrderList/orderPlcaed'
-																	// );
 																});
+
 															}
 														});
 												}
