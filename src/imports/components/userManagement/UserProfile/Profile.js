@@ -6,12 +6,28 @@ import ProfileDetails from './ProfileDetails';
 import { Container, PageWrapper, PageBody } from '../../../styles/inventory/Style';
 import { createUser, getUserDetail } from '../../../redux/actions/users';
 import { objToMapRec, getVariables, getVariable, updateVariable } from '../../../redux/actions/variables';
+import FadeIn from 'react-fade-in';
+import Lottie from 'react-lottie';
+import ReactLoading from 'react-loading';
+import * as legoData from '../../main/legoLoading.json';
+import * as doneData from '../../main/doneLoading.json';
+import LoadingOverlay from 'react-loading-overlay';
+
+const defaultOptions = {
+	loop: true,
+	autoplay: true,
+	animationData: legoData.default,
+	rendererSettings: {
+		preserveAspectRatio: 'xMidYMid slice'
+	}
+};
 
 class Profile extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
 			isOpen: false,
+			loading: false,
 			createCustomer: true,
 			prevPropVariable: {},
 			prevPropUser: {},
@@ -47,6 +63,9 @@ class Profile extends React.Component {
 	}
 
 	componentDidMount() {
+		if (this.props.match.params.variableName) {
+			this.setState({ loading: true });
+		}
 		const username = localStorage.getItem('username');
 		this.props.getUserDetail(username);
 		this.props.getVariable('User', localStorage.getItem('username'));
@@ -83,6 +102,7 @@ class Profile extends React.Component {
 				const prevUserMap = objToMapRec(prevState.prevPropUser);
 				return {
 					...prevState,
+					loading: false,
 					user: userMap,
 					prevPropUser: user,
 					prevUser: prevUserMap
@@ -101,7 +121,7 @@ class Profile extends React.Component {
 	}
 
 	onCreateUser(passwords, userRole) {
-		console.log(passwords.get('password'))
+		console.log(passwords.get('password'));
 		if (passwords.get('password') === passwords.get('confirmPassword')) {
 			const password = passwords.get('password');
 			this.props.createUser(this.state.user, this.state.variable, password, userRole).then((status) => {
@@ -123,23 +143,38 @@ class Profile extends React.Component {
 	}
 
 	render() {
+		console.log(this.state.loading);
 		return (
-			<Container mediaPadding="20px 20px 0 20px" onscroll="extJS_realign()">
-				<CustomNotification limit={2} />
-				<PageWrapper>
-					<PageBody>
-						<ProfileDetails
-							params={this.props.match.params}
-							details={this.state.variable}
-							user={this.state.user}
-							createUser={this.onCreateUser}
-							updateUser={this.onUpdateUser}
-							updateUserDetails={this.onUpdateUserDetail}
-							updateUserProfile={this.onupdateUserProfile}
-						/>
-					</PageBody>
-				</PageWrapper>
-			</Container>
+			<LoadingOverlay
+				active={this.state.loading}
+				spinner={<Lottie options={defaultOptions} height={240} width={240} />}
+				text="Loading your content..."
+			>
+				<Container mediaPadding="20px 20px 0 20px" onscroll="extJS_realign()">
+					<CustomNotification limit={2} />
+					{/* {this.state.loading ? (
+					<FadeIn>
+							<Lottie options={defaultOptions} height={240} width={240} />
+					</FadeIn>
+				) : (
+					undefined
+				)} */}
+
+					<PageWrapper>
+						<PageBody>
+							<ProfileDetails
+								params={this.props.match.params}
+								details={this.state.variable}
+								user={this.state.user}
+								createUser={this.onCreateUser}
+								updateUser={this.onUpdateUser}
+								updateUserDetails={this.onUpdateUserDetail}
+								updateUserProfile={this.onupdateUserProfile}
+							/>
+						</PageBody>
+					</PageWrapper>
+				</Container>
+			</LoadingOverlay>
 		);
 	}
 }

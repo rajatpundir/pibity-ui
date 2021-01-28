@@ -149,6 +149,10 @@
 				{
 					"name": "Reference Books",
 					"url": "/referenceBook"
+				},
+				{
+					"name": "Loading",
+					"url": "/loading"
 				}
 			]
 		}

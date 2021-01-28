@@ -47,6 +47,9 @@ import ReferenceBook from '../components/main/Reference Books/ReferenceBook';
 import ProductStore from '../components/inventory/Product/Product Store/ProductStore';
 
 
+//Test links
+import Loading from '../components/main/LoadingTest'
+
 export const AppRouter = () => (
 	<BrowserRouter>
 		<Switch>
@@ -113,6 +116,8 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/locations" render={(props) => <Locations {...props} />} />
 			<PrivateRoute exact path="/productStores" render={(props) => <ProductStore {...props} />} />
 			<PrivateRoute exact path="/referenceBook" render={(props) => <ReferenceBook {...props} />} />
+			
+			<PrivateRoute exact path="/loading" render={(props) => <Loading {...props} />} />
 
 			{/* user management */}
 			{/* <PrivateRoute exact path="/Users" render={(props) => <UserList {...props} />} /> */}
