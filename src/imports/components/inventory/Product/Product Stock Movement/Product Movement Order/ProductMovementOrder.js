@@ -32,12 +32,25 @@ import ProductMovementOrderDetails from './ProductMovementOrderDetails';
 import ProductMovementOrderInvoice from './ProductMovementOrderInvoice';
 import CreateProductMovementModal from '../Product Movement Invoice/CreateProductMovementInvoiceModal';
 import ProductMovementRecord from './ProductMovementRecord';
+import Lottie from 'react-lottie';
+import * as loadingData from '../../../../main/loading.json';
+import LoadingOverlay from 'react-loading-overlay';
+
+const defaultOptions = {
+	loop: true,
+	autoplay: true,
+	animationData: loadingData.default,
+	rendererSettings: {
+		preserveAspectRatio: 'xMidYMid slice'
+	}
+};
 
 class ProductMovementOrder extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
 			isOpen: false,
+			loading: false,
 			visibleSection: 'invoice',
 			createProductMovementOrder: true,
 			isCreateInvoiceModalOpen: false,
@@ -213,119 +226,133 @@ class ProductMovementOrder extends React.Component {
 
 	render() {
 		return (
-			<Container mediaPadding="20px 20px 0 20px">
-				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<CustomNotification limit={2} />
-				{this.props.match.params.variableName &&
-				this.state.variable.get('values').get('status') === 'Awaiting Order Confirmation' ? (
-					<CreateProductMovementModal
-						isOpen={this.state.isCreateInvoiceModalOpen}
-						onClose={this.onCloseCreateInvoiceModal}
-						productMovementOrder={mapToObjectRec(this.state.variable)}
-						orderItems={this.state.orderItems}
-					/>
-				) : (
-					undefined
-				)}
-				<PageWrapper>
-					<PageBody>
-						{this.props.match.params.variableName ? (
-							undefined
-						) : (
-							<SaveButtonContaier>
-								<SaveButton
-									onClick={(e) => {
-										new Promise((resolve) => {
-											resolve(this.checkRequiredField(this.state.variable.get('values')));
-										}).then(() => {
-											if (this.state.createProductMovementOrder) {
-												this.props
-													.executeFuntion(
-														mapToObjectRec(this.state.variable.get('values')),
-														'createProductMovementOrder'
-													)
-													.then((response) => {
-														if (response.status === 200) {
-															this.props.createVariables(
-																this.addKeyToList(
-																	this.state.orderItems,
-																	'orderId',
-																	response.data.productMovementOrder.variableName
-																)
-															);
-															//TODo Add reidrect confirmation modal
-															new Promise((resolve) => {
-																resolve(successMessage('Order Placed'));
-																this.setState({ createProductMovementOrder: true });
-															}).then(() => {
-																this.props.history.push(
-																	'/productMovementOrderList/orderPlcaed'
-																);
-															});
-
-														}
-													});
-											}
-										});
-									}}
-								>
-									<CheckIcon />
-								</SaveButton>
-							</SaveButtonContaier>
-						)}
-						<ProductMovementOrderDetails
-							variable={this.state.variable.get('values')}
+			<LoadingOverlay
+				active={this.state.loading}
+				spinner={<Lottie options={defaultOptions} height={240} width={240} />}
+			>
+				<Container mediaPadding="20px 20px 0 20px">
+					<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
+					<CustomNotification limit={2} />
+					{this.props.match.params.variableName &&
+					this.state.variable.get('values').get('status') === 'Awaiting Order Confirmation' ? (
+						<CreateProductMovementModal
+							isOpen={this.state.isCreateInvoiceModalOpen}
+							onClose={this.onCloseCreateInvoiceModal}
+							productMovementOrder={mapToObjectRec(this.state.variable)}
 							orderItems={this.state.orderItems}
-							updateDetails={this.updateDetails}
-							updateOrderItems={this.updateOrderItems}
-							variableName={this.props.match.params.variableName}
-							isdisabled={this.props.match.params.variableName ? true : false}
-							onOpenCreateInvoiceModal={this.onOpenCreateInvoiceModal}
 						/>
-						<HorizontalListPageBlock>
-							<HorizontalBlockListOuter>
-								<HorizontalBlockListInnerWrapper>
-									<HoizontalBlockList>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'invoice' });
-												}}
-											>
-												Invocie
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
-												onClick={(e) => {
-													this.setState({ visibleSection: 'movementRecord' });
-												}}
-											>
-												Product Movement Record
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-									</HoizontalBlockList>
-								</HorizontalBlockListInnerWrapper>
-							</HorizontalBlockListOuter>
-						</HorizontalListPageBlock>
-						{this.state.variable.get('values').get('status') === 'Order Accepted' &&
-						this.state.visibleSection === 'invoice' ? (
-							<ProductMovementOrderInvoice productMovementOrder={this.props.match.params.variableName} />
-						) : (
-							undefined
-						)}
-						{this.state.variable.get('values').get('status') === 'Order Accepted' &&
-						this.state.visibleSection === 'movementRecord' ? (
-							<ProductMovementRecord
-								productMovementRecords={this.state.productMovementRecords}
-								internalMovementProductLog={this.state.internalMovementProductLog}
+					) : (
+						undefined
+					)}
+					<PageWrapper>
+						<PageBody>
+							{this.props.match.params.variableName ? (
+								undefined
+							) : (
+								<SaveButtonContaier>
+									<SaveButton
+										onClick={(e) => {
+											new Promise((resolve) => {
+												resolve(this.checkRequiredField(this.state.variable.get('values')));
+											}).then(() => {
+												if (this.state.createProductMovementOrder) {
+													this.setState({ loading: true });
+													this.props
+														.executeFuntion(
+															mapToObjectRec(this.state.variable.get('values')),
+															'createProductMovementOrder'
+														)
+														.then((response) => {
+															if (response.status === 200) {
+																this.props.createVariables(
+																	this.addKeyToList(
+																		this.state.orderItems,
+																		'orderId',
+																		response.data.productMovementOrder.variableName
+																	)
+																);
+																//TODo Add reidrect confirmation modal
+																new Promise((resolve) => {
+																	resolve(
+																		setTimeout(() => {
+																			this.setState({ loading: false });
+																		}, 1000)
+																	);
+																}).then(() => {
+																	successMessage('Order Placed');
+																	this.setState({
+																		createProductMovementOrder: true
+																	});
+																	// this.props.history.push(
+																	// 	'/productMovementOrderList/orderPlcaed'
+																	// );
+																});
+															}
+														});
+												}
+											});
+										}}
+									>
+										<CheckIcon />
+									</SaveButton>
+								</SaveButtonContaier>
+							)}
+							<ProductMovementOrderDetails
+								variable={this.state.variable.get('values')}
+								orderItems={this.state.orderItems}
+								updateDetails={this.updateDetails}
+								updateOrderItems={this.updateOrderItems}
+								variableName={this.props.match.params.variableName}
+								isdisabled={this.props.match.params.variableName ? true : false}
+								onOpenCreateInvoiceModal={this.onOpenCreateInvoiceModal}
 							/>
-						) : (
-							undefined
-						)}
-					</PageBody>
-				</PageWrapper>
-			</Container>
+							<HorizontalListPageBlock>
+								<HorizontalBlockListOuter>
+									<HorizontalBlockListInnerWrapper>
+										<HoizontalBlockList>
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'invoice' });
+													}}
+												>
+													Invocie
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+											<HoizontalBlockListItems>
+												<BlockListItemButton
+													onClick={(e) => {
+														this.setState({ visibleSection: 'movementRecord' });
+													}}
+												>
+													Product Movement Record
+												</BlockListItemButton>
+											</HoizontalBlockListItems>
+										</HoizontalBlockList>
+									</HorizontalBlockListInnerWrapper>
+								</HorizontalBlockListOuter>
+							</HorizontalListPageBlock>
+							{this.state.variable.get('values').get('status') === 'Order Accepted' &&
+							this.state.visibleSection === 'invoice' ? (
+								<ProductMovementOrderInvoice
+									productMovementOrder={this.props.match.params.variableName}
+								/>
+							) : (
+								undefined
+							)}
+							{this.state.variable.get('values').get('status') === 'Order Accepted' &&
+							this.state.visibleSection === 'movementRecord' ? (
+								<ProductMovementRecord
+									productMovementRecords={this.state.productMovementRecords}
+									internalMovementProductLog={this.state.internalMovementProductLog}
+								/>
+							) : (
+								undefined
+							)}
+						</PageBody>
+					</PageWrapper>
+				</Container>
+			</LoadingOverlay>
 		);
 	}
 }

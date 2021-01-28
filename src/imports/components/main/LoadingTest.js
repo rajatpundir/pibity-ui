@@ -26,30 +26,42 @@ export default class Loading extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			done: false,
-			loading: true
+			done: undefined
 		};
 	}
 
-	// componentDidMount() {
-	// 	setTimeout(() => {
-	// 		fetch('https://jsonplaceholder.typicode.com/posts').then((response) => response.json()).then((json) => {
-	// 			this.setState({ loading: true });
-	// 			setTimeout(() => {
-	// 				this.setState({ done: true });
-	// 			}, 1000);
-	// 		});
-	// 	}, 1200);
-	// }
+	componentDidMount() {
+		setTimeout(() => {
+			fetch('https://jsonplaceholder.typicode.com/posts').then((response) => response.json()).then((json) => {
+				this.setState({ loading: true });
+				setTimeout(() => {
+					this.setState({ done: true });
+				}, 1000);
+			});
+		}, 1200);
+	}
 
 	render() {
 		return (
 			<div>
-				<FadeIn>
-					<div>
-						<Lottie options={defaultOptions} height={240} width={240} />
-					</div>
-				</FadeIn>
+				{!this.state.done ? (
+					<FadeIn>
+						<div class="d-flex justify-content-center align-items-center">
+							<h1>fetching pizza</h1>
+							{!this.state.loading ? (
+								<div>
+									<Lottie options={defaultOptions} height={120} width={120} />
+								</div>
+							) : (
+								<div>
+									<Lottie options={defaultOptions2} height={120} width={120} />
+								</div>
+							)}
+						</div>
+					</FadeIn>
+				) : (
+					<h1>hello world</h1>
+				)}
 			</div>
 		);
 	}

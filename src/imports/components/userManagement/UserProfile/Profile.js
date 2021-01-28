@@ -6,9 +6,7 @@ import ProfileDetails from './ProfileDetails';
 import { Container, PageWrapper, PageBody } from '../../../styles/inventory/Style';
 import { createUser, getUserDetail } from '../../../redux/actions/users';
 import { objToMapRec, getVariables, getVariable, updateVariable } from '../../../redux/actions/variables';
-import FadeIn from 'react-fade-in';
 import Lottie from 'react-lottie';
-import ReactLoading from 'react-loading';
 import * as legoData from '../../main/legoLoading.json';
 import * as doneData from '../../main/doneLoading.json';
 import LoadingOverlay from 'react-loading-overlay';
@@ -17,6 +15,14 @@ const defaultOptions = {
 	loop: true,
 	autoplay: true,
 	animationData: legoData.default,
+	rendererSettings: {
+		preserveAspectRatio: 'xMidYMid slice'
+	}
+};
+const defaultOptions2 = {
+	loop: true,
+	autoplay: true,
+	animationData: doneData.default,
 	rendererSettings: {
 		preserveAspectRatio: 'xMidYMid slice'
 	}
@@ -147,7 +153,7 @@ class Profile extends React.Component {
 		return (
 			<LoadingOverlay
 				active={this.state.loading}
-				spinner={<Lottie options={defaultOptions} height={240} width={240} />}
+				spinner={<Lottie options={defaultOptions2} height={240} width={240} />}
 				text="Loading your content..."
 			>
 				<Container mediaPadding="20px 20px 0 20px" onscroll="extJS_realign()">
