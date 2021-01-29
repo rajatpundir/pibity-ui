@@ -33,6 +33,8 @@ import {
 	HoizontalBlockList,
 	HoizontalBlockListItems
 } from '../../../styles/inventory/Style';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 class Supplier extends React.Component {
 	constructor(props) {
@@ -100,6 +102,7 @@ class Supplier extends React.Component {
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.updateAccountName = this.updateAccountName.bind(this);
 		this.onClose = this.onClose.bind(this);
+		this.onCloseAlert = this.onCloseAlert.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -261,6 +264,81 @@ class Supplier extends React.Component {
 		});
 	}
 
+	onCloseAlert() {
+		this.setState({
+			createSupplier: true,
+			variable: new Map([
+				[ 'typeName', 'Supplier' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[
+							'general',
+							new Map([
+								[ 'variableName', '' ],
+								[
+									'values',
+									new Map([
+										[ 'currency', '' ],
+										[ 'paymentTerm', '' ],
+										[ 'taxRule', '' ],
+										[ 'status', '' ],
+										[ 'defaultCarrier', '' ],
+										[ 'taxNumber', '' ],
+										[ 'discount', '' ],
+										[ 'attributeSet', '' ],
+										[ 'comments', '' ]
+									])
+								]
+							])
+						],
+						[ 'account', '' ],
+						[ 'addresses', [] ],
+						[ 'contacts', [] ]
+					])
+				]
+			]),
+			account: new Map([
+				[ 'typeName', 'Account' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'name', '' ],
+						[ 'code', '' ],
+						[ 'balance', 0 ],
+						[ 'openingBalance', 0 ],
+						[ 'status', 'Active' ],
+						[ 'accountType', 'Creditor' ],
+						[ 'accountCategory', 'LIABILITY' ],
+						[ 'description', 'Supplier Account' ]
+					])
+				]
+			]),
+			supplierAccount: '',
+			visibleSection: 'addresses'
+		});
+	}
+
+	alert() {
+		confirmAlert({
+			title: 'Add New Supplier',
+			buttons: [
+				{
+					label: 'Continue',
+					onClick: () => this.onCloseAlert()
+				},
+				{
+					label: 'Exit',
+					onClick: () => this.props.history.push('/SupplierList')
+				}
+			],
+			closeOnEscape: true,
+			closeOnClickOutside: true
+		});
+	}
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
@@ -298,6 +376,7 @@ class Supplier extends React.Component {
 															.then((response) => {
 																if (response.status === 200) {
 																	successMessage(' Supplier Created');
+																	// this.alert()
 																}
 															});
 													});

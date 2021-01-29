@@ -40,6 +40,8 @@ import {
 	HoizontalBlockList,
 	HoizontalBlockListItems
 } from '../../../styles/inventory/Style';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 class Product extends React.Component {
 	constructor(props) {
@@ -116,7 +118,7 @@ class Product extends React.Component {
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onScroll = this.onScroll.bind(this);
-		// this.customErrorMessage = this.customErrorMessage.bind(this);
+		this.onCloseAlert = this.onCloseAlert.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -252,6 +254,87 @@ class Product extends React.Component {
 		document.getElementById('listnav').scrollLeft += scrollOffset;
 	}
 
+	onCloseAlert(){
+		this.setState({
+			createProduct: true,
+			variable: new Map([
+				[ 'typeName', 'Product' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[
+							'general',
+							new Map([
+								[ 'variableName', '' ],
+								[
+									'values',
+									new Map([
+										[ 'additionalAttributeSet', '' ],
+										[ 'barcode', '' ],
+										[ 'billOfMaterial', '' ],
+										[ 'brand', '' ],
+										[ 'category', '' ],
+										[ 'comment', '' ],
+										[ 'defaultLocation', '' ],
+										[ 'description', '' ],
+										[ 'dropShip', '' ],
+										[ 'minimumBeforeReorder', '' ],
+										[ 'minimumReorderQuantity', '' ],
+										[ 'productCostingMethod', '' ],
+										[ 'productName', '' ],
+										[ 'productStatus', '' ],
+										[ 'productType', '' ],
+										[ 'productWarranty', '' ],
+										[ 'purchaseTaxRule', '' ],
+										[ 'salesTaxRule', '' ],
+										[ 'shortDescription', '' ],
+										[ 'stockLocator', '' ],
+										[ 'unitOfMeasure', '' ],
+										[ 'productDiscount', '' ],
+										[ 'internalNote', '' ]
+									])
+								]
+							])
+						],
+						[ 'productHeight', '0' ],
+						[ 'productLength', '0' ],
+						[ 'productWidth', '0' ],
+						[ 'unitOfDimension', '' ],
+						[ 'productWeight', '0' ],
+						[ 'unitForWeights', '' ],
+						[ 'productCustomPrice', [] ],
+						[ 'productStock', [] ],
+						[ 'productReorderLevels', [] ],
+						[ 'supplierLocation', [] ],
+						[ 'supplierProduct', [] ]
+					])
+				]
+			])
+		})
+	}
+
+	 alert(){
+		confirmAlert({
+			title: 'Add New Product',
+			buttons: [
+				{
+					label: 'Continue',
+					onClick: () => this.onCloseAlert()
+				},
+				{
+					label: 'Exit',
+					onClick: () =>
+						this.props.history.push(
+							'/productList'
+						)
+				}
+			],
+			closeOnEscape: true,
+			closeOnClickOutside: true
+		});
+	 }
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
@@ -283,6 +366,8 @@ class Product extends React.Component {
 												this.props.createVariable(this.state.variable).then((response) => {
 													if (response.status === 200) {
 														successMessage(' Product Created');
+														//Enable after Testing
+														// this.alert()
 													}
 												});
 											}

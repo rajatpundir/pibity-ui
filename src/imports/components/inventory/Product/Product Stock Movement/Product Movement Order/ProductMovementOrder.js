@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { useHistory } from 'react-router-dom';
 import { cloneDeep } from 'lodash';
 import 'react-toastify/dist/ReactToastify.css';
 import { customErrorMessage, successMessage, CustomNotification } from '../../../../main/Notification';
@@ -226,6 +225,7 @@ class ProductMovementOrder extends React.Component {
 	onCloseCreateInvoiceModal() {
 		this.setState({ isCreateInvoiceModalOpen: false });
 	}
+	
 	onCloseAlert(){
 		this.setState({
 			createProductMovementOrder: true,
@@ -247,6 +247,27 @@ class ProductMovementOrder extends React.Component {
 			orderItems: []
 		})
 	}
+
+	 alert(){
+		confirmAlert({
+			title: 'Create New Order',
+			buttons: [
+				{
+					label: 'Continue',
+					onClick: () => this.onCloseAlert()
+				},
+				{
+					label: 'Exit',
+					onClick: () =>
+						this.props.history.push(
+							'/productMovementOrderList/orderPlcaed'
+						)
+				}
+			],
+			closeOnEscape: true,
+			closeOnClickOutside: true
+		});
+	 }
 
 	render() {
 		return (
@@ -302,24 +323,7 @@ class ProductMovementOrder extends React.Component {
 																	// setTimeout(() => {
 																	// 	this.setState({ loading: false });
 																	// }, 1000)
-																	confirmAlert({
-																		title: 'Create New Order',
-																		buttons: [
-																			{
-																				label: 'Continue',
-																				onClick: () => this.onCloseAlert()
-																			},
-																			{
-																				label: 'Exit',
-																				onClick: () =>
-																					this.props.history.push(
-																						'/productMovementOrderList/orderPlcaed'
-																					)
-																			}
-																		],
-																		closeOnEscape: true,
-																		closeOnClickOutside: true
-																	});
+																	this.alert()
 																});
 
 															}
