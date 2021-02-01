@@ -42,8 +42,7 @@ class Stock extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			list: props.list,
-			selectedlocation: []
+			list: props.list
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -64,14 +63,20 @@ class Stock extends React.Component {
 		const list = cloneDeep(this.state.list).map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
-				values.set(e.target.name, e.target.value);
+				switch (e.target.name) {
+					case 'onHand':
+						values.set(e.target.name, e.target.value);
+						values.set('available', e.target.value);
+						break;
+					default:
+						values.set(e.target.name, e.target.value);
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
 				return listVariable;
 			}
 		});
-		this.setState({ list: list });
 		this.props.updateProductStock(list);
 	}
 
@@ -79,6 +84,7 @@ class Stock extends React.Component {
 		const list = cloneDeep(this.state.list);
 		list.unshift(
 			new Map([
+				[ 'typeName', 'ProductStore' ],
 				[
 					'variableName',
 					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
@@ -87,15 +93,11 @@ class Stock extends React.Component {
 					'values',
 					new Map([
 						[ 'location', '' ],
-						[ 'bin', '' ],
-						[ 'stockValue', '' ],
-						[ 'allocated', '' ],
+						[ 'product', '' ],
+						[ 'allocated', 0 ],
 						[ 'available', '' ],
-						[ 'batch', '' ],
-						[ 'expiryDate', '' ],
-						[ 'nextDelivery', '' ],
 						[ 'onHand', '' ],
-						[ 'onOrder', '' ]
+						[ 'onOrder', 0 ]
 					])
 				]
 			])
@@ -118,13 +120,17 @@ class Stock extends React.Component {
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="5%" left="0px">
-						<i
-							name={listVariable.get('variableName')}
-							className="large material-icons"
-							onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}
-						>
-							remove_circle_outline
-						</i>
+						{this.props.params.variableName ? (
+							undefined
+						) : (
+							<i
+								name={listVariable.get('variableName')}
+								className="large material-icons"
+								onClick={(e) => this.onRemoveKey(e, listVariable.get('variableName'))}
+							>
+								remove_circle_outline
+							</i>
+						)}
 					</TableData>
 					<TableData width="10%" left="5%">
 						<TableHeaderInner>
@@ -140,6 +146,7 @@ class Stock extends React.Component {
 											listVariable.get('variableName')
 										);
 									}}
+									isDisabled={this.props.params.variableName ? true : false}
 									options={
 										this.props.variables.Location !== undefined ? (
 											this.props.variables.Location
@@ -164,94 +171,44 @@ class Stock extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-
-					<TableData width="8%" left="15%">
-						<TableHeaderInner>
-							<Input
-								name="bin"
-								type="text"
-								value={listVariable.get('values').get('bin')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="23%">
-						<TableHeaderInner>
-							<Input
-								name="batch"
-								type="Decimal"
-								value={listVariable.get('values').get('batch')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="34%">
-						<TableHeaderInner>
-							<Input
-								name="expiryDate"
-								type="date"
-								value={listVariable.get('values').get('expiryDate')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="43%">
-						<TableHeaderInner>
-							<Input
-								name="stockValue"
-								type="decimal"
-								value={listVariable.get('values').get('stockValue')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="8%" left="50%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="onHand"
 								type="number"
 								value={listVariable.get('values').get('onHand')}
+								disabled={this.props.params.variableName ? true : false}
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="59%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="available"
 								type="decimal"
 								value={listVariable.get('values').get('available')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+								readOnly
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="9%" left="69%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="onOrder"
 								type="number"
 								value={listVariable.get('values').get('onOrder')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+								readOnly
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="78%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="allocated"
 								type="number"
 								value={listVariable.get('values').get('allocated')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%" left="90%">
-						<TableHeaderInner>
-							<Input
-								name="nextDelivery"
-								type="number"
-								value={listVariable.get('values').get('nextDelivery')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
+								readOnly
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -262,6 +219,7 @@ class Stock extends React.Component {
 	}
 
 	render() {
+		console.log(this.state.list);
 		return (
 			<PageBlock id="stock">
 				<PageToolbar>
@@ -297,54 +255,29 @@ class Stock extends React.Component {
 															</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" left="5%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Location</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="8%" left="15%">
-														<SelectIconContainer>
-															<SelectSpan>Bin</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="8%" left="23%">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Batch</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="8%" left="34%">
-														<SelectIconContainer>
-															<SelectSpan>Expiery Date</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="8%" left="43%">
-														<SelectIconContainer>
-															<SelectSpan>Stock Value</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="8%" left="50%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>On Hand</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="11%" left="59%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Available</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="9%" left="69%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>On Order</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="11%" left="78%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Allocated</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="90%">
-														<SelectIconContainer>
-															<SelectSpan>Net Delivery</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
 												</TableRow>
@@ -365,11 +298,15 @@ class Stock extends React.Component {
 									undefined
 								)}
 							</HeaderBodyContainer>
-							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addVariableToList()}>
-									<i className="large material-icons">add</i>Add More Items
-								</AddMoreButton>
-							</AddMoreBlock>
+							{this.props.params.variableName ? (
+								undefined
+							) : (
+								<AddMoreBlock>
+									<AddMoreButton onClick={(e) => this.addVariableToList()}>
+										<i className="large material-icons">add</i>Add More Items
+									</AddMoreButton>
+								</AddMoreBlock>
+							)}
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>

@@ -97,15 +97,11 @@ class Product extends React.Component {
 						[ 'productWidth', '0' ],
 						[ 'unitOfDimension', '' ],
 						[ 'productWeight', '0' ],
-						[ 'unitForWeights', '' ],
-						[ 'productCustomPrice', [] ],
-						[ 'productStock', [] ],
-						[ 'productReorderLevels', [] ],
-						[ 'supplierLocation', [] ],
-						[ 'supplierProduct', [] ]
+						[ 'unitForWeights', '' ]
 					])
 				]
 			]),
+			productStore: [],
 			visibleSection: 'price'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -122,11 +118,16 @@ class Product extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Product) {
+		if (nextProps.match.params.variableName && nextProps.variables.Product && nextProps.variables.ProductStore) {
 			const variable = nextProps.variables.Product.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const productStore = nextProps.variables.ProductStore
+					.filter((store) => store.values.product === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -138,7 +139,8 @@ class Product extends React.Component {
 					...prevState,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
+					prevVariable: prevVariableMap,
+					productStore: productStore
 				};
 			}
 		}
@@ -165,6 +167,7 @@ class Product extends React.Component {
 		this.props.getVariables('Location');
 		this.props.getVariables('Supplier');
 		this.props.getVariables('Currency');
+		this.props.getVariables('ProductStore');
 	}
 
 	componentDidMount() {
@@ -218,12 +221,8 @@ class Product extends React.Component {
 		this.setState({ variable: variable });
 	}
 
-	updateProductStock(productStock) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('productStock', productStock);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+	updateProductStock(productStore) {
+		this.setState({ productStore: productStore });
 	}
 
 	updateProductReorderLevels(reorderLevel) {
@@ -254,7 +253,7 @@ class Product extends React.Component {
 		document.getElementById('listnav').scrollLeft += scrollOffset;
 	}
 
-	onCloseAlert(){
+	onCloseAlert() {
 		this.setState({
 			createProduct: true,
 			variable: new Map([
@@ -302,19 +301,15 @@ class Product extends React.Component {
 						[ 'productWidth', '0' ],
 						[ 'unitOfDimension', '' ],
 						[ 'productWeight', '0' ],
-						[ 'unitForWeights', '' ],
-						[ 'productCustomPrice', [] ],
-						[ 'productStock', [] ],
-						[ 'productReorderLevels', [] ],
-						[ 'supplierLocation', [] ],
-						[ 'supplierProduct', [] ]
+						[ 'unitForWeights', '' ]
 					])
 				]
-			])
-		})
+			]),
+			productStore: []
+		});
 	}
 
-	 alert(){
+	alert() {
 		confirmAlert({
 			title: 'Add New Product',
 			buttons: [
@@ -324,16 +319,13 @@ class Product extends React.Component {
 				},
 				{
 					label: 'Exit',
-					onClick: () =>
-						this.props.history.push(
-							'/productList'
-						)
+					onClick: () => this.props.history.push('/productList')
 				}
 			],
 			closeOnEscape: true,
 			closeOnClickOutside: true
 		});
-	 }
+	}
 
 	render() {
 		return (
@@ -483,21 +475,21 @@ class Product extends React.Component {
 						{this.state.visibleSection === 'dimensions' && (
 							<ProductDimension variable={this.state.variable} updateDimensions={this.updateDimensions} />
 						)}
-						{this.state.visibleSection === 'reorderLevels' && (
+						{/* {this.state.visibleSection === 'reorderLevels' && (
 							<ReorderLevels
 								list={this.state.variable.get('values').get('productReorderLevels')}
 								updateProductReorderLevels={this.updateProductReorderLevels}
 							/>
-						)}
+						)} */}
 						{this.state.visibleSection === 'additionalUnitOfMeasure' && (
 							<AdditionalUnitOfMeasure list={[]} />
 						)}
-						{this.state.visibleSection === 'customPrice' && (
+						{/* {this.state.visibleSection === 'customPrice' && (
 							<CustomPrice
 								list={this.state.variable.get('values').get('productCustomPrice')}
 								updateCustomPrice={this.updateCustomPrice}
 							/>
-						)}
+						)} */}
 						{this.state.visibleSection === 'channels' && (
 							<PageBlock>
 								<PageToolbar>
@@ -520,14 +512,9 @@ class Product extends React.Component {
 						)}
 						{this.state.visibleSection === 'stock' && (
 							<Stock
-								list={this.state.variable.get('values').get('productStock')}
+								list={this.state.productStore}
 								updateProductStock={this.updateProductStock}
-							/>
-						)}
-						{this.state.visibleSection === 'supplier' && (
-							<SupplierProduct
-								list={this.state.variable.get('values').get('supplierProduct')}
-								updateSupplierProduct={this.updateSupplierProduct}
+								params={this.props.match.params}
 							/>
 						)}
 					</PageBody>

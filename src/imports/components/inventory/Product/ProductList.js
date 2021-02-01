@@ -123,11 +123,11 @@ class ProductList extends React.Component {
 					</TableData>
 					<TableData width="15%">
 						<TableHeaderInner>
-							{product.values.supplierProduct[0] !== undefined ? (
+							{/* {product.values.supplierProduct[0] !== undefined ? (
 								product.values.supplierProduct[0].supplier || 'no address found'
 							) : (
 								'no supplier found'
-							)}
+							)} */}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
