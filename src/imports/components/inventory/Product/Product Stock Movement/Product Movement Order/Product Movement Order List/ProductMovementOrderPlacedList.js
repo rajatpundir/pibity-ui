@@ -69,28 +69,27 @@ class ProductMovementOrderPlacedList extends React.Component {
 		this.setState({ [e.target.name]: e.target.value });
 	}
 
+	getData() {
+		this.props.clearErrors();
+		this.props.getVariables('ProductMovementOrder');
+		this.props.getVariables('ProductMovementOrderItems');
+		this.props.getVariables('Location');
+	}
 	componentDidMount() {
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
-			this.props.clearErrors();
-			this.props.getVariables('ProductMovementOrder');
-			this.props.getVariables('ProductMovementOrderItems');
-			this.props.getVariables('Location');
+			this.getData();
 		}
 	}
 
 	onClose() {
 		this.setState({ isOpen: false });
-		this.props.clearErrors();
-		this.props.getVariables('ProductMovementOrder');
-		this.props.getVariables('ProductMovementOrderItems');
-		this.props.getVariables('InternalProductMovementItemRecord');
+		this.getData();
 	}
 
 	onRefresh(e) {
-		this.props.getVariables('ProductMovementOrder');
-		this.props.getVariables('ProductMovementOrderItems');
+		this.getData();
 	}
 
 	onResetDefaults() {
@@ -239,7 +238,7 @@ class ProductMovementOrderPlacedList extends React.Component {
 								</Custombutton>
 							</PageBarAlign>
 							<PageBarAlign padding="10px 20px" float="left">
-								<FormControl  minHeight="0" paddingBottom="0">
+								<FormControl minHeight="0" paddingBottom="0">
 									<SelectWrapper minWidth="150px">
 										<Select
 											value={{

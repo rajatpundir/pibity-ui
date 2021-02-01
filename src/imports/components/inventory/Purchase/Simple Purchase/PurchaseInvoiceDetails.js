@@ -870,7 +870,6 @@ class PurchaseInvoiceDetails extends React.Component {
 																		)
 																	)
 																	.then((response) => {
-																		console.log(response);
 																		if (response.status === 200) {
 																			this.props.getVariables(
 																				'PurchaseOrderStockItemRecord'

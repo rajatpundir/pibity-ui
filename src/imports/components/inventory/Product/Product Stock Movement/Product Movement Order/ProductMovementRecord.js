@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getVariables } from '../../../../../redux/actions/variables';
-
+import { successMessage, customErrorMessage } from '../../../../main/Notification';
 import {
 	BodyTable,
 	HeaderBody,
@@ -85,15 +85,32 @@ class ProductMovementRecord extends React.Component {
 					refInvoice: item.values.productMovementInvoice,
 					productStore: item.values.fromProductStore
 				};
-				this.props.executeFuntion(updateStore, 'reduceQuantityInProductStore').then((response) => {
-					if (response.status === 200) {
-						this.props.executeFuntion(args, funtionName).then((response) => {
-							if (response.status === 200) {
-								this.props.getVariables('InternalProductMovementItemRecord');
+				this.props
+					.executeFuntion(
+						{
+							quantity: item.values.quantity,
+							productStore: item.values.fromProductStore
+						},
+						'isQuantityAvailableInStore'
+					)
+					.then((response) => {
+						if (response.status === 200) {
+							if (response.data.dispatchProduct) {
+								this.props.executeFuntion(updateStore, 'reduceQuantityInProductStore').then((response) => {
+									if (response.status === 200) {
+										this.props.executeFuntion(args, funtionName).then((response) => {
+											if (response.status === 200) {
+												successMessage("Product Dispatched Succesfully")
+												this.props.getVariables('InternalProductMovementItemRecord');
+											}
+										});
+									}
+								});
+							} else {
+								customErrorMessage('Quantity insufficient in store');
 							}
-						});
-					}
-				});
+						}
+					});
 				break;
 			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
 				this.onOpenAcceptOrderModal(item);
@@ -111,6 +128,7 @@ class ProductMovementRecord extends React.Component {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
+								successMessage("Product Recieved Succesfully")
 								this.props.getVariables('InternalProductMovementItemRecord');
 							}
 						});

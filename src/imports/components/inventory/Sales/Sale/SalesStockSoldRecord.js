@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import styled from 'styled-components';
 import { clearErrors } from '../../../../redux/actions/errors';
-import { successMessage } from '../../../main/Notification';
+import { successMessage, customErrorMessage } from '../../../main/Notification';
 import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
 import {
@@ -113,22 +113,40 @@ class SalesStockSoldRecord extends React.Component {
 		switch (funtionName) {
 			case 'dispatchSalesOrderProduct':
 				const update = {
-					updateType: 'Received',
+					updateType: 'Sent',
 					movementType: item.values.movementType,
 					quantity: item.values.quantity,
 					refProductStore: item.values.fromCustomer,
 					refInvoice: item.values.salesOrder,
 					productStore: item.values.fromProductStore
 				};
-				this.props.executeFuntion(update, 'reduceQuantityInProductStore').then((response) => {
-					if (response.status === 200) {
-						this.props.executeFuntion(args, funtionName).then((response) => {
-							if (response.status === 200) {
-								this.props.getVariables('SalesOrderStockItemRecord');
+				this.props
+					.executeFuntion(
+						{
+							quantity: item.values.quantity,
+							productStore: item.values.fromProductStore
+						},
+						'isQuantityAvailableInStore'
+					)
+					.then((response) => {
+						if (response.status === 200) {
+							if (response.data.dispatchProduct) {
+								this.props.executeFuntion(update, 'reduceQuantityInProductStore').then((response) => {
+									if (response.status === 200) {
+										this.props.executeFuntion(args, funtionName).then((response) => {
+											if (response.status === 200) {
+												successMessage("Product Dispatched Succesfully")
+												this.props.getVariables('SalesOrderStockItemRecord');
+											}
+										});
+									}
+								});
+							} else {
+								customErrorMessage('Quantity insufficient in store');
 							}
-						});
-					}
-				});
+						}
+					});
+
 				break;
 			default:
 				this.props.executeFuntion(args, funtionName).then((response) => {
@@ -190,7 +208,7 @@ class SalesStockSoldRecord extends React.Component {
 					</TableData>
 					<TableData width="30%">
 						<TableHeaderInner>
-                        {data.values.status === 'Waiting For Dispatch' ? (
+							{data.values.status === 'Waiting For Dispatch' ? (
 								<React.Fragment>
 									<Custombutton
 										padding="0 10px"
@@ -201,12 +219,7 @@ class SalesStockSoldRecord extends React.Component {
 										borderColor="#05cb9a"
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
-										onClick={(e) =>
-											this.updateStatus(
-												e,
-												data,
-												'dispatchSalesOrderProduct'
-											)}
+										onClick={(e) => this.updateStatus(e, data, 'dispatchSalesOrderProduct')}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Dispatch

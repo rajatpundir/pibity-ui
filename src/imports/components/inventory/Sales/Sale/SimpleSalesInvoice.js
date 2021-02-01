@@ -712,6 +712,41 @@ class SimpleSalesInvoice extends React.Component {
 		return rows;
 	}
 
+	createStore(invoice) {
+		const productStores = [];
+		invoice.values.productInvoiceDetails.forEach((data) => {
+			const store =
+				this.props.variables.ProductStore !== undefined
+					? this.props.variables.ProductStore.filter(
+							(store) =>
+								store.values.location === this.props.location &&
+								store.values.product === data.values.product
+						)[0]
+					: undefined;
+			if (store === undefined) {
+				productStores.push(
+					new Map([
+						[ 'typeName', 'ProductStore' ],
+						[ 'variableName', '' ],
+						[
+							'values',
+							new Map([
+								[ 'status', 'Active' ],
+								[ 'location', this.props.location ],
+								[ 'product', data.values.product ],
+								[ 'onHand', 0 ],
+								[ 'onOrder', 0 ],
+								[ 'available', 0 ],
+								[ 'allocated', 0 ]
+							])
+						]
+					])
+				);
+			}
+		});
+		return productStores;
+	}
+
 	createStockItems(invoice, salesStockRecord) {
 		const salesStockItems = [];
 		invoice.values.productInvoiceDetails.forEach((data) => {
@@ -747,9 +782,9 @@ class SimpleSalesInvoice extends React.Component {
 				])
 			);
 		});
-		console.log(salesStockItems);
 		return salesStockItems;
 	}
+	
 	render() {
 		return (
 			<PageBlock id="invoice">
@@ -780,41 +815,48 @@ class SimpleSalesInvoice extends React.Component {
 												.executeFuntion(args, 'createSalesOrderStockSoldRecord')
 												.then((response) => {
 													if (response.status === 200) {
-														this.props
-															.createVariables(
-																this.createStockItems(
-																	invoice,
-																	response.data.salesStockRecord
+														new Promise((resolve) => {
+															resolve(
+																this.props.createVariables(this.createStore(invoice))
+															);
+														}).then(() => {
+															this.props
+																.createVariables(
+																	this.createStockItems(
+																		invoice,
+																		response.data.salesStockRecord
+																	)
 																)
-															)
-															.then((response) => {
-																if (response.status === 200) {
-																	response.data.forEach((data) => {
-																		const update = {
-																			quantity: data.values.quantity,
-																			productStore: data.values.fromProductStore
-																		};
-																		this.props
-																			.executeFuntion(
-																				update,
-																				'updateAllocatedQuantityInProductStore'
-																			)
-																			.then((response) => {
-																				if (response.status === 200) {
-																					this.props.getVariables(
-																						'SalesOrderStockItemRecord'
-																					);
-																					this.props.getVariables(
-																						'SalesOrderStockSoldRecord'
-																					);
-																					successMessage(
-																						' Sales Invoice Created'
-																					);
-																				}
-																			});
-																	});
-																}
-															});
+																.then((response) => {
+																	if (response.status === 200) {
+																		response.data.forEach((data) => {
+																			const update = {
+																				quantity: data.values.quantity,
+																				productStore:
+																					data.values.fromProductStore
+																			};
+																			this.props
+																				.executeFuntion(
+																					update,
+																					'updateAllocatedQuantityInProductStore'
+																				)
+																				.then((response) => {
+																					if (response.status === 200) {
+																						this.props.getVariables(
+																							'SalesOrderStockItemRecord'
+																						);
+																						this.props.getVariables(
+																							'SalesOrderStockSoldRecord'
+																						);
+																						successMessage(
+																							' Sales Invoice Created'
+																						);
+																					}
+																				});
+																		});
+																	}
+																});
+														});
 													}
 												});
 										}

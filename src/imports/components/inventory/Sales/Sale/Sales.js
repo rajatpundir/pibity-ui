@@ -393,26 +393,6 @@ class SimpleSale extends React.Component {
 										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
 											<BlockListItemButton
-												style={{
-													opacity: this.state.variable.get('values').get('invoiceCreated')
-														? '1'
-														: '0.5',
-													pointerEvents: this.state.variable
-														.get('values')
-														.get('invoiceCreated')
-														? 'all'
-														: 'none'
-												}}
-												onClick={(e) =>
-													this.state.variable.get('values').get('invoiceCreated')
-														? this.setState({ visibleSection: 'stockReceived' })
-														: undefined}
-											>
-												Stock Received
-											</BlockListItemButton>
-										</HoizontalBlockListItems>
-										<HoizontalBlockListItems>
-											<BlockListItemButton
 												// style={{
 												// 	opacity: this.state.variable.get('values').get('invoiceCreated')
 												// 		? '1'
