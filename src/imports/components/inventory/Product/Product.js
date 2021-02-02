@@ -7,6 +7,8 @@ import { customErrorMessage, CustomNotification, successMessage } from '../../ma
 import { clearErrors } from '../../../redux/actions/errors';
 import {
 	createVariable,
+	createVariables,
+	addKeyToList,
 	getVariables,
 	getVariable,
 	updateVariable,
@@ -357,9 +359,23 @@ class Product extends React.Component {
 											if (this.state.createProduct) {
 												this.props.createVariable(this.state.variable).then((response) => {
 													if (response.status === 200) {
-														successMessage(' Product Created');
-														//Enable after Testing
-														// this.alert()
+														this.state.productStore.length !== 0
+															? this.props
+																	.createVariables(
+																		addKeyToList(
+																			this.state.productStore,
+																			'product',
+																			response.data.variableName
+																		)
+																	)
+																	.then((response) => {
+																		if (response.status === 200) {
+																			successMessage(' Product Created');
+																			//Enable after Testing
+																			// this.alert()
+																		}
+																	})
+															: successMessage(' Product Created');
 													}
 												});
 											}
@@ -533,6 +549,7 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
+	createVariables,
 	getVariable,
 	getVariables,
 	updateVariable

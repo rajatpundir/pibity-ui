@@ -97,7 +97,8 @@ class Stock extends React.Component {
 						[ 'allocated', 0 ],
 						[ 'available', '' ],
 						[ 'onHand', '' ],
-						[ 'onOrder', 0 ]
+						[ 'onOrder', 0 ],
+						[ 'status', 'Active' ]
 					])
 				]
 			])
@@ -212,6 +213,34 @@ class Stock extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
+					<TableData width="10%" left="5%">
+						<TableHeaderInner>
+							<SelectWrapper>
+								<Select
+									value={{
+										value: listVariable.get('values').get('status'),
+										label: listVariable.get('values').get('status')
+									}}
+									onChange={(option) => {
+										this.onChange({ target: { name: 'status', value: option.value } });
+									}}
+									isDisabled
+									options={
+										this.props.variables.Status !== undefined ? (
+											this.props.variables.Status.map((variable) => {
+												return {
+													value: variable.variableName,
+													label: variable.variableName
+												};
+											})
+										) : (
+											[]
+										)
+									}
+								/>
+							</SelectWrapper>
+						</TableHeaderInner>
+					</TableData>
 				</TableRow>
 			)
 		);
@@ -219,7 +248,6 @@ class Stock extends React.Component {
 	}
 
 	render() {
-		console.log(this.state.list);
 		return (
 			<PageBlock id="stock">
 				<PageToolbar>
@@ -278,6 +306,11 @@ class Stock extends React.Component {
 													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Allocated</SelectSpan>
+														</SelectIconContainer>
+													</TableHeaders>
+													<TableHeaders width="10%">
+														<SelectIconContainer>
+															<SelectSpan>Status</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
 												</TableRow>

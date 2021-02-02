@@ -83,6 +83,17 @@ export function objToMapRec(obj) {
 	return map;
 }
 
+export function addKeyToList(items, key, value) {
+	return items.map((listVariable) => {
+		const values = listVariable.get('values');
+		values.set(key, value);
+		listVariable.set('values', values);
+		return listVariable;
+	});
+}
+
+
+
 export const getVariables = (typeName: String, limit: Number = 500, offset: Number = 0, values: Object = {}) => async (
 	dispatch
 ) => {
