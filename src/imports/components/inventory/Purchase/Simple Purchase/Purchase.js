@@ -127,8 +127,7 @@ class Purchase extends React.Component {
 		this.props.getVariables('TaxRule');
 		this.props.getVariables('Product');
 		this.props.getVariables('UnitOfMeasure');
-		this.props.getVariables('ProductStore');
-
+		this.props.getVariables('ProductSupplier');
 	}
 
 	componentDidMount() {
@@ -460,6 +459,7 @@ class Purchase extends React.Component {
 							<PurchaseOrderDetails
 								variable={this.state.variable.get('values').get('orderDetails')[0]}
 								updateOrder={this.updateOrder}
+								supplier={this.state.variable.get('values').get('general').get('values').get('supplierName')}
 							/>
 						)}
 						{this.state.visibleSection === 'invoice' && (
