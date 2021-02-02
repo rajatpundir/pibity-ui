@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactToPrint from 'react-to-print';
 import { connect } from 'react-redux';
 import { getVariables } from '../../../../../redux/actions/variables';
 import { successMessage, customErrorMessage } from '../../../../main/Notification';
@@ -71,7 +72,7 @@ class ProductMovementRecord extends React.Component {
 		this.setState({ acceptOrderModal: false });
 	}
 
-	updateStatus(e, item, funtionName,rejectedQuantity) {
+	updateStatus(e, item, funtionName, rejectedQuantity) {
 		const args = {
 			productMovementRecord: item.variableName
 		};
@@ -96,16 +97,18 @@ class ProductMovementRecord extends React.Component {
 					.then((response) => {
 						if (response.status === 200) {
 							if (response.data.dispatchProduct) {
-								this.props.executeFuntion(updateStore, 'reduceQuantityInProductStore').then((response) => {
-									if (response.status === 200) {
-										this.props.executeFuntion(args, funtionName).then((response) => {
-											if (response.status === 200) {
-												successMessage("Product Dispatched Succesfully")
-												this.props.getVariables('InternalProductMovementItemRecord');
-											}
-										});
-									}
-								});
+								this.props
+									.executeFuntion(updateStore, 'reduceQuantityInProductStore')
+									.then((response) => {
+										if (response.status === 200) {
+											this.props.executeFuntion(args, funtionName).then((response) => {
+												if (response.status === 200) {
+													successMessage('Product Dispatched Succesfully');
+													this.props.getVariables('InternalProductMovementItemRecord');
+												}
+											});
+										}
+									});
 							} else {
 								customErrorMessage('Quantity insufficient in store');
 							}
@@ -128,7 +131,7 @@ class ProductMovementRecord extends React.Component {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
-								successMessage("Product Recieved Succesfully")
+								successMessage('Product Recieved Succesfully');
 								this.props.getVariables('InternalProductMovementItemRecord');
 							}
 						});
@@ -225,7 +228,8 @@ class ProductMovementRecord extends React.Component {
 											this.updateStatus(
 												e,
 												data,
-												'dispatchShipmentAndUpdateProductMovementRecord',0
+												'dispatchShipmentAndUpdateProductMovementRecord',
+												0
 											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
@@ -247,7 +251,12 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'receiveShipmentAndUpdateProductMovementRecord',0)}
+											this.updateStatus(
+												e,
+												data,
+												'receiveShipmentAndUpdateProductMovementRecord',
+												0
+											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Recieve
@@ -271,7 +280,8 @@ class ProductMovementRecord extends React.Component {
 											this.updateStatus(
 												e,
 												data,
-												'approveShipmentReceivedAndUpdateProductMovementRecord',0
+												'approveShipmentReceivedAndUpdateProductMovementRecord',
+												0
 											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
@@ -309,7 +319,12 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'dispatchRejectedShipmentUpdateMovementRecord',log.values.rejectedQuantity)}
+											this.updateStatus(
+												e,
+												data,
+												'dispatchRejectedShipmentUpdateMovementRecord',
+												log.values.rejectedQuantity
+											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Dispatch Shipment
@@ -330,7 +345,12 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'receiveRejectedShipmentUpdateMovementRecord',log.values.rejectedQuantity)}
+											this.updateStatus(
+												e,
+												data,
+												'receiveRejectedShipmentUpdateMovementRecord',
+												log.values.rejectedQuantity
+											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Recieve Rejected Shipment
@@ -367,6 +387,10 @@ class ProductMovementRecord extends React.Component {
 		return rows;
 	}
 
+	funToPrint() {
+		return <div ref={(el) => (this.componentRef = el)}>"helolsofhsjf "</div>;
+	}
+
 	render() {
 		return (
 			<PageBlock>
@@ -381,6 +405,19 @@ class ProductMovementRecord extends React.Component {
 					</ToolbarItems>
 				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible">
+					<div>
+						<ReactToPrint
+							trigger={() => {
+								// NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+								// to the root node of the returned component as it will be overwritten.
+								return <a href="#">Print this out!</a>;
+							}}
+							content={() => this.componentRef}
+						/>
+						<div style={{ display: 'none' }}>
+							<div ref={(el) => (this.componentRef = el)}>"helolsofhsjf "</div>
+						</div>
+					</div>
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
 							<HeaderBodyContainer>
