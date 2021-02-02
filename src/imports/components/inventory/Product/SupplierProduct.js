@@ -73,8 +73,9 @@ class SupplierProducts extends React.Component {
 
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
-		list.unshift(
+		list.push(
 			new Map([
+				[ 'typeName', 'ProductSupplier' ],
 				[
 					'variableName',
 					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
@@ -83,18 +84,17 @@ class SupplierProducts extends React.Component {
 					'values',
 					new Map([
 						[ 'supplier', '' ],
-						[ 'currency', '' ],
-						[ 'dropShip', '' ],
+						[ 'product', '' ],
+						[ 'supplierSKU', '' ],
 						[ 'fixedPrice', '' ],
-						[ 'lastSupplied', '' ],
 						[ 'latestPrice', '' ],
-						[ 'productName', '' ],
-						[ 'productUrl', '' ],
-						[ 'sku', '' ]
+						[ 'supplierProductName', '' ],
+						[ 'productUrl', '' ]
 					])
 				]
 			])
 		);
+		console.log(list);
 		this.setState({ list: list });
 		this.props.updateSupplierProduct(list);
 	}
@@ -121,7 +121,7 @@ class SupplierProducts extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="10%" left="6%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -135,14 +135,23 @@ class SupplierProducts extends React.Component {
 											listVariable.get('variableName')
 										);
 									}}
+									isDisabled={this.props.params.variableName ? true : false}
 									options={
 										this.props.variables.Supplier !== undefined ? (
-											this.props.variables.Supplier.map((variable) => {
-												return {
-													value: variable.variableName,
-													label: variable.variableName
-												};
-											})
+											this.props.variables.Supplier
+												.filter((supplier) => {
+													return !this.state.list
+														.map((list) => {
+															return list.get('values').get('supplier');
+														})
+														.includes(supplier.variableName);
+												})
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -151,27 +160,27 @@ class SupplierProducts extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="8%" left="15%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
-								name="sku"
+								name="supplierSKU"
 								type="text"
-								value={listVariable.get('values').get('sku')}
+								value={listVariable.get('values').get('supplierSKU')}
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="23%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
-								name="productName"
+								name="supplierProductName"
 								type="text"
-								value={listVariable.get('values').get('productName')}
+								value={listVariable.get('values').get('supplierProductName')}
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="34%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="productUrl"
@@ -181,47 +190,7 @@ class SupplierProducts extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="46%">
-						<TableHeaderInner>
-							<Input
-								name="dropShip"
-								type="text"
-								value={listVariable.get('values').get('dropShip')}
-								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
-							/>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="12%" left="55%">
-						<TableHeaderInner>
-							<SelectWrapper>
-								<Select
-									value={{
-										value: listVariable.get('values').get('currency'),
-										label: listVariable.get('values').get('currency')
-									}}
-									onChange={(option) => {
-										this.onChange(
-											{ target: { name: 'currency', value: option.value } },
-											listVariable.get('variableName')
-										);
-									}}
-									options={
-										this.props.variables.Customer !== undefined ? (
-											this.props.variables.Customer.map((variable) => {
-												return {
-													value: variable.variableName,
-													label: variable.variableName
-												};
-											})
-										) : (
-											[]
-										)
-									}
-								/>
-							</SelectWrapper>
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="11%" left="67%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="latestPrice"
@@ -231,7 +200,7 @@ class SupplierProducts extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" left="78%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="fixedPrice"
@@ -241,7 +210,7 @@ class SupplierProducts extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" left="89%">
+					{/* <TableData width="11%" left="89%">
 						<TableHeaderInner>
 							<Input
 								name="lastSupplied"
@@ -250,7 +219,7 @@ class SupplierProducts extends React.Component {
 								onChange={(e) => this.onChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
-					</TableData>
+					</TableData> */}
 				</TableRow>
 			)
 		);
@@ -290,52 +259,41 @@ class SupplierProducts extends React.Component {
 															</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-
-													<TableHeaders width="10%" left="6%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Supplier</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" left="14%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
-															<SelectSpan textAlign="right">SKU</SelectSpan>
+															<SelectSpan textAlign="right"> Supplier SKU</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" left="23%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Product Name</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" left="34%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Product Url</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" left="46%">
-														<SelectIconContainer>
-															<SelectSpan>Drop Ship</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="12%" left="55%">
-														<SelectIconContainer>
-															<SelectSpan>Currency</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="11%" left="67%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Latest Price</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" left="78%">
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Fixed Price</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="11%" left="89%">
+													{/* <TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Last Supplied</SelectSpan>
 														</SelectIconContainer>
-													</TableHeaders>
+													</TableHeaders> */}
 												</TableRow>
 											</TableBody>
 										</BodyTable>
@@ -355,88 +313,6 @@ class SupplierProducts extends React.Component {
 									<i className="large material-icons">add</i>Add More Items
 								</AddMoreButton>
 							</AddMoreBlock>
-						</TableFieldContainer>
-					</RoundedBlock>
-					<RoundedBlock marginTop="10px" overflow="visible">
-						<TableFieldContainer overflow="visible">
-							<Headers>
-								<HeaderContainer>
-									<HeaderBody>
-										<BodyTable>
-											<TableBody>
-												<TableRow>
-													<TableHeaders width="6%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="6%">
-														<SelectIconContainer>
-															<SelectSpan>Supplier</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="14%">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Lead</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="23%">
-														<SelectIconContainer>
-															<SelectSpan>Safety</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="34%">
-														<SelectIconContainer>
-															<SelectSpan>Reorder Quantity</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="46%">
-														<SelectIconContainer>
-															<SelectSpan>Minimum to Reorder</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="12%" left="55%">
-														<SelectIconContainer>
-															<SelectSpan>Location</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="11%" left="67%">
-														<SelectIconContainer>
-															<SelectSpan>Lead</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="10%" left="78%">
-														<SelectIconContainer>
-															<SelectSpan>Safety</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="11%" left="89%">
-														<SelectIconContainer>
-															<SelectSpan>Reorder Quantity</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-												</TableRow>
-											</TableBody>
-										</BodyTable>
-									</HeaderBody>
-								</HeaderContainer>
-							</Headers>
-							<HeaderBodyContainer>
-								<HeaderBody>
-									<BodyTable>
-										<TableBody>
-											<TableRow>
-												<TableData width="100%" />
-											</TableRow>
-										</TableBody>
-									</BodyTable>
-								</HeaderBody>
-								<EmptyRow>No Supplier Found</EmptyRow>
-							</HeaderBodyContainer>
 						</TableFieldContainer>
 					</RoundedBlock>
 				</InputBody>

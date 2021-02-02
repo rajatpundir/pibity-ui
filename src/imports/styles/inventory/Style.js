@@ -31,7 +31,7 @@ export const PageWrapper = styled.div.attrs((props) => ({
 	mediaWidth: props.mediaWidth || '80%'
 }))`
 	 flex: 1;
-    overflow: hidden;
+    overflow: visible;// TO be checked
     padding: 0;
     border: 0;
     font-size: 100%;

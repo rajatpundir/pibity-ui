@@ -82,7 +82,7 @@ class Stock extends React.Component {
 
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
-		list.unshift(
+		list.push(
 			new Map([
 				[ 'typeName', 'ProductStore' ],
 				[

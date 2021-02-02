@@ -2,9 +2,9 @@ import React from 'react';
 import Select from 'react-select';
 import { connect } from 'react-redux';
 import Collapse from '@material-ui/core/Collapse';
-import IconButton from '@material-ui/core/IconButton';
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+// import IconButton from '@material-ui/core/IconButton';
+// import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+// import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../../../redux/actions/errors';
 import { getVariables } from '../../../../../redux/actions/variables';
@@ -56,7 +56,7 @@ class ProductMovementOrderDetails extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			open:true,
+			open: true,
 			variable: props.variable,
 			orderItems: props.orderItems,
 			productStore: []
@@ -74,7 +74,7 @@ class ProductMovementOrderDetails extends React.Component {
 		return {
 			...prevState,
 			variable: nextProps.variable,
-			open:true,
+			open: true,
 			orderItems: nextProps.orderItems,
 			productStore:
 				nextProps.variables !== undefined
@@ -89,6 +89,10 @@ class ProductMovementOrderDetails extends React.Component {
 			case 'toLocation':
 				variable.set(e.target.name, e.target.value);
 				variable.set('fromLocation', '');
+				this.props.updateOrderItems([]);
+				break;
+			case 'fromLocation':
+				variable.set(e.target.name, e.target.value);
 				this.props.updateOrderItems([]);
 				break;
 			default:
@@ -227,6 +231,13 @@ class ProductMovementOrderDetails extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter((variable) => productStore.includes(variable.variableName))
+												.filter((product) => {
+													return !this.state.orderItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
 												.map((variable) => {
 													return {
 														value: variable.variableName,
@@ -407,168 +418,168 @@ class ProductMovementOrderDetails extends React.Component {
 					</PageBarAlign>
 				</PageToolbar>
 				<Collapse in={this.state.open} timeout="auto" unmountOnExit>
-
-				<InputBody overflow="visible">
-					<InputFieldContainer>
-						<InputRowWrapper>
-							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
-								<SelectWrapper>
-									<Select
-										isDisabled={this.props.isdisabled}
-										value={{
-											value: this.state.variable.get('toLocation'),
-											label: this.state.variable.get('toLocation')
-										}}
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'toLocation',
-													value: option.value
-												}
-											});
-										}}
-										options={
-											this.props.variables.Location !== undefined ? (
-												this.props.variables.Location.map((variable) => {
-													return {
-														value: variable.variableName,
-														label: variable.variableName
-													};
-												})
-											) : (
-												[]
-											)
-										}
-									/>
-								</SelectWrapper>
-								<InputLabel>
-									To Location <Required>*</Required>
-								</InputLabel>
-							</FormControl>
-							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
-								<SelectWrapper>
-									<Select
-										isDisabled={this.props.isdisabled}
-										value={{
-											value: this.state.variable.get('fromLocation'),
-											label: this.state.variable.get('fromLocation')
-										}}
-										onChange={(option) => {
-											this.onChange({
-												target: {
-													name: 'fromLocation',
-													value: option.value
-												}
-											});
-										}}
-										options={
-											this.props.variables.Location !== undefined ? (
-												this.props.variables.Location
-													.filter(
-														(location) =>
-															location.variableName !==
-															this.state.variable.get('toLocation')
-													)
-													.map((variable) => {
+					<InputBody overflow="visible">
+						<InputFieldContainer>
+							<InputRowWrapper>
+								<FormControl flexBasis={style.flexBasis} paddingRight="10px">
+									<SelectWrapper>
+										<Select
+											isDisabled={this.props.isdisabled}
+											value={{
+												value: this.state.variable.get('toLocation'),
+												label: this.state.variable.get('toLocation')
+											}}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'toLocation',
+														value: option.value
+													}
+												});
+											}}
+											options={
+												this.props.variables.Location !== undefined ? (
+													this.props.variables.Location.map((variable) => {
 														return {
 															value: variable.variableName,
 															label: variable.variableName
 														};
 													})
-											) : (
-												[]
-											)
-										}
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										To Location <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl flexBasis={style.flexBasis} paddingRight="10px">
+									<SelectWrapper>
+										<Select
+											isDisabled={this.props.isdisabled}
+											value={{
+												value: this.state.variable.get('fromLocation'),
+												label: this.state.variable.get('fromLocation')
+											}}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'fromLocation',
+														value: option.value
+													}
+												});
+											}}
+											options={
+												this.props.variables.Location !== undefined ? (
+													this.props.variables.Location
+														.filter(
+															(location) =>
+																location.variableName !==
+																this.state.variable.get('toLocation')
+														)
+														.map((variable) => {
+															return {
+																value: variable.variableName,
+																label: variable.variableName
+															};
+														})
+												) : (
+													[]
+												)
+											}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										From Location <Required>*</Required>
+									</InputLabel>
+								</FormControl>
+								<FormControl flexBasis={style.flexBasis} paddingRight="10px">
+									<Input
+										style={{
+											height: ' 38px'
+										}}
+										name="date"
+										type="date"
+										placeholder="date"
+										value={this.state.variable.get('date')}
+										onChange={this.onChange}
+										readOnly={this.props.isdisabled}
 									/>
-								</SelectWrapper>
-								<InputLabel>
-									From Location <Required>*</Required>
-								</InputLabel>
-							</FormControl>
-							<FormControl flexBasis={style.flexBasis} paddingRight="10px">
-								<Input
-									style={{
-										height: ' 38px'
-									}}
-									name="date"
-									type="date"
-									placeholder="date"
-									value={this.state.variable.get('date')}
-									onChange={this.onChange}
-									readOnly={this.props.isdisabled}
-								/>
-								<InputLabel> Date</InputLabel>
-							</FormControl>
-						</InputRowWrapper>
+									<InputLabel> Date</InputLabel>
+								</FormControl>
+							</InputRowWrapper>
 
-						<RoundedBlock overflow="visible">
-							<TableFieldContainer overflow="visible">
-								<Headers>
-									<HeaderContainer>
+							<RoundedBlock overflow="visible">
+								<TableFieldContainer overflow="visible">
+									<Headers>
+										<HeaderContainer>
+											<HeaderBody>
+												<BodyTable>
+													<TableBody>
+														<TableRow>
+															<TableHeaders width="5%" />
+															<TableHeaders width="35%">
+																<SelectIconContainer>
+																	<SelectSpan>Product</SelectSpan>
+																</SelectIconContainer>
+															</TableHeaders>
+															<TableHeaders width="30%">
+																<SelectIconContainer>
+																	<SelectSpan>Available Quantity</SelectSpan>
+																</SelectIconContainer>
+															</TableHeaders>
+															<TableHeaders width="30%">
+																<SelectIconContainer>
+																	<SelectSpan>Order Quantity</SelectSpan>
+																</SelectIconContainer>
+															</TableHeaders>
+														</TableRow>
+													</TableBody>
+												</BodyTable>
+											</HeaderBody>
+										</HeaderContainer>
+									</Headers>
+									<HeaderBodyContainer>
 										<HeaderBody>
 											<BodyTable>
-												<TableBody>
-													<TableRow>
-														<TableHeaders width="5%" />
-														<TableHeaders width="35%">
-															<SelectIconContainer>
-																<SelectSpan>Product</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="30%">
-															<SelectIconContainer>
-																<SelectSpan>Available Quantity</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="30%">
-															<SelectIconContainer>
-																<SelectSpan>Order Quantity</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-													</TableRow>
-												</TableBody>
+												<TableBody>{this.renderOrderItems()}</TableBody>
 											</BodyTable>
 										</HeaderBody>
-									</HeaderContainer>
-								</Headers>
-								<HeaderBodyContainer>
-									<HeaderBody>
-										<BodyTable>
-											<TableBody>{this.renderOrderItems()}</TableBody>
-										</BodyTable>
-									</HeaderBody>
-									{this.state.orderItems.length === 0 ? (
-										<EmptyRow>You do not have any Additional Cost Lines.</EmptyRow>
-									) : (
+										{this.state.orderItems.length === 0 ? (
+											<EmptyRow>You do not have any Additional Cost Lines.</EmptyRow>
+										) : (
+											undefined
+										)}
+									</HeaderBodyContainer>
+									{this.props.isdisabled ? (
 										undefined
+									) : (
+										<AddMoreBlock>
+											<AddMoreButton onClick={(e) => this.addItems()}>
+												<i className="large material-icons">add</i>Add Additional Services
+												Charges
+											</AddMoreButton>
+										</AddMoreBlock>
 									)}
-								</HeaderBodyContainer>
-								{this.props.isdisabled ? (
-									undefined
-								) : (
-									<AddMoreBlock>
-										<AddMoreButton onClick={(e) => this.addItems()}>
-											<i className="large material-icons">add</i>Add Additional Services Charges
-										</AddMoreButton>
-									</AddMoreBlock>
-								)}
-							</TableFieldContainer>
-						</RoundedBlock>
-						<InputRowWrapper paddingTop="15px">
-							<TextAreaContainer>
-								<TextArea
-									name="comments"
-									type="text"
-									placeholder="Wrtie a note here"
-									value={this.state.variable.get('comments')}
-									height="60px"
-									onChange={this.onChange}
-								/>
-								<InputLabel>Note</InputLabel>
-							</TextAreaContainer>
-						</InputRowWrapper>
-					</InputFieldContainer>
-				</InputBody>
+								</TableFieldContainer>
+							</RoundedBlock>
+							<InputRowWrapper paddingTop="15px">
+								<TextAreaContainer>
+									<TextArea
+										name="comments"
+										type="text"
+										placeholder="Wrtie a note here"
+										value={this.state.variable.get('comments')}
+										height="60px"
+										onChange={this.onChange}
+									/>
+									<InputLabel>Note</InputLabel>
+								</TextAreaContainer>
+							</InputRowWrapper>
+						</InputFieldContainer>
+					</InputBody>
 				</Collapse>
 			</PageBlock>
 		);

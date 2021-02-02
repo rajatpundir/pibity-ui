@@ -104,6 +104,7 @@ class Product extends React.Component {
 				]
 			]),
 			productStore: [],
+			productSupplier: [],
 			visibleSection: 'price'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -120,13 +121,23 @@ class Product extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Product && nextProps.variables.ProductStore) {
+		if (
+			nextProps.match.params.variableName &&
+			nextProps.variables.Product &&
+			nextProps.variables.ProductStore &&
+			nextProps.variables.ProductSupplier
+		) {
 			const variable = nextProps.variables.Product.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const productStore = nextProps.variables.ProductStore
 					.filter((store) => store.values.product === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const productSupplier = nextProps.variables.ProductSupplier
+					.filter((supplier) => supplier.values.product === variable.variableName)
 					.map((item) => {
 						return objToMapRec(item);
 					});
@@ -142,7 +153,8 @@ class Product extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					productStore: productStore
+					productStore: productStore,
+					productSupplier: productSupplier
 				};
 			}
 		}
@@ -170,6 +182,7 @@ class Product extends React.Component {
 		this.props.getVariables('Supplier');
 		this.props.getVariables('Currency');
 		this.props.getVariables('ProductStore');
+		this.props.getVariables('ProductSupplier');
 	}
 
 	componentDidMount() {
@@ -243,12 +256,8 @@ class Product extends React.Component {
 		this.setState({ variable: variable });
 	}
 
-	updateSupplierProduct(supplierProduct) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('supplierProduct', supplierProduct);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+	updateSupplierProduct(productSupplier) {
+		this.setState({ productSupplier: productSupplier });
 	}
 
 	onScroll(scrollOffset) {
@@ -329,6 +338,48 @@ class Product extends React.Component {
 		});
 	}
 
+	createVariable() {
+		new Promise((resolve) => {
+			resolve(this.checkRequiredField(this.state.variable.get('values').get('general')));
+		}).then(() => {
+			if (this.state.createProduct) {
+				this.props.createVariable(this.state.variable).then((response) => {
+					if (response.status === 200) {
+						const productRelation = [];
+						if (this.state.productStore.length !== 0) {
+							addKeyToList(
+								this.state.productStore,
+								'product',
+								response.data.variableName
+							).forEach((element) => {
+								productRelation.push(element);
+							});
+						}
+						if (this.state.productSupplier.length !== 0) {
+							addKeyToList(
+								this.state.productSupplier,
+								'product',
+								response.data.variableName
+							).forEach((element) => {
+								productRelation.push(element);
+							});
+						}
+						productRelation.length !== 0
+							? this.props.createVariables(productRelation).then((response) => {
+									if (response.status === 200) {
+										successMessage(' Product Created');
+										//Enable after Testing
+										// this.alert()
+									}
+								})
+							: successMessage(' Product Created');
+					}
+				});
+			}
+			this.setState({ createProduct: true });
+		});
+	}
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
@@ -349,38 +400,7 @@ class Product extends React.Component {
 												}
 											});
 									} else {
-										new Promise((resolve) => {
-											resolve(
-												this.checkRequiredField(
-													this.state.variable.get('values').get('general')
-												)
-											);
-										}).then(() => {
-											if (this.state.createProduct) {
-												this.props.createVariable(this.state.variable).then((response) => {
-													if (response.status === 200) {
-														this.state.productStore.length !== 0
-															? this.props
-																	.createVariables(
-																		addKeyToList(
-																			this.state.productStore,
-																			'product',
-																			response.data.variableName
-																		)
-																	)
-																	.then((response) => {
-																		if (response.status === 200) {
-																			successMessage(' Product Created');
-																			//Enable after Testing
-																			// this.alert()
-																		}
-																	})
-															: successMessage(' Product Created');
-													}
-												});
-											}
-											this.setState({ createProduct: true });
-										});
+										this.createVariable();
 									}
 								}}
 							>
@@ -506,7 +526,7 @@ class Product extends React.Component {
 								updateCustomPrice={this.updateCustomPrice}
 							/>
 						)} */}
-						{this.state.visibleSection === 'channels' && (
+						{/* {this.state.visibleSection === 'channels' && (
 							<PageBlock>
 								<PageToolbar>
 									<ToolbarItems>
@@ -515,7 +535,7 @@ class Product extends React.Component {
 								</PageToolbar>
 								<InputBody />
 							</PageBlock>
-						)}
+						)} */}
 						{this.state.visibleSection === 'additionalDescription' && (
 							<PageBlock>
 								<PageToolbar>
@@ -530,6 +550,13 @@ class Product extends React.Component {
 							<Stock
 								list={this.state.productStore}
 								updateProductStock={this.updateProductStock}
+								params={this.props.match.params}
+							/>
+						)}
+						{this.state.visibleSection === 'supplier' && (
+							<SupplierProduct
+								list={this.state.productSupplier}
+								updateSupplierProduct={this.updateSupplierProduct}
 								params={this.props.match.params}
 							/>
 						)}
