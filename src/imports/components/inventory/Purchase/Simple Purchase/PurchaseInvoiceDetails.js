@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import styled from 'styled-components';
 import Select from 'react-select';
+import ReactToPrint from 'react-to-print';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
 import {
@@ -10,10 +11,11 @@ import {
 	createVariables,
 	getVariables,
 	updateVariable,
-	objToMapRec
+	objToMapRec,
+	mapToObjectRec
 } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
-
+import PrintTest from '../../../main/PrintTest'
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -906,7 +908,34 @@ class PurchaseInvoiceDetails extends React.Component {
 								Update Invoice
 							</Custombutton>
 						) : (
-							undefined
+							<div>
+								<ReactToPrint
+									trigger={() => {
+										// NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+										// to the root node of the returned component as it will be overwritten.
+										return (
+											<Custombutton
+												padding="0 10px"
+												minWidth="70px"
+												height="2.5rem"
+												color="#3b3b3b"
+												backgroundColor="#F7FAFD"
+												borderColor="#b9bdce"
+												borderOnHover="#3b3b3b"
+												backgroundOnHover="#F7FAFD"
+												margin="0 5px"
+											>
+												<FontAwsomeIcon className="fa fa-print" />
+												Print
+											</Custombutton>
+										);
+									}}
+									content={() => this.componentRef}
+								/>
+								<div style={{ display: 'none' }}>
+									<PrintTest ref={(el) => (this.componentRef = el)} invoice={mapToObjectRec(this.state.variable)}></PrintTest>
+								</div>
+							</div>
 						)}
 					</ToolbarItems>
 				</PageToolbar>
