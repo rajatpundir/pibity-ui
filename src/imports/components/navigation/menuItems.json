@@ -153,6 +153,10 @@
 				{
 					"name": "Loading",
 					"url": "/loading"
+				},
+				{
+					"name":"Print Layout Testing",
+					"url":"/printTest"
 				}
 			]
 		}

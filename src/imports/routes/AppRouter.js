@@ -49,6 +49,7 @@ import ProductStore from '../components/inventory/Product/Product Store/ProductS
 
 //Test links
 import Loading from '../components/main/LoadingTest'
+import PrintTest from '../components/main/PrintTest'
 
 export const AppRouter = () => (
 	<BrowserRouter>
@@ -118,6 +119,7 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/referenceBook" render={(props) => <ReferenceBook {...props} />} />
 			
 			<PrivateRoute exact path="/loading" render={(props) => <Loading {...props} />} />
+			<PrivateRoute exact path="/printTest" render={(props) => <PrintTest {...props} />} />
 
 			{/* user management */}
 			{/* <PrivateRoute exact path="/Users" render={(props) => <UserList {...props} />} /> */}

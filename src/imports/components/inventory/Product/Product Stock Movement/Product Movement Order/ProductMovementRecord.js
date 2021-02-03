@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactToPrint from 'react-to-print';
 import { connect } from 'react-redux';
 import { getVariables } from '../../../../../redux/actions/variables';
 import { successMessage, customErrorMessage } from '../../../../main/Notification';
@@ -405,19 +404,6 @@ class ProductMovementRecord extends React.Component {
 					</ToolbarItems>
 				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible">
-					<div>
-						<ReactToPrint
-							trigger={() => {
-								// NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
-								// to the root node of the returned component as it will be overwritten.
-								return <a href="#">Print this out!</a>;
-							}}
-							content={() => this.componentRef}
-						/>
-						<div style={{ display: 'none' }}>
-							<div ref={(el) => (this.componentRef = el)}>"helolsofhsjf "</div>
-						</div>
-					</div>
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
 							<HeaderBodyContainer>
