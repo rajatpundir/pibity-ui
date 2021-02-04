@@ -262,27 +262,32 @@ class ProductStores extends React.Component {
 																<SelectSpan>Loacation</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														<TableHeaders width="15%">
+														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan>onHand</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														<TableHeaders width="15%">
+														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan>Available</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														<TableHeaders width="15%">
+														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan>onOrder</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														<TableHeaders width="15%">
+														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan>Allocated</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-														<TableHeaders width="15%">
+														<TableHeaders width="10%">
+															<SelectIconContainer>
+																<SelectSpan>Returned</SelectSpan>
+															</SelectIconContainer>
+														</TableHeaders>
+														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan>Status</SelectSpan>
 															</SelectIconContainer>

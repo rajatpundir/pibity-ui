@@ -126,7 +126,7 @@ class ProductMovementRecord extends React.Component {
 					refInvoice: item.values.productMovementInvoice,
 					productStore: item.values.fromProductStore
 				};
-				this.props.executeFuntion(reciveRejectedItem, 'updateQuantityInProductStore').then((response) => {
+				this.props.executeFuntion(reciveRejectedItem, 'updateReturnedQuantityInProductStore1').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {

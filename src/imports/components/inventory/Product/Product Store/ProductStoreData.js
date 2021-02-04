@@ -105,6 +105,16 @@ class ProductStoreData extends React.Component {
 						</TableHeaderInner>
 					</TableData>
 					<TableData>
+						<TableHeaderInner
+							overflow="hidden"
+							style={{
+								marginLeft: '5px'
+							}}
+						>
+							{this.props.productStore.values.returned}
+						</TableHeaderInner>
+					</TableData>
+					<TableData>
 						<StatusSpan
 							style={{
 								textAlign: 'initial',
@@ -143,7 +153,7 @@ class ProductStoreData extends React.Component {
 							padding: '10px',
 							backgroundColor: '#f6f9f9'
 						}}
-						colSpan={9}
+						colSpan={10}
 						className={clsx({
 							[classes.hide]: !this.state.open
 						})}

@@ -119,7 +119,7 @@ class ProductList extends React.Component {
 						<TableHeaderInner>{product.values.general.values.productType}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{product.values.general.values.categorey}</TableHeaderInner>
+						<TableHeaderInner>{product.values.general.values.category}</TableHeaderInner>
 					</TableData>
 					<TableData width="15%">
 						<TableHeaderInner>
