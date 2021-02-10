@@ -64,14 +64,14 @@ class SalesList extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('SalesOrder');
+			this.props.getVariables('Sales');
 		}
 	}
 
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('SalesOrder');
+		this.props.getVariables('Sales');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -79,8 +79,8 @@ class SalesList extends React.Component {
 			...prevState,
 			salesOrder:
 				nextProps.variables !== undefined
-					? nextProps.variables.SalesOrder !== undefined
-						? nextProps.variables.SalesOrder.map((x, i) => ({ ...x, Id: i }))
+					? nextProps.variables.Sales !== undefined
+						? nextProps.variables.Sales.map((x, i) => ({ ...x, Id: i }))
 						: []
 					: []
 		};
@@ -113,18 +113,18 @@ class SalesList extends React.Component {
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{salesOrder.values.orderDetails[0].values.additionalCostBeforeTax +
-								salesOrder.values.orderDetails[0].values.productCostBeforeTax}
+							{/* {salesOrder.values.orderDetails[0].values.additionalCostBeforeTax +
+								salesOrder.values.orderDetails[0].values.productCostBeforeTax} */}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{salesOrder.values.orderDetails[0].values.totalTaxOnAdditionalCost +
-								salesOrder.values.orderDetails[0].values.totalTaxOnProduct}
+							{/* {salesOrder.values.orderDetails[0].values.totalTaxOnAdditionalCost +
+								salesOrder.values.orderDetails[0].values.totalTaxOnProduct} */}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{salesOrder.values.orderDetails[0].values.total}</TableHeaderInner>
+						{/* <TableHeaderInner>{salesOrder.values.orderDetails[0].values.total}</TableHeaderInner> */}
 					</TableData>
 				</TableRow>
 			);

@@ -2,8 +2,16 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../../redux/actions/errors';
-import { getVariables } from '../../../../redux/actions/variables';
+import {
+	createVariable,
+	createVariables,
+	getVariables,
+	updateVariable,
+	objToMapRec,
+	addKeyToList
+} from '../../../../redux/actions/variables';
 import Select from 'react-select';
+import { customErrorMessage, CustomNotification, successMessage } from '../../../main/Notification';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -48,37 +56,125 @@ import {
 	TableRow,
 	TextArea,
 	TextAreaContainer,
-	ToolbarItems
+	ToolbarItems,
+	Custombutton,
+	FontAwsomeIcon,
+	InputColumnWrapper,
+	FormControl,
+	Required
 } from '../../../../styles/inventory/Style';
 
 class SimpleSalesOrder extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable
+			prevPropVariable: {},
+			prevVariable: new Map(),
+			variable: new Map([
+				[ 'typeName', 'SalesOrder' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'sales', props.sales ],
+						[ 'date', '' ],
+						[ 'orderNumber', '' ],
+						[ 'location', '' ],
+						[ 'salesQuotation', props.salesQuotatuionVariableName ],
+						[ 'total', 0 ],
+						[ 'salesOrderMemo', '' ],
+						[ 'customer', props.customer ],
+						[ 'productCostBeforeTax', 0 ],
+						[ 'additionalCostBeforeTax', 0 ],
+						[ 'totalTaxOnProduct', 0 ],
+						[ 'totalTaxOnAdditionalCost', 0 ]
+					])
+				]
+			]),
+			salesOrderServiceItem: [],
+			salesOrderItems: []
 		};
-
 		this.onChange = this.onChange.bind(this);
+		this.onCopyItemsFromQuotation = this.onCopyItemsFromQuotation.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
 
-	// supplierDepositkey: new Map([
-	// 	[ 'ammount', '' ],
-	// 	[ 'account', '' ],
-	// 	[ 'datePaid', '' ],
-	// 	[ 'reference', '' ]
-	// ]),
-
-	// clear form errors
 	componentDidMount() {
 		this.props.clearErrors();
+		this.props.getVariables('SalesOrder');
+		this.props.getVariables('SalesOrderItem');
+		this.props.getVariables('SalesOrderServiceItem');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
+		if (
+			nextProps.variables.SalesOrder &&
+			nextProps.variables.SalesOrderItem &&
+			nextProps.variables.SalesOrderServiceItem
+		) {
+			const variable = nextProps.variables.SalesOrder.filter(
+				(variable) => variable.values.sales === nextProps.sales
+			)[0];
+			if (variable && prevState.prevPropVariable !== variable) {
+				const variableMap = objToMapRec(variable);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+				const salesOrderItems = nextProps.variables.SalesOrderItem
+					.filter(
+						(item) =>
+							item.values.salesOrder === variable.variableName && item.values.sales === nextProps.sales
+					)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const salesOrderServiceItem = nextProps.variables.SalesOrderServiceItem
+					.filter(
+						(serviceItem) =>
+							serviceItem.values.salesOrder === variable.variableName &&
+							serviceItem.values.sales === nextProps.sales
+					)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				return {
+					...prevState,
+					variable: variableMap,
+					prevPropVariable: variable,
+					prevVariable: prevVariableMap,
+					salesOrderItems: salesOrderItems,
+					salesOrderServiceItem: salesOrderServiceItem
+				};
+			}
+		}
 		return {
-			...prevState,
-			variable: nextProps.variable
+			...prevState
 		};
+	}
+
+	onCopyItemsFromQuotation() {
+		const salesOrderItems = this.props.salesQuotationItems.map((item) => {
+			return new Map([
+				[ 'variableName', item.get('variableName') ],
+				[ 'typeName', 'SalesOrderItem' ],
+				[
+					'values',
+					new Map([
+						[ 'sales', item.get('values').get('sales') ],
+						[ 'salesQuotation', '' ],
+						[ 'product', item.get('values').get('product') ],
+						[ 'comment', item.get('values').get('description') ],
+						[ 'discount', item.get('values').get('discount') ],
+						[ 'price', item.get('values').get('price') ],
+						[ 'quantity', item.get('values').get('quantity') ],
+						[ 'taxRule', item.get('values').get('taxRule') ],
+						[ 'total', item.get('values').get('total') ]
+					])
+				]
+			]);
+		});
+
+		this.setState({ salesOrderItems }, () => {
+			this.onCalculateTotal();
+		});
 	}
 
 	onChange(e) {
@@ -87,13 +183,11 @@ class SimpleSalesOrder extends React.Component {
 		values.set(e.target.name, e.target.value);
 		variable.set('values', values);
 		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
 	}
 
 	onAdditionalCostChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').map((listVariable) => {
+		const salesOrderServiceItem = cloneDeep(this.state.salesOrderServiceItem);
+		const list = salesOrderServiceItem.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -134,16 +228,12 @@ class SimpleSalesOrder extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ salesOrderServiceItem: list });
 	}
 
 	onProductOrderInputChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').map((listVariable) => {
+		const salesOrderItems = cloneDeep(this.state.salesOrderItems);
+		const list = salesOrderItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -184,19 +274,14 @@ class SimpleSalesOrder extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ salesOrderItems: list });
 	}
 
 	addVariableToadditionalCostList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost');
-		list.unshift(
+		const salesOrderServiceItem = cloneDeep(this.state.salesOrderServiceItem);
+		salesOrderServiceItem.push(
 			new Map([
-				[ 'variableName', String(list.length) ],
+				[ 'variableName', String(salesOrderServiceItem.length) ],
 				[
 					'values',
 					new Map([
@@ -206,24 +291,21 @@ class SimpleSalesOrder extends React.Component {
 						[ 'quantity', 0 ],
 						[ 'reference', '' ],
 						[ 'taxRule', '' ],
-						[ 'total', 0 ]
+						[ 'total', 0 ],
+						[ 'sales', this.props.sales ],
+						[ 'salesOrder', '' ]
 					])
 				]
 			])
 		);
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ salesOrderServiceItem });
 	}
 
 	addVariableToProductOrderInputList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails');
-		list.unshift(
+		const salesOrderItems = cloneDeep(this.state.salesOrderItems);
+		salesOrderItems.push(
 			new Map([
-				[ 'variableName', String(list.length) ],
+				[ 'variableName', String(salesOrderItems.length) ],
 				[
 					'values',
 					new Map([
@@ -233,48 +315,109 @@ class SimpleSalesOrder extends React.Component {
 						[ 'quantity', 0 ],
 						[ 'taxRule', '' ],
 						[ 'total', 0 ],
-						[ 'product', '' ]
+						[ 'product', '' ],
+						[ 'sales', this.props.sales ],
+						[ 'salesOrder', '' ]
 					])
 				]
 			])
 		);
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ salesOrderItems });
 	}
 
 	onRemoveProductOrderInputListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').filter((listVariable) => {
+		const salesOrderItems = cloneDeep(this.state.salesOrderItems);
+		const list = salesOrderItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ salesOrderItems: list });
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').filter((listVariable) => {
+		const salesOrderServiceItem = cloneDeep(this.state.salesOrderServiceItem);
+		const list = salesOrderServiceItem.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('additionalCost', list);
+		this.setState({ salesOrderServiceItem: list });
+	}
+
+	onCalculateTotal() {
+		var productCostBeforeTax = 0;
+		var totalTaxOnProduct = 0;
+		var additionalCostBeforeTax = 0;
+		var totalTaxOnAdditionalCost = 0;
+		var totalCost = 0;
+		// Product Cost
+		this.state.salesOrderItems.forEach((listVariable) => {
+			const taxRule = this.props.variables.TaxRule.filter(
+				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
+			)[0];
+			if (taxRule) {
+				switch (taxRule.values.taxType) {
+					case 'Exclusive':
+						totalTaxOnProduct =
+							totalTaxOnProduct +
+							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total');
+						break;
+					case 'Inclusive':
+						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						totalTaxOnProduct = totalTaxOnProduct + tax;
+						productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total') - tax;
+						break;
+					default:
+						break;
+				}
+			} else {
+				productCostBeforeTax = productCostBeforeTax + listVariable.get('values').get('total');
+			}
+		});
+		//AdditionalCost
+		this.state.salesOrderServiceItem.forEach((listVariable) => {
+			const taxRule = this.props.variables.TaxRule.filter(
+				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
+			)[0];
+			if (taxRule) {
+				switch (taxRule.values.taxType) {
+					case 'Exclusive':
+						totalTaxOnAdditionalCost =
+							totalTaxOnAdditionalCost +
+							listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+						break;
+					case 'Inclusive':
+						const tax = listVariable.get('values').get('total') * (taxRule.values.taxPercentage / 100);
+						totalTaxOnAdditionalCost = totalTaxOnAdditionalCost + tax;
+						additionalCostBeforeTax =
+							additionalCostBeforeTax + listVariable.get('values').get('total') - tax;
+						break;
+					default:
+						break;
+				}
+			} else {
+				additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
+			}
+		});
+		totalCost = productCostBeforeTax + totalTaxOnProduct + additionalCostBeforeTax + totalTaxOnAdditionalCost;
+		const variable = cloneDeep(this.state.variable);
+		const values = variable.get('values');
+		values.set('total', totalCost);
+		values.set('productCostBeforeTax', productCostBeforeTax);
+		values.set('totalTaxOnProduct', totalTaxOnProduct);
+		values.set('additionalCostBeforeTax', additionalCostBeforeTax);
+		values.set('totalTaxOnAdditionalCost', totalTaxOnAdditionalCost);
 		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({
+			variable
+		});
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('additionalCost').forEach((listVariable) =>
+		this.state.salesOrderServiceItem.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="6%" >
+					<TableData width="6%">
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -283,9 +426,9 @@ class SimpleSalesOrder extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" >
-					<TableHeaderInner>
-						<SelectWrapper>
+					<TableData width="11%">
+						<TableHeaderInner>
+							<SelectWrapper>
 								<Select
 									value={{
 										value: listVariable.get('values').get('description'),
@@ -299,9 +442,16 @@ class SimpleSalesOrder extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.filter((product)=>product.values.general.values.productType === "Service").map((variable) => {
-												return { value: variable.variableName,  label: variable.values.general.values.productName };
-											})
+											this.props.variables.Product
+												.filter(
+													(product) => product.values.general.values.productType === 'Service'
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.values.general.values.productName
+													};
+												})
 										) : (
 											[]
 										)
@@ -340,7 +490,7 @@ class SimpleSalesOrder extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -366,9 +516,14 @@ class SimpleSalesOrder extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForSale===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForSale === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -395,8 +550,7 @@ class SimpleSalesOrder extends React.Component {
 
 	renderProductOrderInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('productInvoiceDetails').forEach((listVariable) =>
+		this.state.salesOrderItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%" left="0px">
@@ -408,7 +562,7 @@ class SimpleSalesOrder extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -424,9 +578,16 @@ class SimpleSalesOrder extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.filter((product)=>product.values.general.values.productType !== "Service").map((variable) => {
-												return { value: variable.variableName, label: variable.values.general.values.productName };
-											})
+											this.props.variables.Product
+												.filter(
+													(product) => product.values.general.values.productType !== 'Service'
+												)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.values.general.values.productName
+													};
+												})
 										) : (
 											[]
 										)
@@ -435,7 +596,7 @@ class SimpleSalesOrder extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="comment"
@@ -445,7 +606,7 @@ class SimpleSalesOrder extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="quantity"
@@ -455,7 +616,7 @@ class SimpleSalesOrder extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="price"
@@ -465,7 +626,7 @@ class SimpleSalesOrder extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -475,7 +636,7 @@ class SimpleSalesOrder extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -491,9 +652,14 @@ class SimpleSalesOrder extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForSale===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForSale === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -502,7 +668,7 @@ class SimpleSalesOrder extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="12%" >
+					<TableData width="12%">
 						<TableHeaderInner>
 							<Input
 								name="total"
@@ -518,6 +684,40 @@ class SimpleSalesOrder extends React.Component {
 		return rows;
 	}
 
+	createOrder() {
+		this.props.createVariable(this.state.variable).then((response) => {
+			if (response.status === 200) {
+				const productAndAdditionalServices = [];
+						if (this.state.salesOrderItems.length !== 0) {
+							addKeyToList(
+								this.state.salesOrderItems,
+								'salesOrder',
+								response.data.variableName
+							).forEach((element) => {
+								productAndAdditionalServices.push(element);
+							});
+						}
+						if (this.state.salesOrderServiceItem.length !== 0) {
+							addKeyToList(
+								this.state.salesOrderServiceItem,
+								'salesOrder',
+								response.data.variableName
+							).forEach((element) => {
+								productAndAdditionalServices.push(element);
+							});
+						}
+						this.props.createVariables(productAndAdditionalServices).then((response) => {
+							if (response.status === 200) {
+								successMessage(' Product Created');
+								//Enable after Testing
+								// this.alert()
+							}
+						})
+					
+			}
+		});
+	}
+
 	render() {
 		return (
 			<PageBlock id="order">
@@ -525,12 +725,103 @@ class SimpleSalesOrder extends React.Component {
 					<ToolbarItems>
 						<LeftItemH1>Order</LeftItemH1>
 					</ToolbarItems>
+					<ToolbarItems>
+						{true ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.createOrder();
+								}}
+							>
+								Create Order
+							</Custombutton>
+						) : this.state.updateInvoice ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props
+										.updateVariable(this.state.prevVariable, this.state.variable)
+										.then((status) => {
+											if (status === 200) {
+											}
+										});
+								}}
+							>
+								Update Invoice
+							</Custombutton>
+						) : (
+							undefined
+						)}
+					</ToolbarItems>
 				</PageToolbar>
+				<PageBar>
+					<InputColumnWrapper>
+						{/* <FormControl>
+							<Input
+								name="orderNumber"
+								type="text"
+								placeholder="write"
+								value=''
+								// value={this.state.variable.get('values').get('OrderNumber')}
+								onChange={this.onChange}
+							/>
+							<InputLabel>
+								Order Number
+								<Required>*</Required>
+							</InputLabel>
+						</FormControl> */}
+						<FormControl>
+							<Input
+								name="date"
+								type="date"
+								value={this.state.variable.get('values').get('date')}
+								onChange={this.onChange}
+							/>
+							<InputLabel>Date</InputLabel>
+						</FormControl>
+						{/* <FormControl>
+							<Input
+								name="location"
+								type="text"
+								value={this.state.variable.get('values').get('date')}
+								onChange={this.onChange}
+							/>
+							<InputLabel>Location</InputLabel>
+						</FormControl> */}
+					</InputColumnWrapper>
+					<InputColumnWrapper>
+						<FormControl>
+							<Input
+								name="total"
+								type="number"
+								placeholder="Default"
+								value={this.state.variable.get('values').get('total')}
+								readOnly
+							/>
+							<InputLabel>Total</InputLabel>
+						</FormControl>
+					</InputColumnWrapper>
+				</PageBar>
 				<PageBar>
 					<PageBarAlign>
 						<PlusButton onClick={(e) => this.addVariableToProductOrderInputList()}>
 							<i className="large material-icons">add</i>
 						</PlusButton>
+						<Custombutton
+							padding="0 10px"
+							minWidth="70px"
+							height="32px"
+							color="#3b3b3b"
+							backgroundColor="#F7FAFD"
+							borderColor="#b9bdce"
+							borderOnHover="#3b3b3b"
+							backgroundOnHover="#F7FAFD"
+							margin="0 5px"
+							onClick={(e) => this.onCopyItemsFromQuotation()}
+						>
+							<FontAwsomeIcon className="fa fa-clone" />
+							Copy From Order
+						</Custombutton>
 					</PageBarAlign>
 				</PageBar>
 				<InputBody borderTop="0" overflow="visible">
@@ -542,7 +833,7 @@ class SimpleSalesOrder extends React.Component {
 										<BodyTable>
 											<TableBody>
 												<TableRow>
-													<TableHeaders width="6%" >
+													<TableHeaders width="6%">
 														<SelectIconContainer>
 															<SelectSpan>
 																<SelectSpanInner>
@@ -551,17 +842,17 @@ class SimpleSalesOrder extends React.Component {
 															</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Product</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan textAlign="right">Comment</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="11%" >
+													<TableHeaders width="11%">
 														<SelectIconContainer>
 															<SelectSpan>Quantity</SelectSpan>
 														</SelectIconContainer>
@@ -571,17 +862,17 @@ class SimpleSalesOrder extends React.Component {
 															<SelectSpan>Price</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Discount</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Tax Rule</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="12%" >
+													<TableHeaders width="12%">
 														<SelectIconContainer>
 															<SelectSpan>Total</SelectSpan>
 														</SelectIconContainer>
@@ -599,7 +890,7 @@ class SimpleSalesOrder extends React.Component {
 										<TableBody>{this.renderProductOrderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('productInvoiceDetails').length === 0 ? (
+								{this.state.salesOrderItems.length === 0 ? (
 									<EmptyRow>You do not have any Purchase Order Lines.</EmptyRow>
 								) : (
 									undefined
@@ -683,7 +974,7 @@ class SimpleSalesOrder extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
+								{this.state.salesOrderServiceItem.length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
 									undefined
@@ -703,11 +994,11 @@ class SimpleSalesOrder extends React.Component {
 						<TextAreaContainer>
 							<TextArea
 								name="salesOrderMemo"
-								value={this.state.salesOrderMemo}
+								value={this.state.variable.get('values').get('salesOrderMemo')}
 								placeholder="Write a note here..."
 								onChange={this.onChange}
 							/>
-							<InputLabel>Purchase Order Memo </InputLabel>
+							<InputLabel>Sales Order Memo </InputLabel>
 						</TextAreaContainer>
 					</LeftBlock>
 					<RightBlock>
@@ -831,66 +1122,6 @@ class SimpleSalesOrder extends React.Component {
 				{/* supplier deposit */}
 
 				<InputBody style={{ border: 'none' }} overflow="visible">
-					<RoundedBlock overflow="visible">
-						<TableFieldContainer overflow="visible">
-							<Headers>
-								<HeaderContainer>
-									<HeaderBody>
-										<BodyTable>
-											<TableBody>
-												<TableRow>
-													<TableHeaders width="5%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="14%">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Account</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="38%">
-														<SelectIconContainer>
-															<SelectSpan>Reference </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="59%">
-														<SelectIconContainer>
-															<SelectSpan>Date Paid </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="20%" left="77%">
-														<SelectIconContainer>
-															<SelectSpan>Amount </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-												</TableRow>
-											</TableBody>
-										</BodyTable>
-									</HeaderBody>
-								</HeaderContainer>
-							</Headers>
-							<HeaderBodyContainer>
-								<HeaderBody>
-									<BodyTable>
-										<TableBody>
-											<TableRow>
-												<TableData width="58px" />
-												<TableData width="168px" />
-												<TableData width="168px" />
-												<TableData width="168px" />
-											</TableRow>
-										</TableBody>
-									</BodyTable>
-								</HeaderBody>
-								<EmptyRow>You do not have any Customer deposits</EmptyRow>
-							</HeaderBodyContainer>
-						</TableFieldContainer>
-					</RoundedBlock>
 					<RoundedBlock style={{ marginTop: '20px' }}>
 						<RoundBlockOuterDiv>
 							<RoundBlockInnerDiv>
@@ -913,4 +1144,10 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(SimpleSalesOrder);
+export default connect(mapStateToProps, {
+	clearErrors,
+	createVariable,
+	createVariables,
+	getVariables,
+	updateVariable
+})(SimpleSalesOrder);

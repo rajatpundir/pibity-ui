@@ -113,7 +113,7 @@ class ProductMovementOrderInvoice extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (
+		if (nextProps.productMovementOrder&&
 			nextProps.variables.ProductMovementOrderInvoice &&
 			nextProps.variables.ProductMovementInvoiceAdditionalCost &&
 			nextProps.variables.ProductMovementOrderInvoiceItems

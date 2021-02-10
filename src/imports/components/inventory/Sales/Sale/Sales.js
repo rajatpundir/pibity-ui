@@ -6,15 +6,18 @@ import { customErrorMessage, successMessage, CustomNotification } from '../../..
 import { clearErrors } from '../../../../redux/actions/errors';
 import {
 	createVariable,
+	addKeyToList,
 	getVariables,
 	getVariable,
 	updateVariable,
-	objToMapRec
+	objToMapRec,
+	createVariables
 } from '../../../../redux/actions/variables';
 import SalesGeneralDetails from './SalesGeneralDetails';
+import SalesQuotaton from './SalesQuotation';
 import SimpleSalesOrder from './SimpleSalesOrder';
 import SimpleSalesInvoice from './SimpleSalesInvoice';
-import SalesStockSoldRecord from './SalesStockSoldRecord'
+import SalesStockSoldRecord from './SalesStockSoldRecord';
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import CheckIcon from '@material-ui/icons/Check';
 import {
@@ -41,7 +44,7 @@ class SimpleSale extends React.Component {
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
-				[ 'typeName', 'SalesOrder' ],
+				[ 'typeName', 'Sales' ],
 				[ 'variableName', '' ],
 				[
 					'values',
@@ -70,38 +73,37 @@ class SimpleSale extends React.Component {
 								]
 							])
 						],
-						[
-							'orderDetails',
-							[
-								new Map([
-									[ 'variableName', '0' ],
-									[
-										'values',
-										new Map([
-											[ 'additionalCost', [] ],
-											[ 'productInvoiceDetails', [] ],
-											[ 'customerDeposit', [] ],
-											[ 'total', 0 ],
-											[ 'salesOrderMemo', '' ],
-											[ 'productCostBeforeTax', 0 ],
-											[ 'additionalCostBeforeTax', 0 ],
-											[ 'totalTaxOnProduct', 0 ],
-											[ 'totalTaxOnAdditionalCost', 0 ]
-										])
-									]
-								])
-							]
-						],
 						[ 'invoiceCreated', false ],
-						[ 'orderType', 'Simple' ]
+						[ 'orderType', 'Simple' ],
+						[ 'orderStatus', 'Quotation Created' ]
 					])
 				]
 			]),
-			visibleSection: 'order',
-			salesOrderVariableName: '',
+			salesQuotatuionVariableName: '',
+			salesQuotation: new Map([
+				[ 'typeName', 'SalesQuotation' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'date', '' ],
+						[ 'quotationNumber', '' ],
+						[ 'total', 0 ],
+						[ 'salesOrder', '' ],
+						[ 'customer', '' ],
+						[ 'productCostBeforeTax', 0 ],
+						[ 'totalTaxOnProduct', 0 ]
+					])
+				]
+			]),
+			salesOrder: {},
+			salesOrderItems: [],
+			salesOrderServiceItem: [],
+			salesQuotationItems: [],
+			visibleSection: 'quotation',
+			salesVariableName: '',
 			customer: '',
 			account: '',
-			orderDetails: {},
 			customerAddress: new Map([
 				[ 'variableName', '' ],
 				[ 'values', new Map([ [ 'line1', '' ], [ 'line2', '' ] ]) ]
@@ -109,9 +111,28 @@ class SimpleSale extends React.Component {
 			customerContact: new Map([
 				[ 'variableName', '' ],
 				[ 'values', new Map([ [ 'name', '' ], [ 'phone', '' ] ]) ]
+			]),
+			orderDetails: new Map([
+				[ 'variableName', '0' ],
+				[
+					'values',
+					new Map([
+						[ 'additionalCost', [] ],
+						[ 'productInvoiceDetails', [] ],
+						[ 'customerDeposit', [] ],
+						[ 'total', 0 ],
+						[ 'salesOrderMemo', '' ],
+						[ 'productCostBeforeTax', 0 ],
+						[ 'additionalCostBeforeTax', 0 ],
+						[ 'totalTaxOnProduct', 0 ],
+						[ 'totalTaxOnAdditionalCost', 0 ]
+					])
+				]
 			])
 		};
 		this.updateDetails = this.updateDetails.bind(this);
+		this.updateQuotation = this.updateQuotation.bind(this);
+		this.updateQuotationItems = this.updateQuotationItems.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
 		this.updateStock = this.updateStock.bind(this);
 		this.onCalculateTotal = this.onCalculateTotal.bind(this);
@@ -127,8 +148,14 @@ class SimpleSale extends React.Component {
 		this.props.getVariables('Product');
 		this.props.getVariables('UnitOfMeasure');
 		this.props.getVariables('ProductStore');
+		this.props.getVariables('Sales');
+		this.props.getVariables('SalesQuotation');
+		this.props.getVariables('SalesQuotationItem');
 		this.props.getVariables('SalesOrderStockItemRecord');
 		this.props.getVariables('SalesOrderStockSoldRecord');
+		this.props.getVariables('SalesOrder');
+		this.props.getVariables('SalesOrderItem');
+		this.props.getVariables('SalesOrderServiceItem');
 	}
 
 	componentDidMount() {
@@ -151,14 +178,52 @@ class SimpleSale extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.SalesOrder && nextProps.variables.Customer) {
-			const variable = nextProps.variables.SalesOrder.filter(
+		if (
+			nextProps.match.params.variableName &&
+			nextProps.variables.Sales &&
+			nextProps.variables.Customer &&
+			nextProps.variables.SalesQuotationItem &&
+			nextProps.variables.SalesQuotation &&
+			nextProps.variables.SalesOrder &&
+			nextProps.variables.SalesOrderItem &&
+			nextProps.variables.SalesOrderServiceItem
+		) {
+			const variable = nextProps.variables.Sales.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const customer = nextProps.variables.Customer.filter(
 					(customer) => customer.variableName === variable.values.general.values.customerName
 				)[0];
+				const salesQuotation = nextProps.variables.SalesQuotation.filter(
+					(quotation) => quotation.values.sales === variable.variableName
+				)[0];
+				const salesQuotationItems = nextProps.variables.SalesQuotationItem
+					.filter((quotationItem) => quotationItem.values.sales === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const salesOrder = nextProps.variables.SalesOrder.filter(
+					(variable) => variable.values.sales === variable.variableName
+				)[0];
+				const salesOrderItems = nextProps.variables.SalesOrderItem
+					.filter(
+						(item) =>
+							item.values.salesOrder === salesOrder.variableName &&
+							item.values.sales === variable.variableName
+					)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const salesOrderServiceItem = nextProps.variables.SalesOrderServiceItem
+					.filter(
+						(serviceItem) =>
+							serviceItem.values.salesOrder === salesOrder.variableName &&
+							serviceItem.values.sales === variable.variableName
+					)
+					.map((item) => {
+						return objToMapRec(item);
+					});
 				const address = objToMapRec(customer.values.addresses[0]);
 				const contact = objToMapRec(customer.values.contacts[0]);
 				const variableMap = objToMapRec(variable);
@@ -176,10 +241,15 @@ class SimpleSale extends React.Component {
 					customerAddress: address,
 					customerContact: contact,
 					createPo: false,
-					salesOrderVariableName: variable.variableName,
+					salesVariableName: variable.variableName,
 					customer: variable.values.general.values.customerName,
 					account: variable.values.general.values.account,
-					orderDetails: variable.values.orderDetails[0]
+					salesQuotation: objToMapRec(salesQuotation),
+					salesQuotatuionVariableName: salesQuotation.variableName,
+					salesQuotationItems: salesQuotationItems,
+					salesOrder: salesOrder,
+					salesOrderItems: salesOrderItems,
+					salesOrderServiceItem: salesOrderServiceItem
 				};
 			}
 		}
@@ -212,6 +282,14 @@ class SimpleSale extends React.Component {
 		variable.set('values', values);
 		variable.set('variableName', details.get('variableName'));
 		this.setState({ variable: variable, customerAddress: address, customerContact: contact });
+	}
+
+	updateQuotation(salesQuotation) {
+		this.setState({ salesQuotation });
+	}
+
+	updateQuotationItems(salesQuotationItems) {
+		this.setState({ salesQuotationItems });
 	}
 
 	updateOrder(orderDetails) {
@@ -334,15 +412,56 @@ class SimpleSale extends React.Component {
 												if (this.state.createSalesOrder) {
 													this.props.createVariable(this.state.variable).then((response) => {
 														if (response.status === 200) {
+															const sales = response.data.variableName;
 															this.setState({
 																createPo: false,
-																salesOrderVariableName: response.data.variableName,
+																salesVariableName: response.data.variableName,
 																customer:
 																	response.data.values.general.values.customerName,
-																account: response.data.values.general.values.account,
-																orderDetails: response.data.values.orderDetails[0]
+																account: response.data.values.general.values.account
 															});
-															successMessage(' Sales Order Created');
+															new Promise((resolve) => {
+																const quotation = this.state.salesQuotation;
+																const quotationValues = quotation.get('values');
+																quotationValues.set('sales', sales);
+																quotationValues.set(
+																	'customer',
+																	response.data.values.general.values.customerName
+																);
+																quotation.set('values', quotationValues);
+																resolve(this.setState({ salesQuotation: quotation }));
+															}).then(() => {
+																this.props
+																	.createVariable(this.state.salesQuotation)
+																	.then((response) => {
+																		if (response.status === 200) {
+																			const list = addKeyToList(
+																				this.state.salesQuotationItems,
+																				'sales',
+																				sales
+																			);
+																			this.setState({
+																				salesQuotatuionVariableName:
+																					response.data.variableName
+																			});
+																			this.props
+																				.createVariables(
+																					addKeyToList(
+																						list,
+																						'salesQuotation',
+																						response.data.variableName
+																					)
+																				)
+																				.then((response) => {
+																					if (response === 200) {
+																						successMessage(
+																							'Quotation Created Successfully'
+																						);
+																					}
+																				});
+																		}
+																	});
+															});
 														}
 													});
 												}
@@ -368,6 +487,15 @@ class SimpleSale extends React.Component {
 							<HorizontalBlockListOuter>
 								<HorizontalBlockListInnerWrapper>
 									<HoizontalBlockList style={{ justifyContent: 'space-evenly' }}>
+										<HoizontalBlockListItems>
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'quotation' });
+												}}
+											>
+												Quotation
+											</BlockListItemButton>
+										</HoizontalBlockListItems>
 										<HoizontalBlockListItems>
 											<BlockListItemButton
 												onClick={(e) => {
@@ -403,10 +531,10 @@ class SimpleSale extends React.Component {
 												// 		? 'all'
 												// 		: 'none'
 												// }}
-												onClick={(e) =>this.setState({ visibleSection: 'unstock' })}
-													// this.state.variable.get('values').get('invoiceCreated')
-													// 	? this.setState({ visibleSection: 'stockReceived' })
-													// 	: undefined}
+												onClick={(e) => this.setState({ visibleSection: 'unstock' })}
+												// this.state.variable.get('values').get('invoiceCreated')
+												// 	? this.setState({ visibleSection: 'stockReceived' })
+												// 	: undefined}
 											>
 												Unstock
 											</BlockListItemButton>
@@ -425,27 +553,45 @@ class SimpleSale extends React.Component {
 								</HorizontalBlockListInnerWrapper>
 							</HorizontalBlockListOuter>
 						</HorizontalListPageBlock>
-						{this.state.visibleSection === 'order' && (
-							<SimpleSalesOrder
-								variable={this.state.variable.get('values').get('orderDetails')[0]}
-								updateOrder={this.updateOrder}
+						{this.state.visibleSection === 'quotation' && (
+							<SalesQuotaton
+								variable={this.state.orderDetails}
+								salesQuotation={this.state.salesQuotation}
+								salesQuotationItems={this.state.salesQuotationItems}
+								updateQuotation={this.updateQuotation}
+								updateItems={this.updateQuotationItems}
 							/>
 						)}
-						{/* {this.state.visibleSection === 'stockReceived' && <PurchaseStockReceived />} */}
+						{this.state.visibleSection === 'order' && (
+							<SimpleSalesOrder
+								sales={this.state.salesVariableName}
+								salesQuotationItems={this.state.salesQuotationItems}
+								salesQuotatuionVariableName={this.state.salesQuotatuionVariableName}
+								customer={this.state.customer}
+							/>
+						)}
 						{this.state.visibleSection === 'invoice' && (
 							<SimpleSalesInvoice
-								salesOrder={this.state.salesOrderVariableName}
+								salesOrder={this.state.salesVariableName}
 								customer={this.state.customer}
 								account={this.state.account}
 								orderDetails={objToMapRec(this.state.orderDetails)}
-								location={this.state.variable.get('values').get('general').get('values').get('location')}
+								location={this.state.variable
+									.get('values')
+									.get('general')
+									.get('values')
+									.get('location')}
 							/>
 						)}
 						{this.state.visibleSection === 'unstock' && (
 							<SalesStockSoldRecord
-								salesOrder={this.state.salesOrderVariableName}
+								salesOrder={this.state.salesVariableName}
 								customer={this.state.customer}
-								location={this.state.variable.get('values').get('general').get('values').get('location')}
+								location={this.state.variable
+									.get('values')
+									.get('general')
+									.get('values')
+									.get('location')}
 							/>
 						)}
 					</PageBody>
@@ -465,5 +611,6 @@ export default connect(mapStateToProps, {
 	createVariable,
 	getVariable,
 	getVariables,
-	updateVariable
+	updateVariable,
+	createVariables
 })(SimpleSale);
