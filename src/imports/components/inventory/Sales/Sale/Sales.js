@@ -153,9 +153,9 @@ class SimpleSale extends React.Component {
 		this.props.getVariables('SalesQuotationItem');
 		this.props.getVariables('SalesOrderStockItemRecord');
 		this.props.getVariables('SalesOrderStockSoldRecord');
-		this.props.getVariables('SalesOrder');
-		this.props.getVariables('SalesOrderItem');
-		this.props.getVariables('SalesOrderServiceItem');
+		// this.props.getVariables('SalesOrder');
+		// this.props.getVariables('SalesOrderItem');
+		// this.props.getVariables('SalesOrderServiceItem');
 	}
 
 	componentDidMount() {

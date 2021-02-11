@@ -11,7 +11,7 @@ import {
 	addKeyToList
 } from '../../../../redux/actions/variables';
 import Select from 'react-select';
-import { customErrorMessage, CustomNotification, successMessage } from '../../../main/Notification';
+import { successMessage } from '../../../main/Notification';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -76,14 +76,14 @@ class SimpleSalesOrder extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'sales', props.sales ],
+						[ 'sales',''],
 						[ 'date', '' ],
 						[ 'orderNumber', '' ],
-						[ 'location', '' ],
-						[ 'salesQuotation', props.salesQuotatuionVariableName ],
+						[ 'location', 'Offsite Storage' ],
+						[ 'salesQuotation',''],
 						[ 'total', 0 ],
 						[ 'salesOrderMemo', '' ],
-						[ 'customer', props.customer ],
+						[ 'customer',''],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
 						[ 'totalTaxOnProduct', 0 ],
@@ -101,21 +101,22 @@ class SimpleSalesOrder extends React.Component {
 
 	componentDidMount() {
 		this.props.clearErrors();
-		this.props.getVariables('SalesOrder');
-		this.props.getVariables('SalesOrderItem');
-		this.props.getVariables('SalesOrderServiceItem');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (
+			nextProps.sales &&
 			nextProps.variables.SalesOrder &&
 			nextProps.variables.SalesOrderItem &&
 			nextProps.variables.SalesOrderServiceItem
 		) {
+			console.log("here")
 			const variable = nextProps.variables.SalesOrder.filter(
 				(variable) => variable.values.sales === nextProps.sales
 			)[0];
+			console.log(variable);
 			if (variable && prevState.prevPropVariable !== variable) {
+				console.log("Ahere")
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const salesOrderItems = nextProps.variables.SalesOrderItem
@@ -144,10 +145,22 @@ class SimpleSalesOrder extends React.Component {
 					salesOrderServiceItem: salesOrderServiceItem
 				};
 			}
+			if (nextProps.sale && variable === undefined) {
+				const variable = prevState.variable;
+				const values = variable.get('values');
+				values.set('sale', nextProps.sale);
+				values.set('customer', nextProps.customer);
+				values.set('salesQuotation', nextProps.salesQuotatuionVariableName );
+				variable.set('values', values);
+				return {
+					...prevState,
+					variable: variable
+				};
+			}
 		}
-		return {
-			...prevState
-		};
+		console.log("lasthere")
+		return prevState;
+
 	}
 
 	onCopyItemsFromQuotation() {
@@ -159,7 +172,7 @@ class SimpleSalesOrder extends React.Component {
 					'values',
 					new Map([
 						[ 'sales', item.get('values').get('sales') ],
-						[ 'salesQuotation', '' ],
+						[ 'salesOrder', '' ],
 						[ 'product', item.get('values').get('product') ],
 						[ 'comment', item.get('values').get('description') ],
 						[ 'discount', item.get('values').get('discount') ],
@@ -685,35 +698,37 @@ class SimpleSalesOrder extends React.Component {
 	}
 
 	createOrder() {
+		console.log(this.state.variable);
+		console.log(this.state.salesOrderItems);
 		this.props.createVariable(this.state.variable).then((response) => {
 			if (response.status === 200) {
 				const productAndAdditionalServices = [];
-						if (this.state.salesOrderItems.length !== 0) {
-							addKeyToList(
-								this.state.salesOrderItems,
-								'salesOrder',
-								response.data.variableName
-							).forEach((element) => {
-								productAndAdditionalServices.push(element);
-							});
-						}
-						if (this.state.salesOrderServiceItem.length !== 0) {
-							addKeyToList(
-								this.state.salesOrderServiceItem,
-								'salesOrder',
-								response.data.variableName
-							).forEach((element) => {
-								productAndAdditionalServices.push(element);
-							});
-						}
-						this.props.createVariables(productAndAdditionalServices).then((response) => {
-							if (response.status === 200) {
-								successMessage(' Product Created');
-								//Enable after Testing
-								// this.alert()
-							}
-						})
-					
+				if (this.state.salesOrderItems.length !== 0) {
+					addKeyToList(
+						this.state.salesOrderItems,
+						'salesOrder',
+						response.data.variableName
+					).forEach((element) => {
+						productAndAdditionalServices.push(element);
+					});
+					console.log(productAndAdditionalServices);
+				}
+				if (this.state.salesOrderServiceItem.length !== 0) {
+					addKeyToList(
+						this.state.salesOrderServiceItem,
+						'salesOrder',
+						response.data.variableName
+					).forEach((element) => {
+						productAndAdditionalServices.push(element);
+					});
+				}
+				this.props.createVariables(productAndAdditionalServices).then((response) => {
+					if (response.status === 200) {
+						successMessage('Order Created');
+						//Enable after Testing
+						// this.alert()
+					}
+				})
 			}
 		});
 	}
@@ -726,15 +741,16 @@ class SimpleSalesOrder extends React.Component {
 						<LeftItemH1>Order</LeftItemH1>
 					</ToolbarItems>
 					<ToolbarItems>
-						{true ? (
-							<Custombutton
+					<Custombutton
 								height="30px"
 								onClick={(e) => {
-									this.createOrder();
+									this.createOrder()
 								}}
 							>
 								Create Order
 							</Custombutton>
+						{/* {true ? (
+							
 						) : this.state.updateInvoice ? (
 							<Custombutton
 								height="30px"
@@ -751,25 +767,24 @@ class SimpleSalesOrder extends React.Component {
 							</Custombutton>
 						) : (
 							undefined
-						)}
+						)} */}
 					</ToolbarItems>
 				</PageToolbar>
 				<PageBar>
 					<InputColumnWrapper>
-						{/* <FormControl>
+						<FormControl>
 							<Input
 								name="orderNumber"
 								type="text"
 								placeholder="write"
-								value=''
-								// value={this.state.variable.get('values').get('OrderNumber')}
+								value={this.state.variable.get('values').get('orderNumber')}
 								onChange={this.onChange}
 							/>
 							<InputLabel>
 								Order Number
 								<Required>*</Required>
 							</InputLabel>
-						</FormControl> */}
+						</FormControl>
 						<FormControl>
 							<Input
 								name="date"
@@ -779,15 +794,15 @@ class SimpleSalesOrder extends React.Component {
 							/>
 							<InputLabel>Date</InputLabel>
 						</FormControl>
-						{/* <FormControl>
+						<FormControl>
 							<Input
 								name="location"
 								type="text"
-								value={this.state.variable.get('values').get('date')}
+								value={this.state.variable.get('values').get('location')}
 								onChange={this.onChange}
 							/>
 							<InputLabel>Location</InputLabel>
-						</FormControl> */}
+						</FormControl>
 					</InputColumnWrapper>
 					<InputColumnWrapper>
 						<FormControl>
