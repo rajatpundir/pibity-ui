@@ -178,6 +178,9 @@ class SimpleSale extends React.Component {
 		this.props.getVariables('SalesOrderServiceItem');
 		this.props.getVariables('SalesOrderStockItemRecord');
 		this.props.getVariables('SalesOrderStockSoldRecord');
+		this.props.getVariables('SalesInvoiceServiceItem');
+		this.props.getVariables('SalesInvoiceItem');
+		this.props.getVariables('SalesInvoice');
 	}
 
 	componentDidMount() {
@@ -210,6 +213,8 @@ class SimpleSale extends React.Component {
 			nextProps.variables.SalesOrderItem &&
 			nextProps.variables.SalesOrderServiceItem
 		) {
+			console.log('haere')
+
 			const variable = nextProps.variables.Sales.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
@@ -226,9 +231,9 @@ class SimpleSale extends React.Component {
 						return objToMapRec(item);
 					});
 				const salesOrder = nextProps.variables.SalesOrder.filter(
-					(variable) => variable.values.sales === variable.variableName
+					(order) => order.values.sales === variable.variableName
 				)[0];
-				const salesOrderItems = salesOrder
+				const salesOrderItems = salesOrder!==undefined
 					? nextProps.variables.SalesOrderItem
 							.filter(
 								(item) =>
@@ -239,7 +244,7 @@ class SimpleSale extends React.Component {
 								return objToMapRec(item);
 							})
 					: [];
-				const salesOrderServiceItem = salesOrder
+				const salesOrderServiceItem = salesOrder!==undefined
 					? nextProps.variables.SalesOrderServiceItem
 							.filter(
 								(serviceItem) =>
@@ -608,9 +613,12 @@ class SimpleSale extends React.Component {
 						)}
 						{this.state.visibleSection === 'invoice' && (
 							<SimpleSalesInvoice
-								salesOrder={this.state.salesVariableName}
+								sales={this.state.salesVariableName}
 								customer={this.state.customer}
 								account={this.state.account}
+								salesOrder={this.state.salesOrder}
+								salesOrderItems={this.state.salesOrderItems}
+								salesOrderServiceItems={this.state.salesOrderServiceItems}
 								orderDetails={objToMapRec(this.state.orderDetails)}
 								location={this.state.variable
 									.get('values')
