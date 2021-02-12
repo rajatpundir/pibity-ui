@@ -96,9 +96,6 @@ class SimpleSale extends React.Component {
 					])
 				]
 			]),
-			salesOrder: {},
-			salesOrderItems: [],
-			salesOrderServiceItem: [],
 			salesQuotationItems: [],
 			visibleSection: 'quotation',
 			salesVariableName: '',
@@ -128,12 +125,37 @@ class SimpleSale extends React.Component {
 						[ 'totalTaxOnAdditionalCost', 0 ]
 					])
 				]
-			])
+			]),
+			salesOrder: new Map([
+				[ 'typeName', 'SalesOrder' ],
+				[ 'variableName', '' ],
+				[
+					'values',
+					new Map([
+						[ 'sales', '' ],
+						[ 'date', '' ],
+						[ 'orderNumber', '' ],
+						[ 'location', 'Offsite Storage' ],
+						[ 'salesQuotation', '' ],
+						[ 'total', 0 ],
+						[ 'salesOrderMemo', '' ],
+						[ 'customer', '' ],
+						[ 'productCostBeforeTax', 0 ],
+						[ 'additionalCostBeforeTax', 0 ],
+						[ 'totalTaxOnProduct', 0 ],
+						[ 'totalTaxOnAdditionalCost', 0 ]
+					])
+				]
+			]),
+			salesOrderServiceItems: [],
+			salesOrderItems: []
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateQuotation = this.updateQuotation.bind(this);
 		this.updateQuotationItems = this.updateQuotationItems.bind(this);
-		this.updateOrder = this.updateOrder.bind(this);
+		this.updateSalesOrder = this.updateSalesOrder.bind(this);
+		this.updateSalesOrderItems = this.updateSalesOrderItems.bind(this);
+		this.updateSalesOrderServiceItems = this.updateSalesOrderServiceItems.bind(this);
 		this.updateStock = this.updateStock.bind(this);
 		this.onCalculateTotal = this.onCalculateTotal.bind(this);
 		this.onClose = this.onClose.bind(this);
@@ -151,11 +173,11 @@ class SimpleSale extends React.Component {
 		this.props.getVariables('Sales');
 		this.props.getVariables('SalesQuotation');
 		this.props.getVariables('SalesQuotationItem');
+		this.props.getVariables('SalesOrder');
+		this.props.getVariables('SalesOrderItem');
+		this.props.getVariables('SalesOrderServiceItem');
 		this.props.getVariables('SalesOrderStockItemRecord');
 		this.props.getVariables('SalesOrderStockSoldRecord');
-		// this.props.getVariables('SalesOrder');
-		// this.props.getVariables('SalesOrderItem');
-		// this.props.getVariables('SalesOrderServiceItem');
 	}
 
 	componentDidMount() {
@@ -206,24 +228,28 @@ class SimpleSale extends React.Component {
 				const salesOrder = nextProps.variables.SalesOrder.filter(
 					(variable) => variable.values.sales === variable.variableName
 				)[0];
-				const salesOrderItems = nextProps.variables.SalesOrderItem
-					.filter(
-						(item) =>
-							item.values.salesOrder === salesOrder.variableName &&
-							item.values.sales === variable.variableName
-					)
-					.map((item) => {
-						return objToMapRec(item);
-					});
-				const salesOrderServiceItem = nextProps.variables.SalesOrderServiceItem
-					.filter(
-						(serviceItem) =>
-							serviceItem.values.salesOrder === salesOrder.variableName &&
-							serviceItem.values.sales === variable.variableName
-					)
-					.map((item) => {
-						return objToMapRec(item);
-					});
+				const salesOrderItems = salesOrder
+					? nextProps.variables.SalesOrderItem
+							.filter(
+								(item) =>
+									item.values.salesOrder === salesOrder.variableName &&
+									item.values.sales === variable.variableName
+							)
+							.map((item) => {
+								return objToMapRec(item);
+							})
+					: [];
+				const salesOrderServiceItem = salesOrder
+					? nextProps.variables.SalesOrderServiceItem
+							.filter(
+								(serviceItem) =>
+									serviceItem.values.salesOrder === salesOrder.variableName &&
+									serviceItem.values.sales === variable.variableName
+							)
+							.map((item) => {
+								return objToMapRec(item);
+							})
+					: [];
 				const address = objToMapRec(customer.values.addresses[0]);
 				const contact = objToMapRec(customer.values.contacts[0]);
 				const variableMap = objToMapRec(variable);
@@ -247,7 +273,7 @@ class SimpleSale extends React.Component {
 					salesQuotation: objToMapRec(salesQuotation),
 					salesQuotatuionVariableName: salesQuotation.variableName,
 					salesQuotationItems: salesQuotationItems,
-					salesOrder: salesOrder,
+					salesOrder: salesOrder ? objToMapRec(salesOrder) : prevState.salesOrder,
 					salesOrderItems: salesOrderItems,
 					salesOrderServiceItem: salesOrderServiceItem
 				};
@@ -292,12 +318,16 @@ class SimpleSale extends React.Component {
 		this.setState({ salesQuotationItems });
 	}
 
-	updateOrder(orderDetails) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('orderDetails', [ orderDetails ]);
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => this.onCalculateTotal());
+	updateSalesOrder(salesOrder) {
+		this.setState({ salesOrder });
+	}
+
+	updateSalesOrderItems(salesOrderItems) {
+		this.setState({ salesOrderItems });
+	}
+
+	updateSalesOrderServiceItems(salesOrderServiceItems) {
+		this.setState({ salesOrderServiceItems });
 	}
 
 	updateStock(productStock) {
@@ -453,7 +483,7 @@ class SimpleSale extends React.Component {
 																					)
 																				)
 																				.then((response) => {
-																					if (response === 200) {
+																					if (response.status === 200) {
 																						successMessage(
 																							'Quotation Created Successfully'
 																						);
@@ -568,6 +598,12 @@ class SimpleSale extends React.Component {
 								salesQuotationItems={this.state.salesQuotationItems}
 								salesQuotatuionVariableName={this.state.salesQuotatuionVariableName}
 								customer={this.state.customer}
+								salesOrder={this.state.salesOrder}
+								salesOrderItems={this.state.salesOrderItems}
+								salesOrderServiceItems={this.state.salesOrderServiceItems}
+								updateSalesOrder={this.updateSalesOrder}
+								updateSalesOrderItems={this.updateSalesOrderItems}
+								updateSalesOrderServiceItems={this.updateSalesOrderServiceItems}
 							/>
 						)}
 						{this.state.visibleSection === 'invoice' && (

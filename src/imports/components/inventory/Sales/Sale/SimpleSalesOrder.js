@@ -70,29 +70,9 @@ class SimpleSalesOrder extends React.Component {
 		this.state = {
 			prevPropVariable: {},
 			prevVariable: new Map(),
-			variable: new Map([
-				[ 'typeName', 'SalesOrder' ],
-				[ 'variableName', '' ],
-				[
-					'values',
-					new Map([
-						[ 'sales',''],
-						[ 'date', '' ],
-						[ 'orderNumber', '' ],
-						[ 'location', 'Offsite Storage' ],
-						[ 'salesQuotation',''],
-						[ 'total', 0 ],
-						[ 'salesOrderMemo', '' ],
-						[ 'customer',''],
-						[ 'productCostBeforeTax', 0 ],
-						[ 'additionalCostBeforeTax', 0 ],
-						[ 'totalTaxOnProduct', 0 ],
-						[ 'totalTaxOnAdditionalCost', 0 ]
-					])
-				]
-			]),
-			salesOrderServiceItem: [],
-			salesOrderItems: []
+			variable: props.salesOrder,
+			salesOrderItems: props.salesOrderItem,
+			salesOrderServiceItems: props.salesOrderServiceItems
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onCopyItemsFromQuotation = this.onCopyItemsFromQuotation.bind(this);
@@ -104,64 +84,70 @@ class SimpleSalesOrder extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (
-			nextProps.sales &&
-			nextProps.variables.SalesOrder &&
-			nextProps.variables.SalesOrderItem &&
-			nextProps.variables.SalesOrderServiceItem
-		) {
-			console.log("here")
-			const variable = nextProps.variables.SalesOrder.filter(
-				(variable) => variable.values.sales === nextProps.sales
-			)[0];
-			console.log(variable);
-			if (variable && prevState.prevPropVariable !== variable) {
-				console.log("Ahere")
-				const variableMap = objToMapRec(variable);
-				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
-				const salesOrderItems = nextProps.variables.SalesOrderItem
-					.filter(
-						(item) =>
-							item.values.salesOrder === variable.variableName && item.values.sales === nextProps.sales
-					)
-					.map((item) => {
-						return objToMapRec(item);
-					});
-				const salesOrderServiceItem = nextProps.variables.SalesOrderServiceItem
-					.filter(
-						(serviceItem) =>
-							serviceItem.values.salesOrder === variable.variableName &&
-							serviceItem.values.sales === nextProps.sales
-					)
-					.map((item) => {
-						return objToMapRec(item);
-					});
-				return {
-					...prevState,
-					variable: variableMap,
-					prevPropVariable: variable,
-					prevVariable: prevVariableMap,
-					salesOrderItems: salesOrderItems,
-					salesOrderServiceItem: salesOrderServiceItem
-				};
-			}
-			if (nextProps.sale && variable === undefined) {
-				const variable = prevState.variable;
-				const values = variable.get('values');
-				values.set('sale', nextProps.sale);
-				values.set('customer', nextProps.customer);
-				values.set('salesQuotation', nextProps.salesQuotatuionVariableName );
-				variable.set('values', values);
-				return {
-					...prevState,
-					variable: variable
-				};
-			}
-		}
-		console.log("lasthere")
-		return prevState;
-
+		return {
+			...prevState,
+			variable: nextProps.salesOrder,
+			salesOrderItems: nextProps.salesOrderItems,
+			salesOrderServiceItems: nextProps.salesOrderServiceItems
+		};
 	}
+
+	// static getDerivedStateFromProps(nextProps, prevState) {
+	// 	if (
+	// 		nextProps.variables.SalesOrder
+	// 	) {
+	// 		console.log("here")
+	// 		const variable = nextProps.variables.SalesOrder.filter(
+	// 			(variable) => variable.values.sales === nextProps.sales
+	// 		)[0];
+	// 		console.log(variable);
+	// 		if (variable && prevState.prevPropVariable !== variable) {
+	// 			console.log("Ahere")
+	// 			const variableMap = objToMapRec(variable);
+	// 			const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+	// 			const salesOrderItems = nextProps.variables.SalesOrderItem
+	// 				.filter(
+	// 					(item) =>
+	// 						item.values.salesOrder === variable.variableName && item.values.sales === nextProps.sales
+	// 				)
+	// 				.map((item) => {
+	// 					return objToMapRec(item);
+	// 				});
+	// 			const salesOrderServiceItems = nextProps.variables.SalesOrderServiceItem
+	// 				.filter(
+	// 					(serviceItem) =>
+	// 						serviceItem.values.salesOrder === variable.variableName &&
+	// 						serviceItem.values.sales === nextProps.sales
+	// 				)
+	// 				.map((item) => {
+	// 					return objToMapRec(item);
+	// 				});
+	// 			return {
+	// 				...prevState,
+	// 				variable: variableMap,
+	// 				prevPropVariable: variable,
+	// 				prevVariable: prevVariableMap,
+	// 				salesOrderItems: salesOrderItems,
+	// 				salesOrderServiceItems: salesOrderServiceItems
+	// 			};
+	// 		}
+	// 		if (nextProps.sale && variable === undefined) {
+	// 			const variable = prevState.variable;
+	// 			const values = variable.get('values');
+	// 			values.set('sale', nextProps.sale);
+	// 			values.set('customer', nextProps.customer);
+	// 			values.set('salesQuotation', nextProps.salesQuotatuionVariableName );
+	// 			variable.set('values', values);
+	// 			return {
+	// 				...prevState,
+	// 				variable: variable
+	// 			};
+	// 		}
+	// 	}
+	// 	console.log("lasthere")
+	// 	return prevState;
+
+	// }
 
 	onCopyItemsFromQuotation() {
 		const salesOrderItems = this.props.salesQuotationItems.map((item) => {
@@ -188,6 +174,7 @@ class SimpleSalesOrder extends React.Component {
 		this.setState({ salesOrderItems }, () => {
 			this.onCalculateTotal();
 		});
+		this.props.updateSalesOrderItems(salesOrderItems);
 	}
 
 	onChange(e) {
@@ -196,11 +183,12 @@ class SimpleSalesOrder extends React.Component {
 		values.set(e.target.name, e.target.value);
 		variable.set('values', values);
 		this.setState({ variable: variable });
+		this.props.updateSalesOrder(variable);
 	}
 
 	onAdditionalCostChange(e, variableName) {
-		const salesOrderServiceItem = cloneDeep(this.state.salesOrderServiceItem);
-		const list = salesOrderServiceItem.map((listVariable) => {
+		const salesOrderServiceItems = cloneDeep(this.state.salesOrderServiceItems);
+		const list = salesOrderServiceItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -241,7 +229,10 @@ class SimpleSalesOrder extends React.Component {
 				return listVariable;
 			}
 		});
-		this.setState({ salesOrderServiceItem: list });
+		this.setState({ salesOrderServiceItems: list }, () => {
+			this.onCalculateTotal();
+		});
+		this.props.updateSalesOrderServiceItems(list);
 	}
 
 	onProductOrderInputChange(e, variableName) {
@@ -287,14 +278,25 @@ class SimpleSalesOrder extends React.Component {
 				return listVariable;
 			}
 		});
-		this.setState({ salesOrderItems: list });
+		this.setState({ salesOrderItems: list }, () => {
+			this.onCalculateTotal();
+		});
+		this.props.updateSalesOrderItems(list);
 	}
 
 	addVariableToadditionalCostList() {
-		const salesOrderServiceItem = cloneDeep(this.state.salesOrderServiceItem);
-		salesOrderServiceItem.push(
+		const salesOrderServiceItems = cloneDeep(this.state.salesOrderServiceItems);
+		salesOrderServiceItems.push(
 			new Map([
-				[ 'variableName', String(salesOrderServiceItem.length) ],
+				[ 'typeName', 'SalesOrderServiceItem' ],
+				[
+					'variableName',
+					String(
+						salesOrderServiceItems.length === 0
+							? 0
+							: Math.max(...salesOrderServiceItems.map((o) => o.get('variableName'))) + 1
+					)
+				],
 				[
 					'values',
 					new Map([
@@ -311,14 +313,23 @@ class SimpleSalesOrder extends React.Component {
 				]
 			])
 		);
-		this.setState({ salesOrderServiceItem });
+		this.setState({ salesOrderServiceItems });
+		this.props.updateSalesOrderServiceItems(salesOrderServiceItems);
 	}
 
 	addVariableToProductOrderInputList() {
 		const salesOrderItems = cloneDeep(this.state.salesOrderItems);
 		salesOrderItems.push(
 			new Map([
-				[ 'variableName', String(salesOrderItems.length) ],
+				[ 'typeName', 'SalesOrderItem' ],
+				[
+					'variableName',
+					String(
+						salesOrderItems.length === 0
+							? 0
+							: Math.max(...salesOrderItems.map((o) => o.get('variableName'))) + 1
+					)
+				],
 				[
 					'values',
 					new Map([
@@ -336,6 +347,7 @@ class SimpleSalesOrder extends React.Component {
 			])
 		);
 		this.setState({ salesOrderItems });
+		this.props.updateSalesOrderItems(salesOrderItems);
 	}
 
 	onRemoveProductOrderInputListKey(e, variableName) {
@@ -344,14 +356,16 @@ class SimpleSalesOrder extends React.Component {
 			return listVariable.get('variableName') !== variableName;
 		});
 		this.setState({ salesOrderItems: list });
+		this.props.updateSalesOrderItems(list);
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const salesOrderServiceItem = cloneDeep(this.state.salesOrderServiceItem);
-		const list = salesOrderServiceItem.filter((listVariable) => {
+		const salesOrderServiceItems = cloneDeep(this.state.salesOrderServiceItems);
+		const list = salesOrderServiceItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		this.setState({ salesOrderServiceItem: list });
+		this.setState({ salesOrderServiceItems: list });
+		this.props.updateSalesOrderServiceItems(list);
 	}
 
 	onCalculateTotal() {
@@ -386,7 +400,7 @@ class SimpleSalesOrder extends React.Component {
 			}
 		});
 		//AdditionalCost
-		this.state.salesOrderServiceItem.forEach((listVariable) => {
+		this.state.salesOrderServiceItems.forEach((listVariable) => {
 			const taxRule = this.props.variables.TaxRule.filter(
 				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
 			)[0];
@@ -423,11 +437,12 @@ class SimpleSalesOrder extends React.Component {
 		this.setState({
 			variable
 		});
+		this.props.updateSalesOrder(variable);
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		this.state.salesOrderServiceItem.forEach((listVariable) =>
+		this.state.salesOrderServiceItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%">
@@ -698,39 +713,49 @@ class SimpleSalesOrder extends React.Component {
 	}
 
 	createOrder() {
-		console.log(this.state.variable);
-		console.log(this.state.salesOrderItems);
-		this.props.createVariable(this.state.variable).then((response) => {
-			if (response.status === 200) {
-				const productAndAdditionalServices = [];
-				if (this.state.salesOrderItems.length !== 0) {
-					addKeyToList(
-						this.state.salesOrderItems,
-						'salesOrder',
-						response.data.variableName
-					).forEach((element) => {
-						productAndAdditionalServices.push(element);
-					});
-					console.log(productAndAdditionalServices);
-				}
-				if (this.state.salesOrderServiceItem.length !== 0) {
-					addKeyToList(
-						this.state.salesOrderServiceItem,
-						'salesOrder',
-						response.data.variableName
-					).forEach((element) => {
-						productAndAdditionalServices.push(element);
-					});
-				}
-				this.props.createVariables(productAndAdditionalServices).then((response) => {
-					if (response.status === 200) {
-						successMessage('Order Created');
-						//Enable after Testing
-						// this.alert()
+		new Promise((resolve) => {
+			const variable = cloneDeep(this.state.variable);
+			const values = variable.get('values');
+			values.set('sales', this.props.sales);
+			values.set('customer', this.props.customer);
+			values.set('salesQuotation', this.props.salesQuotatuionVariableName);
+			variable.set('values', values);
+			resolve(this.props.updateSalesOrder(variable));
+		}).then(() => {
+			this.props.createVariable(this.state.variable).then((response) => {
+				if (response.status === 200) {
+					const productAndAdditionalServices = [];
+					if (this.state.salesOrderItems.length !== 0) {
+						addKeyToList(
+							this.state.salesOrderItems,
+							'salesOrder',
+							response.data.variableName
+						).forEach((element) => {
+							productAndAdditionalServices.push(element);
+						});
+						console.log(productAndAdditionalServices);
 					}
-				})
-			}
+					if (this.state.salesOrderServiceItems.length !== 0) {
+						addKeyToList(
+							this.state.salesOrderServiceItems,
+							'salesOrder',
+							response.data.variableName
+						).forEach((element) => {
+							productAndAdditionalServices.push(element);
+						});
+					}
+					this.props.createVariables(productAndAdditionalServices).then((response) => {
+						if (response.status === 200) {
+							successMessage('Order Created');
+							//Enable after Testing
+							// this.alert()
+						}
+					})
+				}
+			});
 		});
+
+		
 	}
 
 	render() {
@@ -741,14 +766,14 @@ class SimpleSalesOrder extends React.Component {
 						<LeftItemH1>Order</LeftItemH1>
 					</ToolbarItems>
 					<ToolbarItems>
-					<Custombutton
-								height="30px"
-								onClick={(e) => {
-									this.createOrder()
-								}}
-							>
-								Create Order
-							</Custombutton>
+						<Custombutton
+							height="30px"
+							onClick={(e) => {
+								this.createOrder();
+							}}
+						>
+							Create Order
+						</Custombutton>
 						{/* {true ? (
 							
 						) : this.state.updateInvoice ? (
@@ -989,7 +1014,7 @@ class SimpleSalesOrder extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.salesOrderServiceItem.length === 0 ? (
+								{this.state.salesOrderServiceItems.length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
 									undefined
