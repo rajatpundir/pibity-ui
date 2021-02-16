@@ -178,9 +178,6 @@ class SimpleSale extends React.Component {
 		this.props.getVariables('SalesOrderServiceItem');
 		this.props.getVariables('SalesOrderStockItemRecord');
 		this.props.getVariables('SalesOrderStockSoldRecord');
-		this.props.getVariables('SalesInvoiceServiceItem');
-		this.props.getVariables('SalesInvoiceItem');
-		this.props.getVariables('SalesInvoice');
 	}
 
 	componentDidMount() {
@@ -213,8 +210,6 @@ class SimpleSale extends React.Component {
 			nextProps.variables.SalesOrderItem &&
 			nextProps.variables.SalesOrderServiceItem
 		) {
-			console.log('haere')
-
 			const variable = nextProps.variables.Sales.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
@@ -629,7 +624,7 @@ class SimpleSale extends React.Component {
 						)}
 						{this.state.visibleSection === 'unstock' && (
 							<SalesStockSoldRecord
-								salesOrder={this.state.salesVariableName}
+								sales={this.state.salesVariableName}
 								customer={this.state.customer}
 								location={this.state.variable
 									.get('values')

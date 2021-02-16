@@ -55,7 +55,7 @@ class SalesStockSoldRecord extends React.Component {
 						[ 'total', 0 ],
 						[ 'fromCustomer', '' ],
 						[ 'fromLocation', '' ],
-						[ 'salesOrder', '' ],
+						[ 'sales', '' ],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
 						[ 'totalTaxOnProduct', 0 ],
@@ -75,12 +75,12 @@ class SalesStockSoldRecord extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variables.SalesOrderStockSoldRecord && nextProps.variables.SalesOrderStockItemRecord) {
+		if (nextProps.sales && nextProps.variables.SalesOrderStockSoldRecord && nextProps.variables.SalesOrderStockItemRecord) {
 			const variable = nextProps.variables.SalesOrderStockSoldRecord.filter(
-				(variable) => variable.values.salesOrder === nextProps.salesOrder
+				(variable) => variable.values.sales === nextProps.sales
 			)[0];
 			const stockItems = nextProps.variables.SalesOrderStockItemRecord.filter(
-				(item) => item.values.salesOrder === nextProps.salesOrder
+				(item) => item.values.sales === nextProps.sales
 			);
 			if (variable) {
 				const variableMap = objToMapRec(variable);
