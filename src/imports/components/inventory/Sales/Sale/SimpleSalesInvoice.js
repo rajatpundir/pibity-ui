@@ -120,7 +120,7 @@ class SimpleSalesInvoice extends React.Component {
 			const variable = nextProps.variables.SalesInvoice.filter(
 				(variable) => variable.values.sales === nextProps.sales
 			)[0];
-			console.log("invocie")
+			console.log('invocie');
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
@@ -838,9 +838,7 @@ class SimpleSalesInvoice extends React.Component {
 	createInnvocie() {
 		this.props.createVariable(this.state.variable).then((response) => {
 			if (response.status === 200) {
-				console.log(response.data);
 				const invoice = response.data;
-				console.log(this.state.salesInvoiceItems);
 				this.props
 					.createVariables(
 						addKeyToList(this.state.salesInvoiceItems, 'salesInvoice', response.data.variableName)
@@ -850,7 +848,7 @@ class SimpleSalesInvoice extends React.Component {
 							this.props.createVariables(
 								addKeyToList(this.state.salesInvoiceServiceItem, 'salesInvoice', invoice.variableName)
 							);
-							const invocieItems = response.data;
+							const invoiceItems = response.data;
 							const args = {
 								fromCustomer: invoice.values.customer,
 								total: invoice.values.total,
@@ -864,13 +862,13 @@ class SimpleSalesInvoice extends React.Component {
 							this.props.executeFuntion(args, 'createSalesOrderStockSoldRecord').then((response) => {
 								if (response.status === 200) {
 									new Promise((resolve) => {
-										resolve(this.props.createVariables(this.createStore(invocieItems)));
+										resolve(this.props.createVariables(this.createStore(invoiceItems)));
 									}).then(() => {
 										this.props
 											.createVariables(
 												this.createStockItems(
 													invoice,
-													invocieItems,
+													invoiceItems,
 													response.data.salesStockRecord
 												)
 											)
@@ -888,13 +886,27 @@ class SimpleSalesInvoice extends React.Component {
 															)
 															.then((response) => {
 																if (response.status === 200) {
-																	this.props.getVariables(
-																		'SalesOrderStockItemRecord'
-																	);
-																	this.props.getVariables(
-																		'SalesOrderStockSoldRecord'
-																	);
-																	successMessage(' Sales Invoice Created');
+																	this.props
+																		.executeFuntion(
+																			{ sales: this.props.sales },
+																			'updateStatusSalesInvoiceCreated'
+																		)
+																		.then((response) => {
+																			if (response.status === 200) {
+																				this.props.getVariables(
+																					'SalesOrderStockItemRecord'
+																				);
+																				this.props.getVariables(
+																					'SalesOrderStockSoldRecord'
+																				);
+																				this.props.getVariables(
+																					'Sales'
+																				);
+																				successMessage(
+																					' Sales Invoice Created'
+																				);
+																			}
+																		});
 																}
 															});
 													});

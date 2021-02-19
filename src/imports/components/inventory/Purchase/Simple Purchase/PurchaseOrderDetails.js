@@ -57,19 +57,14 @@ class PurchaseOrderDetails extends React.Component {
 		super();
 		this.state = {
 			variable: props.variable,
+			purchaseOrderItems: props.purchaseOrderItems,
+			purchaseOrderServiceItems: props.purchaseOrderServiceItems,
 			productSupplier: []
 		};
 
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
-
-	// supplierDepositkey: new Map([
-	// 	[ 'ammount', '' ],
-	// 	[ 'account', '' ],
-	// 	[ 'datePaid', '' ],
-	// 	[ 'reference', '' ]
-	// ]),
 
 	// clear form errors
 	componentDidMount() {
@@ -80,6 +75,8 @@ class PurchaseOrderDetails extends React.Component {
 		return {
 			...prevState,
 			variable: nextProps.variable,
+			purchaseOrderItems: nextProps.purchaseOrderItems,
+			purchaseOrderServiceItems: nextProps.purchaseOrderServiceItems,
 			productSupplier:
 				nextProps.variables !== undefined
 					? nextProps.variables.ProductSupplier !== undefined ? nextProps.variables.ProductSupplier : []
@@ -97,9 +94,7 @@ class PurchaseOrderDetails extends React.Component {
 	}
 
 	onAdditionalCostChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').map((listVariable) => {
+		const purchaseOrderServiceItems = this.state.purchaseOrderServiceItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -140,16 +135,12 @@ class PurchaseOrderDetails extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderServiceItems });
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
 	onProductOrderInputChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').map((listVariable) => {
+		const purchaseOrderItems = this.state.purchaseOrderItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -190,19 +181,23 @@ class PurchaseOrderDetails extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderItems });
+		this.props.updatePurchaseOrderItems(purchaseOrderItems);
 	}
 
 	addVariableToadditionalCostList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost');
-		list.unshift(
+		const purchaseOrderServiceItems = cloneDeep(this.state.purchaseOrderServiceItems);
+		purchaseOrderServiceItems.unshift(
 			new Map([
-				[ 'variableName', String(list.length) ],
+				[ 'typeName', 'PurchaseOrderServiceItem' ],
+				[
+					'variableName',
+					String(
+						purchaseOrderServiceItems.length === 0
+							? 0
+							: Math.max(...purchaseOrderServiceItems.map((o) => o.get('variableName'))) + 1
+					)
+				],
 				[
 					'values',
 					new Map([
@@ -217,19 +212,23 @@ class PurchaseOrderDetails extends React.Component {
 				]
 			])
 		);
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderServiceItems });
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
 	addVariableToProductOrderInputList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails');
-		list.unshift(
+		const purchaseOrderItems = cloneDeep(this.state.purchaseOrderItems);
+		purchaseOrderItems.unshift(
 			new Map([
-				[ 'variableName', String(list.length) ],
+				[ 'typeName', 'PurchaseOrderItem' ],
+				[
+					'variableName',
+					String(
+						purchaseOrderItems.length === 0
+							? 0
+							: Math.max(...purchaseOrderItems.map((o) => o.get('variableName'))) + 1
+					)
+				],
 				[
 					'values',
 					new Map([
@@ -246,40 +245,29 @@ class PurchaseOrderDetails extends React.Component {
 				]
 			])
 		);
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderItems });
+		this.props.updatePurchaseOrderItems(purchaseOrderItems);
 	}
 
 	onRemoveProductOrderInputListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').filter((listVariable) => {
+		const purchaseOrderItems = this.state.purchaseOrderItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderItems });
+		this.props.updatePurchaseOrderItems(purchaseOrderItems);
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').filter((listVariable) => {
+		const purchaseOrderServiceItems = this.state.purchaseOrderServiceItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({purchaseOrderServiceItems});
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('additionalCost').forEach((listVariable) =>
+		this.state.purchaseOrderServiceItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%">
@@ -418,8 +406,7 @@ class PurchaseOrderDetails extends React.Component {
 		const supplierProducts = this.state.productSupplier
 			.filter((productSupplier) => productSupplier.values.supplier === this.props.supplier)
 			.map((item) => item.values.product);
-		const values = this.state.variable.get('values');
-		values.get('productInvoiceDetails').forEach((listVariable) =>
+			this.state.purchaseOrderItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%" left="0px">
@@ -453,9 +440,7 @@ class PurchaseOrderDetails extends React.Component {
 												)
 												.filter((variable) => supplierProducts.includes(variable.variableName))
 												.filter((product) => {
-													return !this.state.variable
-														.get('values')
-														.get('productInvoiceDetails')
+													return !this.state.purchaseOrderItems
 														.map((item) => {
 															return item.get('values').get('product');
 														})
@@ -691,7 +676,7 @@ class PurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderProductOrderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('productInvoiceDetails').length === 0 ? (
+								{this.state.purchaseOrderItems.length === 0 ? (
 									<EmptyRow>You do not have any Purchase Order Lines.</EmptyRow>
 								) : (
 									undefined
@@ -779,7 +764,7 @@ class PurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
+								{this.state.purchaseOrderServiceItems.length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
 									undefined

@@ -10,6 +10,7 @@ import {
 	objToMapRec,
 	addKeyToList
 } from '../../../../redux/actions/variables';
+import { executeFuntion } from '../../../../redux/actions/executeFuntion';
 import Select from 'react-select';
 import { successMessage } from '../../../main/Notification';
 import {
@@ -91,63 +92,6 @@ class SimpleSalesOrder extends React.Component {
 			salesOrderServiceItems: nextProps.salesOrderServiceItems
 		};
 	}
-
-	// static getDerivedStateFromProps(nextProps, prevState) {
-	// 	if (
-	// 		nextProps.variables.SalesOrder
-	// 	) {
-	// 		console.log("here")
-	// 		const variable = nextProps.variables.SalesOrder.filter(
-	// 			(variable) => variable.values.sales === nextProps.sales
-	// 		)[0];
-	// 		console.log(variable);
-	// 		if (variable && prevState.prevPropVariable !== variable) {
-	// 			console.log("Ahere")
-	// 			const variableMap = objToMapRec(variable);
-	// 			const prevVariableMap = objToMapRec(prevState.prevPropVariable);
-	// 			const salesOrderItems = nextProps.variables.SalesOrderItem
-	// 				.filter(
-	// 					(item) =>
-	// 						item.values.salesOrder === variable.variableName && item.values.sales === nextProps.sales
-	// 				)
-	// 				.map((item) => {
-	// 					return objToMapRec(item);
-	// 				});
-	// 			const salesOrderServiceItems = nextProps.variables.SalesOrderServiceItem
-	// 				.filter(
-	// 					(serviceItem) =>
-	// 						serviceItem.values.salesOrder === variable.variableName &&
-	// 						serviceItem.values.sales === nextProps.sales
-	// 				)
-	// 				.map((item) => {
-	// 					return objToMapRec(item);
-	// 				});
-	// 			return {
-	// 				...prevState,
-	// 				variable: variableMap,
-	// 				prevPropVariable: variable,
-	// 				prevVariable: prevVariableMap,
-	// 				salesOrderItems: salesOrderItems,
-	// 				salesOrderServiceItems: salesOrderServiceItems
-	// 			};
-	// 		}
-	// 		if (nextProps.sale && variable === undefined) {
-	// 			const variable = prevState.variable;
-	// 			const values = variable.get('values');
-	// 			values.set('sale', nextProps.sale);
-	// 			values.set('customer', nextProps.customer);
-	// 			values.set('salesQuotation', nextProps.salesQuotatuionVariableName );
-	// 			variable.set('values', values);
-	// 			return {
-	// 				...prevState,
-	// 				variable: variable
-	// 			};
-	// 		}
-	// 	}
-	// 	console.log("lasthere")
-	// 	return prevState;
-
-	// }
 
 	onCopyItemsFromQuotation() {
 		const salesOrderItems = this.props.salesQuotationItems.map((item) => {
@@ -746,16 +690,19 @@ class SimpleSalesOrder extends React.Component {
 					}
 					this.props.createVariables(productAndAdditionalServices).then((response) => {
 						if (response.status === 200) {
-							successMessage('Order Created');
+							this.props.executeFuntion({ sales: this.props.sales }, 'updateStatusSalesOrderCreated').then((response)=>{
+								if (response.status === 200){
+									successMessage('Order Created');
+									this.props.getVariables('Sales')
+								}
+							});
 							//Enable after Testing
 							// this.alert()
 						}
-					})
+					});
 				}
 			});
 		});
-
-		
 	}
 
 	render() {
@@ -1189,5 +1136,6 @@ export default connect(mapStateToProps, {
 	createVariable,
 	createVariables,
 	getVariables,
-	updateVariable
+	updateVariable,
+	executeFuntion
 })(SimpleSalesOrder);

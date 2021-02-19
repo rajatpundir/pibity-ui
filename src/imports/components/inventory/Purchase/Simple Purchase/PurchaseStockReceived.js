@@ -56,7 +56,7 @@ class PurchaseStockRecord extends React.Component {
 						[ 'total', 0 ],
 						[ 'fromSupplier', '' ],
 						[ 'toLocation', '' ],
-						[ 'purchaseOrder', '' ],
+						[ 'purchase', '' ],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
 						[ 'totalTaxOnProduct', 0 ],
@@ -78,10 +78,10 @@ class PurchaseStockRecord extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.variables.PurchaseOrderStockReceivedRecord && nextProps.variables.PurchaseOrderStockItemRecord) {
 			const variable = nextProps.variables.PurchaseOrderStockReceivedRecord.filter(
-				(variable) => variable.values.purchaseOrder === nextProps.purchaseOrder
+				(variable) => variable.values.purchase === nextProps.purchase
 			)[0];
 			const stockItems = nextProps.variables.PurchaseOrderStockItemRecord.filter(
-				(item) => item.values.purchaseOrder === nextProps.purchaseOrder
+				(item) => item.values.purchase === nextProps.purchase
 			);
 			if (variable) {
 				const variableMap = objToMapRec(variable);
@@ -118,7 +118,7 @@ class PurchaseStockRecord extends React.Component {
 					movementType: item.values.movementType,
 					quantity: item.values.quantity,
 					refProductStore: item.values.fromSupplier,
-					refInvoice: item.values.purchaseOrder,
+					refInvoice: item.values.purchase,
 					productStore: item.values.toProductStore
 				};
 				//todo

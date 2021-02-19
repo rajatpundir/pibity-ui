@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import styled from 'styled-components';
 import Select from 'react-select';
+import ReactToPrint from 'react-to-print';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
 import {
@@ -13,7 +14,7 @@ import {
 	objToMapRec
 } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
-
+import PrintTest from '../../../main/PrintTest';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -69,7 +70,6 @@ class SalesQuotation extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			createQuotation: true,
 			updateQuotation: false,
 			variable: props.salesQuotation,
 			quotationItems: props.salesQuotationItems
@@ -148,7 +148,7 @@ class SalesQuotation extends React.Component {
 		const list = cloneDeep(this.state.quotationItems);
 		list.unshift(
 			new Map([
-				['typeName','SalesQuotationItem'],
+				[ 'typeName', 'SalesQuotationItem' ],
 				[
 					'variableName',
 					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
@@ -387,7 +387,39 @@ class SalesQuotation extends React.Component {
 								Update Quotation
 							</Custombutton>
 						) : (
-							undefined
+							<div>
+								<ReactToPrint
+									trigger={() => {
+										// NOTE: could just as easily return <SomeComponent />. Do NOT pass an `onClick` prop
+										// to the root node of the returned component as it will be overwritten.
+										return (
+											<Custombutton
+												padding="0 10px"
+												minWidth="70px"
+												height="2.5rem"
+												color="#3b3b3b"
+												backgroundColor="#F7FAFD"
+												borderColor="#b9bdce"
+												borderOnHover="#3b3b3b"
+												backgroundOnHover="#F7FAFD"
+												margin="0 5px"
+											>
+												<FontAwsomeIcon className="fa fa-print" />
+												Print
+											</Custombutton>
+										);
+									}}
+									content={() => this.componentRef}
+								/>
+								<div style={{ display: 'none' }}>
+									<PrintTest
+										ref={(el) => (this.componentRef = el)}
+										quotation={this.state.quotation}
+										quotaionItems={this.state.quotationItems}
+										sales={this.props.salesData}
+									/>
+								</div>
+							</div>
 						)}
 					</ToolbarItems>
 				</PageToolbar>
