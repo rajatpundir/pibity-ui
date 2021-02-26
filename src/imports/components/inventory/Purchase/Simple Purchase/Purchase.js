@@ -10,7 +10,8 @@ import {
 	getVariable,
 	updateVariable,
 	objToMapRec,
-	mapToObjectRec
+	mapToObjectRec,
+	addKeyToList
 } from '../../../../redux/actions/variables';
 import PurchaseGeneralDetails from './PurchaseGeneralDetails';
 import PurchaseOrderDetails from './PurchaseOrderDetails';
@@ -78,7 +79,7 @@ class Purchase extends React.Component {
 				]
 			]),
 			visibleSection: 'order',
-			purchaseOrderVariableName: '',
+			purchaseVariableName: '',
 			supplier: '',
 			account: '',
 			purchaseOrder: new Map([
@@ -216,7 +217,7 @@ class Purchase extends React.Component {
 					supplierAddress: address,
 					supplierContact: contact,
 					createPo: false,
-					purchaseOrderVariableName: variable.variableName,
+					purchaseVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,
 					account: variable.values.general.values.account,
 					purchaseOrder: purchaseOrder ? purchaseOrder : prevState.purchaseOrder,
@@ -345,6 +346,68 @@ class Purchase extends React.Component {
 		this.setState({ purchaseOrder });
 	}
 
+	createPurchaseOrder() {
+		new Promise((resolve) => {
+			resolve(this.checkRequiredField(this.state.variable.get('values').get('general')));
+		}).then(() => {
+			if (this.state.createPurchaseOrder) {
+				this.props.createVariable(this.state.variable).then((response) => {
+					if (response.status === 200) {
+						const purchase = response.data.variableName;
+						this.setState({
+							createPo: false,
+							purchaseVariableName: response.data.variableName,
+							supplier: response.data.values.general.values.supplierName,
+							account: response.data.values.general.values.account,
+							orderDetails: response.data.values.orderDetails[0]
+						});
+						new Promise((resolve) => {
+							const purchaseOrder = this.state.purchaseOrder;
+							const purchaseOrderValues = purchaseOrder.get('values');
+							purchaseOrderValues.set('purchase', response.data.variableName);
+							purchaseOrderValues.set('supplier', response.data.values.general.values.supplierName);
+							purchaseOrder.set('values', purchaseOrderValues);
+							resolve(this.setState({ purchaseOrder }));
+						}).then(() => {
+							this.props.createVariable(this.state.purchaseOrder).then((response) => {
+								if (response.status === 200) {
+									const purchaseOrder = response.data.variableName;
+									const purchaseOrderItems = addKeyToList(
+										this.state.purchaseOrderItems,
+										'purchase',
+										purchase
+									);
+									const purchaseOrdderServiceItems = addKeyToList(
+										this.state.purchaseOrderServiceItems,
+										'purchase',
+										purchase
+									);
+									this.props
+										.createVariables(
+											addKeyToList(purchaseOrderItems, 'purchaseOrder', purchaseOrder)
+										)
+										.then((response) => {
+											if (response.status === 200) {
+												this.props.createVariables(
+													addKeyToList(
+														purchaseOrdderServiceItems,
+														'purchaseOrder',
+														purchaseOrder
+													)
+												);
+											}
+										});
+								}
+							});
+						});
+						successMessage(' Purchase Order Created');
+					}
+				});
+			}
+			this.setState({ createPurchaseOrder: true });
+		});
+	}
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
@@ -365,30 +428,7 @@ class Purchase extends React.Component {
 													}
 												});
 										} else {
-											new Promise((resolve) => {
-												resolve(
-													this.checkRequiredField(
-														this.state.variable.get('values').get('general')
-													)
-												);
-											}).then(() => {
-												if (this.state.createPurchaseOrder) {
-													this.props.createVariable(this.state.variable).then((response) => {
-														if (response.status === 200) {
-															this.setState({
-																createPo: false,
-																purchaseOrderVariableName: response.data.variableName,
-																supplier:
-																	response.data.values.general.values.supplierName,
-																account: response.data.values.general.values.account,
-																orderDetails: response.data.values.orderDetails[0]
-															});
-															successMessage(' Purchase Order Created');
-														}
-													});
-												}
-												this.setState({ createPurchaseOrder: true });
-											});
+											this.createPurchaseOrder();
 										}
 									}}
 								>
@@ -473,7 +513,7 @@ class Purchase extends React.Component {
 						)}
 						{this.state.visibleSection === 'invoice' && (
 							<PurchaseInvoiceDetails
-								purchase={this.state.purchaseOrderVariableName}
+								purchase={this.state.purchaseVariableName}
 								supplier={this.state.supplier}
 								account={this.state.account}
 								purchaseOrder={mapToObjectRec(this.state.purchaseOrder)}
@@ -488,7 +528,7 @@ class Purchase extends React.Component {
 						)}
 						{this.state.visibleSection === 'stockReceived' && (
 							<PurchasStockReceived
-								purchase={this.state.purchaseOrderVariableName}
+								purchase={this.state.purchaseVariableName}
 								supplier={this.state.supplier}
 								location={this.state.variable
 									.get('values')

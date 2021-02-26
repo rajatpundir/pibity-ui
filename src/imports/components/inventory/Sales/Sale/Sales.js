@@ -254,7 +254,7 @@ class SimpleSale extends React.Component {
 									return objToMapRec(item);
 								})
 						: [];
-				const address = objToMapRec(customer.values.addresses[0]);
+		  		const address = objToMapRec(customer.values.addresses[0]);
 				const contact = objToMapRec(customer.values.contacts[0]);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);

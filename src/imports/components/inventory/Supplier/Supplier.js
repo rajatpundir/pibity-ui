@@ -12,7 +12,9 @@ import {
 	getVariable,
 	updateVariable,
 	objToMapRec,
-	mapToObjectRec
+	mapToObjectRec,
+	createVariables,
+	addKeyToList,
 } from '../../../redux/actions/variables';
 import SupplierDetails from './SupplierDetails';
 import SupplierAddresses from './SupplierAddresses';
@@ -35,6 +37,7 @@ import {
 } from '../../../styles/inventory/Style';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import SupplierProduct from './SupplierProduct';
 
 class Supplier extends React.Component {
 	constructor(props) {
@@ -93,6 +96,7 @@ class Supplier extends React.Component {
 					])
 				]
 			]),
+			supplierProducts: [],
 			supplierAccount: '',
 			visibleSection: 'addresses'
 		};
@@ -101,6 +105,7 @@ class Supplier extends React.Component {
 		this.updateContacts = this.updateContacts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.updateAccountName = this.updateAccountName.bind(this);
+		this.updateSupplierProducts=this.updateSupplierProducts.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
 	}
@@ -114,7 +119,12 @@ class Supplier extends React.Component {
 				(account) => account.variableName === variable.values.account
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
-			    const accountMap=objToMapRec(account);
+				const supplierProducts = nextProps.variables.ProductSupplier
+					.filter((supplier) => supplier.values.product === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const accountMap = objToMapRec(account);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -124,11 +134,23 @@ class Supplier extends React.Component {
 				variableMap.set('values', values);
 				return {
 					...prevState,
-					account:accountMap,
+					account: accountMap,
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					supplierAccount: variable.values.account
+					supplierAccount: variable.values.account,
+					supplierProducts: supplierProducts
+				};
+			}
+			if (variable === prevState.variable) {
+				const supplierProducts = nextProps.variables.ProductSupplier
+					.filter((supplier) => supplier.values.product === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				return {
+					...prevState,
+					supplierProducts: supplierProducts
 				};
 			}
 		}
@@ -150,7 +172,8 @@ class Supplier extends React.Component {
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
 		this.props.getVariables('AddressType');
-
+		this.props.getVariable('Product');
+		this.props.getVariable('ProductSupplier');
 	}
 
 	componentDidMount() {
@@ -262,6 +285,10 @@ class Supplier extends React.Component {
 			variable: variable,
 			supplierAccount: accountName
 		});
+	}
+
+	updateSupplierProducts(supplierProducts) {
+		this.setState({supplierProducts });
 	}
 
 	onCloseAlert() {
@@ -432,6 +459,15 @@ class Supplier extends React.Component {
 												Contacts
 											</BlockListItemButton>
 										</HoizontalBlockListItems>
+										<HoizontalBlockListItems>
+											<BlockListItemButton
+												onClick={(e) => {
+													this.setState({ visibleSection: 'supplierProducts' });
+												}}
+											>
+												Products
+											</BlockListItemButton>
+										</HoizontalBlockListItems>
 										{this.props.match.params.variableName ? (
 											<HoizontalBlockListItems>
 												<BlockListItemButton
@@ -492,6 +528,16 @@ class Supplier extends React.Component {
 						) : (
 							undefined
 						)}
+						{this.state.visibleSection === 'supplierProducts' ? (
+							<SupplierProduct
+								supplier={this.props.match.params.variableName}
+								updatable={this.props.match.params.variabelName ? true : false}
+								supplierProducts={this.state.supplierProducts}
+								updateSupplierProducts={this.updateSupplierProducts}
+							/>
+						) : (
+							undefined
+						)}
 					</PageBody>
 				</PageWrapper>
 			</Container>
@@ -508,6 +554,7 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
+	createVariables,
 	createAccount,
 	getVariable,
 	getVariables,
