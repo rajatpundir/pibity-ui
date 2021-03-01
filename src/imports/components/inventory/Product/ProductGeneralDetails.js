@@ -93,8 +93,17 @@ class ProductGeneralDetails extends React.Component {
 				<PageBlock paddingBottom="0">
 					<PageToolbar>
 						<ToolbarItems>
-							<LeftItemWrapper backgroundColor="#25c99f">Active</LeftItemWrapper>
-							<LeftItemH1>New Product</LeftItemH1>
+							{this.props.updatable ? this.state.variable.get('values').get('productStatus') ===
+							'Active' ? (
+								<LeftItemWrapper backgroundColor="#25c99f">
+									{this.state.variable.get('values').get('productStatus')}
+								</LeftItemWrapper>
+							) : (
+								undefined
+							) : (
+								undefined
+							)}
+							<LeftItemH1>{this.props.updatable ? 'Product' : 'New Product'}</LeftItemH1>
 						</ToolbarItems>
 						<IconButton
 							aria-label="expand row"
@@ -115,10 +124,9 @@ class ProductGeneralDetails extends React.Component {
 											placeholder="Product Name"
 											value={this.state.variable.get('values').get('productName')}
 											onChange={this.onChange}
-											
 										/>
 										<InputLabel>
-										Product Name
+											Product Name
 											<Required>*</Required>
 										</InputLabel>
 									</FormControl>
@@ -176,7 +184,9 @@ class ProductGeneralDetails extends React.Component {
 													label: this.state.variable.get('values').get('category')
 												}}
 												onChange={(option) => {
-													this.onChange({ target: { name: 'category', value: option.value } });
+													this.onChange({
+														target: { name: 'category', value: option.value }
+													});
 												}}
 												options={
 													this.props.variables.ProductCategory !== undefined ? (

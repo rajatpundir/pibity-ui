@@ -385,6 +385,7 @@ class Customer extends React.Component {
 						</SaveButtonContaier>
 						{this.state.visibleSection !== 'accounts' && (
 							<CustomerGeneralDetails
+								updatable={this.props.match.params.variableName ? true : false}
 								variable={this.state.variable.get('values').get('general')}
 								updateDetails={this.updateDetails}
 							/>
