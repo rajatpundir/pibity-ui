@@ -179,20 +179,20 @@ class PurchaseStockRecord extends React.Component {
 				<TableRow key={data.variableName}>
 					<TableData width="5%" />
 					<TableData width="20%">
-						<TableHeaderInner>{data.values.product}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">{data.values.product}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{data.values.quantity}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">{data.values.quantity}</TableHeaderInner>
 					</TableData>
 					<TableData width="20%">
-						<TableHeaderInner>
+						<TableHeaderInner overflow="hidden">
 							<StatusSpan backgroundColor={backgroundColor} color={color}>
 								{data.values.status}
 							</StatusSpan>
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="30%">
-						<TableHeaderInner>
+						<TableHeaderInner >
 							{data.values.status === 'In Transit' ? (
 								<React.Fragment>
 									<Custombutton

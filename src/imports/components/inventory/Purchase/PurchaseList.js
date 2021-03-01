@@ -37,7 +37,7 @@ class PurchaseOrderList extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			purchaseOrder: [],
+			purchase: [],
 			expandedRows: [],
 			activeCustomerOnly: false,
 			isOpen: false,
@@ -64,23 +64,23 @@ class PurchaseOrderList extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('PurchaseOrder');
+			this.props.getVariables('Purchase');
 		}
 	}
 
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('PurchaseOrder');
+		this.props.getVariables('Purchase');
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			purchaseOrder:
+			purchase:
 				nextProps.variables !== undefined
-					? nextProps.variables.PurchaseOrder !== undefined
-						? nextProps.variables.PurchaseOrder.map((x, i) => ({ ...x, Id: i }))
+					? nextProps.variables.Purchase !== undefined
+						? nextProps.variables.Purchase.map((x, i) => ({ ...x, Id: i }))
 						: []
 					: []
 		};
@@ -88,45 +88,45 @@ class PurchaseOrderList extends React.Component {
 
 	renderInputFields() {
 		const rows = [];
-		this.state.purchaseOrder.forEach((purchaseOrder) => {
+		this.state.purchase.forEach((purchase) => {
 			rows.push(
-				<TableRow onClick={this.handleRowClick} key={purchaseOrder.variableName}>
+				<TableRow onClick={this.handleRowClick} key={purchase.variableName}>
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.orderType === 'Simple' ? (
-								<Link to={'/purchase/' + purchaseOrder.variableName}>{purchaseOrder.variableName}</Link>
+							{purchase.values.orderType === 'Simple' ? (
+								<Link to={'/purchase/' + purchase.variableName}>{purchase.variableName}</Link>
 							) : (
-								<Link to={'/servicePurchase/' + purchaseOrder.variableName}>
-									{purchaseOrder.variableName}
+								<Link to={'/servicePurchase/' + purchase.variableName}>
+									{purchase.variableName}
 								</Link>
 							)}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Link to={'/supplierList/' + purchaseOrder.values.general.values.supplierName}>
-								{purchaseOrder.values.general.values.supplierName}
+							<Link to={'/supplierList/' + purchase.values.general.values.supplierName}>
+								{purchase.values.general.values.supplierName}
 							</Link>
 						</TableHeaderInner>{' '}
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{purchaseOrder.values.general.values.date}</TableHeaderInner>
+						<TableHeaderInner>{purchase.values.general.values.date}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.orderDetails[0].values.additionalCostBeforeTax +
-								purchaseOrder.values.orderDetails[0].values.productCostBeforeTax}
+							{/* {purchase.values.orderDetails[0].values.additionalCostBeforeTax +
+								purchase.values.orderDetails[0].values.productCostBeforeTax} */}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchaseOrder.values.orderDetails[0].values.totalTaxOnAdditionalCost +
-								purchaseOrder.values.orderDetails[0].values.totalTaxOnProduct}
+							{/* {purchase.values.orderDetails[0].values.totalTaxOnAdditionalCost +
+								purchase.values.orderDetails[0].values.totalTaxOnProduct} */}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{purchaseOrder.values.orderDetails[0].values.total}</TableHeaderInner>
+						{/* <TableHeaderInner>{purchase.values.orderDetails[0].values.total}</TableHeaderInner> */}
 					</TableData>
 				</TableRow>
 			);
@@ -222,7 +222,7 @@ class PurchaseOrderList extends React.Component {
 						style={TablePaginationStyle}
 						rowsPerPageOptions={[ 5, 10, 20 ]}
 						colSpan={3}
-						count={this.state.purchaseOrder.length}
+						count={this.state.purchase.length}
 						rowsPerPage={rowsPerPage}
 						page={page}
 						onChangePage={this.handleChangePage}

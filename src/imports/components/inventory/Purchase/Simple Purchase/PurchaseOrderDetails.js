@@ -201,6 +201,8 @@ class PurchaseOrderDetails extends React.Component {
 				[
 					'values',
 					new Map([
+						[ 'purchase', this.props.purchase ],
+						[ 'purchaseOrder', '' ],
 						[ 'description', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
@@ -232,6 +234,8 @@ class PurchaseOrderDetails extends React.Component {
 				[
 					'values',
 					new Map([
+						[ 'purchase', '' ],
+						[ 'purchaseOrder', '' ],
 						[ 'comment', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],

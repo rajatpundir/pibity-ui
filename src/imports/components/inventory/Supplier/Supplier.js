@@ -14,7 +14,7 @@ import {
 	objToMapRec,
 	mapToObjectRec,
 	createVariables,
-	addKeyToList,
+	addKeyToList
 } from '../../../redux/actions/variables';
 import SupplierDetails from './SupplierDetails';
 import SupplierAddresses from './SupplierAddresses';
@@ -105,13 +105,18 @@ class Supplier extends React.Component {
 		this.updateContacts = this.updateContacts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.updateAccountName = this.updateAccountName.bind(this);
-		this.updateSupplierProducts=this.updateSupplierProducts.bind(this);
+		this.updateSupplierProducts = this.updateSupplierProducts.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Supplier && nextProps.variables.Account) {
+		if (
+			nextProps.match.params.variableName &&
+			nextProps.variables.Supplier &&
+			nextProps.variables.Account &&
+			nextProps.variables.ProductSupplier
+		) {
 			const variable = nextProps.variables.Supplier.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
@@ -120,7 +125,7 @@ class Supplier extends React.Component {
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const supplierProducts = nextProps.variables.ProductSupplier
-					.filter((supplier) => supplier.values.product === variable.variableName)
+					.filter((item) => item.values.supplier === variable.variableName)
 					.map((item) => {
 						return objToMapRec(item);
 					});
@@ -139,7 +144,7 @@ class Supplier extends React.Component {
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
 					supplierAccount: variable.values.account,
-					supplierProducts: supplierProducts
+					supplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts
 				};
 			}
 			if (variable === prevState.variable) {
@@ -172,8 +177,8 @@ class Supplier extends React.Component {
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
 		this.props.getVariables('AddressType');
-		this.props.getVariable('Product');
-		this.props.getVariable('ProductSupplier');
+		this.props.getVariables('Product');
+		this.props.getVariables('ProductSupplier');
 	}
 
 	componentDidMount() {
@@ -288,7 +293,7 @@ class Supplier extends React.Component {
 	}
 
 	updateSupplierProducts(supplierProducts) {
-		this.setState({supplierProducts });
+		this.setState({ supplierProducts });
 	}
 
 	onCloseAlert() {
@@ -402,8 +407,27 @@ class Supplier extends React.Component {
 															.createVariable(this.state.variable)
 															.then((response) => {
 																if (response.status === 200) {
-																	successMessage(' Supplier Created');
-																	// this.alert()
+																	if (this.state.supplierProducts.length !== 0) {
+																		this.props
+																			.createVariables(
+																				addKeyToList(
+																					this.state.supplierProducts,
+																					'supplier',
+																					response.data.variableName
+																				)
+																			)
+																			.then((response) => {
+																				if (response.status === 200) {
+																					this.props.getVariables(
+																						'ProductSupplier'
+																					);
+																					successMessage(' Supplier Created');
+																				}
+																			});
+																	} else {
+																		// this.alert()
+																		successMessage(' Supplier Created');
+																	}
 																}
 															});
 													});

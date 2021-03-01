@@ -6,6 +6,7 @@ import { customErrorMessage, successMessage, CustomNotification } from '../../..
 import { clearErrors } from '../../../../redux/actions/errors';
 import {
 	createVariable,
+	createVariables,
 	getVariables,
 	getVariable,
 	updateVariable,
@@ -166,7 +167,7 @@ class Purchase extends React.Component {
 			nextProps.variables.PurchaseOrderServiceItem &&
 			nextProps.variables.Supplier
 		) {
-			const variable = nextProps.variables.PurchaseOrder.filter(
+			const variable = nextProps.variables.Purchase.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
@@ -182,8 +183,8 @@ class Purchase extends React.Component {
 				general.set('variableName', variableMap.get('variableName'));
 				values.set('general', general);
 				variableMap.set('values', values);
-				const purchaseOrder = nextProps.variables.SalesOrder.filter(
-					(order) => order.values.sales === variable.variableName
+				const purchaseOrder = nextProps.variables.PurchaseOrder.filter(
+					(order) => order.values.purchase === variable.variableName
 				)[0];
 				const purchaseOrderItems =
 					purchaseOrder !== undefined
@@ -196,10 +197,10 @@ class Purchase extends React.Component {
 								.map((item) => {
 									return objToMapRec(item);
 								})
-						: [];
+						: prevState.purchaseOrderItems;
 				const purchaseOrderServiceItems =
 					purchaseOrder !== undefined
-						? nextProps.variables.SalesOrderServiceItem
+						? nextProps.variables.PurchaseOrderServiceItem
 								.filter(
 									(serviceItem) =>
 										serviceItem.values.purchaseOrder === purchaseOrder.variableName &&
@@ -208,7 +209,7 @@ class Purchase extends React.Component {
 								.map((item) => {
 									return objToMapRec(item);
 								})
-						: [];
+						: prevState.purchaseOrderServiceItems;
 				return {
 					...prevState,
 					variable: variableMap,
@@ -220,11 +221,9 @@ class Purchase extends React.Component {
 					purchaseVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,
 					account: variable.values.general.values.account,
-					purchaseOrder: purchaseOrder ? purchaseOrder : prevState.purchaseOrder,
-					purchaseOrderServiceItems: purchaseOrder
-						? purchaseOrderServiceItems
-						: prevState.purchaseOrderServiceItems,
-					purchaseOrderItems: purchaseOrder ? purchaseOrderItems : prevState.purchaseOrderItems
+					purchaseOrder: purchaseOrder ? objToMapRec(purchaseOrder) : prevState.purchaseOrder,
+					purchaseOrderItems: purchaseOrderItems,
+					purchaseOrderServiceItems: purchaseOrderServiceItems
 				};
 			}
 		}
@@ -260,15 +259,15 @@ class Purchase extends React.Component {
 	}
 
 	updateOrder(purchaseOrder) {
-		this.setState({ purchaseOrder }, () => this.onCalculateTotal());
+		this.setState({ purchaseOrder });
 	}
 
 	updatePurchaseOrderItems(purchaseOrderItems) {
-		this.setState({ purchaseOrderItems });
+		this.setState({ purchaseOrderItems }, () => this.onCalculateTotal());
 	}
 
 	updatePurchaseOrderServiceItems(purchaseOrderServiceItems) {
-		this.setState({ purchaseOrderServiceItems });
+		this.setState({ purchaseOrderServiceItems }, () => this.onCalculateTotal());
 	}
 
 	updateStock(productStock) {
@@ -358,20 +357,21 @@ class Purchase extends React.Component {
 							createPo: false,
 							purchaseVariableName: response.data.variableName,
 							supplier: response.data.values.general.values.supplierName,
-							account: response.data.values.general.values.account,
-							orderDetails: response.data.values.orderDetails[0]
+							account: response.data.values.general.values.account
 						});
 						new Promise((resolve) => {
 							const purchaseOrder = this.state.purchaseOrder;
 							const purchaseOrderValues = purchaseOrder.get('values');
 							purchaseOrderValues.set('purchase', response.data.variableName);
+							purchaseOrderValues.set('date', response.data.values.general.values.date);
 							purchaseOrderValues.set('supplier', response.data.values.general.values.supplierName);
 							purchaseOrder.set('values', purchaseOrderValues);
 							resolve(this.setState({ purchaseOrder }));
 						}).then(() => {
 							this.props.createVariable(this.state.purchaseOrder).then((response) => {
 								if (response.status === 200) {
-									const purchaseOrder = response.data.variableName;
+									const purchaseOrder = response.data;
+									const purchaseOrderVariableName = response.data.variableName;
 									const purchaseOrderItems = addKeyToList(
 										this.state.purchaseOrderItems,
 										'purchase',
@@ -384,23 +384,34 @@ class Purchase extends React.Component {
 									);
 									this.props
 										.createVariables(
-											addKeyToList(purchaseOrderItems, 'purchaseOrder', purchaseOrder)
+											addKeyToList(purchaseOrderItems, 'purchaseOrder', purchaseOrderVariableName)
 										)
 										.then((response) => {
 											if (response.status === 200) {
-												this.props.createVariables(
-													addKeyToList(
-														purchaseOrdderServiceItems,
-														'purchaseOrder',
-														purchaseOrder
+												this.props
+													.createVariables(
+														addKeyToList(
+															purchaseOrdderServiceItems,
+															'purchaseOrder',
+															purchaseOrderVariableName
+														)
 													)
-												);
+													.then((response) => {
+														if (response.status === 200) {
+															this.setState({
+																purchaseOrder: objToMapRec(purchaseOrder)
+															});
+															this.props.getVariables('PurchaseOrder');
+															this.props.getVariables('PurchaseOrderItem');
+															this.props.getVariables('PurchaseOrderServiceItem');
+															successMessage(' Purchase Order Created');
+														}
+													});
 											}
 										});
 								}
 							});
 						});
-						successMessage(' Purchase Order Created');
 					}
 				});
 			}
@@ -552,6 +563,7 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
+	createVariables,
 	getVariable,
 	getVariables,
 	updateVariable

@@ -90,10 +90,10 @@ class PurchaseInvoiceDetails extends React.Component {
 						[ 'purchaseOrderMemo', '' ],
 						[ 'transactions', [] ],
 						[ 'balanceDue', 0 ],
-						[ 'purchase', '' ],
-						[ 'location', '' ],
-						[ 'supplier', '' ],
-						[ 'account', '' ],
+						[ 'purchase', props.purchase ],
+						[ 'location', props.location ],
+						[ 'supplier', props.supplier ],
+						[ 'account', props.account ],
 						[ 'paymentStatus', 'Due' ],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
@@ -121,7 +121,12 @@ class PurchaseInvoiceDetails extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variables.PurchaseInvoice) {
+		if (
+			nextProps.variables.PurchaseInvoice &&
+			nextProps.purchase &&
+			nextProps.PurchaseInvoiceItem &&
+			nextProps.PurchaseInvoiceServiceItem
+		) {
 			const variable = nextProps.variables.PurchaseInvoice.filter(
 				(variable) => variable.values.purchase === nextProps.purchase
 			)[0];
@@ -131,7 +136,7 @@ class PurchaseInvoiceDetails extends React.Component {
 				const purchaseInvoiceItems = nextProps.variables.PurchaseInvoiceItem
 					.filter(
 						(item) =>
-							item.values.salesInvoice === variable.variableName &&
+							item.values.purchaseInvoice === variable.variableName &&
 							item.values.purchase === nextProps.purchase
 					)
 					.map((item) => {
@@ -159,19 +164,6 @@ class PurchaseInvoiceDetails extends React.Component {
 							: prevState.purchaseInvoiceServiceItems,
 					purchaseInvoiceItems:
 						purchaseInvoiceItems.length !== 0 ? purchaseInvoiceItems : prevState.purchaseInvoiceItems
-				};
-			}
-			if (nextProps.purchase && variable === undefined) {
-				const variable = prevState.variable;
-				const values = variable.get('values');
-				values.set('purchase', nextProps.purchase);
-				values.set('purchaseOrder',nextProps.purchaseOrder.variableName)
-				values.set('supplier', nextProps.supplier);
-				values.set('account', nextProps.account); 
-				variable.set('values', values);
-				return {
-					...prevState,
-					variable: variable
 				};
 			}
 		}
@@ -206,7 +198,9 @@ class PurchaseInvoiceDetails extends React.Component {
 								[ 'price', item.get('values').get('price') ],
 								[ 'quantity', item.get('values').get('quantity') ],
 								[ 'taxRule', item.get('values').get('taxRule') ],
-								[ 'total', item.get('values').get('total') ]
+								[ 'total', item.get('values').get('total') ],
+								[ 'unit', item.get('values').get('unit') ],
+								[ 'supplierSKU', item.get('values').get('supplierSKU') ]
 							])
 						]
 					]);
@@ -393,9 +387,9 @@ class PurchaseInvoiceDetails extends React.Component {
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
 						[ 'quantity', 0 ],
-						[ 'unit', '' ],
 						[ 'taxRule', '' ],
 						[ 'total', 0 ],
+						[ 'unit', '' ],
 						[ 'supplierSKU', '' ],
 						[ 'product', '' ]
 					])
@@ -805,7 +799,7 @@ class PurchaseInvoiceDetails extends React.Component {
 		return rows;
 	}
 
-	createStore(invoice,invoiceItems) {
+	createStore(invoice, invoiceItems) {
 		const productStores = [];
 		invoiceItems.forEach((data) => {
 			const store =
@@ -840,7 +834,7 @@ class PurchaseInvoiceDetails extends React.Component {
 		return productStores;
 	}
 
-	createStockItems(invoice, purchaseStockRecord,invoiceItems) {
+	createStockItems(invoice, purchaseStockRecord, invoiceItems) {
 		const purchaseStockItems = [];
 		invoiceItems.forEach((data) => {
 			const productStore =
@@ -885,12 +879,16 @@ class PurchaseInvoiceDetails extends React.Component {
 				const invoice = response.data;
 				this.props
 					.createVariables(
-						addKeyToList(this.state.purchaseInvoiceItems, 'purchaseInvoice', response.data.variableName)
+						addKeyToList(this.state.purchaseInvoiceItems, 'purchaseInvoice', invoice.variableName)
 					)
 					.then((response) => {
 						if (response.status === 200) {
 							this.props.createVariables(
-								addKeyToList(this.state.salesInvoiceServiceItem, 'salesInvoice', invoice.variableName)
+								addKeyToList(
+									this.state.purchaseInvoiceServiceItems,
+									'purchaseInvoice',
+									invoice.variableName
+								)
 							);
 							const invoiceItems = response.data;
 							const args = {
@@ -908,7 +906,9 @@ class PurchaseInvoiceDetails extends React.Component {
 								.then((response) => {
 									if (response.status === 200) {
 										new Promise((resolve) => {
-											resolve(this.props.createVariables(this.createStore(invoice,invoiceItems)));
+											resolve(
+												this.props.createVariables(this.createStore(invoice, invoiceItems))
+											);
 										}).then(() => {
 											this.props.getVariables('ProductStore').then(() => {
 												this.props
