@@ -120,7 +120,6 @@ class SimpleSalesInvoice extends React.Component {
 			const variable = nextProps.variables.SalesInvoice.filter(
 				(variable) => variable.values.sales === nextProps.sales
 			)[0];
-			console.log('invocie');
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
@@ -155,20 +154,6 @@ class SimpleSalesInvoice extends React.Component {
 					salesInvoiceItems: salesInvoiceItems.length !== 0 ? salesInvoiceItems : prevState.salesInvoiceItems
 				};
 			}
-			// if (nextProps.sale && variable === undefined) {
-			// 	const variable = prevState.variable;
-			// 	const values = variable.get('values');
-			// 	values.set('sales', nextProps.sales);
-			// 	values.set('customer', nextProps.customer);
-			// 	values.set('location', nextProps.location);
-			// 	values.set('account', nextProps.account);
-			// 	values.set('salesOrder', nextProps.salesOrder.get('varibaleName'));
-			// 	variable.set('values', values);
-			// 	return {
-			// 		...prevState,
-			// 		variable: variable
-			// 	};
-			// }
 		}
 		return {
 			...prevState
@@ -186,6 +171,7 @@ class SimpleSalesInvoice extends React.Component {
 	onCopyProductOrderFromOrder(DataToBeCopied) {
 		switch (DataToBeCopied) {
 			case 'productInvoiceDetails':
+				console.log(this.props.salesOrderItems)
 				const salesInvoiceItems = this.props.salesOrderItems.map((item) => {
 					return new Map([
 						[ 'variableName', item.get('variableName') ],

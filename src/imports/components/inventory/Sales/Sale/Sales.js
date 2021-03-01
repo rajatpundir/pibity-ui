@@ -41,7 +41,7 @@ class SimpleSale extends React.Component {
 		this.state = {
 			isOpen: false,
 			createSalesOrder: true,
-			createPo: true,
+			createSales: true,
 			prevPropVariable: {},
 			prevVariable: new Map(),
 			variable: new Map([
@@ -414,6 +414,7 @@ class SimpleSale extends React.Component {
 		variable.set('values', Variablevalues);
 		this.setState({ variable: variable });
 	}
+
 	createSales() {
 		new Promise((resolve) => {
 			resolve(this.checkRequiredField(this.state.variable.get('values').get('general')));
@@ -425,7 +426,8 @@ class SimpleSale extends React.Component {
 						this.setState({
 							salesVariableName: response.data.variableName,
 							customer: response.data.values.general.values.customerName,
-							account: response.data.values.general.values.account
+							account: response.data.values.general.values.account,
+							createSales:false
 						});
 						new Promise((resolve) => {
 							const quotation = this.state.salesQuotation;
@@ -479,7 +481,7 @@ class SimpleSale extends React.Component {
 				<CustomNotification limit={3} />
 				<PageWrapper>
 					<PageBody>
-						{this.state.createPo ? (
+						{this.state.createSales ? (
 							<SaveButtonContaier>
 								<SaveButton
 									onClick={(e) => {
@@ -507,7 +509,7 @@ class SimpleSale extends React.Component {
 							address={this.state.customerAddress}
 							contact={this.state.customerContact}
 							updateDetails={this.updateDetails}
-							creatable={!this.state.createPo}
+							creatable={!this.state.createSales}
 						/>
 						<HorizontalListPageBlock>
 							<HorizontalBlockListOuter>

@@ -106,6 +106,7 @@ class SalesStockSoldRecord extends React.Component {
 		variable.set('values', values);
 		this.setState({ variable: variable });
 	}
+
 	updateStatus(e, item, funtionName) {
 		const args = {
 			salesOrderStockItemRecord: item.variableName
@@ -117,7 +118,7 @@ class SalesStockSoldRecord extends React.Component {
 					movementType: item.values.movementType,
 					quantity: item.values.quantity,
 					refProductStore: item.values.fromCustomer,
-					refInvoice: item.values.salesOrder,
+					refInvoice: item.values.sales,
 					productStore: item.values.fromProductStore
 				};
 				this.props

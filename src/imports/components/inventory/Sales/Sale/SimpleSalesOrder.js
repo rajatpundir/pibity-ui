@@ -807,7 +807,7 @@ class SimpleSalesOrder extends React.Component {
 							onClick={(e) => this.onCopyItemsFromQuotation()}
 						>
 							<FontAwsomeIcon className="fa fa-clone" />
-							Copy From Order
+							Copy From Quotation
 						</Custombutton>
 					</PageBarAlign>
 				</PageBar>
