@@ -56,6 +56,14 @@
 			"icon": "shopping_cart",
 			"children": [
 				{
+					"name": "Purchase Indent",
+					"url": "/purchaseIndentList"
+				},
+				{
+					"name": "Add Purchase Indent",
+					"url": "/purchaseIndent"
+				},
+				{
 					"name": "Purchase Orders",
 					"url": "/purchaseList"
 				},

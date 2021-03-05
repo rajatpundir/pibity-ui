@@ -548,7 +548,7 @@ class ProductMovementOrderDetails extends React.Component {
 											</BodyTable>
 										</HeaderBody>
 										{this.state.orderItems.length === 0 ? (
-											<EmptyRow>You do not have any Additional Cost Lines.</EmptyRow>
+											<EmptyRow>You do not have any Items.</EmptyRow>
 										) : (
 											undefined
 										)}
