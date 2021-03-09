@@ -11,6 +11,7 @@ import {
 	getVariables,
 	getVariable,
 	updateVariable,
+	updateVariables,
 	objToMapRec,
 	mapToObjectRec,
 	createVariables,
@@ -97,6 +98,7 @@ class Supplier extends React.Component {
 				]
 			]),
 			supplierProducts: [],
+			prevSupplierProducts: [],
 			supplierAccount: '',
 			visibleSection: 'addresses'
 		};
@@ -108,6 +110,7 @@ class Supplier extends React.Component {
 		this.updateSupplierProducts = this.updateSupplierProducts.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
+		this.updateProducts = this.updateProducts.bind(this);
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -144,6 +147,7 @@ class Supplier extends React.Component {
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
 					supplierAccount: variable.values.account,
+					prevSupplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts,
 					supplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts
 				};
 			}
@@ -370,6 +374,19 @@ class Supplier extends React.Component {
 			closeOnClickOutside: true
 		});
 	}
+	
+	createSupplierProducts() {
+		this.props.createVariables(this.state.supplierProducts).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('ProductSupplier');
+				successMessage(' Supplier Product Added');
+			}
+		});
+	}
+
+	updateProducts() {
+		this.props.updateVariables(this.state.prevSupplierProducts, this.state.supplierProducts);
+	}
 
 	render() {
 		return (
@@ -555,9 +572,11 @@ class Supplier extends React.Component {
 						{this.state.visibleSection === 'supplierProducts' ? (
 							<SupplierProduct
 								supplier={this.props.match.params.variableName}
-								updatable={this.props.match.params.variabelName ? true : false}
+								updatable={this.props.match.params.variableName?true:false}
 								supplierProducts={this.state.supplierProducts}
 								updateSupplierProducts={this.updateSupplierProducts}
+								update={this.updateProducts}
+								createSupplierProducts={this.createSupplierProducts}
 							/>
 						) : (
 							undefined
@@ -579,6 +598,7 @@ export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
 	createVariables,
+	updateVariables,
 	createAccount,
 	getVariable,
 	getVariables,

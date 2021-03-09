@@ -69,7 +69,7 @@ class SupplierDetails extends React.Component {
 			<PageBlock paddingBottom="0">
 				<PageToolbar>
 					<ToolbarItems>
-					{this.props.params ? this.state.variable.get('values').get('status') === 'Active' ? (
+					{this.props.params.variableName ? this.state.variable.get('values').get('status') === 'Active' ? (
 							<LeftItemWrapper backgroundColor="#25c99f">
 								{this.state.variable.get('values').get('status')}
 							</LeftItemWrapper>

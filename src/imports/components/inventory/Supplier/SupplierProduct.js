@@ -27,7 +27,11 @@ import {
 	TableFieldContainer,
 	TableHeaderInner,
 	TableHeaders,
-	TableRow
+	TableRow,
+	PageToolbar,
+	ToolbarItems,
+	Custombutton,
+	LeftItemH1
 } from '../../../styles/inventory/Style';
 
 class SupplierProduct extends React.Component {
@@ -56,6 +60,9 @@ class SupplierProduct extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				values.set(e.target.name, e.target.value);
+				if (this.props.updatable) {
+					values.set('supplier', this.props.supplier);
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
@@ -100,7 +107,7 @@ class SupplierProduct extends React.Component {
 		this.setState({ list: list });
 		this.props.updateSupplierProducts(list);
 	}
-	
+
 	renderInputFields() {
 		const rows = [];
 		this.state.list.forEach((listVariable) =>
@@ -130,7 +137,7 @@ class SupplierProduct extends React.Component {
 										);
 									}}
 									options={
-										this.props.variables.Product!== undefined ? (
+										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter((product) => {
 													return !this.state.list
@@ -222,13 +229,33 @@ class SupplierProduct extends React.Component {
 	render() {
 		return (
 			<PageBlock id="contact">
-				<PageBar>
-					<PageBarAlign>
-						<PlusButton onClick={(e) => this.addVariableToList()}>
-							<i className="large material-icons">add</i>
-						</PlusButton>
-					</PageBarAlign>
-				</PageBar>
+				<PageToolbar borderBottom="1px solid #e0e1e7">
+					<ToolbarItems>
+						<LeftItemH1>Supplier Products</LeftItemH1>
+					</ToolbarItems>
+					<ToolbarItems>
+						{this.props.updatable ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.update();
+								}}
+							>
+								Update
+							</Custombutton>
+						) : (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.createSupplierProducts();
+								}}
+							>
+								Create
+							</Custombutton>
+						)}
+					</ToolbarItems>
+				</PageToolbar>
+
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
@@ -304,6 +331,7 @@ class SupplierProduct extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
 	errors: state.errors,
 	variables: state.variables,
-	auth: state.auth});
+	auth: state.auth
+});
 
 export default connect(mapStateToProps, { clearErrors, getVariables })(SupplierProduct);
