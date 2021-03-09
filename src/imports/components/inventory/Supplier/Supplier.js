@@ -74,9 +74,7 @@ class Supplier extends React.Component {
 								]
 							])
 						],
-						[ 'account', '' ],
-						[ 'addresses', [] ],
-						[ 'contacts', [] ]
+						[ 'account', '' ]
 					])
 				]
 			]),
@@ -97,6 +95,10 @@ class Supplier extends React.Component {
 					])
 				]
 			]),
+			prevSupplierContacts: [],
+			supplierContacts: [],
+			prevSupplierAddresses: [],
+			supplierAddresses: [],
 			supplierProducts: [],
 			prevSupplierProducts: [],
 			supplierAccount: '',
@@ -104,10 +106,12 @@ class Supplier extends React.Component {
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateAddresses = this.updateAddresses.bind(this);
-		this.updateContacts = this.updateContacts.bind(this);
+		this.updateContactsList = this.updateContactsList.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.updateAccountName = this.updateAccountName.bind(this);
 		this.updateSupplierProducts = this.updateSupplierProducts.bind(this);
+		this.updateSupplierAddress=this.updateSupplierAddress.bind(this);
+		this.updateSupplierContacts=this.updateSupplierContacts.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
 		this.updateProducts = this.updateProducts.bind(this);
@@ -118,6 +122,8 @@ class Supplier extends React.Component {
 			nextProps.match.params.variableName &&
 			nextProps.variables.Supplier &&
 			nextProps.variables.Account &&
+			nextProps.variables.SupplierContact &&
+			nextProps.variables.SupplierAddress &&
 			nextProps.variables.ProductSupplier
 		) {
 			const variable = nextProps.variables.Supplier.filter(
@@ -127,6 +133,16 @@ class Supplier extends React.Component {
 				(account) => account.variableName === variable.values.account
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const supplierContacts = nextProps.variables.SupplierContact
+					.filter((item) => item.values.supplier === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const supplierAddresses = nextProps.variables.SupplierAddress
+					.filter((item) => item.values.supplier === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
 				const supplierProducts = nextProps.variables.ProductSupplier
 					.filter((item) => item.values.supplier === variable.variableName)
 					.map((item) => {
@@ -147,6 +163,11 @@ class Supplier extends React.Component {
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
 					supplierAccount: variable.values.account,
+					prevSupplierContacts: supplierContacts.length !== 0 ? supplierContacts : prevState.supplierContacts,
+					supplierContacts: supplierContacts.length !== 0 ? supplierContacts : prevState.supplierContacts,
+					prevSupplierAddresses:
+						supplierAddresses.length !== 0 ? supplierAddresses : prevState.supplierAddresses,
+					supplierAddresses: supplierAddresses.length !== 0 ? supplierAddresses : prevState.supplierAddresses,
 					prevSupplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts,
 					supplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts
 				};
@@ -181,6 +202,8 @@ class Supplier extends React.Component {
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
 		this.props.getVariables('AddressType');
+		this.props.getVariables('SupplierContact');
+		this.props.getVariables('SupplierAddress');
 		this.props.getVariables('Product');
 		this.props.getVariables('ProductSupplier');
 	}
@@ -244,14 +267,7 @@ class Supplier extends React.Component {
 			customErrorMessage('Carrier Service is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('contacts').length === 0) {
-			customErrorMessage('Add at least One Contact field');
-			this.setState({ createSupplier: false });
-		}
-		if (variable.get('addresses').length === 0) {
-			customErrorMessage('Add at least One Address field');
-			this.setState({ createSupplier: false });
-		}
+		
 	}
 
 	updateDetails(details) {
@@ -269,20 +285,12 @@ class Supplier extends React.Component {
 		});
 	}
 
-	updateAddresses(addresses) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('addresses', addresses);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+	updateAddresses(supplierAddresses) {
+		this.setState({ supplierAddresses });
 	}
 
-	updateContacts(contacts) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('contacts', contacts);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+	updateContactsList(supplierContacts) {
+		this.setState({ supplierContacts });
 	}
 
 	updateAccountName(accountName) {
@@ -329,9 +337,7 @@ class Supplier extends React.Component {
 								]
 							])
 						],
-						[ 'account', '' ],
-						[ 'addresses', [] ],
-						[ 'contacts', [] ]
+						[ 'account', '' ]
 					])
 				]
 			]),
@@ -374,7 +380,7 @@ class Supplier extends React.Component {
 			closeOnClickOutside: true
 		});
 	}
-	
+
 	createSupplierProducts() {
 		this.props.createVariables(this.state.supplierProducts).then((response) => {
 			if (response.status === 200) {
@@ -384,10 +390,19 @@ class Supplier extends React.Component {
 		});
 	}
 
+
+
 	updateProducts() {
 		this.props.updateVariables(this.state.prevSupplierProducts, this.state.supplierProducts);
 	}
 
+	updateSupplierAddress() {
+		this.props.updateVariables(this.state.prevSupplierAddresses, this.state.supplierAddresses);
+	}
+
+	updateSupplierContacts() {
+		this.props.updateVariables(this.state.prevSupplierContacts, this.state.supplierContacts);
+	}
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
@@ -424,27 +439,47 @@ class Supplier extends React.Component {
 															.createVariable(this.state.variable)
 															.then((response) => {
 																if (response.status === 200) {
-																	if (this.state.supplierProducts.length !== 0) {
-																		this.props
-																			.createVariables(
-																				addKeyToList(
-																					this.state.supplierProducts,
-																					'supplier',
-																					response.data.variableName
-																				)
-																			)
-																			.then((response) => {
-																				if (response.status === 200) {
-																					this.props.getVariables(
-																						'ProductSupplier'
-																					);
-																					successMessage(' Supplier Created');
-																				}
-																			});
-																	} else {
-																		// this.alert()
-																		successMessage(' Supplier Created');
+																	const supplierAttributes = [];
+																	if (this.state.supplierAddresses.length !== 0) {
+																		addKeyToList(
+																			this.state.supplierAddresses,
+																			'supplier',
+																			response.data.variableName
+																		).forEach((element) => {
+																			supplierAttributes.push(element);
+																		});
 																	}
+																	if (this.state.supplierContacts.length !== 0) {
+																		addKeyToList(
+																			this.state.supplierContacts,
+																			'supplier',
+																			response.data.variableName
+																		).forEach((element) => {
+																			supplierAttributes.push(element);
+																		});
+																	}
+																	if (this.state.supplierProducts.length !== 0) {
+																		addKeyToList(
+																			this.state.supplierProducts,
+																			'supplier',
+																			response.data.variableName
+																		).forEach((element) => {
+																			supplierAttributes.push(element);
+																		});
+																	}
+																	supplierAttributes.length !== 0
+																		? this.props
+																				.createVariables(supplierAttributes)
+																				.then((response) => {
+																					if (response.status === 200) {
+																						successMessage(
+																							'Supplier Created'
+																						);
+																						//Enable after Testing
+																						// this.alert()
+																					}
+																				})
+																		: successMessage(' Supplier Created');
 																}
 															});
 													});
@@ -541,14 +576,20 @@ class Supplier extends React.Component {
 						</HorizontalListPageBlock>
 						{this.state.visibleSection === 'addresses' && (
 							<SupplierAddresses
-								list={this.state.variable.get('values').get('addresses')}
+								supplier={this.props.match.params.variableName}
+								updatable={this.props.match.params.variableName ? true : false}
 								updateAddresses={this.updateAddresses}
+								supplierAddresses={this.state.supplierAddresses}
+								updateSupplierAddress={this.updateSupplierAddress}
 							/>
 						)}
 						{this.state.visibleSection === 'contacts' && (
 							<SupplierContacts
-								list={this.state.variable.get('values').get('contacts')}
-								updateContacts={this.updateContacts}
+								supplier={this.props.match.params.variableName}
+								updatable={this.props.match.params.variableName ? true : false}
+								updateContactsList={this.updateContactsList}
+								supplierContacts={this.state.supplierContacts}
+								updateSupplierContacts={this.updateSupplierContacts}
 							/>
 						)}
 
@@ -572,7 +613,7 @@ class Supplier extends React.Component {
 						{this.state.visibleSection === 'supplierProducts' ? (
 							<SupplierProduct
 								supplier={this.props.match.params.variableName}
-								updatable={this.props.match.params.variableName?true:false}
+								updatable={this.props.match.params.variableName ? true : false}
 								supplierProducts={this.state.supplierProducts}
 								updateSupplierProducts={this.updateSupplierProducts}
 								update={this.updateProducts}

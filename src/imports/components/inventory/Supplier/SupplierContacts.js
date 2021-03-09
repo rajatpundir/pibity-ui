@@ -12,10 +12,7 @@ import {
 	HeaderBodyContainer,
 	Input,
 	InputBody,
-	PageBar,
-	PageBarAlign,
 	PageBlock,
-	PlusButton,
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
@@ -25,14 +22,18 @@ import {
 	TableFieldContainer,
 	TableHeaderInner,
 	TableHeaders,
-	TableRow
+	TableRow,
+	PageToolbar,
+	ToolbarItems,
+	Custombutton,
+	LeftItemH1
 } from '../../../styles/inventory/Style';
 
 class SupplierContacts extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			list: props.list
+			list: props.supplierContacts
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -45,7 +46,7 @@ class SupplierContacts extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			list: nextProps.list
+			list: nextProps.supplierContacts
 		};
 	}
 
@@ -54,6 +55,9 @@ class SupplierContacts extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				values.set(e.target.name, e.target.value);
+				if (this.props.updatable) {
+					values.set('supplier', this.props.supplier);
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
@@ -61,13 +65,14 @@ class SupplierContacts extends React.Component {
 			}
 		});
 		this.setState({ list: list });
-		this.props.updateContacts(list);
+		this.props.updateContactsList(list);
 	}
 
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
 		list.push(
 			new Map([
+				[ 'typeName', 'SupplierContact' ],
 				[
 					'variableName',
 					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
@@ -75,6 +80,7 @@ class SupplierContacts extends React.Component {
 				[
 					'values',
 					new Map([
+						[ 'supplier', '' ],
 						[ 'comment', '' ],
 						[ 'email', '' ],
 						[ 'fax', '' ],
@@ -82,13 +88,14 @@ class SupplierContacts extends React.Component {
 						[ 'mobile', '' ],
 						[ 'name', '' ],
 						[ 'phone', '' ],
-						[ 'website', '' ]
+						[ 'website', '' ],
+						[ 'isDefault', false ]
 					])
 				]
 			])
 		);
 		this.setState({ list: list });
-		this.props.updateContacts(list);
+		this.props.updateContactsList(list);
 	}
 
 	onRemoveKey(e, variableName) {
@@ -96,7 +103,7 @@ class SupplierContacts extends React.Component {
 			return listVariable.get('variableName') !== variableName;
 		});
 		this.setState({ list: list });
-		this.props.updateContacts(list);
+		this.props.updateContactsList(list);
 	}
 
 	renderInputFields() {
@@ -201,13 +208,25 @@ class SupplierContacts extends React.Component {
 	render() {
 		return (
 			<PageBlock id="contact">
-				<PageBar>
-					<PageBarAlign>
-						<PlusButton onClick={(e) => this.addVariableToList()}>
-							<i className="large material-icons">add</i>
-						</PlusButton>
-					</PageBarAlign>
-				</PageBar>
+				<PageToolbar borderBottom="1px solid #e0e1e7">
+					<ToolbarItems>
+						<LeftItemH1>Supplier Contacts</LeftItemH1>
+					</ToolbarItems>
+					<ToolbarItems>
+						{this.props.updatable ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.updateSupplierContacts();
+								}}
+							>
+								Update
+							</Custombutton>
+						) : (
+							undefined
+						)}
+					</ToolbarItems>
+				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">

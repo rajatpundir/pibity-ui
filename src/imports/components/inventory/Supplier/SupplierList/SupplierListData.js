@@ -58,7 +58,7 @@ class SupplierListData extends React.Component {
 					{this.props.layout.get('contact') ? (
 						<TableData width="10%">
 							<TableHeaderInner overflow="hidden">
-								{this.state.data.values.contacts[0].values.name}
+								{/* {this.state.data.values.contacts[0].values.name} */}
 							</TableHeaderInner>
 						</TableData>
 					) : (
@@ -67,9 +67,9 @@ class SupplierListData extends React.Component {
 					{this.props.layout.get('phone') ? (
 						<TableData width="10%">
 							<TableHeaderInner overflow="hidden">
-								<Anchor href={'tel:' + this.state.data.values.contacts[0].values.phone}>
+								{/* <Anchor href={'tel:' + this.state.data.values.contacts[0].values.phone}>
 									{this.state.data.values.contacts[0].values.phone}
-								</Anchor>
+								</Anchor> */}
 							</TableHeaderInner>
 						</TableData>
 					) : (
@@ -78,12 +78,12 @@ class SupplierListData extends React.Component {
 					{this.props.layout.get('email') ? (
 						<TableData width="10%">
 							<TableHeaderInner overflow="hidden">
-								<Anchor
+								{/* <Anchor
 									href={'mailto:' + this.state.data.values.contacts[0].values.email}
 									target="_blank"
 								>
 									{this.state.data.values.contacts[0].values.email}
-								</Anchor>
+								</Anchor> */}
 							</TableHeaderInner>
 						</TableData>
 					) : (
@@ -92,9 +92,9 @@ class SupplierListData extends React.Component {
 					{this.props.layout.get('website') ? (
 						<TableData width="10%">
 							<TableHeaderInner overflow="hidden">
-								<Anchor href={this.state.data.values.contacts[0].values.website} target="_blank">
+								{/* <Anchor href={this.state.data.values.contacts[0].values.website} target="_blank">
 									{this.state.data.values.contacts[0].values.website}
-								</Anchor>
+								</Anchor> */}
 							</TableHeaderInner>
 						</TableData>
 					) : (
@@ -103,11 +103,11 @@ class SupplierListData extends React.Component {
 					{this.props.layout.get('address') ? (
 						<TableData width="20%">
 							<TableHeaderInner overflow="hidden">
-								{this.state.data.values.addresses[0] !== undefined ? (
+								{/* {this.state.data.values.addresses[0] !== undefined ? (
 									this.state.data.values.addresses[0].values.line1 || 'no address found'
 								) : (
 									'no address found'
-								)}
+								)} */}
 							</TableHeaderInner>
 						</TableData>
 					) : (

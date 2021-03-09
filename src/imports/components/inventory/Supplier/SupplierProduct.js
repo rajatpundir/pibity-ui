@@ -234,7 +234,7 @@ class SupplierProduct extends React.Component {
 						<LeftItemH1>Supplier Products</LeftItemH1>
 					</ToolbarItems>
 					<ToolbarItems>
-						{this.props.updatable ? (
+						{this.props.updatable ? this.state.list.length !== 0 ? (
 							<Custombutton
 								height="30px"
 								onClick={(e) => {
@@ -252,6 +252,8 @@ class SupplierProduct extends React.Component {
 							>
 								Create
 							</Custombutton>
+						) : (
+							undefined
 						)}
 					</ToolbarItems>
 				</PageToolbar>
