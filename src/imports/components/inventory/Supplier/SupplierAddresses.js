@@ -29,6 +29,8 @@ import {
 	PageToolbar,
 	ToolbarItems,
 	Custombutton,
+	CheckBoxInput,
+	CheckBoxContainer,
 	LeftItemH1
 } from '../../../styles/inventory/Style';
 
@@ -79,6 +81,26 @@ class SupplierAddresses extends React.Component {
 		this.props.updateAddresses(list);
 	}
 
+	onChangeDefault(e, variableName) {
+		const list = cloneDeep(this.state.list).map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
+			} else {
+				if (e.target.value) {
+					const values = listVariable.get('values');
+					values.set(e.target.name, false);
+					listVariable.set('values', values);
+				}
+				return listVariable;
+			}
+		});
+		this.setState({ list: list });
+		this.props.updateAddresses(list);
+	}
+
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
 		list.push(
@@ -100,7 +122,7 @@ class SupplierAddresses extends React.Component {
 						[ 'country', '' ],
 						[ 'addressType', '' ],
 						[ 'supplier', '' ],
-						[ 'isDefault', false ]
+						[ 'isDefault', list.length === 0 ? true : false ]
 					])
 				]
 			])
@@ -319,6 +341,34 @@ class SupplierAddresses extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
+					<TableData>
+						<TableHeaderInner overflow="hidden">
+							<CheckBoxContainer
+								style={{
+									justifyContent: 'center',
+									marginLeft: '5px'
+								}}
+							>
+								<CheckBoxInput
+									name="isDefault"
+									type="checkbox"
+									checked={listVariable.get('values').get('isDefault')}
+									tabindex="55"
+									onChange={(e) => {
+										this.onChangeDefault(
+											{
+												target: {
+													name: 'isDefault',
+													value: !listVariable.get('values').get('isDefault')
+												}
+											},
+											listVariable.get('variableName')
+										);
+									}}
+								/>
+							</CheckBoxContainer>
+						</TableHeaderInner>
+					</TableData>
 				</TableRow>
 			)
 		);
@@ -402,6 +452,11 @@ class SupplierAddresses extends React.Component {
 												<TableHeaders width="10%" left="86%">
 													<SelectIconContainer>
 														<SelectSpan>Type</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%" left="75%">
+													<SelectIconContainer>
+														<SelectSpan>Default</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 											</TableRow>

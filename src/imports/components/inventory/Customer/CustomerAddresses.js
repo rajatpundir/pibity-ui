@@ -28,14 +28,20 @@ import {
 	TableHeaders,
 	TableRow,
 	SelectWrapper,
-	RactSelectCustomStyles
+	RactSelectCustomStyles,
+	PageToolbar,
+	LeftItemH1,
+	ToolbarItems,
+	Custombutton,
+	CheckBoxInput,
+	CheckBoxContainer
 } from '../../../styles/inventory/Style';
 
 class CustomerAddresses extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			list: props.list
+			list: props.customerAddresses
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -48,7 +54,7 @@ class CustomerAddresses extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			list: nextProps.list
+			list: nextProps.customerAddresses
 		};
 	}
 
@@ -74,10 +80,31 @@ class CustomerAddresses extends React.Component {
 		this.props.updateAddresses(list);
 	}
 
+	onChangeDefault(e, variableName) {
+		const list = cloneDeep(this.state.list).map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
+			} else {
+				if (e.target.value) {
+					const values = listVariable.get('values');
+					values.set(e.target.name, false);
+					listVariable.set('values', values);
+				}
+				return listVariable;
+			}
+		});
+		this.setState({ list: list });
+		this.props.updateAddresses(list);
+	}
+
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
 		list.push(
 			new Map([
+				[ 'typeName', 'CustomerAddress' ],
 				[
 					'variableName',
 					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
@@ -92,7 +119,9 @@ class CustomerAddresses extends React.Component {
 						[ 'state', '' ],
 						[ 'postCode', '' ],
 						[ 'country', '' ],
-						[ 'addressType', '' ]
+						[ 'addressType', '' ],
+						[ 'customer', '' ],
+						[ 'isDefault', list.length === 0 ? true : false ]
 					])
 				]
 			])
@@ -311,6 +340,34 @@ class CustomerAddresses extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
+					<TableData>
+						<TableHeaderInner overflow="hidden">
+							<CheckBoxContainer
+								style={{
+									justifyContent: 'center',
+									marginLeft: '5px'
+								}}
+							>
+								<CheckBoxInput
+									name="isDefault"
+									type="checkbox"
+									checked={listVariable.get('values').get('isDefault')}
+									tabindex="55"
+									onChange={(e) => {
+										this.onChangeDefault(
+											{
+												target: {
+													name: 'isDefault',
+													value: !listVariable.get('values').get('isDefault')
+												}
+											},
+											listVariable.get('variableName')
+										);
+									}}
+								/>
+							</CheckBoxContainer>
+						</TableHeaderInner>
+					</TableData>
 				</TableRow>
 			)
 		);
@@ -320,13 +377,25 @@ class CustomerAddresses extends React.Component {
 	render() {
 		return (
 			<PageBlock id="address">
-				<PageBar>
-					<PageBarAlign>
-						<PlusButton onClick={(e) => this.addVariableToList()}>
-							<i className="large material-icons">add</i>
-						</PlusButton>
-					</PageBarAlign>
-				</PageBar>
+				<PageToolbar borderBottom="1px solid #e0e1e7">
+					<ToolbarItems>
+						<LeftItemH1>Customer Address</LeftItemH1>
+					</ToolbarItems>
+					<ToolbarItems>
+						{this.props.updatable ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.updateSupplierAddress();
+								}}
+							>
+								Update
+							</Custombutton>
+						) : (
+							undefined
+						)}
+					</ToolbarItems>
+				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
@@ -382,6 +451,11 @@ class CustomerAddresses extends React.Component {
 												<TableHeaders width="10%" left="86%">
 													<SelectIconContainer>
 														<SelectSpan>Type</SelectSpan>
+													</SelectIconContainer>
+												</TableHeaders>
+												<TableHeaders width="10%" left="86%">
+													<SelectIconContainer>
+														<SelectSpan>Default</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
 											</TableRow>

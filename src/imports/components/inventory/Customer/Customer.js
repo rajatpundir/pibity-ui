@@ -9,8 +9,10 @@ import {
 	createAccount,
 	getVariable,
 	updateVariable,
+	createVariables,
 	objToMapRec,
-	getVariables
+	getVariables,
+	addKeyToList
 } from '../../../redux/actions/variables';
 import CustomerGeneralDetails from './CustomerGeneralDetails';
 import CustomerAddresses from './CustomerAddresses';
@@ -72,9 +74,7 @@ class Customer extends React.Component {
 								]
 							])
 						],
-						[ 'account', '' ],
-						[ 'addresses', [] ],
-						[ 'contacts', [] ]
+						[ 'account', '' ]
 					])
 				]
 			]),
@@ -95,11 +95,17 @@ class Customer extends React.Component {
 				]
 			]),
 			customerAccount: '',
+			prevCustomerContacts: [],
+			customerContacts: [],
+			prevCustomerAddresses: [],
+			customerAddresses: [],
 			visibleSection: 'addresses'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateAddresses = this.updateAddresses.bind(this);
-		this.updateContacts = this.updateContacts.bind(this);
+		this.updateContactsList = this.updateContactsList.bind(this);
+		this.updateCustomerContacts = this.updateCustomerContacts.bind(this);
+		this.updateCustomerAddress = this.updateCustomerAddress.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.updateAccountName = this.updateAccountName.bind(this);
 		this.onClose = this.onClose.bind(this);
@@ -107,7 +113,13 @@ class Customer extends React.Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.match.params.variableName && nextProps.variables.Customer && nextProps.variables.Account) {
+		if (
+			nextProps.match.params.variableName &&
+			nextProps.variables.Customer &&
+			nextProps.variables.CustomerContact &&
+			nextProps.variables.CustomerAddress &&
+			nextProps.variables.Account
+		) {
 			const variable = nextProps.variables.Customer.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
@@ -115,6 +127,16 @@ class Customer extends React.Component {
 				(account) => account.variableName === variable.values.account
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
+				const customerContacts = nextProps.variables.CustomerContact
+					.filter((item) => item.values.customer === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const customerAddresses = nextProps.variables.CustomerAddress
+					.filter((item) => item.values.customer === variable.variableName)
+					.map((item) => {
+						return objToMapRec(item);
+					});
 				const accountMap = objToMapRec(account);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
@@ -129,7 +151,12 @@ class Customer extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					customerAccount: variable.values.account
+					customerAccount: variable.values.account,
+					prevCustomerContacts: customerContacts.length !== 0 ? customerContacts : prevState.customerContacts,
+					customerContacts: customerContacts.length !== 0 ? customerContacts : prevState.customerContacts,
+					prevCustomerAddresses:
+						customerAddresses.length !== 0 ? customerAddresses : prevState.customerAddresses,
+					customerAddresses: customerAddresses.length !== 0 ? customerAddresses : prevState.customerAddresses
 				};
 			}
 		}
@@ -150,6 +177,8 @@ class Customer extends React.Component {
 		this.props.getVariables('PriceTierName');
 		this.props.getVariables('Location');
 		this.props.getVariables('AddressType');
+		this.props.getVariables('CustomerContact');
+		this.props.getVariables('CustomerAddress');
 		this.props.getVariables('SalesInvoice');
 	}
 
@@ -177,40 +206,44 @@ class Customer extends React.Component {
 	}
 
 	checkRequiredField(variable) {
-		// let message = ''; // To show error in one popUp
+		const defaultCustomerContact = this.state.customerContacts.filter(
+			(item) => item.get('values').get('isDefault') === true
+		);
+		const defaultCustomerAddress = this.state.customerAddresses.filter(
+			(item) => item.get('values').get('isDefault') === true
+		);
 		if (variable.get('general').get('variableName') === '') {
-			// message = message + ' Please provide a Customer Name  \n';
 			customErrorMessage(' Customer Name is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('status') === '') {
-			// message = message + ' Please choose the Status \n';
 			customErrorMessage('status is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('taxRule') === '') {
-			// message = message + ' Please choose the TaxRule  \n';
 			customErrorMessage('taxRule is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('paymentTerm') === '') {
-			// message = message + ' Please choose the Payment Term \n';
 			customErrorMessage('paymentTerm is missing');
 			this.setState({ createCustomer: false });
 		}
 		if (variable.get('general').get('values').get('currency') === '') {
-			// message = message + 'Please choose a Currency  \n';
 			customErrorMessage('currency is missing');
 			this.setState({ createCustomer: false });
 		}
-		if (variable.get('contacts').length === 0) {
-			// message = message + ' Add at least One Contact field \n';
-			customErrorMessage('Add at least One Contact field');
+		if (this.state.customerContacts.length === 0) {
+			customErrorMessage('Add atleast one  Contact');
+			this.setState({ createCustomer: false });
+		} else if (defaultCustomerContact.length === 0) {
+			customErrorMessage('Add atleast One  default  Contact');
 			this.setState({ createCustomer: false });
 		}
-		if (variable.get('addresses').length === 0) {
-			// message = message + ' Add at least One Address field \n';
-			customErrorMessage('Add at least One Address field');
+		if (this.state.customerAddresses.length === 0) {
+			customErrorMessage('Add atleast one  Address');
+			this.setState({ createCustomer: false });
+		} else if (defaultCustomerAddress.length === 0) {
+			customErrorMessage('Add atleast one  default  Address');
 			this.setState({ createCustomer: false });
 		}
 	}
@@ -229,20 +262,13 @@ class Customer extends React.Component {
 			account: account
 		});
 	}
-	updateAddresses(addresses) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('addresses', addresses);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+
+	updateAddresses(customerAddresses) {
+		this.setState({ customerAddresses });
 	}
 
-	updateContacts(contacts) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('contacts', contacts);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+	updateContactsList(customerContacts) {
+		this.setState({ customerContacts });
 	}
 
 	updateAccountName(accountName) {
@@ -253,6 +279,24 @@ class Customer extends React.Component {
 		this.setState({
 			variable: variable,
 			customerAccount: accountName
+		});
+	}
+
+	updateCustomerAddress() {
+		this.props.updateVariables(this.state.prevCustomerAddresses, this.state.customerAddresses).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('CustomerAddress');
+				successMessage(' Customer Address updated');
+			}
+		});
+	}
+
+	updateCustomerContacts() {
+		this.props.updateVariables(this.state.prevCustomerContacts, this.state.customerContacts).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('CustomerContact');
+				successMessage(' Customer Contact Updated');
+			}
 		});
 	}
 
@@ -289,12 +333,14 @@ class Customer extends React.Component {
 								]
 							])
 						],
-						[ 'account', '' ],
-						[ 'addresses', [] ],
-						[ 'contacts', [] ]
+						[ 'account', '' ]
 					])
 				]
 			]),
+			prevCustomerContacts: [],
+			customerContacts: [],
+			prevCustomerAddresses: [],
+			customerAddresses: [],
 			account: new Map([
 				[ 'typeName', 'Account' ],
 				[ 'variableName', '' ],
@@ -370,8 +416,38 @@ class Customer extends React.Component {
 															.createVariable(this.state.variable)
 															.then((response) => {
 																if (response.status === 200) {
-																	successMessage(' Customer Created');
-																	// this.alert();
+																	const customerAttributes = [];
+																	if (this.state.customerAddresses.length !== 0) {
+																		addKeyToList(
+																			this.state.customerAddresses,
+																			'customer',
+																			response.data.variableName
+																		).forEach((element) => {
+																			customerAttributes.push(element);
+																		});
+																	}
+																	if (this.state.customerContacts.length !== 0) {
+																		addKeyToList(
+																			this.state.customerContacts,
+																			'customer',
+																			response.data.variableName
+																		).forEach((element) => {
+																			customerAttributes.push(element);
+																		});
+																	}
+																	customerAttributes.length !== 0
+																		? this.props
+																				.createVariables(customerAttributes)
+																				.then((response) => {
+																					if (response.status === 200) {
+																						successMessage(
+																							'Customer Created'
+																						);
+																						//Enable after Testing
+																						// this.alert()
+																					}
+																				})
+																		: successMessage(' Customer Created');
 																}
 															});
 													});
@@ -444,14 +520,21 @@ class Customer extends React.Component {
 						</HorizontalListPageBlock>
 						{this.state.visibleSection === 'contacts' && (
 							<CustomerContact
-								list={this.state.variable.get('values').get('contacts')}
-								updateContacts={this.updateContacts}
+								customer={this.props.match.params.variableName}
+								updatable={this.props.match.params.variableName ? true : false}
+								updateContactsList={this.updateContactsList}
+								customerContacts={this.state.customerContacts}
+								updateCustomerContacts={this.updateCustomerContacts}
 							/>
 						)}
+
 						{this.state.visibleSection === 'addresses' && (
 							<CustomerAddresses
-								list={this.state.variable.get('values').get('addresses')}
+								customer={this.props.match.params.variableName}
+								updatable={this.props.match.params.variableName ? true : false}
 								updateAddresses={this.updateAddresses}
+								customerAddresses={this.state.customerAddresses}
+								updateCustomerAddress={this.updateCustomerAddress}
 							/>
 						)}
 
@@ -478,6 +561,7 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
+	createVariables,
 	createAccount,
 	getVariable,
 	updateVariable,

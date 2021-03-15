@@ -12,10 +12,11 @@ import {
 	HeaderBodyContainer,
 	Input,
 	InputBody,
-	PageBar,
-	PageBarAlign,
 	PageBlock,
-	PlusButton,
+	PageToolbar,
+	LeftItemH1,
+	ToolbarItems,
+	Custombutton,
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
@@ -25,14 +26,16 @@ import {
 	TableFieldContainer,
 	TableHeaderInner,
 	TableHeaders,
-	TableRow
+	TableRow,
+	CheckBoxInput,
+	CheckBoxContainer
 } from '../../../styles/inventory/Style';
 
 class CustomerContact extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			list: props.list
+			list: props.customerContacts
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -45,7 +48,7 @@ class CustomerContact extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			list: nextProps.list
+			list: nextProps.customerContacts
 		};
 	}
 
@@ -61,17 +64,39 @@ class CustomerContact extends React.Component {
 			}
 		});
 		this.setState({ list: list });
-		this.props.updateContacts(list);
+		this.props.updateContactsList(list);
+	}
+
+	onChangeDefault(e, variableName) {
+		const list = cloneDeep(this.state.list).map((listVariable) => {
+			if (listVariable.get('variableName') === variableName) {
+				const values = listVariable.get('values');
+				values.set(e.target.name, e.target.value);
+				listVariable.set('values', values);
+				return listVariable;
+			} else {
+				if (e.target.value) {
+					const values = listVariable.get('values');
+					values.set(e.target.name, false);
+					listVariable.set('values', values);
+				}
+				return listVariable;
+			}
+		});
+		this.setState({ list: list });
+		this.props.updateContactsList(list);
 	}
 
 	addVariableToList() {
 		const list = cloneDeep(this.state.list);
 		list.push(
 			new Map([
+				[ 'typeName', 'CustomerContact' ],
 				[ 'variableName',String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1 ) ],
 				[
 					'values',
 					new Map([
+						[ 'customer', '' ],
 						[ 'comment', '' ],
 						[ 'email', '' ],
 						[ 'fax', '' ],
@@ -79,13 +104,14 @@ class CustomerContact extends React.Component {
 						[ 'mobile', '' ],
 						[ 'name', '' ],
 						[ 'phone', '' ],
-						[ 'website', '' ]
+						[ 'website', '' ],
+						[ 'isDefault', list.length === 0 ? true : false  ]
 					])
 				]
 			])
 		);
 		this.setState({ list: list });
-		this.props.updateContacts(list);
+		this.props.updateContactsList(list);
 	}
 
 	onRemoveKey(e, variableName) {
@@ -93,7 +119,7 @@ class CustomerContact extends React.Component {
 			return listVariable.get('variableName') !== variableName;
 		});
 		this.setState({ list: list });
-		this.props.updateContacts(list);
+		this.props.updateContactsList(list);
 	}
 
 	renderInputFields() {
@@ -190,6 +216,34 @@ class CustomerContact extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
+					<TableData>
+						<TableHeaderInner overflow="hidden">
+							<CheckBoxContainer
+								style={{
+									justifyContent: 'center',
+									marginLeft: '5px'
+								}}
+							>
+								<CheckBoxInput
+									name="isDefault"
+									type="checkbox"
+									checked={listVariable.get('values').get('isDefault')}
+									tabindex="55"
+									onChange={(e) => {
+										this.onChangeDefault(
+											{
+												target: {
+													name: 'isDefault',
+													value: !listVariable.get('values').get('isDefault')
+												}
+											},
+											listVariable.get('variableName')
+										);
+									}}
+								/>
+							</CheckBoxContainer>
+						</TableHeaderInner>
+					</TableData>
 				</TableRow>
 			)
 		);
@@ -198,13 +252,25 @@ class CustomerContact extends React.Component {
 	render() {
 		return (
 			<PageBlock id="contact">
-				<PageBar>
-					<PageBarAlign>
-						<PlusButton onClick={(e) => this.addVariableToList()}>
-							<i className="large material-icons">add</i>
-						</PlusButton>
-					</PageBarAlign>
-				</PageBar>
+				<PageToolbar borderBottom="1px solid #e0e1e7">
+					<ToolbarItems>
+						<LeftItemH1>Customer Contacts</LeftItemH1>
+					</ToolbarItems>
+					<ToolbarItems>
+						{this.props.updatable ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.updateCustomerContacts();
+								}}
+							>
+								Update
+							</Custombutton>
+						) : (
+							undefined
+						)}
+					</ToolbarItems>
+				</PageToolbar>
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
@@ -262,11 +328,12 @@ class CustomerContact extends React.Component {
 														<SelectSpan>Comment</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
-												{/* <TableHeaders width="10%" left="75%">
+												<TableHeaders width="10%" left="75%">
 													<SelectIconContainer>
 														<SelectSpan>Default</SelectSpan>
 													</SelectIconContainer>
 												</TableHeaders>
+												{/* 
 												<TableHeaders width="12%" left="86%">
 													<SelectIconContainer>
 														<SelectSpan>Include In Email</SelectSpan>

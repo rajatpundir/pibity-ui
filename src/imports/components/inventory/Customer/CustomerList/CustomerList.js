@@ -15,7 +15,7 @@ import {
 	ModalBody,
 	ModalHeaderCloseButton,
 	ModalTitle,
-	ModalCustomStyles,
+	ModalCustomStyles
 } from '../../../../styles/main/Modal';
 import {
 	Container,
@@ -33,7 +33,6 @@ import {
 	SelectIconContainer,
 	InputRowWrapper,
 	SelectSpan,
-	SelectSpanInner,
 	HeaderBodyContainer,
 	HeaderBody,
 	BodyTable,
@@ -55,7 +54,9 @@ class CustomerList extends React.Component {
 		super();
 		this.state = {
 			customer: [],
-			invoice:[],
+			customerAddresses: [],
+			custoemrContacts: [],
+			invoice: [],
 			expandedRows: [],
 			activeCustomerOnly: false,
 			isOpen: false,
@@ -101,12 +102,18 @@ class CustomerList extends React.Component {
 		this.setState({ layoutFeilds: layout });
 	}
 
+	getData() {
+		this.props.getVariables('Customer');
+		this.props.getVariables('CustomerContact');
+		this.props.getVariables('CustomerAddress');
+		this.props.getVariables('SalesInvoice');
+	}
+
 	componentDidMount() {
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
-			this.props.clearErrors();
-			this.props.getVariables('Customer');
+			this.getData();
 		}
 	}
 	onManageLayoutModalOpen() {
@@ -118,7 +125,7 @@ class CustomerList extends React.Component {
 	}
 
 	onRefresh() {
-		this.props.getVariables('Customer');
+		this.getData();
 	}
 
 	onResetDefaults() {
@@ -141,8 +148,7 @@ class CustomerList extends React.Component {
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('Customer');
-		this.props.getVariables('SalesInvoice');
+		this.getData();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -158,6 +164,7 @@ class CustomerList extends React.Component {
 						? nextProps.variables.Customer.map((x, i) => ({ ...x, Id: i }))
 						: []
 					: []
+		
 		};
 	}
 
@@ -171,11 +178,12 @@ class CustomerList extends React.Component {
 			const totalDue = invoice.reduce(function(accumulator, currentValue) {
 				return accumulator + currentValue.values.balanceDue;
 			}, 0);
+
 			rows.push(
 				<CollapseData
 					data={customer}
 					key={customer.variableName}
-				    totalDue={totalDue}
+					totalDue={totalDue}
 					layout={this.state.layoutFeilds}
 				/>
 			);

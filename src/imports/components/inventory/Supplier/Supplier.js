@@ -110,8 +110,8 @@ class Supplier extends React.Component {
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.updateAccountName = this.updateAccountName.bind(this);
 		this.updateSupplierProducts = this.updateSupplierProducts.bind(this);
-		this.updateSupplierAddress=this.updateSupplierAddress.bind(this);
-		this.updateSupplierContacts=this.updateSupplierContacts.bind(this);
+		this.updateSupplierAddress = this.updateSupplierAddress.bind(this);
+		this.updateSupplierContacts = this.updateSupplierContacts.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
 		this.updateProducts = this.updateProducts.bind(this);
@@ -235,6 +235,12 @@ class Supplier extends React.Component {
 	}
 
 	checkRequiredField(variable) {
+		const defaultSupplierContact = this.state.supplierContacts.filter(
+			(item) => item.get('values').get('isDefault') === true
+		);
+		const defaultSupplierAddress = this.state.supplierAddresses.filter(
+			(item) => item.get('values').get('isDefault') === true
+		);
 		if (variable.get('general').get('variableName') === '') {
 			customErrorMessage('Supplier Name is missing');
 			this.setState({ createSupplier: false });
@@ -267,7 +273,22 @@ class Supplier extends React.Component {
 			customErrorMessage('Carrier Service is missing');
 			this.setState({ createSupplier: false });
 		}
-		
+
+		if (this.state.supplierContacts.length === 0) {
+			customErrorMessage('Add atleast one  Contact');
+			this.setState({ createSupplier: false });
+		} else if (defaultSupplierContact.length === 0) {
+			customErrorMessage('Add atleast One  default  Contact');
+			this.setState({ createSupplier: false });
+		}
+
+		if (this.state.supplierAddresses.length === 0) {
+			customErrorMessage('Add atleast one  Address');
+			this.setState({ createSupplier: false });
+		} else if (defaultSupplierAddress.length === 0) {
+			customErrorMessage('Add atleast one  default  Address');
+			this.setState({ createSupplier: false });
+		}
 	}
 
 	updateDetails(details) {
@@ -390,19 +411,28 @@ class Supplier extends React.Component {
 		});
 	}
 
-
-
 	updateProducts() {
 		this.props.updateVariables(this.state.prevSupplierProducts, this.state.supplierProducts);
 	}
 
 	updateSupplierAddress() {
-		this.props.updateVariables(this.state.prevSupplierAddresses, this.state.supplierAddresses);
+		this.props.updateVariables(this.state.prevSupplierAddresses, this.state.supplierAddresses).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('SupplierAddress');
+				successMessage(' Supplier Address updated');
+			}
+		});
 	}
 
 	updateSupplierContacts() {
-		this.props.updateVariables(this.state.prevSupplierContacts, this.state.supplierContacts);
+		this.props.updateVariables(this.state.prevSupplierContacts, this.state.supplierContacts).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('SupplierContact');
+				successMessage(' Supplier Contact Updated');
+			}
+		});
 	}
+
 	render() {
 		return (
 			<Container mediaPadding="20px 20px 0 20px">
