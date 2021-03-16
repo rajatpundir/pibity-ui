@@ -61,12 +61,12 @@ class Purchase extends React.Component {
 										[ 'taxRule', '' ],
 										[ 'date', '' ],
 										[ 'account', '1' ],
-										[ 'contact', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
+										[ 'contact', '' ],
 										[ 'phone', '' ],
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
-										[ 'address', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
+										[ 'address','' ],
 										[ 'requiredBy', '' ],
 										[ 'comments', '' ]
 									])
@@ -127,6 +127,8 @@ class Purchase extends React.Component {
 		this.props.clearErrors();
 		this.props.getVariables('Purchase');
 		this.props.getVariables('Supplier');
+		this.props.getVariables('SupplierContact');
+		this.props.getVariables('SupplierAddress');
 		this.props.getVariables('Account');
 		this.props.getVariables('Location');
 		this.props.getVariables('PaymentTerm');
@@ -165,17 +167,20 @@ class Purchase extends React.Component {
 			nextProps.variables.PurchaseOrder &&
 			nextProps.variables.PurchaseOrderItem &&
 			nextProps.variables.PurchaseOrderServiceItem &&
-			nextProps.variables.Supplier
+			nextProps.variables.Supplier&&
+			nextProps.variables.SupplierContact&&
+			nextProps.variables.SupplierAddress
 		) {
 			const variable = nextProps.variables.Purchase.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
-				const supplier = nextProps.variables.Supplier.filter(
-					(supplier) => supplier.variableName === variable.values.general.values.supplierName
+				const supplierAddress = nextProps.variables.SupplierAddress.filter(
+					(address) => address.variableName === variable.values.general.values.address
 				)[0];
-				const address = objToMapRec(supplier.values.addresses[0]);
-				const contact = objToMapRec(supplier.values.contacts[0]);
+				const supplierContact = nextProps.variables.SupplierContact.filter(
+					(contact) => contact.variableName=== variable.values.general.values.contact
+				)[0];
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -215,8 +220,8 @@ class Purchase extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					supplierAddress: address,
-					supplierContact: contact,
+					supplierAddress: mapToObjectRec(supplierAddress),
+					supplierContact: mapToObjectRec(supplierContact),
 					createPo: false,
 					purchaseVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,

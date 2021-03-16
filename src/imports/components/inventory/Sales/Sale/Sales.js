@@ -11,7 +11,8 @@ import {
 	getVariable,
 	updateVariable,
 	objToMapRec,
-	createVariables
+	createVariables,
+	mapToObjectRec
 } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
 import SalesGeneralDetails from './SalesGeneralDetails';
@@ -62,12 +63,12 @@ class SimpleSale extends React.Component {
 										[ 'taxRule', '' ],
 										[ 'date', '' ],
 										[ 'account', '1' ],
-										[ 'contact', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
+										[ 'contact', '' ],
 										[ 'phone', '' ],
 										[ 'shippingAddress1', '' ],
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
-										[ 'address', new Map([ [ 'context', '' ], [ 'variableName', '' ] ]) ],
+										[ 'address', '' ],
 										[ 'requiredBy', '' ],
 										[ 'comments', '' ]
 									])
@@ -166,6 +167,8 @@ class SimpleSale extends React.Component {
 	getData() {
 		this.props.clearErrors();
 		this.props.getVariables('Customer');
+		this.props.getVariables('CustomerContact');
+		this.props.getVariables('CustomerAddress');
 		this.props.getVariables('Location');
 		this.props.getVariables('PaymentTerm');
 		this.props.getVariables('TaxRule');
@@ -206,6 +209,8 @@ class SimpleSale extends React.Component {
 			nextProps.match.params.variableName &&
 			nextProps.variables.Sales &&
 			nextProps.variables.Customer &&
+			nextProps.variables.CustomerContact &&
+			nextProps.variables.CustomerAddress &&
 			nextProps.variables.SalesQuotationItem &&
 			nextProps.variables.SalesQuotation &&
 			nextProps.variables.SalesOrder &&
@@ -216,8 +221,11 @@ class SimpleSale extends React.Component {
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
-				const customer = nextProps.variables.Customer.filter(
-					(customer) => customer.variableName === variable.values.general.values.customerName
+				const customerAddress = nextProps.variables.CustomerAddress.filter(
+					(address) => address.variableName === variable.values.general.values.address
+				)[0];
+				const customerContact = nextProps.variables.CustomerContact.filter(
+					(contact) => contact.variableName === variable.values.general.values.contact
 				)[0];
 				const salesQuotation = nextProps.variables.SalesQuotation.filter(
 					(quotation) => quotation.values.sales === variable.variableName
@@ -254,8 +262,7 @@ class SimpleSale extends React.Component {
 									return objToMapRec(item);
 								})
 						: [];
-		  		const address = objToMapRec(customer.values.addresses[0]);
-				const contact = objToMapRec(customer.values.contacts[0]);
+				
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				const values = variableMap.get('values');
@@ -268,8 +275,8 @@ class SimpleSale extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					customerAddress: address,
-					customerContact: contact,
+					customerAddress: mapToObjectRec(customerAddress),
+					customerContact: mapToObjectRec(customerContact),
 					salesVariableName: variable.variableName,
 					customer: variable.values.general.values.customerName,
 					account: variable.values.general.values.account,
@@ -427,7 +434,7 @@ class SimpleSale extends React.Component {
 							salesVariableName: response.data.variableName,
 							customer: response.data.values.general.values.customerName,
 							account: response.data.values.general.values.account,
-							createSales:false
+							createSales: false
 						});
 						new Promise((resolve) => {
 							const quotation = this.state.salesQuotation;
