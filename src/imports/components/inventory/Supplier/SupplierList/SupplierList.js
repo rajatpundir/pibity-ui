@@ -99,13 +99,19 @@ class SupplierList extends React.Component {
 		this.setState({ layoutFeilds: layout });
 	}
 
+	getData() {
+		this.props.getVariables('Supplier');
+		this.props.getVariables('SupplierAddress');
+		this.props.getVariables('SupplierContact');
+		this.props.getVariables('PurchaseInvoice');
+	}
+
 	componentDidMount() {
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('Supplier');
-			this.props.getVariables('PurchaseInvoice');
+			this.getData();
 		}
 	}
 
@@ -118,7 +124,7 @@ class SupplierList extends React.Component {
 	}
 
 	onRefresh() {
-		this.props.getVariables('Suppliers');
+		this.getData();
 	}
 
 	onResetDefaults() {
