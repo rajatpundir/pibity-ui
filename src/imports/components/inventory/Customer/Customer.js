@@ -50,30 +50,19 @@ class Customer extends React.Component {
 				[
 					'values',
 					new Map([
-						[
-							'general',
-							new Map([
-								[ 'variableName', '' ],
-								[
-									'values',
-									new Map([
-										[ 'currency', '' ],
-										[ 'paymentTerm', '' ],
-										[ 'taxRule', '' ],
-										[ 'status', '' ],
-										[ 'defaultCarrier', '' ],
-										[ 'taxNumber', '' ],
-										[ 'discount', 0 ],
-										[ 'attributeSet', '' ],
-										[ 'comments', '' ],
-										[ 'salesPriceTier', '' ],
-										[ 'defaultLocation', '' ],
-										[ 'creditLimit', 0 ],
-										[ 'onCreditHold', false ]
-									])
-								]
-							])
-						],
+						[ 'currency', '' ],
+						[ 'paymentTerm', '' ],
+						[ 'taxRule', '' ],
+						[ 'status', '' ],
+						[ 'defaultCarrier', '' ],
+						[ 'taxNumber', '' ],
+						[ 'discount', 0 ],
+						[ 'attributeSet', '' ],
+						[ 'comments', '' ],
+						[ 'salesPriceTier', '' ],
+						[ 'defaultLocation', '' ],
+						[ 'creditLimit', 0 ],
+						[ 'onCreditHold', false ],
 						[ 'account', '' ]
 					])
 				]
@@ -140,11 +129,6 @@ class Customer extends React.Component {
 				const accountMap = objToMapRec(account);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
-				const values = variableMap.get('values');
-				const general = values.get('general');
-				general.set('variableName', variableMap.get('variableName'));
-				values.set('general', general);
-				variableMap.set('values', values);
 				return {
 					...prevState,
 					account: accountMap,
@@ -212,23 +196,23 @@ class Customer extends React.Component {
 		const defaultCustomerAddress = this.state.customerAddresses.filter(
 			(item) => item.get('values').get('isDefault') === true
 		);
-		if (variable.get('general').get('variableName') === '') {
+		if (variable.get('variableName') === '') {
 			customErrorMessage(' Customer Name is missing');
 			this.setState({ createCustomer: false });
 		}
-		if (variable.get('general').get('values').get('status') === '') {
+		if (variable.get('values').get('status') === '') {
 			customErrorMessage('status is missing');
 			this.setState({ createCustomer: false });
 		}
-		if (variable.get('general').get('values').get('taxRule') === '') {
+		if (variable.get('values').get('taxRule') === '') {
 			customErrorMessage('taxRule is missing');
 			this.setState({ createCustomer: false });
 		}
-		if (variable.get('general').get('values').get('paymentTerm') === '') {
+		if (variable.get('values').get('paymentTerm') === '') {
 			customErrorMessage('paymentTerm is missing');
 			this.setState({ createCustomer: false });
 		}
-		if (variable.get('general').get('values').get('currency') === '') {
+		if (variable.get('values').get('currency') === '') {
 			customErrorMessage('currency is missing');
 			this.setState({ createCustomer: false });
 		}
@@ -248,15 +232,10 @@ class Customer extends React.Component {
 		}
 	}
 
-	updateDetails(details) {
-		const variable = cloneDeep(this.state.variable);
+	updateDetails(variable) {
 		const account = cloneDeep(this.state.account);
 		const accountValues = account.get('values');
-		const values = variable.get('values');
-		values.set('general', details);
-		variable.set('values', values);
-		variable.set('variableName', details.get('variableName'));
-		accountValues.set('name', details.get('variableName'));
+		accountValues.set('name', variable.get('variableName'));
 		this.setState({
 			variable: variable,
 			account: account
@@ -309,30 +288,19 @@ class Customer extends React.Component {
 				[
 					'values',
 					new Map([
-						[
-							'general',
-							new Map([
-								[ 'variableName', '' ],
-								[
-									'values',
-									new Map([
-										[ 'currency', '' ],
-										[ 'paymentTerm', '' ],
-										[ 'taxRule', '' ],
-										[ 'status', '' ],
-										[ 'defaultCarrier', '' ],
-										[ 'taxNumber', '' ],
-										[ 'discount', 0 ],
-										[ 'attributeSet', '' ],
-										[ 'comments', '' ],
-										[ 'salesPriceTier', '' ],
-										[ 'defaultLocation', '' ],
-										[ 'creditLimit', 0 ],
-										[ 'onCreditHold', false ]
-									])
-								]
-							])
-						],
+						[ 'currency', '' ],
+						[ 'paymentTerm', '' ],
+						[ 'taxRule', '' ],
+						[ 'status', '' ],
+						[ 'defaultCarrier', '' ],
+						[ 'taxNumber', '' ],
+						[ 'discount', 0 ],
+						[ 'attributeSet', '' ],
+						[ 'comments', '' ],
+						[ 'salesPriceTier', '' ],
+						[ 'defaultLocation', '' ],
+						[ 'creditLimit', 0 ],
+						[ 'onCreditHold', false ],
 						[ 'account', '' ]
 					])
 				]
@@ -401,7 +369,7 @@ class Customer extends React.Component {
 											});
 									} else {
 										new Promise((resolve) => {
-											resolve(this.checkRequiredField(this.state.variable.get('values')));
+											resolve(this.checkRequiredField(this.state.variable));
 										}).then(() => {
 											if (this.state.createCustomer) {
 												this.props
@@ -462,7 +430,7 @@ class Customer extends React.Component {
 						{this.state.visibleSection !== 'accounts' && (
 							<CustomerGeneralDetails
 								updatable={this.props.match.params.variableName ? true : false}
-								variable={this.state.variable.get('values').get('general')}
+								variable={this.state.variable}
 								updateDetails={this.updateDetails}
 							/>
 						)}

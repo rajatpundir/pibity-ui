@@ -131,7 +131,7 @@ class SalesGeneralDetails extends React.Component {
 											}}
 											isDisabled={this.props.creatable}
 											onChange={(option) => {
-												this.Change({
+												this.onChange({
 													target: {
 														name: 'customerName',
 														value: option.value,
@@ -144,7 +144,7 @@ class SalesGeneralDetails extends React.Component {
 													this.props.variables.Customer
 														.filter(
 															(customer) =>
-																customer.values.general.values.status === 'Active'
+																customer.values.status === 'Active'
 														)
 														.map((variable) => {
 															return {

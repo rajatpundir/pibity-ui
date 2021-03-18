@@ -145,7 +145,7 @@ class PurchaseGeneralDetails extends React.Component {
 													this.props.variables.Supplier
 														.filter(
 															(supplier) =>
-																supplier.values.general.values.status === 'Active'
+																supplier.values.status === 'Active'
 														)
 														.map((variable) => {
 															return {

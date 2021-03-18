@@ -54,26 +54,15 @@ class Supplier extends React.Component {
 				[
 					'values',
 					new Map([
-						[
-							'general',
-							new Map([
-								[ 'variableName', '' ],
-								[
-									'values',
-									new Map([
-										[ 'currency', '' ],
-										[ 'paymentTerm', '' ],
-										[ 'taxRule', '' ],
-										[ 'status', '' ],
-										[ 'defaultCarrier', '' ],
-										[ 'taxNumber', '' ],
-										[ 'discount', '' ],
-										[ 'attributeSet', '' ],
-										[ 'comments', '' ]
-									])
-								]
-							])
-						],
+						[ 'currency', '' ],
+						[ 'paymentTerm', '' ],
+						[ 'taxRule', '' ],
+						[ 'status', '' ],
+						[ 'defaultCarrier', '' ],
+						[ 'taxNumber', '' ],
+						[ 'discount', '' ],
+						[ 'attributeSet', '' ],
+						[ 'comments', '' ],
 						[ 'account', '' ]
 					])
 				]
@@ -151,11 +140,6 @@ class Supplier extends React.Component {
 				const accountMap = objToMapRec(account);
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
-				const values = variableMap.get('values');
-				const general = values.get('general');
-				general.set('variableName', variableMap.get('variableName'));
-				values.set('general', general);
-				variableMap.set('values', values);
 				return {
 					...prevState,
 					account: accountMap,
@@ -241,35 +225,35 @@ class Supplier extends React.Component {
 		const defaultSupplierAddress = this.state.supplierAddresses.filter(
 			(item) => item.get('values').get('isDefault') === true
 		);
-		if (variable.get('general').get('variableName') === '') {
+		if (variable.get('variableName') === '') {
 			customErrorMessage('Supplier Name is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('general').get('values').get('status') === '') {
+		if (variable.get('values').get('status') === '') {
 			customErrorMessage('Status is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('general').get('values').get('taxRule') === '') {
+		if (variable.get('values').get('taxRule') === '') {
 			customErrorMessage('Tax Rule is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('general').get('values').get('paymentTerm') === '') {
+		if (variable.get('values').get('paymentTerm') === '') {
 			customErrorMessage('Payment Term is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('general').get('values').get('discount') === '') {
+		if (variable.get('values').get('discount') === '') {
 			customErrorMessage('Payment Term is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('general').get('values').get('currency') === '') {
+		if (variable.get('values').get('currency') === '') {
 			customErrorMessage('Currency is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('general').get('values').get('attributeSet') === '') {
+		if (variable.get('values').get('attributeSet') === '') {
 			customErrorMessage('Attribute Set is missing');
 			this.setState({ createSupplier: false });
 		}
-		if (variable.get('general').get('values').get('defaultCarrier') === '') {
+		if (variable.get('values').get('defaultCarrier') === '') {
 			customErrorMessage('Carrier Service is missing');
 			this.setState({ createSupplier: false });
 		}
@@ -291,15 +275,10 @@ class Supplier extends React.Component {
 		}
 	}
 
-	updateDetails(details) {
-		const variable = cloneDeep(this.state.variable);
+	updateDetails(variable) {
 		const account = cloneDeep(this.state.account);
 		const accountValues = account.get('values');
-		const values = variable.get('values');
-		values.set('general', details);
-		variable.set('values', values);
-		variable.set('variableName', details.get('variableName'));
-		accountValues.set('name', details.get('variableName'));
+		accountValues.set('name', variable.get('variableName'));
 		this.setState({
 			variable: variable,
 			account: account
@@ -338,26 +317,15 @@ class Supplier extends React.Component {
 				[
 					'values',
 					new Map([
-						[
-							'general',
-							new Map([
-								[ 'variableName', '' ],
-								[
-									'values',
-									new Map([
-										[ 'currency', '' ],
-										[ 'paymentTerm', '' ],
-										[ 'taxRule', '' ],
-										[ 'status', '' ],
-										[ 'defaultCarrier', '' ],
-										[ 'taxNumber', '' ],
-										[ 'discount', '' ],
-										[ 'attributeSet', '' ],
-										[ 'comments', '' ]
-									])
-								]
-							])
-						],
+						[ 'currency', '' ],
+						[ 'paymentTerm', '' ],
+						[ 'taxRule', '' ],
+						[ 'status', '' ],
+						[ 'defaultCarrier', '' ],
+						[ 'taxNumber', '' ],
+						[ 'discount', '' ],
+						[ 'attributeSet', '' ],
+						[ 'comments', '' ],
 						[ 'account', '' ]
 					])
 				]
@@ -454,7 +422,7 @@ class Supplier extends React.Component {
 											});
 									} else {
 										new Promise((resolve) => {
-											resolve(this.checkRequiredField(this.state.variable.get('values')));
+											resolve(this.checkRequiredField(this.state.variable));
 										}).then(() => {
 											if (this.state.createSupplier) {
 												this.props
@@ -524,7 +492,7 @@ class Supplier extends React.Component {
 						</SaveButtonContaier>
 						{this.state.visibleSection !== 'accounts' && (
 							<SupplierDetails
-								variable={this.state.variable.get('values').get('general')}
+								variable={this.state.variable}
 								updateDetails={this.updateDetails}
 								params={this.props.match.params}
 							/>
