@@ -98,7 +98,7 @@ class ProductList extends React.Component {
 	renderInputFields() {
 		const rows = [];
 		const list = this.state.activeProductOnly
-			? this.state.product.filter((product) => product.values.general.values.productStatus === 'Active')
+			? this.state.product.filter((product) => product.values.productStatus === 'Active')
 			: this.state.product;
 		list.forEach((product) => {
 			rows.push(
@@ -110,16 +110,16 @@ class ProductList extends React.Component {
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner> {product.values.general.values.productName}</TableHeaderInner>
+						<TableHeaderInner> {product.values.productName}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{product.values.general.values.unitOfMeasure}</TableHeaderInner>
+						<TableHeaderInner>{product.values.unitOfMeasure}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{product.values.general.values.productType}</TableHeaderInner>
+						<TableHeaderInner>{product.values.productType}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{product.values.general.values.category}</TableHeaderInner>
+						<TableHeaderInner>{product.values.category}</TableHeaderInner>
 					</TableData>
 					<TableData width="15%">
 						<TableHeaderInner>
@@ -132,7 +132,7 @@ class ProductList extends React.Component {
 					</TableData>
 					<TableData width="10%">
 						<TableHeaderInner>
-							<Span>{product.values.general.values.productStatus}</Span>
+							<Span>{product.values.productStatus}</Span>
 						</TableHeaderInner>
 					</TableData>
 				</TableRow>

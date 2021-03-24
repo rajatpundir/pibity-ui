@@ -61,7 +61,6 @@ class PurchaseOrderDetails extends React.Component {
 			purchaseOrderServiceItems: props.purchaseOrderServiceItems,
 			productSupplier: []
 		};
-
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
@@ -301,12 +300,12 @@ class PurchaseOrderDetails extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter(
-													(product) => product.values.general.values.productType === 'Service'
+													(product) => product.values.productType === 'Service'
 												)
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.general.values.productName
+														label: variable.values.productName
 													};
 												})
 										) : (
@@ -440,7 +439,7 @@ class PurchaseOrderDetails extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter(
-													(product) => product.values.general.values.productType !== 'Service'
+													(product) => product.values.productType !== 'Service'
 												)
 												.filter((variable) => supplierProducts.includes(variable.variableName))
 												.filter((product) => {
@@ -451,9 +450,10 @@ class PurchaseOrderDetails extends React.Component {
 														.includes(product.variableName);
 												})
 												.map((variable) => {
+													
 													return {
 														value: variable.variableName,
-														label: variable.values.general.values.productName
+														label: variable.values.productName
 													};
 												})
 										) : (

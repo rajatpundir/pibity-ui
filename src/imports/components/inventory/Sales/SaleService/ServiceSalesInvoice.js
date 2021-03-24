@@ -365,7 +365,7 @@ class ServiceSalesInvoice extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.filter((product)=>product.values.general.values.productType === "Service").map((variable) => {
+											this.props.variables.Product.filter((product)=>product.values.productType === "Service").map((variable) => {
 												return { value: variable.variableName, label: variable.variableName };
 											})
 										) : (

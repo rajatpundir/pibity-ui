@@ -60,40 +60,29 @@ class Product extends React.Component {
 				[
 					'values',
 					new Map([
-						[
-							'general',
-							new Map([
-								[ 'variableName', '' ],
-								[
-									'values',
-									new Map([
-										[ 'additionalAttributeSet', '' ],
-										[ 'barcode', '' ],
-										[ 'billOfMaterial', '' ],
-										[ 'brand', '' ],
-										[ 'category', '' ],
-										[ 'comment', '' ],
-										[ 'defaultLocation', '' ],
-										[ 'description', '' ],
-										[ 'dropShip', '' ],
-										[ 'minimumBeforeReorder', '' ],
-										[ 'minimumReorderQuantity', '' ],
-										[ 'productCostingMethod', '' ],
-										[ 'productName', '' ],
-										[ 'productStatus', '' ],
-										[ 'productType', '' ],
-										[ 'productWarranty', '' ],
-										[ 'purchaseTaxRule', '' ],
-										[ 'salesTaxRule', '' ],
-										[ 'shortDescription', '' ],
-										[ 'stockLocator', '' ],
-										[ 'unitOfMeasure', '' ],
-										[ 'productDiscount', '' ],
-										[ 'internalNote', '' ]
-									])
-								]
-							])
-						],
+						[ 'additionalAttributeSet', '' ],
+						[ 'barcode', '' ],
+						[ 'billOfMaterial', '' ],
+						[ 'brand', '' ],
+						[ 'category', '' ],
+						[ 'comment', '' ],
+						[ 'defaultLocation', '' ],
+						[ 'description', '' ],
+						[ 'dropShip', '' ],
+						[ 'minimumBeforeReorder', '' ],
+						[ 'minimumReorderQuantity', '' ],
+						[ 'productCostingMethod', '' ],
+						[ 'productName', '' ],
+						[ 'productStatus', '' ],
+						[ 'productType', '' ],
+						[ 'productWarranty', '' ],
+						[ 'purchaseTaxRule', '' ],
+						[ 'salesTaxRule', '' ],
+						[ 'shortDescription', '' ],
+						[ 'stockLocator', '' ],
+						[ 'unitOfMeasure', '' ],
+						[ 'productDiscount', '' ],
+						[ 'internalNote', '' ],
 						[ 'productHeight', '0' ],
 						[ 'productLength', '0' ],
 						[ 'productWidth', '0' ],
@@ -142,12 +131,7 @@ class Product extends React.Component {
 						return objToMapRec(item);
 					});
 				const variableMap = objToMapRec(variable);
-				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
-				const values = variableMap.get('values');
-				const general = values.get('general');
-				general.set('variableName', variableMap.get('variableName'));
-				values.set('general', general);
-				variableMap.set('values', values);
+				const prevVariableMap = objToMapRec(prevState.prevPropVariable); 
 				return {
 					...prevState,
 					variable: variableMap,
@@ -159,7 +143,7 @@ class Product extends React.Component {
 			}
 		}
 		return prevState;
-	}
+	} 
 
 	getData() {
 		this.props.clearErrors();
@@ -205,22 +189,13 @@ class Product extends React.Component {
 	}
 
 	checkRequiredField(variable) {
-		if (variable.get('values').get('productSKU') === '') {
-			customErrorMessage('Product SKU is missing');
-			this.setState({ createProduct: false });
-		}
 		if (variable.get('variableName') === '') {
 			customErrorMessage('Product Name is missing');
 			this.setState({ createProduct: false });
 		}
 	}
 
-	updateDetails(details) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('general', details);
-		variable.set('values', values);
-		variable.set('variableName', details.get('variableName'));
+	updateDetails(variable) {
 		this.setState({ variable: variable });
 	}
 
@@ -273,40 +248,29 @@ class Product extends React.Component {
 				[
 					'values',
 					new Map([
-						[
-							'general',
-							new Map([
-								[ 'variableName', '' ],
-								[
-									'values',
-									new Map([
-										[ 'additionalAttributeSet', '' ],
-										[ 'barcode', '' ],
-										[ 'billOfMaterial', '' ],
-										[ 'brand', '' ],
-										[ 'category', '' ],
-										[ 'comment', '' ],
-										[ 'defaultLocation', '' ],
-										[ 'description', '' ],
-										[ 'dropShip', '' ],
-										[ 'minimumBeforeReorder', '' ],
-										[ 'minimumReorderQuantity', '' ],
-										[ 'productCostingMethod', '' ],
-										[ 'productName', '' ],
-										[ 'productStatus', '' ],
-										[ 'productType', '' ],
-										[ 'productWarranty', '' ],
-										[ 'purchaseTaxRule', '' ],
-										[ 'salesTaxRule', '' ],
-										[ 'shortDescription', '' ],
-										[ 'stockLocator', '' ],
-										[ 'unitOfMeasure', '' ],
-										[ 'productDiscount', '' ],
-										[ 'internalNote', '' ]
-									])
-								]
-							])
-						],
+						[ 'additionalAttributeSet', '' ],
+						[ 'barcode', '' ],
+						[ 'billOfMaterial', '' ],
+						[ 'brand', '' ],
+						[ 'category', '' ],
+						[ 'comment', '' ],
+						[ 'defaultLocation', '' ],
+						[ 'description', '' ],
+						[ 'dropShip', '' ],
+						[ 'minimumBeforeReorder', '' ],
+						[ 'minimumReorderQuantity', '' ],
+						[ 'productCostingMethod', '' ],
+						[ 'productName', '' ],
+						[ 'productStatus', '' ],
+						[ 'productType', '' ],
+						[ 'productWarranty', '' ],
+						[ 'purchaseTaxRule', '' ],
+						[ 'salesTaxRule', '' ],
+						[ 'shortDescription', '' ],
+						[ 'stockLocator', '' ],
+						[ 'unitOfMeasure', '' ],
+						[ 'productDiscount', '' ],
+						[ 'internalNote', '' ],
 						[ 'productHeight', '0' ],
 						[ 'productLength', '0' ],
 						[ 'productWidth', '0' ],
@@ -340,7 +304,7 @@ class Product extends React.Component {
 
 	createVariable() {
 		new Promise((resolve) => {
-			resolve(this.checkRequiredField(this.state.variable.get('values').get('general')));
+			resolve(this.checkRequiredField(this.state.variable));
 		}).then(() => {
 			if (this.state.createProduct) {
 				this.props.createVariable(this.state.variable).then((response) => {
@@ -505,8 +469,8 @@ class Product extends React.Component {
 							</HorizontalBlockListOuter>
 						</HorizontalListPageBlock>
 						<ProductGeneralDetails
-						    updatable={this.props.match.params.variableName?true:false}
-							variable={this.state.variable.get('values').get('general')}
+							updatable={this.props.match.params.variableName ? true : false}
+							variable={this.state.variable}
 							updateDetails={this.updateDetails}
 						/>
 						{this.state.visibleSection === 'dimensions' && (

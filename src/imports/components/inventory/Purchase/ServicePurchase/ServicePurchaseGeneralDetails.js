@@ -4,7 +4,7 @@ import Select from 'react-select';
 import { connect } from 'react-redux';
 import { cloneDeep } from 'lodash';
 import { clearErrors } from '../../../../redux/actions/errors';
-import { getVariables } from '../../../../redux/actions/variables';
+import { getVariables, objToMapRec } from '../../../../redux/actions/variables';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
@@ -31,12 +31,13 @@ class ServicePurchaseGeneralDetails extends React.Component {
 		super();
 		this.state = {
 			variable: props.variable,
+			supplierContacts: [],
+			supplierAddresses: [],
 			address: props.address,
 			contact: props.contact,
 			open: true
 		};
 		this.onChange = this.onChange.bind(this);
-		this.onVariableNameChange = this.onVariableNameChange.bind(this);
 	}
 
 	// clear form errors
@@ -47,53 +48,55 @@ class ServicePurchaseGeneralDetails extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			variable: nextProps.variable
+			variable: nextProps.variable,
+			address: nextProps.address,
+			contact: nextProps.contact
 		};
 	}
 
-	onVariableNameChange(e) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const supplierAddress = cloneDeep(this.state.address);
-		const addressValues = supplierAddress.get('values');
-		const supplierContact = cloneDeep(this.state.contact);
-		const contactValues = supplierContact.get('values');
-		values.set('supplierName', e.target.value);
-		if (e.target.data.contacts.length !== 0) {
-			const contact = values.get('contact');
-			contact.set('variableName', e.target.data.contacts[0].variableName);
-			contact.set('context', e.target.data.contacts[0].context);
-			values.set('contact', contact);
-			contactValues.set('name', e.target.data.contacts[0].values.name);
-			contactValues.set('phone', e.target.data.contacts[0].values.phone);
-			supplierContact.set('variableName', e.target.data.contacts[0].variableName);
-		}
-		if (e.target.data.addresses.length !== 0) {
-			const address = values.get('address');
-			address.set('variableName', e.target.data.addresses[0].variableName);
-			address.set('context', e.target.data.addresses[0].context);
-			values.set('address', address);
-			addressValues.set('line1', e.target.data.addresses[0].values.line1);
-			addressValues.set('line2', e.target.data.addresses[0].values.line2);
-			supplierAddress.set('variableName',  e.target.data.addresses[0].variableName);
-		}
-		values.set('term', e.target.data.general.values.paymentTerm);
-		values.set('taxRule', e.target.data.general.values.taxRule);
-		variable.set('variableName', e.target.value);
-		variable.set('values', values);
-		supplierAddress.set('values', addressValues);
-		supplierContact.set('values', contactValues);
-		this.setState({ variable: variable, address: supplierAddress, contact: supplierContact });
-		this.props.updateDetails(variable, supplierAddress, supplierContact);
-	}
-	
 	onChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		values.set(e.target.name, e.target.value);
+		const selectedAddress = cloneDeep(this.state.address);
+		const selectedContact = cloneDeep(this.state.contact);
+		switch (e.target.name) {
+			case 'supplierName':
+				values.set(e.target.name, e.target.value);
+				const supplierContacts =
+					this.props.variables !== undefined
+						? this.props.variables.SupplierContact !== undefined
+							? this.props.variables.SupplierContact.filter(
+									(contact) => contact.values.supplier === e.target.value
+								)
+							: []
+						: [];
+				const supplierAddresses =
+					this.props.variables !== undefined
+						? this.props.variables.SupplierAddress !== undefined
+							? this.props.variables.SupplierAddress.filter(
+									(address) => address.values.supplier === e.target.value
+								)
+							: []
+						: [];
+				this.setState({ supplierAddresses: supplierAddresses, supplierContacts: supplierContacts });
+				break;
+			case 'contact':
+				values.set(e.target.name, e.target.value);
+				selectedContact.set('variableName', e.target.value);
+				selectedContact.set('values', objToMapRec(e.target.data.values));
+				break;
+			case 'address':
+				values.set(e.target.name, e.target.value);
+				selectedAddress.set('variableName', e.target.value);
+				selectedAddress.set('values', objToMapRec(e.target.data.values));
+				break;
+			default:
+				values.set(e.target.name, e.target.value);
+				break;
+		}
 		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateDetails(variable, this.state.address, this.state.contact);
+		this.setState({ variable: variable, address: selectedAddress, contact: selectedContact });
+		this.props.updateDetails(variable, selectedAddress, selectedContact);
 	}
 
 	render() {
@@ -128,7 +131,7 @@ class ServicePurchaseGeneralDetails extends React.Component {
 											}}
 											isDisabled={this.props.creatable}
 											onChange={(option) => {
-												this.onVariableNameChange({
+												this.onChange({
 													target: {
 														name: 'supplierName',
 														value: option.value,
@@ -139,10 +142,7 @@ class ServicePurchaseGeneralDetails extends React.Component {
 											options={
 												this.props.variables.Supplier !== undefined ? (
 													this.props.variables.Supplier
-														.filter(
-															(supplier) =>
-																supplier.values.general.values.status === 'Active'
-														)
+														.filter((supplier) => supplier.values.status === 'Active')
 														.map((variable) => {
 															return {
 																value: variable.variableName,
@@ -162,13 +162,34 @@ class ServicePurchaseGeneralDetails extends React.Component {
 									</InputLabel>
 								</FormControl>
 								<FormControl>
-									<Input
-										name="contact"
-										type="text"
-										value={this.state.contact.get('values').get('name')}
-										readOnly
-									/>
-									<InputLabel>Contact</InputLabel>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.contact.get('values').get('name'),
+												label: this.state.contact.get('values').get('name')
+											}}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'contact',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={this.state.supplierContacts.map((variable) => {
+												return {
+													value: variable.variableName,
+													label: variable.values.name,
+													data: variable
+												};
+											})}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										Contact
+										<Required>*</Required>
+									</InputLabel>
 								</FormControl>
 								<FormControl>
 									<Input
@@ -183,13 +204,34 @@ class ServicePurchaseGeneralDetails extends React.Component {
 									</InputLabel>
 								</FormControl>
 								<FormControl>
-									<Input
-										name="vendorAddressLine1"
-										type="text"
-										value={this.state.address.get('values').get('line1')}
-										readOnly
-									/>
-									<InputLabel>Vendor Address Line 1</InputLabel>
+									<SelectWrapper>
+										<Select
+											value={{
+												value: this.state.address.get('values').get('line1'),
+												label: this.state.address.get('values').get('line1')
+											}}
+											onChange={(option) => {
+												this.onChange({
+													target: {
+														name: 'address',
+														value: option.value,
+														data: option.data
+													}
+												});
+											}}
+											options={this.state.supplierAddresses.map((variable) => {
+												return {
+													value: variable.variableName,
+													label: variable.values.line1,
+													data: variable
+												};
+											})}
+										/>
+									</SelectWrapper>
+									<InputLabel>
+										Vendor Address Line 1
+										<Required>*</Required>
+									</InputLabel>
 								</FormControl>
 								<FormControl>
 									<Input
@@ -232,10 +274,10 @@ class ServicePurchaseGeneralDetails extends React.Component {
 								<FormControl>
 									<Input
 										name="requiredBy"
-										type="text"
-										placeholder="requiredy"
+										type="date"
 										value={this.state.variable.get('values').get('requiredBy')}
 										onChange={this.onChange}
+										style={{ height: '38px' }}
 									/>
 									<InputLabel>Required By</InputLabel>
 								</FormControl>
@@ -261,7 +303,7 @@ class ServicePurchaseGeneralDetails extends React.Component {
 													this.props.variables.Account.map((variable) => {
 														return {
 															value: variable.variableName,
-															label: variable.variableName,
+															label: variable.values.name,
 															data: variable.values
 														};
 													})
@@ -308,12 +350,10 @@ class ServicePurchaseGeneralDetails extends React.Component {
 							</InputColumnWrapper>
 							<InputColumnWrapper>
 								<H3>Shipping Details</H3>
-
 								<FormControl>
 									<Input
 										name="date"
 										type="date"
-										placeholder="date"
 										value={this.state.variable.get('values').get('date')}
 										onChange={this.onChange}
 										style={{ height: '38px' }}

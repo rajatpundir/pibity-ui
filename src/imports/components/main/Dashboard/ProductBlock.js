@@ -54,14 +54,14 @@ class ProductBlock extends React.Component {
 								<TableHeaderInner>{data.variableName}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
-								<TableHeaderInner>{data.values.general.values.productType}</TableHeaderInner>
+								<TableHeaderInner>{data.values.productType}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
-								<TableHeaderInner>{data.values.general.values.categorey}</TableHeaderInner>
+								<TableHeaderInner>{data.values.categorey}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
 								<TableHeaderInner>
-									<Span>{data.values.general.values.productStatus}</Span>
+									<Span>{data.values.productStatus}</Span>
 								</TableHeaderInner>
 							</TableData>
 						</TableRow>

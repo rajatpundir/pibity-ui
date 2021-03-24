@@ -70,7 +70,7 @@ class CustoemrBlock extends React.Component {
 							</TableData>
 							<TableData width="10%">
 								<TableHeaderInner>
-									<Span>{data.values.general.values.status}</Span>
+									<Span>{data.values.status}</Span>
 								</TableHeaderInner>
 							</TableData>
 						</TableRow>

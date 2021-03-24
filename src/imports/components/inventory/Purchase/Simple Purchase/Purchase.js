@@ -116,7 +116,6 @@ class Purchase extends React.Component {
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateOrder = this.updateOrder.bind(this);
-		this.updateStock = this.updateStock.bind(this);
 		this.onCalculateTotal = this.onCalculateTotal.bind(this);
 		this.updatePurchaseOrderServiceItems = this.updatePurchaseOrderServiceItems.bind(this);
 		this.updatePurchaseOrderItems = this.updatePurchaseOrderItems.bind(this);
@@ -273,14 +272,6 @@ class Purchase extends React.Component {
 
 	updatePurchaseOrderServiceItems(purchaseOrderServiceItems) {
 		this.setState({ purchaseOrderServiceItems }, () => this.onCalculateTotal());
-	}
-
-	updateStock(productStock) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		values.set('stockReceived', productStock);
-		variable.set('values', values);
-		this.setState({ variable: variable });
 	}
 
 	onCalculateTotal() {

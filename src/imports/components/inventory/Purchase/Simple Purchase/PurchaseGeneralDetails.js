@@ -100,7 +100,6 @@ class PurchaseGeneralDetails extends React.Component {
 	}
 
 	render() {
-		console.log(this.state.supplierAddresses)
 		return (
 			<PageBlock style={{ display: 'block' }} paddingBottom="0">
 				<PageToolbar>

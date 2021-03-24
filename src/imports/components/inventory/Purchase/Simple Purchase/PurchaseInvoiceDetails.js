@@ -520,12 +520,12 @@ class PurchaseInvoiceDetails extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter(
-													(product) => product.values.general.values.productType === 'Service'
+													(product) => product.values.productType === 'Service'
 												)
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.general.values.productName
+														label: variable.values.productName
 													};
 												})
 										) : (
@@ -656,12 +656,12 @@ class PurchaseInvoiceDetails extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter(
-													(product) => product.values.general.values.productType !== 'Service'
+													(product) => product.values.productType !== 'Service'
 												)
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.general.values.productName
+														label: variable.values.productName
 													};
 												})
 										) : (

@@ -5,7 +5,13 @@ import styled from 'styled-components';
 import Select from 'react-select';
 import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
-import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
+import {
+	createVariable,
+	getVariables,
+	updateVariable,
+	objToMapRec,
+	addKeyToList
+} from '../../../../redux/actions/variables';
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -71,9 +77,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'additionalCost', [] ],
-						[ 'productInvoiceDetails', [] ],
-						[ 'supplierDeposit', [] ],
+						[ 'purchaseOrder', props.purchaseOrder.variableName ],
 						[ 'invoiceDate', '' ],
 						[ 'dueDate', '' ],
 						[ 'invoiceNumber', '' ],
@@ -81,9 +85,10 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 						[ 'purchaseOrderMemo', '' ],
 						[ 'transactions', [] ],
 						[ 'balanceDue', 0 ],
-						[ 'purchaseOrder', '' ],
-						[ 'supplier', '' ],
-						[ 'account', '' ],
+						[ 'purchase', props.purchase ],
+						[ 'location', props.location ],
+						[ 'supplier', props.supplier ],
+						[ 'account', props.account ],
 						[ 'paymentStatus', 'Due' ],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
@@ -91,46 +96,56 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 						[ 'totalTaxOnAdditionalCost', 0 ]
 					])
 				]
-			])
+			]),
+			purchaseInvoiceServiceItems: []
 		};
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
-		this.onCopyProductOrderFromOrder = this.onCopyProductOrderFromOrder.bind(this);
+		this.onCopyServiceItems = this.onCopyServiceItems.bind(this);
 		this.onCalculateTotal = this.onCalculateTotal.bind(this);
 	}
 
 	componentDidMount() {
 		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('ProductStore');
+		this.props.getVariables('PurchaseInvoiceItem');
+		this.props.getVariables('PurchaseInvoiceServiceItem');
 		this.props.clearErrors();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
-		if (nextProps.variables.PurchaseInvoice) {
+		if (
+			nextProps.variables.PurchaseInvoice &&
+			nextProps.purchase &&
+			nextProps.PurchaseInvoiceItem &&
+			nextProps.PurchaseInvoiceServiceItem
+		) {
 			const variable = nextProps.variables.PurchaseInvoice.filter(
-				(variable) => variable.values.purchaseOrder === nextProps.purchaseOrder
+				(variable) => variable.values.purchase === nextProps.purchase
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+				const purchaseInvoiceServiceItems = nextProps.variables.PurchaseInvoiceServiceItem
+					.filter(
+						(serviceItem) =>
+							serviceItem.values.purchaseInvoice === variable.variableName &&
+							serviceItem.values.purchase === nextProps.purchase
+					)
+					.map((item) => {
+						return objToMapRec(item);
+					});
 				return {
 					...prevState,
 					updateInvoice: variable.values.transactions.length === 0 ? true : false,
 					createInvoice: false,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
-				};
-			}
-			if (nextProps.purchaseOrder && variable === undefined) {
-				const variable = prevState.variable;
-				const values = variable.get('values');
-				values.set('purchaseOrder', nextProps.purchaseOrder);
-				values.set('supplier', nextProps.supplier);
-				values.set('account', nextProps.account);
-				variable.set('values', values);
-				return {
-					...prevState,
-					variable: variable
+					prevVariable: prevVariableMap,
+					purchaseInvoiceServiceItems:
+						purchaseInvoiceServiceItems.length !== 0
+							? purchaseInvoiceServiceItems
+							: prevState.purchaseInvoiceServiceItems
 				};
 			}
 		}
@@ -147,29 +162,34 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 		this.setState({ variable: variable });
 	}
 
-	onCopyProductOrderFromOrder(DataToBeCopied) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		switch (DataToBeCopied) {
-			case 'additionalCost':
-				values.set('additionalCost', this.props.orderDetails.get('values').get('additionalCost'));
-				break;
-			case 'supplierDeposit':
-				values.set('supplierDeposit', this.props.orderDetails.get('values').get('supplierDeposit'));
-				break;
-			default:
-				break;
-		}
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => {
+	onCopyServiceItems() {
+		const purchaseInvoiceServiceItems = this.props.purchaseOrderServiceItems.map((item) => {
+			return new Map([
+				[ 'typeName', 'PurchaseInvoiceServiceItem' ],
+				[ 'variableName', item.get('variableName') ],
+				[
+					'values',
+					new Map([
+						[ 'purchase', item.get('values').get('sales') ],
+						[ 'purchaseInvoice', '' ],
+						[ 'product', item.get('values').get('description') ],
+						[ 'discount', item.get('values').get('discount') ],
+						[ 'price', item.get('values').get('price') ],
+						[ 'quantity', item.get('values').get('quantity') ],
+						[ 'reference', item.get('values').get('reference') ],
+						[ 'taxRule', item.get('values').get('taxRule') ],
+						[ 'total', item.get('values').get('total') ]
+					])
+				]
+			]);
+		});
+		this.setState({ purchaseInvoiceServiceItems }, () => {
 			this.onCalculateTotal();
 		});
 	}
 
 	onAdditionalCostChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').map((listVariable) => {
+		const purchaseInvoiceServiceItems = this.state.purchaseInvoiceServiceItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -192,13 +212,16 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 						);
 						break;
 					case 'discount':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('quantity') *
-								listVariable.get('values').get('price') *
-								((100 - e.target.value) / 100)
-						);
+						if(e.target.value<=100){
+							values.set(e.target.name, e.target.value);
+							values.set(
+								'total',
+								listVariable.get('values').get('quantity') *
+									listVariable.get('values').get('price') *
+									((100 - e.target.value) / 100)
+							);
+						}
+						
 						break;
 					default:
 						values.set(e.target.name, e.target.value);
@@ -210,26 +233,29 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => {
+		this.setState({ purchaseInvoiceServiceItems }, () => {
 			this.onCalculateTotal();
 		});
 	}
 
 	addVariableToadditionalCostList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost');
-		list.unshift(
+		const purchaseInvoiceServiceItems = this.state.purchaseInvoiceServiceItems;
+		purchaseInvoiceServiceItems.unshift(
 			new Map([
+				[ 'typeName', 'PurchaseInvoiceServiceItem' ],
 				[
 					'variableName',
-					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
+					String(
+						purchaseInvoiceServiceItems.length === 0
+							? 0
+							: Math.max(...purchaseInvoiceServiceItems.map((o) => o.get('variableName'))) + 1
+					)
 				],
 				[
 					'values',
 					new Map([
+						[ 'purchase', this.props.purchase ],
+						[ 'purchaseInvoice', '' ],
 						[ 'description', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
@@ -241,32 +267,23 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 				]
 			])
 		);
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ purchaseInvoiceServiceItems });
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').filter((listVariable) => {
+		const purchaseInvoiceServiceItems = this.state.purchaseInvoiceServiceItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable },() => {
+		this.setState({ purchaseInvoiceServiceItems }, () => {
 			this.onCalculateTotal();
 		});
 	}
 
 	onCalculateTotal() {
-		var productCostBeforeTax = 0;
-		var totalTaxOnProduct = 0;
 		var additionalCostBeforeTax = 0;
 		var totalTaxOnAdditionalCost = 0;
-		const values = this.state.variable.get('values');
-
-		values.get('additionalCost').forEach((listVariable) => {
+		//AdditionalCost
+		this.state.purchaseInvoiceServiceItems.forEach((listVariable) => {
 			const taxRule = this.props.variables.TaxRule.filter(
 				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
 			)[0];
@@ -291,7 +308,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 				additionalCostBeforeTax = additionalCostBeforeTax + listVariable.get('values').get('total');
 			}
 		});
-		const totalCost = productCostBeforeTax + totalTaxOnProduct + additionalCostBeforeTax + totalTaxOnAdditionalCost;
+		const totalCost = additionalCostBeforeTax + totalTaxOnAdditionalCost;
 		const variable = cloneDeep(this.state.variable);
 		const Variablevalues = variable.get('values');
 		Variablevalues.set('balanceDue', totalCost);
@@ -306,8 +323,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('additionalCost').forEach((listVariable) =>
+		this.state.purchaseInvoiceServiceItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%">
@@ -336,13 +352,11 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 									options={
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
-												.filter(
-													(product) => product.values.general.values.productType === 'Service'
-												)
+												.filter((product) => product.values.productType === 'Service')
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.general.values.productName
+														label: variable.values.productName
 													};
 												})
 										) : (
@@ -439,6 +453,24 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 			)
 		);
 		return rows;
+	}
+
+	createInvoice() {
+		this.props.createVariable(this.state.variable).then((response) => {
+			if (response.status === 200) {
+				const invoice = response.data;
+				this.props
+					.createVariables(
+						addKeyToList(this.state.purchaseInvoiceServiceItems, 'purchaseInvoice', invoice.variableName)
+					)
+					.then((response) => {
+						if (response.status === 200) {
+							
+							successMessage(' Purchase Invoice Created');
+						}
+					});
+			}
+		});
 	}
 
 	render() {
@@ -547,7 +579,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 							borderOnHover="#3b3b3b"
 							backgroundOnHover="#F7FAFD"
 							margin="0 5px"
-							onClick={(e) => this.onCopyProductOrderFromOrder('additionalCost')}
+							onClick={(e) => this.onCopyServiceItems()}
 						>
 							<FontAwsomeIcon className="fa fa-clone" />
 							Copy From Order
@@ -620,7 +652,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
+								{this.state.purchaseInvoiceServiceItems.length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
 									undefined
@@ -708,68 +740,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 						</RightBlockTable>
 					</RightBlock>
 				</EqualBlockContainer>
-				{/* supplier deposit */}
-				<InputBody style={{ border: 'none' }} overflow="visible">
-					<RoundedBlock overflow="visible">
-						<TableFieldContainer overflow="visible">
-							<Headers>
-								<HeaderContainer>
-									<HeaderBody>
-										<BodyTable>
-											<TableBody>
-												<TableRow>
-													<TableHeaders width="5%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="14%">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Account</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="38%">
-														<SelectIconContainer>
-															<SelectSpan>Reference </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="59%">
-														<SelectIconContainer>
-															<SelectSpan>Date Paid </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="20%" left="77%">
-														<SelectIconContainer>
-															<SelectSpan>Amount </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-												</TableRow>
-											</TableBody>
-										</BodyTable>
-									</HeaderBody>
-								</HeaderContainer>
-							</Headers>
-							<HeaderBodyContainer>
-								<HeaderBody>
-									<BodyTable>
-										<TableBody>
-											<TableRow>
-												<TableData width="58px" />
-												<TableData width="168px" />
-												<TableData width="168px" />
-												<TableData width="168px" />
-											</TableRow>
-										</TableBody>
-									</BodyTable>
-								</HeaderBody>
-								<EmptyRow>You do not have any supplier deposits</EmptyRow>
-							</HeaderBodyContainer>
-						</TableFieldContainer>
-					</RoundedBlock>
+				<InputBody>
 					<RoundedBlock style={{ marginTop: '20px' }}>
 						<RoundBlockOuterDiv>
 							<RoundBlockInnerDiv>
