@@ -386,7 +386,7 @@ class CustomerAddresses extends React.Component {
 							<Custombutton
 								height="30px"
 								onClick={(e) => {
-									this.props.updateSupplierAddress();
+									this.props.updateCustomerAddress();
 								}}
 							>
 								Update

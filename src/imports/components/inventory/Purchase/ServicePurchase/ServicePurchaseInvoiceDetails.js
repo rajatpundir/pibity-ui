@@ -7,6 +7,7 @@ import { clearErrors } from '../../../../redux/actions/errors';
 import { successMessage } from '../../../main/Notification';
 import {
 	createVariable,
+	createVariables,
 	getVariables,
 	updateVariable,
 	objToMapRec,
@@ -193,6 +194,10 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -353,10 +358,18 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter((product) => product.values.productType === 'Service')
+												.filter((product) => {
+													return !this.state.purchaseInvoiceServiceItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.productName
+														label: variable.values.productName,
+														data: variable
 													};
 												})
 										) : (
@@ -763,7 +776,7 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables, createVariable, updateVariable })(
+export default connect(mapStateToProps, { clearErrors, getVariables, createVariable,createVariables, updateVariable })(
 	ServicePurchaseInvoiceDetails
 );
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

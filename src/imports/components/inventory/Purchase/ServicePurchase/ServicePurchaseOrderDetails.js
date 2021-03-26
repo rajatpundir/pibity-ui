@@ -88,6 +88,10 @@ class ServicePurchaseOrderDetails extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -196,7 +200,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onAdditionalCostChange(
-											{ target: { name: 'description', value: option.value } },
+											{ target: { name: 'description', value: option.value ,data:option.data } },
 											listVariable.get('variableName')
 										);
 									}}
@@ -206,10 +210,18 @@ class ServicePurchaseOrderDetails extends React.Component {
 												.filter(
 													(product) => product.values.productType === 'Service'
 												)
+												.filter((product) => {
+													return !this.state.purchaseOrderServiceItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.productName
+														label: variable.values.productName,
+														data: variable
 													};
 												})
 										) : (

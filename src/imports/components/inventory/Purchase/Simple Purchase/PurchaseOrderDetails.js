@@ -97,6 +97,10 @@ class PurchaseOrderDetails extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -116,13 +120,15 @@ class PurchaseOrderDetails extends React.Component {
 						);
 						break;
 					case 'discount':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('quantity') *
-								listVariable.get('values').get('price') *
-								((100 - e.target.value) / 100)
-						);
+						if(e.target.value<=100){
+							values.set(e.target.name, e.target.value);
+							values.set(
+								'total',
+								listVariable.get('values').get('quantity') *
+									listVariable.get('values').get('price') *
+									((100 - e.target.value) / 100)
+							);
+						}
 						break;
 					default:
 						values.set(e.target.name, e.target.value);
@@ -143,6 +149,23 @@ class PurchaseOrderDetails extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						const supplierProduct = this.state.productSupplier.filter(
+							(item) =>
+								item.values.supplier === this.props.supplier && item.values.product === e.target.value
+						)[0];
+						values.set('supplierSKU', supplierProduct.values.supplierSKU);
+						values.set('price', supplierProduct.values.latestPrice);
+						values.set(
+							'total',
+							listVariable.get('values').get('quantity') *
+							supplierProduct.values.latestPrice *
+								((100 - listVariable.get('values').get('discount')) / 100)
+						);
+						values.set('unit', e.target.data.values.unitOfMeasure);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -162,13 +185,15 @@ class PurchaseOrderDetails extends React.Component {
 						);
 						break;
 					case 'discount':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('quantity') *
-								listVariable.get('values').get('price') *
-								((100 - e.target.value) / 100)
-						);
+						if(e.target.value<=100){
+							values.set(e.target.name, e.target.value);
+							values.set(
+								'total',
+								listVariable.get('values').get('quantity') *
+									listVariable.get('values').get('price') *
+									((100 - e.target.value) / 100)
+							);
+						}
 						break;
 					default:
 						values.set(e.target.name, e.target.value);
@@ -264,7 +289,7 @@ class PurchaseOrderDetails extends React.Component {
 		const purchaseOrderServiceItems = this.state.purchaseOrderServiceItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		this.setState({purchaseOrderServiceItems});
+		this.setState({ purchaseOrderServiceItems });
 		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
@@ -299,13 +324,19 @@ class PurchaseOrderDetails extends React.Component {
 									options={
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
-												.filter(
-													(product) => product.values.productType === 'Service'
-												)
+												.filter((product) => product.values.productType === 'Service')
+												.filter((product) => {
+													return !this.state.purchaseOrderServiceItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.productName
+														label: variable.values.productName,
+														data: variable
 													};
 												})
 										) : (
@@ -409,7 +440,7 @@ class PurchaseOrderDetails extends React.Component {
 		const supplierProducts = this.state.productSupplier
 			.filter((productSupplier) => productSupplier.values.supplier === this.props.supplier)
 			.map((item) => item.values.product);
-			this.state.purchaseOrderItems.forEach((listVariable) =>
+		this.state.purchaseOrderItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%" left="0px">
@@ -431,16 +462,14 @@ class PurchaseOrderDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onProductOrderInputChange(
-											{ target: { name: 'product', value: option.value } },
+											{ target: { name: 'product', value: option.value, data: option.data } },
 											listVariable.get('variableName')
 										);
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
-												.filter(
-													(product) => product.values.productType !== 'Service'
-												)
+												.filter((product) => product.values.productType !== 'Service')
 												.filter((variable) => supplierProducts.includes(variable.variableName))
 												.filter((product) => {
 													return !this.state.purchaseOrderItems
@@ -450,10 +479,10 @@ class PurchaseOrderDetails extends React.Component {
 														.includes(product.variableName);
 												})
 												.map((variable) => {
-													
 													return {
 														value: variable.variableName,
-														label: variable.values.productName
+														label: variable.values.productName,
+														data: variable
 													};
 												})
 										) : (

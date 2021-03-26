@@ -161,14 +161,14 @@ class CollapseData extends React.Component {
 						<TableHeaderInner overflow="hidden">
 							<StatusSpan
 								backgroundColor={
-									this.state.data.values.general.values.status === 'Active' ? (
+									this.state.data.values.status === 'Active' ? (
 										StatusBackgroundColor.active
 									) : (
 										StatusBackgroundColor.depricated
 									)
 								}
 							>
-								{this.state.data.values.general.values.status}
+								{this.state.data.values.status}
 							</StatusSpan>
 						</TableHeaderInner>
 					</TableData>

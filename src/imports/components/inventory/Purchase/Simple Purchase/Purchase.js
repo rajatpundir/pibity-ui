@@ -138,6 +138,10 @@ class Purchase extends React.Component {
 		this.props.getVariables('PurchaseOrder');
 		this.props.getVariables('PurchaseOrderItem');
 		this.props.getVariables('PurchaseOrderServiceItem');
+		this.props.getVariables('PurchaseInvoice');
+		this.props.getVariables('ProductStore');
+		this.props.getVariables('PurchaseInvoiceItem');
+		this.props.getVariables('PurchaseInvoiceServiceItem');
 	}
 
 	componentDidMount() {
@@ -219,8 +223,8 @@ class Purchase extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					supplierAddress: mapToObjectRec(supplierAddress),
-					supplierContact: mapToObjectRec(supplierContact),
+					supplierAddress: objToMapRec(supplierAddress),
+					supplierContact: objToMapRec(supplierContact),
 					createPo: false,
 					purchaseVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,

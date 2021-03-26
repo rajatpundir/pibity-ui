@@ -91,6 +91,7 @@ class Supplier extends React.Component {
 			supplierProducts: [],
 			prevSupplierProducts: [],
 			supplierAccount: '',
+			addProducts: true,
 			visibleSection: 'addresses'
 		};
 		this.updateDetails = this.updateDetails.bind(this);
@@ -101,6 +102,7 @@ class Supplier extends React.Component {
 		this.updateSupplierProducts = this.updateSupplierProducts.bind(this);
 		this.updateSupplierAddress = this.updateSupplierAddress.bind(this);
 		this.updateSupplierContacts = this.updateSupplierContacts.bind(this);
+		this.createSupplierProducts = this.createSupplierProducts.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
 		this.updateProducts = this.updateProducts.bind(this);
@@ -142,6 +144,7 @@ class Supplier extends React.Component {
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				return {
 					...prevState,
+
 					account: accountMap,
 					variable: variableMap,
 					prevPropVariable: variable,
@@ -153,7 +156,8 @@ class Supplier extends React.Component {
 						supplierAddresses.length !== 0 ? supplierAddresses : prevState.supplierAddresses,
 					supplierAddresses: supplierAddresses.length !== 0 ? supplierAddresses : prevState.supplierAddresses,
 					prevSupplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts,
-					supplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts
+					supplierProducts: supplierProducts.length !== 0 ? supplierProducts : prevState.supplierProducts,
+					addProducts: supplierProducts.length === 0 ? true : false
 				};
 			}
 			if (variable === prevState.variable) {
@@ -386,6 +390,7 @@ class Supplier extends React.Component {
 	updateSupplierAddress() {
 		this.props.updateVariables(this.state.prevSupplierAddresses, this.state.supplierAddresses).then((response) => {
 			if (response.status === 200) {
+				this.setState({ addProducts: false });
 				this.props.getVariables('SupplierAddress');
 				successMessage(' Supplier Address updated');
 			}
@@ -610,6 +615,7 @@ class Supplier extends React.Component {
 						)}
 						{this.state.visibleSection === 'supplierProducts' ? (
 							<SupplierProduct
+								addProducts={this.state.addProducts}
 								supplier={this.props.match.params.variableName}
 								updatable={this.props.match.params.variableName ? true : false}
 								supplierProducts={this.state.supplierProducts}

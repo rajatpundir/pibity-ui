@@ -371,6 +371,7 @@ class Customer extends React.Component {
 										new Promise((resolve) => {
 											resolve(this.checkRequiredField(this.state.variable));
 										}).then(() => {
+											console.log(this.state.createCustomer)
 											if (this.state.createCustomer) {
 												this.props
 													.createAccount(this.state.account)

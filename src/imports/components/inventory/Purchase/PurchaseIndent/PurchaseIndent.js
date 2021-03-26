@@ -9,19 +9,13 @@ import {
 	getVariable,
 	objToMapRec,
 	getVariables,
-    mapToObjectRec,
-    createVariable,
+	mapToObjectRec,
+	createVariable,
 	createVariables
 } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
 import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
-import {
-	Container,
-	PageWrapper,
-	PageBody,
-	SaveButtonContaier,
-	SaveButton
-} from '../../../../styles/inventory/Style';
+import { Container, PageWrapper, PageBody, SaveButtonContaier, SaveButton } from '../../../../styles/inventory/Style';
 import PurchaseIndentDetail from './PurchaseIndentDetail';
 import Lottie from 'react-lottie';
 import * as loadingData from '../../../main/loading.json';
@@ -206,10 +200,7 @@ class PurchaseIndent extends React.Component {
 				},
 				{
 					label: 'Exit',
-					onClick: () => console.log('hello')
-					// this.props.history.push(
-					// 	'/productMovementOrderList/orderPlcaed'
-					// )
+					onClick: () => this.props.history.push('/purchaseIndentList')
 				}
 			],
 			closeOnEscape: false,
@@ -293,6 +284,6 @@ export default connect(mapStateToProps, {
 	getVariable,
 	getVariables,
 	executeFuntion,
-    createVariables,
-    createVariable
+	createVariables,
+	createVariable
 })(PurchaseIndent);

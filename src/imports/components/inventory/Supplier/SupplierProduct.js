@@ -234,16 +234,7 @@ class SupplierProduct extends React.Component {
 						<LeftItemH1>Supplier Products</LeftItemH1>
 					</ToolbarItems>
 					<ToolbarItems>
-						{this.props.updatable ? this.state.list.length !== 0 ? (
-							<Custombutton
-								height="30px"
-								onClick={(e) => {
-									this.props.update();
-								}}
-							>
-								Update
-							</Custombutton>
-						) : (
+						{this.props.updatable ? this.props.addProducts ? (
 							<Custombutton
 								height="30px"
 								onClick={(e) => {
@@ -251,6 +242,15 @@ class SupplierProduct extends React.Component {
 								}}
 							>
 								Create
+							</Custombutton>
+						) : (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.update();
+								}}
+							>
+								Update
 							</Custombutton>
 						) : (
 							undefined

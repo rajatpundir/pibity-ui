@@ -6,6 +6,7 @@ import { customErrorMessage, successMessage, CustomNotification } from '../../..
 import { clearErrors } from '../../../../redux/actions/errors';
 import {
 	createVariable,
+	createVariables,
 	getVariables,
 	getVariable,
 	updateVariable,
@@ -164,7 +165,7 @@ class ServicePurchase extends React.Component {
 			nextProps.variables.SupplierContact &&
 			nextProps.variables.SupplierAddress
 		) {
-			const variable = nextProps.variables.PurchaseOrder.filter(
+			const variable = nextProps.variables.Purchase.filter(
 				(variable) => variable.variableName === nextProps.match.params.variableName
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
@@ -201,8 +202,8 @@ class ServicePurchase extends React.Component {
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
-					supplierAddress: mapToObjectRec(supplierAddress),
-					supplierContact: mapToObjectRec(supplierContact),
+					supplierAddress: objToMapRec(supplierAddress),
+					supplierContact: objToMapRec(supplierContact),
 					createPo: false,
 					purchaseVariableName: variable.variableName,
 					supplier: variable.values.general.values.supplierName,
@@ -455,6 +456,7 @@ const mapStateToProps = (state, ownProps) => ({
 export default connect(mapStateToProps, {
 	clearErrors,
 	createVariable,
+	createVariables,
 	getVariable,
 	getVariables,
 	updateVariable

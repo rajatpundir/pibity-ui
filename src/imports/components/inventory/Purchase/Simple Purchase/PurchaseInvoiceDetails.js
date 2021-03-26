@@ -103,7 +103,8 @@ class PurchaseInvoiceDetails extends React.Component {
 				]
 			]),
 			purchaseInvoiceServiceItems: [],
-			purchaseInvoiceItems: []
+			purchaseInvoiceItems: [],
+			productSupplier:[]
 		};
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
@@ -124,8 +125,8 @@ class PurchaseInvoiceDetails extends React.Component {
 		if (
 			nextProps.variables.PurchaseInvoice &&
 			nextProps.purchase &&
-			nextProps.PurchaseInvoiceItem &&
-			nextProps.PurchaseInvoiceServiceItem
+			nextProps.variables.PurchaseInvoiceItem &&
+			nextProps.variables.PurchaseInvoiceServiceItem
 		) {
 			const variable = nextProps.variables.PurchaseInvoice.filter(
 				(variable) => variable.values.purchase === nextProps.purchase
@@ -133,6 +134,7 @@ class PurchaseInvoiceDetails extends React.Component {
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+
 				const purchaseInvoiceItems = nextProps.variables.PurchaseInvoiceItem
 					.filter(
 						(item) =>
@@ -163,7 +165,13 @@ class PurchaseInvoiceDetails extends React.Component {
 							? purchaseInvoiceServiceItems
 							: prevState.purchaseInvoiceServiceItems,
 					purchaseInvoiceItems:
-						purchaseInvoiceItems.length !== 0 ? purchaseInvoiceItems : prevState.purchaseInvoiceItems
+						purchaseInvoiceItems.length !== 0 ? purchaseInvoiceItems : prevState.purchaseInvoiceItems,
+					productSupplier:
+						nextProps.variables !== undefined
+							? nextProps.variables.ProductSupplier !== undefined
+								? nextProps.variables.ProductSupplier
+								: []
+							: []
 				};
 			}
 		}
@@ -244,6 +252,10 @@ class PurchaseInvoiceDetails extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -291,6 +303,23 @@ class PurchaseInvoiceDetails extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						const supplierProduct = this.state.productSupplier.filter(
+							(item) =>
+								item.values.supplier === this.props.supplier && item.values.product === e.target.value
+						)[0];
+						values.set('supplierSKU', supplierProduct.values.supplierSKU);
+						values.set('price', supplierProduct.values.latestPrice);
+						values.set(
+							'total',
+							listVariable.get('values').get('quantity') *
+								supplierProduct.values.latestPrice *
+								((100 - listVariable.get('values').get('discount')) / 100)
+						);
+						values.set('unit', e.target.data.values.unitOfMeasure);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -512,20 +541,26 @@ class PurchaseInvoiceDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onAdditionalCostChange(
-											{ target: { name: 'description', value: option.value } },
+											{ target: { name: 'description', value: option.value,data:option.data } },
 											listVariable.get('variableName')
 										);
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
-												.filter(
-													(product) => product.values.productType === 'Service'
-												)
+												.filter((product) => product.values.productType === 'Service')
+												.filter((product) => {
+													return !this.state.purchaseInvoiceServiceItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.productName
+														label: variable.values.productName,
+														data: variable
 													};
 												})
 										) : (
@@ -626,6 +661,9 @@ class PurchaseInvoiceDetails extends React.Component {
 
 	renderProductOrderInputFields() {
 		const rows = [];
+		const supplierProducts = this.state.productSupplier
+			.filter((productSupplier) => productSupplier.values.supplier === this.props.supplier)
+			.map((item) => item.values.product);
 		this.state.purchaseInvoiceItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
@@ -648,20 +686,27 @@ class PurchaseInvoiceDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onProductOrderInputChange(
-											{ target: { name: 'product', value: option.value } },
+											{ target: { name: 'product', value: option.value ,data:option.data} },
 											listVariable.get('variableName')
 										);
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
-												.filter(
-													(product) => product.values.productType !== 'Service'
-												)
+												.filter((product) => product.values.productType !== 'Service')
+												.filter((variable) => supplierProducts.includes(variable.variableName))
+												.filter((product) => {
+													return !this.state.purchaseInvoiceItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.productName
+														label: variable.values.productName,
+														data: variable
 													};
 												})
 										) : (
@@ -702,7 +747,7 @@ class PurchaseInvoiceDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onProductOrderInputChange(
-											{ target: { name: 'unit', value: option.value } },
+											{ target: { name: 'unit', value: option.value, } },
 											listVariable.get('variableName')
 										);
 									}}
