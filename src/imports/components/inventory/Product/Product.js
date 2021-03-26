@@ -12,6 +12,7 @@ import {
 	getVariables,
 	getVariable,
 	updateVariable,
+	updateVariables,
 	objToMapRec
 } from '../../../redux/actions/variables';
 import ProductDimension from './ProductDimension';
@@ -93,8 +94,10 @@ class Product extends React.Component {
 				]
 			]),
 			productStore: [],
-			productSupplier: [],
-			visibleSection: 'price'
+			productSuppliers: [],
+			prevProductSuppliers:[],
+			visibleSection: 'price',
+			ceateSupplierProducts:true
 		};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateDimensions = this.updateDimensions.bind(this);
@@ -103,10 +106,13 @@ class Product extends React.Component {
 		this.updateProductReorderLevels = this.updateProductReorderLevels.bind(this);
 		this.updateSupplierLocation = this.updateSupplierLocation.bind(this);
 		this.updateSupplierProduct = this.updateSupplierProduct.bind(this);
+		this.createSupplierProducts = this.createSupplierProducts.bind(this);
+		this.updateProducts = this.updateProducts.bind(this);
 		this.checkRequiredField = this.checkRequiredField.bind(this);
 		this.onClose = this.onClose.bind(this);
 		this.onScroll = this.onScroll.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
+		
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -125,7 +131,7 @@ class Product extends React.Component {
 					.map((item) => {
 						return objToMapRec(item);
 					});
-				const productSupplier = nextProps.variables.ProductSupplier
+				const productSuppliers = nextProps.variables.ProductSupplier
 					.filter((supplier) => supplier.values.product === variable.variableName)
 					.map((item) => {
 						return objToMapRec(item);
@@ -138,7 +144,10 @@ class Product extends React.Component {
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap,
 					productStore: productStore,
-					productSupplier: productSupplier
+					productSuppliers: productSuppliers,
+					prevProductSuppliers: productSuppliers.length !== 0 ? productSuppliers : prevState.productSuppliers,
+					ceateSupplierProducts: productSuppliers.length === 0 ? true : false
+
 				};
 			}
 		}
@@ -231,12 +240,32 @@ class Product extends React.Component {
 		this.setState({ variable: variable });
 	}
 
-	updateSupplierProduct(productSupplier) {
-		this.setState({ productSupplier: productSupplier });
+	updateSupplierProduct(productSuppliers) {
+		this.setState({ productSuppliers: productSuppliers });
 	}
 
 	onScroll(scrollOffset) {
 		document.getElementById('listnav').scrollLeft += scrollOffset;
+	}
+
+	createSupplierProducts() {
+		this.props.createVariables(this.state.productSuppliers).then((response) => {
+			if (response.status === 200) {
+				this.setState({ ceateSupplierProducts: false });
+				this.props.getVariables('ProductSupplier');
+				successMessage('Product Supplier Added');
+			}
+		});
+	}
+
+	updateProducts() {
+		console.log(this.state.prevProductSuppliers)
+		this.props.updateVariables(this.state.prevProductSuppliers, this.state.productSuppliers).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('ProductSupplier');
+				successMessage('  Supplier Product updated');
+			}
+		});
 	}
 
 	onCloseAlert() {
@@ -319,9 +348,9 @@ class Product extends React.Component {
 								productRelation.push(element);
 							});
 						}
-						if (this.state.productSupplier.length !== 0) {
+						if (this.state.productSuppliers.length !== 0) {
 							addKeyToList(
-								this.state.productSupplier,
+								this.state.productSuppliers,
 								'product',
 								response.data.variableName
 							).forEach((element) => {
@@ -520,9 +549,13 @@ class Product extends React.Component {
 						)}
 						{this.state.visibleSection === 'supplier' && (
 							<SupplierProduct
-								list={this.state.productSupplier}
+							    ceateSupplierProducts={this.state.ceateSupplierProducts}
+								list={this.state.productSuppliers}
 								updateSupplierProduct={this.updateSupplierProduct}
+								updatable={this.props.match.params.variableName ? true : false}
 								params={this.props.match.params}
+								update={this.updateProducts}
+								createSupplierProducts={this.createSupplierProducts}
 							/>
 						)}
 					</PageBody>
@@ -544,7 +577,8 @@ export default connect(mapStateToProps, {
 	createVariables,
 	getVariable,
 	getVariables,
-	updateVariable
+	updateVariable,
+	updateVariables
 })(Product);
 
 const HorizontalNavActionWrapper = styled.div`

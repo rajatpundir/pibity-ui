@@ -377,6 +377,7 @@ class Supplier extends React.Component {
 	createSupplierProducts() {
 		this.props.createVariables(this.state.supplierProducts).then((response) => {
 			if (response.status === 200) {
+				this.setState({ addProducts: false });
 				this.props.getVariables('ProductSupplier');
 				successMessage(' Supplier Product Added');
 			}
@@ -384,13 +385,17 @@ class Supplier extends React.Component {
 	}
 
 	updateProducts() {
-		this.props.updateVariables(this.state.prevSupplierProducts, this.state.supplierProducts);
+		this.props.updateVariables(this.state.prevSupplierProducts, this.state.supplierProducts).then((response) => {
+			if (response.status === 200) {
+				this.props.getVariables('ProductSupplier');
+				successMessage('  Supplier Product updated');
+			}
+		});
 	}
 
 	updateSupplierAddress() {
 		this.props.updateVariables(this.state.prevSupplierAddresses, this.state.supplierAddresses).then((response) => {
 			if (response.status === 200) {
-				this.setState({ addProducts: false });
 				this.props.getVariables('SupplierAddress');
 				successMessage(' Supplier Address updated');
 			}

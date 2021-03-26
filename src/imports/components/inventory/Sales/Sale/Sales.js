@@ -58,7 +58,7 @@ class SimpleSale extends React.Component {
 								[
 									'values',
 									new Map([
-										[ 'CustomerName', '' ],
+										[ 'customerName', '' ],
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
 										[ 'date', '' ],

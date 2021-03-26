@@ -20,7 +20,7 @@ import {
 	PageBarAlign,
 	PageBlock,
 	PageToolbar,
-	PlusButton,
+	Custombutton,
 	RoundedBlock,
 	SelectIconContainer,
 	SelectSpan,
@@ -61,6 +61,9 @@ class SupplierProducts extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				values.set(e.target.name, e.target.value);
+				if (this.props.updatable) {
+					values.set('product', this.props.params.variableName);
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
@@ -135,7 +138,6 @@ class SupplierProducts extends React.Component {
 											listVariable.get('variableName')
 										);
 									}}
-									isDisabled={this.props.params.variableName ? true : false}
 									options={
 										this.props.variables.Supplier !== undefined ? (
 											this.props.variables.Supplier
@@ -229,18 +231,34 @@ class SupplierProducts extends React.Component {
 	render() {
 		return (
 			<PageBlock id="suppliers">
-				<PageToolbar>
+				<PageToolbar borderBottom="1px solid #e0e1e7">
 					<ToolbarItems>
 						<LeftItemH1>Suppliers</LeftItemH1>
 					</ToolbarItems>
+					<ToolbarItems>
+						{this.props.updatable ? this.props.ceateSupplierProducts ? (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.createSupplierProducts();
+								}}
+							>
+								Create
+							</Custombutton>
+						) : (
+							<Custombutton
+								height="30px"
+								onClick={(e) => {
+									this.props.update();
+								}}
+							>
+								Update
+							</Custombutton>
+						) : (
+							undefined
+						)}
+					</ToolbarItems>
 				</PageToolbar>
-				<PageBar>
-					<PageBarAlign>
-						<PlusButton onClick={(e) => this.addVariableToList()}>
-							<i className="large material-icons">add</i>
-						</PlusButton>
-					</PageBarAlign>
-				</PageBar>
 				<InputBody borderTop="0" overflow="visible">
 					<RoundedBlock overflow="visible">
 						<TableFieldContainer overflow="visible">
