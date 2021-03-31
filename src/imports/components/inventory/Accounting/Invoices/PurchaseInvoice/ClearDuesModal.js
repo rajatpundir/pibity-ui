@@ -28,8 +28,8 @@ class ClearDuesModal extends React.Component {
 		super();
 		this.state = {
 			amount: '',
-			paymentMode:'',
-			paymentReferenceId:'',
+			paymentMode: '',
+			paymentReferenceId: '',
 			invoiceAccount: {
 				values: {
 					name: ''
@@ -62,7 +62,13 @@ class ClearDuesModal extends React.Component {
 	}
 
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		if (e.target.name === 'amount') {
+			if (e.target.value <= this.props.invoice.values.balanceDue) {
+				this.setState({ [e.target.name]: e.target.value });
+			}
+		} else {
+			this.setState({ [e.target.name]: e.target.value });
+		}
 	}
 
 	onClose() {
@@ -75,7 +81,7 @@ class ClearDuesModal extends React.Component {
 			invoice: this.props.invoice.variableName,
 			voucher: 'Purchase',
 			account: this.props.account.variableName,
-			refAccount:this.props.invoice.values.account,
+			refAccount: this.props.invoice.values.account,
 			paymentReferenceId: this.state.paymentReferenceId,
 			paymentMode: this.state.paymentMode
 		};
@@ -196,9 +202,7 @@ class ClearDuesModal extends React.Component {
 										this.onChange(e);
 									}}
 								/>{' '}
-								<InputLabel>
-									Payment Mode Reference Id
-								</InputLabel>
+								<InputLabel>Payment Mode Reference Id</InputLabel>
 							</FormControl>
 							<FormControl>
 								<Input

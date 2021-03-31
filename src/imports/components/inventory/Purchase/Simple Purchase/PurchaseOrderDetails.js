@@ -50,24 +50,20 @@ import {
 	TextAreaContainer,
 	ToolbarItems
 } from '../../../../styles/inventory/Style';
+import { customErrorMessage } from '../../../main/Notification';
 
 class PurchaseOrderDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable
+			variable: props.variable,
+			purchaseOrderItems: props.purchaseOrderItems,
+			purchaseOrderServiceItems: props.purchaseOrderServiceItems,
+			productSupplier: []
 		};
-
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
-
-	// supplierDepositkey: new Map([
-	// 	[ 'ammount', '' ],
-	// 	[ 'account', '' ],
-	// 	[ 'datePaid', '' ],
-	// 	[ 'reference', '' ]
-	// ]),
 
 	// clear form errors
 	componentDidMount() {
@@ -77,7 +73,13 @@ class PurchaseOrderDetails extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			variable: nextProps.variable
+			variable: nextProps.variable,
+			purchaseOrderItems: nextProps.purchaseOrderItems,
+			purchaseOrderServiceItems: nextProps.purchaseOrderServiceItems,
+			productSupplier:
+				nextProps.variables !== undefined
+					? nextProps.variables.ProductSupplier !== undefined ? nextProps.variables.ProductSupplier : []
+					: []
 		};
 	}
 
@@ -91,12 +93,14 @@ class PurchaseOrderDetails extends React.Component {
 	}
 
 	onAdditionalCostChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').map((listVariable) => {
+		const purchaseOrderServiceItems = this.state.purchaseOrderServiceItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -116,13 +120,15 @@ class PurchaseOrderDetails extends React.Component {
 						);
 						break;
 					case 'discount':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('quantity') *
-								listVariable.get('values').get('price') *
-								((100 - e.target.value) / 100)
-						);
+						if(e.target.value<=100){
+							values.set(e.target.name, e.target.value);
+							values.set(
+								'total',
+								listVariable.get('values').get('quantity') *
+									listVariable.get('values').get('price') *
+									((100 - e.target.value) / 100)
+							);
+						}
 						break;
 					default:
 						values.set(e.target.name, e.target.value);
@@ -134,19 +140,32 @@ class PurchaseOrderDetails extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderServiceItems });
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
 	onProductOrderInputChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').map((listVariable) => {
+		const purchaseOrderItems = this.state.purchaseOrderItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						const supplierProduct = this.state.productSupplier.filter(
+							(item) =>
+								item.values.supplier === this.props.supplier && item.values.product === e.target.value
+						)[0];
+						values.set('supplierSKU', supplierProduct.values.supplierSKU);
+						values.set('price', supplierProduct.values.latestPrice);
+						values.set(
+							'total',
+							listVariable.get('values').get('quantity') *
+							supplierProduct.values.latestPrice *
+								((100 - listVariable.get('values').get('discount')) / 100)
+						);
+						values.set('unit', e.target.data.values.unitOfMeasure);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -166,13 +185,15 @@ class PurchaseOrderDetails extends React.Component {
 						);
 						break;
 					case 'discount':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('quantity') *
-								listVariable.get('values').get('price') *
-								((100 - e.target.value) / 100)
-						);
+						if(e.target.value<=100){
+							values.set(e.target.name, e.target.value);
+							values.set(
+								'total',
+								listVariable.get('values').get('quantity') *
+									listVariable.get('values').get('price') *
+									((100 - e.target.value) / 100)
+							);
+						}
 						break;
 					default:
 						values.set(e.target.name, e.target.value);
@@ -184,22 +205,28 @@ class PurchaseOrderDetails extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderItems });
+		this.props.updatePurchaseOrderItems(purchaseOrderItems);
 	}
 
 	addVariableToadditionalCostList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost');
-		list.unshift(
+		const purchaseOrderServiceItems = cloneDeep(this.state.purchaseOrderServiceItems);
+		purchaseOrderServiceItems.unshift(
 			new Map([
-				[ 'variableName', String(list.length) ],
+				[ 'typeName', 'PurchaseOrderServiceItem' ],
+				[
+					'variableName',
+					String(
+						purchaseOrderServiceItems.length === 0
+							? 0
+							: Math.max(...purchaseOrderServiceItems.map((o) => o.get('variableName'))) + 1
+					)
+				],
 				[
 					'values',
 					new Map([
+						[ 'purchase', this.props.purchase ],
+						[ 'purchaseOrder', '' ],
 						[ 'description', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
@@ -211,22 +238,28 @@ class PurchaseOrderDetails extends React.Component {
 				]
 			])
 		);
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderServiceItems });
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
 	addVariableToProductOrderInputList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails');
-		list.unshift(
+		const purchaseOrderItems = cloneDeep(this.state.purchaseOrderItems);
+		purchaseOrderItems.unshift(
 			new Map([
-				[ 'variableName', String(list.length) ],
+				[ 'typeName', 'PurchaseOrderItem' ],
+				[
+					'variableName',
+					String(
+						purchaseOrderItems.length === 0
+							? 0
+							: Math.max(...purchaseOrderItems.map((o) => o.get('variableName'))) + 1
+					)
+				],
 				[
 					'values',
 					new Map([
+						[ 'purchase', '' ],
+						[ 'purchaseOrder', '' ],
 						[ 'comment', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
@@ -240,43 +273,32 @@ class PurchaseOrderDetails extends React.Component {
 				]
 			])
 		);
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderItems });
+		this.props.updatePurchaseOrderItems(purchaseOrderItems);
 	}
 
 	onRemoveProductOrderInputListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').filter((listVariable) => {
+		const purchaseOrderItems = this.state.purchaseOrderItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderItems });
+		this.props.updatePurchaseOrderItems(purchaseOrderItems);
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').filter((listVariable) => {
+		const purchaseOrderServiceItems = this.state.purchaseOrderServiceItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderServiceItems });
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('additionalCost').forEach((listVariable) =>
+		this.state.purchaseOrderServiceItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
-					<TableData width="6%" >
+					<TableData width="6%">
 						<i
 							name={listVariable.get('variableName')}
 							className="large material-icons"
@@ -285,9 +307,9 @@ class PurchaseOrderDetails extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
-						<SelectWrapper>
+							<SelectWrapper>
 								<Select
 									value={{
 										value: listVariable.get('values').get('description'),
@@ -301,9 +323,22 @@ class PurchaseOrderDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.filter((product)=>product.values.general.values.productType === "Service").map((variable) => {
-												return { value: variable.variableName, label: variable.values.general.values.productName };
-											})
+											this.props.variables.Product
+												.filter((product) => product.values.productType === 'Service')
+												.filter((product) => {
+													return !this.state.purchaseOrderServiceItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.values.productName,
+														data: variable
+													};
+												})
 										) : (
 											[]
 										)
@@ -342,7 +377,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -368,9 +403,14 @@ class PurchaseOrderDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForPurchase===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForPurchase === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -397,8 +437,10 @@ class PurchaseOrderDetails extends React.Component {
 
 	renderProductOrderInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('productInvoiceDetails').forEach((listVariable) =>
+		const supplierProducts = this.state.productSupplier
+			.filter((productSupplier) => productSupplier.values.supplier === this.props.supplier)
+			.map((item) => item.values.product);
+		this.state.purchaseOrderItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%" left="0px">
@@ -410,7 +452,7 @@ class PurchaseOrderDetails extends React.Component {
 							remove_circle_outline
 						</i>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -420,15 +462,29 @@ class PurchaseOrderDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onProductOrderInputChange(
-											{ target: { name: 'product', value: option.value } },
+											{ target: { name: 'product', value: option.value, data: option.data } },
 											listVariable.get('variableName')
 										);
 									}}
 									options={
 										this.props.variables.Product !== undefined ? (
-											this.props.variables.Product.filter((product)=>product.values.general.values.productType !== "Service").map((variable) => {
-												return { value: variable.variableName, label: variable.values.general.values.productName };
-											})
+											this.props.variables.Product
+												.filter((product) => product.values.productType !== 'Service')
+												.filter((variable) => supplierProducts.includes(variable.variableName))
+												.filter((product) => {
+													return !this.state.purchaseOrderItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.values.productName,
+														data: variable
+													};
+												})
 										) : (
 											[]
 										)
@@ -437,7 +493,7 @@ class PurchaseOrderDetails extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="comment"
@@ -447,7 +503,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="supplierSKU"
@@ -484,7 +540,7 @@ class PurchaseOrderDetails extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="11%" >
+					<TableData width="11%">
 						<TableHeaderInner>
 							<Input
 								name="quantity"
@@ -494,7 +550,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="price"
@@ -504,7 +560,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="discount"
@@ -514,7 +570,7 @@ class PurchaseOrderDetails extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="10%" >
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -530,9 +586,14 @@ class PurchaseOrderDetails extends React.Component {
 									}}
 									options={
 										this.props.variables.TaxRule !== undefined ? (
-											this.props.variables.TaxRule.filter((taxRule)=>taxRule.values.isTaxForPurchase===true).map((variable) => {
-												return { value: variable.variableName, label: variable.variableName };
-											})
+											this.props.variables.TaxRule
+												.filter((taxRule) => taxRule.values.isTaxForPurchase === true)
+												.map((variable) => {
+													return {
+														value: variable.variableName,
+														label: variable.variableName
+													};
+												})
 										) : (
 											[]
 										)
@@ -541,7 +602,7 @@ class PurchaseOrderDetails extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-					<TableData width="12%" >
+					<TableData width="12%">
 						<TableHeaderInner>
 							<Input
 								name="total"
@@ -581,7 +642,7 @@ class PurchaseOrderDetails extends React.Component {
 										<BodyTable>
 											<TableBody>
 												<TableRow>
-													<TableHeaders width="6%" >
+													<TableHeaders width="6%">
 														<SelectIconContainer>
 															<SelectSpan>
 																<SelectSpanInner>
@@ -590,17 +651,17 @@ class PurchaseOrderDetails extends React.Component {
 															</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Product</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan textAlign="right">Comment</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Supplier SKU</SelectSpan>
 														</SelectIconContainer>
@@ -610,7 +671,7 @@ class PurchaseOrderDetails extends React.Component {
 															<SelectSpan>Unit</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="11%" >
+													<TableHeaders width="11%">
 														<SelectIconContainer>
 															<SelectSpan>Quantity</SelectSpan>
 														</SelectIconContainer>
@@ -620,17 +681,17 @@ class PurchaseOrderDetails extends React.Component {
 															<SelectSpan>Price</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Discount</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="10%" >
+													<TableHeaders width="10%">
 														<SelectIconContainer>
 															<SelectSpan>Tax Rule</SelectSpan>
 														</SelectIconContainer>
 													</TableHeaders>
-													<TableHeaders width="12%" >
+													<TableHeaders width="12%">
 														<SelectIconContainer>
 															<SelectSpan>Total</SelectSpan>
 														</SelectIconContainer>
@@ -648,20 +709,24 @@ class PurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderProductOrderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('productInvoiceDetails').length === 0 ? (
+								{this.state.purchaseOrderItems.length === 0 ? (
 									<EmptyRow>You do not have any Purchase Order Lines.</EmptyRow>
 								) : (
 									undefined
 								)}
 							</HeaderBodyContainer>
 							<AddMoreBlock>
-								<AddMoreButton onClick={(e) => this.addVariableToProductOrderInputList()}>
+								<AddMoreButton
+									onClick={(e) =>
+										this.props.supplier
+											? this.addVariableToProductOrderInputList()
+											: customErrorMessage('Please Select A Supplier First')}
+								>
 									<i className="large material-icons">add</i>Add more items
 								</AddMoreButton>
 							</AddMoreBlock>
 						</TableFieldContainer>
 					</RoundedBlock>
-
 					<H3 style={{ paddingTop: '20px' }}>Additional Cost</H3>
 					<PageBarAlign style={{ paddingBottom: '20px' }}>
 						<PlusButton onClick={(e) => this.addAdditionalCostListVariable()}>
@@ -732,7 +797,7 @@ class PurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
+								{this.state.purchaseOrderServiceItems.length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
 									undefined

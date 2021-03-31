@@ -10,10 +10,10 @@ import {
 	createVariables,
 	getVariables,
 	updateVariable,
+	addKeyToList,
 	objToMapRec
 } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
-
 import {
 	AddMoreBlock,
 	AddMoreButton,
@@ -79,9 +79,6 @@ class SimpleSalesInvoice extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'additionalCost', [] ],
-						[ 'productInvoiceDetails', [] ],
-						[ 'customerDeposit', [] ],
 						[ 'invoiceDate', '' ],
 						[ 'dueDate', '' ],
 						[ 'invoiceNumber', '' ],
@@ -89,9 +86,11 @@ class SimpleSalesInvoice extends React.Component {
 						[ 'salesOrderMemo', '' ],
 						[ 'transactions', [] ],
 						[ 'balanceDue', 0 ],
-						[ 'salesOrder', '' ],
-						[ 'customer', '' ],
-						[ 'account', '' ],
+						[ 'sales', props.sales ],
+						[ 'salesOrder', props.salesOrder.get('variableName') ],
+						[ 'customer', props.customer ],
+						[ 'location', props.location ],
+						[ 'account', props.account ],
 						[ 'paymentStatus', 'Due' ],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
@@ -99,7 +98,9 @@ class SimpleSalesInvoice extends React.Component {
 						[ 'totalTaxOnAdditionalCost', 0 ]
 					])
 				]
-			])
+			]),
+			salesInvoiceServiceItem: [],
+			salesInvoiceItems: []
 		};
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
@@ -108,38 +109,49 @@ class SimpleSalesInvoice extends React.Component {
 	}
 
 	componentDidMount() {
+		this.props.getVariables('SalesInvoiceServiceItem');
+		this.props.getVariables('SalesInvoiceItem');
 		this.props.getVariables('SalesInvoice');
-		this.props.getVariables('ProductStore');
 		this.props.clearErrors();
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.variables.SalesInvoice) {
 			const variable = nextProps.variables.SalesInvoice.filter(
-				(variable) => variable.values.salesOrder === nextProps.salesOrder
+				(variable) => variable.values.sales === nextProps.sales
 			)[0];
 			if (variable && prevState.prevPropVariable !== variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
+				const salesInvoiceItems = nextProps.variables.SalesInvoiceItem
+					.filter(
+						(item) =>
+							item.values.salesInvoice === variable.variableName && item.values.sales === nextProps.sales
+					)
+					.map((item) => {
+						return objToMapRec(item);
+					});
+				const salesInvoiceServiceItem = nextProps.variables.SalesInvoiceServiceItem
+					.filter(
+						(serviceItem) =>
+							serviceItem.values.salesInvoice === variable.variableName &&
+							serviceItem.values.sales === nextProps.sales
+					)
+					.map((item) => {
+						return objToMapRec(item);
+					});
 				return {
 					...prevState,
 					updateInvoice: variable.values.transactions.length === 0 ? true : false,
 					createInvoice: false,
 					variable: variableMap,
 					prevPropVariable: variable,
-					prevVariable: prevVariableMap
-				};
-			}
-			if (nextProps.salesOrder && variable === undefined) {
-				const variable = prevState.variable;
-				const values = variable.get('values');
-				values.set('salesOrder', nextProps.salesOrder);
-				values.set('customer', nextProps.customer);
-				values.set('account', nextProps.account);
-				variable.set('values', values);
-				return {
-					...prevState,
-					variable: variable
+					prevVariable: prevVariableMap,
+					salesInvoiceServiceItem:
+						salesInvoiceServiceItem.length !== 0
+							? salesInvoiceServiceItem
+							: prevState.salesInvoiceServiceItem,
+					salesInvoiceItems: salesInvoiceItems.length !== 0 ? salesInvoiceItems : prevState.salesInvoiceItems
 				};
 			}
 		}
@@ -157,31 +169,65 @@ class SimpleSalesInvoice extends React.Component {
 	}
 
 	onCopyProductOrderFromOrder(DataToBeCopied) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
 		switch (DataToBeCopied) {
 			case 'productInvoiceDetails':
-				values.set('productInvoiceDetails', this.props.orderDetails.get('values').get('productInvoiceDetails'));
+				console.log(this.props.salesOrderItems)
+				const salesInvoiceItems = this.props.salesOrderItems.map((item) => {
+					return new Map([
+						[ 'variableName', item.get('variableName') ],
+						[ 'typeName', 'SalesInvoiceItem' ],
+						[
+							'values',
+							new Map([
+								[ 'sales', item.get('values').get('sales') ],
+								[ 'salesInvoice', '' ],
+								[ 'product', item.get('values').get('product') ],
+								[ 'comment', item.get('values').get('comment') ],
+								[ 'discount', item.get('values').get('discount') ],
+								[ 'price', item.get('values').get('price') ],
+								[ 'quantity', item.get('values').get('quantity') ],
+								[ 'taxRule', item.get('values').get('taxRule') ],
+								[ 'total', item.get('values').get('total') ]
+							])
+						]
+					]);
+				});
+				this.setState({ salesInvoiceItems }, () => {
+					this.onCalculateTotal();
+				});
 				break;
 			case 'additionalCost':
-				values.set('additionalCost', this.props.orderDetails.get('values').get('additionalCost'));
-				break;
-			case 'supplierDeposit':
-				values.set('supplierDeposit', this.props.orderDetails.get('values').get('supplierDeposit'));
+				const salesInvoiceServiceItem = this.props.salesOrderServiceItems.map((item) => {
+					return new Map([
+						[ 'typeName', 'SalesInvoiceServiceItem' ],
+						[ 'variableName', item.get('variableName') ],
+						[
+							'values',
+							new Map([
+								[ 'sale', item.get('values').get('sales') ],
+								[ 'salesInvoice', '' ],
+								[ 'product', item.get('values').get('description') ],
+								[ 'discount', item.get('values').get('discount') ],
+								[ 'price', item.get('values').get('price') ],
+								[ 'quantity', item.get('values').get('quantity') ],
+								[ 'reference', item.get('values').get('reference') ],
+								[ 'taxRule', item.get('values').get('taxRule') ],
+								[ 'total', item.get('values').get('total') ]
+							])
+						]
+					]);
+				});
+				this.setState({ salesInvoiceServiceItem }, () => {
+					this.onCalculateTotal();
+				});
 				break;
 			default:
 				break;
 		}
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => {
-			this.onCalculateTotal();
-		});
 	}
 
 	onAdditionalCostChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').map((listVariable) => {
+		const salesInvoiceServiceItem = this.state.salesInvoiceServiceItem.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -222,17 +268,14 @@ class SimpleSalesInvoice extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => {
+
+		this.setState({ salesInvoiceServiceItem }, () => {
 			this.onCalculateTotal();
 		});
 	}
 
 	onProductOrderInputChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').map((listVariable) => {
+		const salesInvoiceItems = this.state.salesInvoiceItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
@@ -273,27 +316,30 @@ class SimpleSalesInvoice extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => {
+		this.setState({ salesInvoiceItems }, () => {
 			this.onCalculateTotal();
 		});
 	}
 
 	addVariableToadditionalCostList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost');
-		list.unshift(
+		const salesInvoiceServiceItem = cloneDeep(this.state.salesInvoiceServiceItem);
+		salesInvoiceServiceItem.push(
 			new Map([
+				[ 'typeName', 'SalesInvoiceServiceItem' ],
 				[
 					'variableName',
-					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
+					String(
+						salesInvoiceServiceItem.length === 0
+							? 0
+							: Math.max(...salesInvoiceServiceItem.map((o) => o.get('variableName'))) + 1
+					)
 				],
 				[
 					'values',
 					new Map([
-						[ 'description', '' ],
+						[ 'sale', '' ],
+						[ 'salesInvoice', '' ],
+						[ 'product', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
 						[ 'quantity', 0 ],
@@ -304,62 +350,55 @@ class SimpleSalesInvoice extends React.Component {
 				]
 			])
 		);
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ salesInvoiceServiceItem });
 	}
 
 	addVariableToProductOrderInputList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails');
-		list.unshift(
+		const salesInvoiceItems = cloneDeep(this.state.salesInvoiceItems);
+		salesInvoiceItems.push(
 			new Map([
+				[ 'typeName', 'SalesInvoiceItem' ],
 				[
 					'variableName',
-					String(list.length === 0 ? 0 : Math.max(...list.map((o) => o.get('variableName'))) + 1)
+					String(
+						salesInvoiceItems.length === 0
+							? 0
+							: Math.max(...salesInvoiceItems.map((o) => o.get('variableName'))) + 1
+					)
 				],
 				[
 					'values',
 					new Map([
+						[ 'sale', '' ],
+						[ 'salesInvoice', '' ],
+						[ 'product', '' ],
 						[ 'comment', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
 						[ 'quantity', 0 ],
 						[ 'taxRule', '' ],
-						[ 'total', 0 ],
-						[ 'product', '' ]
+						[ 'total', 0 ]
 					])
 				]
 			])
 		);
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
+		this.setState({ salesInvoiceItems });
 	}
 
 	onRemoveProductOrderInputListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').filter((listVariable) => {
+		const salesInvoiceItems = this.state.salesInvoiceItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => {
+		this.setState({ salesInvoiceItems }, () => {
 			this.onCalculateTotal();
 		});
 	}
 
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').filter((listVariable) => {
+		const salesInvoiceServiceItem = this.state.salesInvoiceServiceItem.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable }, () => {
+		this.setState({ salesInvoiceServiceItem }, () => {
 			this.onCalculateTotal();
 		});
 	}
@@ -369,9 +408,8 @@ class SimpleSalesInvoice extends React.Component {
 		var totalTaxOnProduct = 0;
 		var additionalCostBeforeTax = 0;
 		var totalTaxOnAdditionalCost = 0;
-		const values = this.state.variable.get('values');
 		// Product Cost
-		values.get('productInvoiceDetails').forEach((listVariable) => {
+		this.state.salesInvoiceItems.forEach((listVariable) => {
 			const taxRule = this.props.variables.TaxRule.filter(
 				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
 			)[0];
@@ -396,7 +434,7 @@ class SimpleSalesInvoice extends React.Component {
 			}
 		});
 		//AdditionalCost
-		values.get('additionalCost').forEach((listVariable) => {
+		this.state.salesInvoiceServiceItem.forEach((listVariable) => {
 			const taxRule = this.props.variables.TaxRule.filter(
 				(taxRule) => taxRule.variableName === listVariable.get('values').get('taxRule')
 			)[0];
@@ -438,8 +476,7 @@ class SimpleSalesInvoice extends React.Component {
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('additionalCost').forEach((listVariable) =>
+		this.state.salesInvoiceServiceItem.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%">
@@ -456,12 +493,12 @@ class SimpleSalesInvoice extends React.Component {
 							<SelectWrapper>
 								<Select
 									value={{
-										value: listVariable.get('values').get('description'),
-										label: listVariable.get('values').get('description')
+										value: listVariable.get('values').get('product'),
+										label: listVariable.get('values').get('product')
 									}}
 									onChange={(option) => {
 										this.onAdditionalCostChange(
-											{ target: { name: 'description', value: option.value } },
+											{ target: { name: 'product', value: option.value } },
 											listVariable.get('variableName')
 										);
 									}}
@@ -469,7 +506,7 @@ class SimpleSalesInvoice extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter(
-													(product) => product.values.general.values.productType === 'Service'
+													(product) => product.values.productType === 'Service'
 												)
 												.map((variable) => {
 													return {
@@ -575,8 +612,7 @@ class SimpleSalesInvoice extends React.Component {
 
 	renderProductOrderInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('productInvoiceDetails').forEach((listVariable) =>
+		this.state.salesInvoiceItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%" left="0px">
@@ -606,12 +642,12 @@ class SimpleSalesInvoice extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter(
-													(product) => product.values.general.values.productType !== 'Service'
+													(product) => product.values.productType !== 'Service'
 												)
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.general.values.productName
+														label: variable.values.productName
 													};
 												})
 										) : (
@@ -712,9 +748,44 @@ class SimpleSalesInvoice extends React.Component {
 		return rows;
 	}
 
-	createStockItems(invoice, salesStockRecord) {
+	createStore(salesInvoiceItems) {
+		const productStores = [];
+		salesInvoiceItems.forEach((data) => {
+			const store =
+				this.props.variables.ProductStore !== undefined
+					? this.props.variables.ProductStore.filter(
+							(store) =>
+								store.values.location === this.props.location &&
+								store.values.product === data.values.product
+						)[0]
+					: undefined;
+			if (store === undefined) {
+				productStores.push(
+					new Map([
+						[ 'typeName', 'ProductStore' ],
+						[ 'variableName', '' ],
+						[
+							'values',
+							new Map([
+								[ 'status', 'Active' ],
+								[ 'location', this.props.location ],
+								[ 'product', data.values.product ],
+								[ 'onHand', 0 ],
+								[ 'onOrder', 0 ],
+								[ 'available', 0 ],
+								[ 'allocated', 0 ]
+							])
+						]
+					])
+				);
+			}
+		});
+		return productStores;
+	}
+
+	createStockItems(invoice, salesInvoiceItems, salesStockRecord) {
 		const salesStockItems = [];
-		invoice.values.productInvoiceDetails.forEach((data) => {
+		salesInvoiceItems.forEach((data) => {
 			const productStore =
 				this.props.variables.ProductStore !== undefined
 					? this.props.variables.ProductStore.filter(
@@ -731,7 +802,7 @@ class SimpleSalesInvoice extends React.Component {
 						'values',
 						new Map([
 							[ 'date', 1610606634582 ],
-							[ 'salesOrder', invoice.values.salesOrder ],
+							[ 'sales', invoice.values.sales ],
 							[ 'salesStockRecord', salesStockRecord.variableName ],
 							[ 'status', salesStockRecord.values.status ],
 							[ 'movementType', salesStockRecord.values.movementType ],
@@ -747,9 +818,95 @@ class SimpleSalesInvoice extends React.Component {
 				])
 			);
 		});
-		console.log(salesStockItems);
 		return salesStockItems;
 	}
+
+	createInnvocie() {
+		this.props.createVariable(this.state.variable).then((response) => {
+			if (response.status === 200) {
+				const invoice = response.data;
+				this.props
+					.createVariables(
+						addKeyToList(this.state.salesInvoiceItems, 'salesInvoice', response.data.variableName)
+					)
+					.then((response) => {
+						if (response.status === 200) {
+							this.props.createVariables(
+								addKeyToList(this.state.salesInvoiceServiceItem, 'salesInvoice', invoice.variableName)
+							);
+							const invoiceItems = response.data;
+							const args = {
+								fromCustomer: invoice.values.customer,
+								total: invoice.values.total,
+								productCostBeforeTax: invoice.values.productCostBeforeTax,
+								additionalCostBeforeTax: invoice.values.additionalCostBeforeTax,
+								totalTaxOnProduct: invoice.values.totalTaxOnProduct,
+								totalTaxOnAdditionalCost: invoice.values.totalTaxOnAdditionalCost,
+								sales: invoice.values.sales,
+								fromLocation: invoice.values.location
+							};
+							this.props.executeFuntion(args, 'createSalesOrderStockSoldRecord').then((response) => {
+								if (response.status === 200) {
+									new Promise((resolve) => {
+										resolve(this.props.createVariables(this.createStore(invoiceItems)));
+									}).then(() => {
+										this.props
+											.createVariables(
+												this.createStockItems(
+													invoice,
+													invoiceItems,
+													response.data.salesStockRecord
+												)
+											)
+											.then((response) => {
+												if (response.status === 200) {
+													response.data.forEach((data) => {
+														const update = {
+															quantity: data.values.quantity,
+															productStore: data.values.fromProductStore
+														};
+														this.props
+															.executeFuntion(
+																update,
+																'updateAllocatedQuantityInProductStore'
+															)
+															.then((response) => {
+																if (response.status === 200) {
+																	this.props
+																		.executeFuntion(
+																			{ sales: this.props.sales },
+																			'updateStatusSalesInvoiceCreated'
+																		)
+																		.then((response) => {
+																			if (response.status === 200) {
+																				this.props.getVariables(
+																					'SalesOrderStockItemRecord'
+																				);
+																				this.props.getVariables(
+																					'SalesOrderStockSoldRecord'
+																				);
+																				this.props.getVariables(
+																					'Sales'
+																				);
+																				successMessage(
+																					' Sales Invoice Created'
+																				);
+																			}
+																		});
+																}
+															});
+													});
+												}
+											});
+									});
+								}
+							});
+						}
+					});
+			}
+		});
+	}
+
 	render() {
 		return (
 			<PageBlock id="invoice">
@@ -762,63 +919,7 @@ class SimpleSalesInvoice extends React.Component {
 							<Custombutton
 								height="30px"
 								onClick={(e) => {
-									this.props.createVariable(this.state.variable).then((response) => {
-										if (response.status === 200) {
-											console.log(response.data);
-											const invoice = response.data;
-											const args = {
-												fromCustomer: response.data.values.customer,
-												total: response.data.values.total,
-												productCostBeforeTax: response.data.values.productCostBeforeTax,
-												additionalCostBeforeTax: response.data.values.additionalCostBeforeTax,
-												totalTaxOnProduct: response.data.values.totalTaxOnProduct,
-												totalTaxOnAdditionalCost: response.data.values.totalTaxOnAdditionalCost,
-												salesOrder: response.data.values.salesOrder,
-												fromLocation: this.props.location
-											};
-											this.props
-												.executeFuntion(args, 'createSalesOrderStockSoldRecord')
-												.then((response) => {
-													if (response.status === 200) {
-														this.props
-															.createVariables(
-																this.createStockItems(
-																	invoice,
-																	response.data.salesStockRecord
-																)
-															)
-															.then((response) => {
-																if (response.status === 200) {
-																	response.data.forEach((data) => {
-																		const update = {
-																			quantity: data.values.quantity,
-																			productStore: data.values.fromProductStore
-																		};
-																		this.props
-																			.executeFuntion(
-																				update,
-																				'updateAllocatedQuantityInProductStore'
-																			)
-																			.then((response) => {
-																				if (response.status === 200) {
-																					this.props.getVariables(
-																						'SalesOrderStockItemRecord'
-																					);
-																					this.props.getVariables(
-																						'SalesOrderStockSoldRecord'
-																					);
-																					successMessage(
-																						' Sales Invoice Created'
-																					);
-																				}
-																			});
-																	});
-																}
-															});
-													}
-												});
-										}
-									});
+									this.createInnvocie();
 								}}
 							>
 								Create Invoice
@@ -980,7 +1081,7 @@ class SimpleSalesInvoice extends React.Component {
 										<TableBody>{this.renderProductOrderInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('productInvoiceDetails').length === 0 ? (
+								{this.state.salesInvoiceItems.length === 0 ? (
 									<EmptyRow>You do not have any Purchase Order Lines.</EmptyRow>
 								) : (
 									undefined
@@ -1079,7 +1180,7 @@ class SimpleSalesInvoice extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
+								{this.state.salesInvoiceServiceItem.length === 0 ? (
 									<EmptyRow>You do not have any Additional Costs in your Purchase Order.</EmptyRow>
 								) : (
 									undefined

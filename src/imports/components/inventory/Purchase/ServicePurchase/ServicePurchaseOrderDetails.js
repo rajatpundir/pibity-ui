@@ -53,19 +53,13 @@ class ServicePurchaseOrderDetails extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			variable: props.variable
-		};
+			variable: props.variable,
+			purchaseOrderServiceItems: props.purchaseOrderServiceItems,
+			productSupplier: []		};
 
 		this.onChange = this.onChange.bind(this);
 		this.addVariableToadditionalCostList = this.addVariableToadditionalCostList.bind(this);
 	}
-
-	// supplierDepositkey: new Map([
-	// 	[ 'ammount', '' ],
-	// 	[ 'account', '' ],
-	// 	[ 'datePaid', '' ],
-	// 	[ 'reference', '' ]
-	// ]),
 
 	// clear form errors
 	componentDidMount() {
@@ -75,7 +69,8 @@ class ServicePurchaseOrderDetails extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			variable: nextProps.variable
+			variable: nextProps.variable,
+			purchaseOrderServiceItems: nextProps.purchaseOrderServiceItems
 		};
 	}
 
@@ -89,12 +84,14 @@ class ServicePurchaseOrderDetails extends React.Component {
 	}
 
 	onAdditionalCostChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').map((listVariable) => {
+		const purchaseOrderServiceItems = this.state.purchaseOrderServiceItems.map((listVariable) => {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				switch (e.target.name) {
+					case 'product':
+						values.set(e.target.name, e.target.value);
+						values.set('taxRule', e.target.data.values.purchaseTaxRule);
+						break;
 					case 'quantity':
 						values.set(e.target.name, e.target.value);
 						values.set(
@@ -132,72 +129,29 @@ class ServicePurchaseOrderDetails extends React.Component {
 				return listVariable;
 			}
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderServiceItems });
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
-	onProductOrderInputChange(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('productInvoiceDetails').map((listVariable) => {
-			if (listVariable.get('variableName') === variableName) {
-				const values = listVariable.get('values');
-				switch (e.target.name) {
-					case 'quantity':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('price') *
-								e.target.value *
-								((100 - listVariable.get('values').get('discount')) / 100)
-						);
-						break;
-					case 'price':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('quantity') *
-								e.target.value *
-								((100 - listVariable.get('values').get('discount')) / 100)
-						);
-						break;
-					case 'discount':
-						values.set(e.target.name, e.target.value);
-						values.set(
-							'total',
-							listVariable.get('values').get('quantity') *
-								listVariable.get('values').get('price') *
-								((100 - e.target.value) / 100)
-						);
-						break;
-					default:
-						values.set(e.target.name, e.target.value);
-						break;
-				}
-				listVariable.set('values', values);
-				return listVariable;
-			} else {
-				return listVariable;
-			}
-		});
-		values.set('productInvoiceDetails', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
-	}
-
+	
 	addVariableToadditionalCostList() {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost');
-		list.unshift(
+		const purchaseOrderServiceItems = cloneDeep(this.state.purchaseOrderServiceItems);
+		purchaseOrderServiceItems.unshift(
 			new Map([
-				[ 'variableName', String(list.length) ],
+				[ 'typeName', 'PurchaseOrderServiceItem' ],
+				[
+					'variableName',
+					String(
+						purchaseOrderServiceItems.length === 0
+							? 0
+							: Math.max(...purchaseOrderServiceItems.map((o) => o.get('variableName'))) + 1
+					)
+				],
 				[
 					'values',
 					new Map([
+						[ 'purchase', this.props.purchase ],
+						[ 'purchaseOrder', '' ],
 						[ 'description', '' ],
 						[ 'discount', 0 ],
 						[ 'price', 0 ],
@@ -209,28 +163,22 @@ class ServicePurchaseOrderDetails extends React.Component {
 				]
 			])
 		);
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({ purchaseOrderServiceItems });
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
+	
 	onRemoveAdditionalCostListKey(e, variableName) {
-		const variable = cloneDeep(this.state.variable);
-		const values = variable.get('values');
-		const list = values.get('additionalCost').filter((listVariable) => {
+		const purchaseOrderServiceItems = this.state.purchaseOrderServiceItems.filter((listVariable) => {
 			return listVariable.get('variableName') !== variableName;
 		});
-		values.set('additionalCost', list);
-		variable.set('values', values);
-		this.setState({ variable: variable });
-		this.props.updateOrder(variable);
+		this.setState({purchaseOrderServiceItems});
+		this.props.updatePurchaseOrderServiceItems(purchaseOrderServiceItems);
 	}
 
 	renderAdditionalCostInputFields() {
 		const rows = [];
-		const values = this.state.variable.get('values');
-		values.get('additionalCost').forEach((listVariable) =>
+		this.state.purchaseOrderServiceItems.forEach((listVariable) =>
 			rows.push(
 				<TableRow key={listVariable.get('variableName')}>
 					<TableData width="6%">
@@ -252,7 +200,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 									}}
 									onChange={(option) => {
 										this.onAdditionalCostChange(
-											{ target: { name: 'description', value: option.value } },
+											{ target: { name: 'description', value: option.value ,data:option.data } },
 											listVariable.get('variableName')
 										);
 									}}
@@ -260,12 +208,20 @@ class ServicePurchaseOrderDetails extends React.Component {
 										this.props.variables.Product !== undefined ? (
 											this.props.variables.Product
 												.filter(
-													(product) => product.values.general.values.productType === 'Service'
+													(product) => product.values.productType === 'Service'
 												)
+												.filter((product) => {
+													return !this.state.purchaseOrderServiceItems
+														.map((item) => {
+															return item.get('values').get('product');
+														})
+														.includes(product.variableName);
+												})
 												.map((variable) => {
 													return {
 														value: variable.variableName,
-														label: variable.values.general.values.productName
+														label: variable.values.productName,
+														data: variable
 													};
 												})
 										) : (
@@ -442,7 +398,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 										<TableBody>{this.renderAdditionalCostInputFields()}</TableBody>
 									</BodyTable>
 								</HeaderBody>
-								{this.state.variable.get('values').get('additionalCost').length === 0 ? (
+								{this.state.purchaseOrderServiceItems.length === 0 ? (
 									<EmptyRow>You do not have any Product Purchase Order.</EmptyRow>
 								) : (
 									undefined
@@ -531,69 +487,7 @@ class ServicePurchaseOrderDetails extends React.Component {
 					</RightBlock>
 				</EqualBlockContainer>
 
-				{/* supplier deposit */}
-
 				<InputBody style={{ border: 'none' }} overflow="visible">
-					<RoundedBlock overflow="visible">
-						<TableFieldContainer overflow="visible">
-							<Headers>
-								<HeaderContainer>
-									<HeaderBody>
-										<BodyTable>
-											<TableBody>
-												<TableRow>
-													<TableHeaders width="5%" left="0px">
-														<SelectIconContainer>
-															<SelectSpan>
-																<SelectSpanInner>
-																	<i className="large material-icons">create</i>
-																</SelectSpanInner>
-															</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="14%">
-														<SelectIconContainer>
-															<SelectSpan textAlign="right">Account</SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="38%">
-														<SelectIconContainer>
-															<SelectSpan>Reference </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="15%" left="59%">
-														<SelectIconContainer>
-															<SelectSpan>Date Paid </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-													<TableHeaders width="20%" left="77%">
-														<SelectIconContainer>
-															<SelectSpan>Amount </SelectSpan>
-														</SelectIconContainer>
-													</TableHeaders>
-												</TableRow>
-											</TableBody>
-										</BodyTable>
-									</HeaderBody>
-								</HeaderContainer>
-							</Headers>
-							<HeaderBodyContainer>
-								<HeaderBody>
-									<BodyTable>
-										<TableBody>
-											<TableRow>
-												<TableData width="58px" />
-												<TableData width="168px" />
-												<TableData width="168px" />
-												<TableData width="168px" />
-											</TableRow>
-										</TableBody>
-									</BodyTable>
-								</HeaderBody>
-								<EmptyRow>You do not have any supplier deposits</EmptyRow>
-							</HeaderBodyContainer>
-						</TableFieldContainer>
-					</RoundedBlock>
 					<RoundedBlock style={{ marginTop: '20px' }}>
 						<RoundBlockOuterDiv>
 							<RoundBlockInnerDiv>

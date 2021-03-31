@@ -17,6 +17,7 @@ import {
 	InputBody,
 	InputLabel,
 	LeftItemH1,
+	LeftItemWrapper,
 	PageBlock,
 	PageToolbar,
 	SelectWrapper,
@@ -68,6 +69,15 @@ class SupplierDetails extends React.Component {
 			<PageBlock paddingBottom="0">
 				<PageToolbar>
 					<ToolbarItems>
+					{this.props.params.variableName ? this.state.variable.get('values').get('status') === 'Active' ? (
+							<LeftItemWrapper backgroundColor="#25c99f">
+								{this.state.variable.get('values').get('status')}
+							</LeftItemWrapper>
+						) : (
+							undefined
+						) : (
+							undefined
+						)}
 						<LeftItemH1>Supplier</LeftItemH1>
 					</ToolbarItems>
 					<IconButton

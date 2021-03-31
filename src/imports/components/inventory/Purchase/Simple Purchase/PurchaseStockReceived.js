@@ -8,52 +8,27 @@ import { successMessage } from '../../../main/Notification';
 import { createVariable, getVariables, updateVariable, objToMapRec } from '../../../../redux/actions/variables';
 import { executeFuntion } from '../../../../redux/actions/executeFuntion';
 import {
-	AddMoreBlock,
-	AddMoreButton,
-	BlockInnerTable,
-	BlockTableBody,
-	BlockTableHead,
-	BlockTableHeader,
-	BlockTableTd,
 	BodyTable,
-	EmptyRow,
-	EqualBlockContainer,
 	FormControl,
-	H3,
 	HeaderBody,
 	HeaderBodyContainer,
-	HeaderContainer,
-	Headers,
 	Input,
 	InputBody,
 	InputColumnWrapper,
 	InputLabel,
-	LeftBlock,
 	LeftItemH1,
 	PageBar,
-	PageBarAlign,
 	PageBlock,
 	PageToolbar,
-	PlusButton,
-	Required,
-	RightBlock,
-	RightBlockTable,
-	RoundBlockInnerDiv,
-	RoundBlockOuterDiv,
 	RoundedBlock,
-	Span,
 	SelectIconContainer,
 	SelectSpan,
-	SelectSpanInner,
-	SelectWrapper,
 	TableBody,
 	TableData,
 	TableFieldContainer,
 	TableHeaderInner,
 	TableHeaders,
 	TableRow,
-	TextArea,
-	TextAreaContainer,
 	StatusSpan,
 	StatusBackgroundColor,
 	ToolbarItems,
@@ -81,7 +56,7 @@ class PurchaseStockRecord extends React.Component {
 						[ 'total', 0 ],
 						[ 'fromSupplier', '' ],
 						[ 'toLocation', '' ],
-						[ 'purchaseOrder', '' ],
+						[ 'purchase', '' ],
 						[ 'productCostBeforeTax', 0 ],
 						[ 'additionalCostBeforeTax', 0 ],
 						[ 'totalTaxOnProduct', 0 ],
@@ -89,7 +64,7 @@ class PurchaseStockRecord extends React.Component {
 					])
 				]
 			]),
-			stockItems:[]
+			stockItems: []
 		};
 		this.onChange = this.onChange.bind(this);
 	}
@@ -103,17 +78,17 @@ class PurchaseStockRecord extends React.Component {
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (nextProps.variables.PurchaseOrderStockReceivedRecord && nextProps.variables.PurchaseOrderStockItemRecord) {
 			const variable = nextProps.variables.PurchaseOrderStockReceivedRecord.filter(
-				(variable) => variable.values.purchaseOrder === nextProps.purchaseOrder
+				(variable) => variable.values.purchase === nextProps.purchase
 			)[0];
 			const stockItems = nextProps.variables.PurchaseOrderStockItemRecord.filter(
-				(item) => item.values.purchaseOrder === nextProps.purchaseOrder
+				(item) => item.values.purchase === nextProps.purchase
 			);
 			if (variable) {
 				const variableMap = objToMapRec(variable);
 				const prevVariableMap = objToMapRec(prevState.prevPropVariable);
 				return {
 					...prevState,
-					stockItems:stockItems,
+					stockItems: stockItems,
 					variable: variableMap,
 					prevPropVariable: variable,
 					prevVariable: prevVariableMap
@@ -143,7 +118,7 @@ class PurchaseStockRecord extends React.Component {
 					movementType: item.values.movementType,
 					quantity: item.values.quantity,
 					refProductStore: item.values.fromSupplier,
-					refInvoice: item.values.purchaseOrder,
+					refInvoice: item.values.purchase,
 					productStore: item.values.toProductStore
 				};
 				//todo
@@ -151,6 +126,7 @@ class PurchaseStockRecord extends React.Component {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
+								successMessage("Product Recieved Succesfully")
 								this.props.getVariables('PurchaseOrderStockItemRecord');
 							}
 						});
@@ -203,20 +179,20 @@ class PurchaseStockRecord extends React.Component {
 				<TableRow key={data.variableName}>
 					<TableData width="5%" />
 					<TableData width="20%">
-						<TableHeaderInner>{data.values.product}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">{data.values.product}</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>{data.values.quantity}</TableHeaderInner>
+						<TableHeaderInner overflow="hidden">{data.values.quantity}</TableHeaderInner>
 					</TableData>
 					<TableData width="20%">
-						<TableHeaderInner>
+						<TableHeaderInner overflow="hidden">
 							<StatusSpan backgroundColor={backgroundColor} color={color}>
 								{data.values.status}
 							</StatusSpan>
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="30%">
-						<TableHeaderInner>
+						<TableHeaderInner >
 							{data.values.status === 'In Transit' ? (
 								<React.Fragment>
 									<Custombutton
@@ -228,8 +204,7 @@ class PurchaseStockRecord extends React.Component {
 										borderColor="#05cb9a"
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
-										onClick={(e) =>
-											this.updateStatus(e, data, 'receivePurchasedItem')}
+										onClick={(e) => this.updateStatus(e, data, 'receivePurchasedItem')}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Recieve
@@ -249,12 +224,7 @@ class PurchaseStockRecord extends React.Component {
 										borderColor="#05cb9a"
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
-										onClick={(e) =>
-											this.updateStatus(
-												e,
-												data,
-												'approveReceivedPurchasedItem'
-											)}
+										onClick={(e) => this.updateStatus(e, data, 'approveReceivedPurchasedItem')}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Approve Recieve
@@ -269,8 +239,7 @@ class PurchaseStockRecord extends React.Component {
 										borderOnHover="#d82b2b"
 										backgroundOnHover="#d82b2b"
 										margin="0 5px"
-										onClick={(e) =>
-											this.updateStatus(e, data, 'rejectReceivedPurchasedItem')}
+										onClick={(e) => this.updateStatus(e, data, 'rejectReceivedPurchasedItem')}
 									>
 										<FontAwsomeIcon className="fa fa-times " />
 										Reject Shipment
@@ -300,7 +269,8 @@ class PurchaseStockRecord extends React.Component {
 							) : (
 								undefined
 							)} */}
-							{data.values.status === 'Rejected Item In Transit' || data.values.status === 'Receive Approved' ? (
+							{data.values.status === 'Rejected Item In Transit' ||
+							data.values.status === 'Receive Approved' ? (
 								<Custombutton
 									padding="0 10px"
 									minWidth="70px"
@@ -344,16 +314,14 @@ class PurchaseStockRecord extends React.Component {
 								value={this.state.variable.get('values').get('fromSupplier')}
 								readOnly
 							/>
-							<InputLabel>
-								Supplier
-							</InputLabel>
+							<InputLabel>Supplier</InputLabel>
 						</FormControl>
 						<FormControl>
 							<Input
 								name="toLocation"
 								type="text"
 								value={this.state.variable.get('values').get('toLocation')}
-							    readOnly		
+								readOnly
 							/>
 							<InputLabel>Location</InputLabel>
 						</FormControl>
@@ -416,7 +384,7 @@ const mapStateToProps = (state, ownProps) => ({
 	variables: state.variables
 });
 
-export default connect(mapStateToProps, { executeFuntion,clearErrors, getVariables, createVariable, updateVariable })(
+export default connect(mapStateToProps, { executeFuntion, clearErrors, getVariables, createVariable, updateVariable })(
 	PurchaseStockRecord
 );
 export const FontAwsomeIcon = styled.i`margin-right: 5px;`;

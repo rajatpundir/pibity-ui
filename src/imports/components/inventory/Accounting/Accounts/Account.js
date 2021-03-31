@@ -185,6 +185,9 @@ class Account extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner>{transaction.values.debitAmount}</TableHeaderInner>
 					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{transaction.values.balance}</TableHeaderInner>
+					</TableData>
 				</TableRow>
 			);
 		});
@@ -367,6 +370,11 @@ class Account extends React.Component {
 															<TableHeaders width="10%">
 																<SelectIconContainer>
 																	<SelectSpan>Debit</SelectSpan>
+																</SelectIconContainer>
+															</TableHeaders>
+															<TableHeaders width="10%">
+																<SelectIconContainer>
+																	<SelectSpan>Balance</SelectSpan>
 																</SelectIconContainer>
 															</TableHeaders>
 														</TableRow>

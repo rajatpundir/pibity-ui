@@ -65,7 +65,8 @@ class SupplierBlock extends React.Component {
 								<TableHeaderInner>{data.variableName}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
-								<TableHeaderInner>{data.values.contacts[0].values.phone}</TableHeaderInner>
+								<TableHeaderInner>contact
+								</TableHeaderInner>
 							</TableData>
 
 							<TableData width="10%">
@@ -73,7 +74,7 @@ class SupplierBlock extends React.Component {
 							</TableData>
 							<TableData width="10%">
 								<TableHeaderInner>
-									<Span>{data.values.general.values.status}</Span>
+									<Span>{data.values.status}</Span>
 								</TableHeaderInner>
 							</TableData>
 						</TableRow>

@@ -56,6 +56,14 @@
 			"icon": "shopping_cart",
 			"children": [
 				{
+					"name": "Purchase Indent",
+					"url": "/purchaseIndentList"
+				},
+				{
+					"name": "Add Purchase Indent",
+					"url": "/purchaseIndent"
+				},
+				{
 					"name": "Purchase Orders",
 					"url": "/purchaseList"
 				},
@@ -149,6 +157,14 @@
 				{
 					"name": "Reference Books",
 					"url": "/referenceBook"
+				},
+				{
+					"name": "Loading",
+					"url": "/loading"
+				},
+				{
+					"name":"Print Layout Testing",
+					"url":"/printTest"
 				}
 			]
 		}

@@ -143,7 +143,7 @@ class PurchaseInvoice extends React.Component {
 		// 	: rows;
 	}
 
-	render() {
+	render() { 
 		// const { rowsPerPage, page } = this.state;
 		return (
 			<Container mediaPadding="0" backgroundColor="white">

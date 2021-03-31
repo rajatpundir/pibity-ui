@@ -83,6 +83,15 @@ export function objToMapRec(obj) {
 	return map;
 }
 
+export function addKeyToList(items, key, value) {
+	return items.map((listVariable) => {
+		const values = listVariable.get('values');
+		values.set(key, value);
+		listVariable.set('values', values);
+		return listVariable;
+	});
+}
+
 export const getVariables = (typeName: String, limit: Number = 500, offset: Number = 0, values: Object = {}) => async (
 	dispatch
 ) => {
@@ -209,15 +218,14 @@ export const createVariable = (variable: Map) => async (dispatch) => {
 		console.log(response);
 		if (response.status === 200) {
 			if (response.data.length === 2) {
-				console.log("123")
-				if(response.data[0][0] !== undefined){
+				console.log('123');
+				if (response.data[0][0] !== undefined) {
 					await replaceVariable(dispatch, response.data[0][0]);
 					return {
 						data: response.data[0][0],
 						status: response.status
 					};
-				}
-				else{
+				} else {
 					return {
 						data: response.data[0][0],
 						status: 400
@@ -246,7 +254,7 @@ export const createVariables = (variables: Array) => async (dispatch) => {
 		const url = domain + '/variables/mutate';
 
 		console.log(variables);
-		
+
 		const requestBody = variables.map((variable) => {
 			const request = { ...mapToObjectRec(variable), ...{ op: 'create' } };
 			return request;
@@ -377,6 +385,50 @@ export const updateVariable = (prevVariable: Map, newVariable: Map) => async (di
 	}
 };
 
+
+export const updateVariables = (prevVariableArray: Array, newVariableArray: Array) => async (dispatch) => {
+	try {
+		const url = domain + '/variables/mutate';
+		const requestBody=computeArryUpdates(prevVariableArray,newVariableArray)
+		const queue = [ requestBody ];
+		console.log('--REQUEST--');
+		console.log(requestBody);
+		const orgId = localStorage.getItem('selectedOrganization');
+		const response = await axios.post(url, {
+			...{ queue: queue },
+			...{ orgId: orgId }
+		});
+		console.log('--RESPONSE--');
+		console.log(response.data);
+		if (response.status === 200) {
+			if (response.data[0][0] !== undefined && response.data.length === 2) {
+				await replaceVariable(dispatch, response.data[0][0]);
+				const resp = {
+					data: response.data[0][0],
+					status: response.status
+				};
+				return resp;
+			} else {
+				const resp = {
+					data: response.data[0][0],
+					status: 400
+				};
+				return resp;
+			}
+		} else {
+			updateErrors(dispatch, response.data);
+			return response.status;
+		}
+	} catch (error) {
+		if (error.response) {
+			updateErrors(dispatch, error.response.data[0]);
+			return false;
+		}
+	}
+};
+
+
+
 export const updateProductStockVariable = (variable: Map) => async (dispatch) => {
 	try {
 		const url = domain + '/variables/mutate';
@@ -444,6 +496,68 @@ function computeUpdates(prevValues: Map, newValues: Map) {
 			}
 			if (listMap.size !== 0) {
 				map.set(key, listMap);
+			}
+		} else if (value !== newValues.get(key)) {
+			map.set(key, newValues.get(key));
+		}
+	}
+	return map;
+}
+
+function computeArryUpdates(prevValues: Array, newValues: Array) {
+	const updateVariables = [];
+	//items deleted
+	const deletions = prevValues
+		.map((variable) => variable.get('variableName'))
+		.filter((variableName) => !newValues.map((variable) => variable.get('variableName')).includes(variableName));
+
+	//new items added
+	const addVariable = newValues.filter(
+		(variable) => !prevValues.map((variable) => variable.get('variableName')).includes(variable.get('variableName'))
+	);
+	const addedOrRemovedVariables = deletions;
+	addVariable.map((variable) => variable.get('variableName')).forEach((item) => addedOrRemovedVariables.push(item));
+
+	for (let variable of prevValues) {
+		const variableName = variable.get('variableName');
+		const typeName = variable.get('typeName');
+		if (!addedOrRemovedVariables.includes(variable.get('variableName'))) {
+			const newVariable = newValues.filter((variable) => variable.get('variableName') === variableName)[0];
+			if (variable !== newVariable) {
+				const variableValues = calculateUpdate(variable.get('values'), newVariable.get('values'));
+				if (variableValues.size !== 0)
+					updateVariables.push(
+						new Map([
+							[ 'typeName', typeName ],
+							[ 'variableName', variableName ],
+							[ 'values', variableValues ]
+						])
+					);
+			}
+		}
+	}
+	const createVaribales = addVariable.map((variable) => {
+		const item = { ...mapToObjectRec(variable), ...{ op: 'create' } };
+		return item;
+	});
+	const updateVaribales = updateVariables.map((variable) => {
+		const item = { ...mapToObjectRec(variable), ...{ op: 'update' } };
+		return item;
+	});
+	const requestbody = createVaribales;
+	updateVaribales.forEach((item) => requestbody.push(item));
+	return requestbody
+}
+
+function calculateUpdate(prevValues: Map, newValues: Map) {
+	const map = new Map();
+	for (let [ key, value ] of prevValues.entries()) {
+		if (value instanceof Map) {
+			const values = new Map();
+			values.set('values', this.computeUpdates(value.get('values'), newValues.get(key).get('values')));
+			values.set('variableName', value.get('variableName'));
+			if (values.get('values').size !== 0) {
+				map.set(key, values);
 			}
 		} else if (value !== newValues.get(key)) {
 			map.set(key, newValues.get(key));

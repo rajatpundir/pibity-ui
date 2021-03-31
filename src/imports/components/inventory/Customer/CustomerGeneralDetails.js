@@ -17,6 +17,7 @@ import {
 	InputBody,
 	InputLabel,
 	LeftItemH1,
+	LeftItemWrapper,
 	PageBlock,
 	PageToolbar,
 	SelectWrapper,
@@ -74,6 +75,15 @@ class CustomerGeneralDetails extends React.Component {
 			<PageBlock paddingBottom="0">
 				<PageToolbar>
 					<ToolbarItems>
+						{this.props.updatable ? this.state.variable.get('values').get('status') === 'Active' ? (
+							<LeftItemWrapper backgroundColor="#25c99f">
+								{this.state.variable.get('values').get('status')}
+							</LeftItemWrapper>
+						) : (
+							undefined
+						) : (
+							undefined
+						)}
 						<LeftItemH1>Customer</LeftItemH1>
 					</ToolbarItems>
 					<IconButton

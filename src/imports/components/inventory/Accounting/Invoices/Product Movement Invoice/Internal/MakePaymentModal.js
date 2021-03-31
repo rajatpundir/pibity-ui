@@ -28,18 +28,18 @@ class MakePaymentModal extends React.Component {
 		super();
 		this.state = {
 			amount: '',
-			paymentMode:'',
-			paymentReferenceId:'',
-            fromAccount:{
-                values:{
-                    name:""
-                }
-            },
-            toAccount:{
-                values:{
-                    name:""
-                }
-            },
+			paymentMode: '',
+			paymentReferenceId: '',
+			fromAccount: {
+				values: {
+					name: ''
+				}
+			},
+			toAccount: {
+				values: {
+					name: ''
+				}
+			}
 		};
 		this.onChange = this.onChange.bind(this);
 		this.onClose = this.onClose.bind(this);
@@ -53,12 +53,18 @@ class MakePaymentModal extends React.Component {
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
-			...prevState,
+			...prevState
 		};
 	}
 
 	onChange(e) {
-		this.setState({ [e.target.name]: e.target.value });
+		if (e.target.name === 'amount') {
+			if (e.target.value <= this.props.invoice.values.balanceDue) {
+				this.setState({ [e.target.name]: e.target.value });
+			}
+		} else {
+			this.setState({ [e.target.name]: e.target.value });
+		}
 	}
 
 	onClose() {
@@ -70,20 +76,22 @@ class MakePaymentModal extends React.Component {
 			amount: this.state.amount,
 			invoice: this.props.invoice.variableName,
 			voucher: 'InternalProductMovement',
-            account: this.state.toAccount.variableName,
-            refAccount:this.state.fromAccount.variableName,
+			account: this.state.toAccount.variableName,
+			refAccount: this.state.fromAccount.variableName,
 			paymentReferenceId: this.state.paymentReferenceId,
 			paymentMode: this.state.paymentMode
 		};
 		if (this.state.amount <= this.props.invoice.values.balanceDue) {
-			this.props.executePaymentInvoiceFuntion(args, 'clearInternalProductMovementOrderInvoicePayment').then((data) => {
-				if (data.status === 200) {
-                    successMessage('Transaction Compleated Successfully');
-                    this.props.getVariables('ProductMovementOrderInvoice');
-                    this.props.getVariables('AccountTransaction');
-					this.onClose();
-				}
-			});
+			this.props
+				.executePaymentInvoiceFuntion(args, 'clearInternalProductMovementOrderInvoicePayment')
+				.then((data) => {
+					if (data.status === 200) {
+						successMessage('Transaction Compleated Successfully');
+						this.props.getVariables('ProductMovementOrderInvoice');
+						this.props.getVariables('AccountTransaction');
+						this.onClose();
+					}
+				});
 		} else {
 			customErrorMessage('amount is grater than Balnce Due');
 		}
@@ -181,15 +189,13 @@ class MakePaymentModal extends React.Component {
 										this.onChange(e);
 									}}
 								/>{' '}
-								<InputLabel>
-									Payment Mode Reference Id
-								</InputLabel>
+								<InputLabel>Payment Mode Reference Id</InputLabel>
 							</FormControl>
 							<FormControl>
 								<SelectWrapper>
 									<Select
 										value={{
-                                            value: this.state.fromAccount.values.name,
+											value: this.state.fromAccount.values.name,
 											label: this.state.fromAccount.values.name
 										}}
 										onChange={(option) => {
@@ -199,9 +205,9 @@ class MakePaymentModal extends React.Component {
 											this.props.variables.Account !== undefined ? (
 												this.props.variables.Account.map((variable) => {
 													return {
-                                                        value: variable.values.name,
-                                                        label: variable.values.name,
-                                                        data:variable
+														value: variable.values.name,
+														label: variable.values.name,
+														data: variable
 													};
 												})
 											) : (
@@ -230,8 +236,8 @@ class MakePaymentModal extends React.Component {
 												this.props.variables.Account.map((variable) => {
 													return {
 														value: variable.values.name,
-                                                        label: variable.values.name,
-                                                        data:variable
+														label: variable.values.name,
+														data: variable
 													};
 												})
 											) : (

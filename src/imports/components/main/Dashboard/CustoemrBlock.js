@@ -63,14 +63,14 @@ class CustoemrBlock extends React.Component {
 								<TableHeaderInner>{data.variableName}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
-								<TableHeaderInner>{data.values.contacts[0].values.phone}</TableHeaderInner>
+								<TableHeaderInner></TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
 								<TableHeaderInner>{totalDue}</TableHeaderInner>
 							</TableData>
 							<TableData width="10%">
 								<TableHeaderInner>
-									<Span>{data.values.general.values.status}</Span>
+									<Span>{data.values.status}</Span>
 								</TableHeaderInner>
 							</TableData>
 						</TableRow>

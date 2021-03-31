@@ -99,13 +99,19 @@ class SupplierList extends React.Component {
 		this.setState({ layoutFeilds: layout });
 	}
 
+	getData() {
+		this.props.getVariables('Supplier');
+		this.props.getVariables('SupplierAddress');
+		this.props.getVariables('SupplierContact');
+		this.props.getVariables('PurchaseInvoice');
+	}
+
 	componentDidMount() {
 		if (this.props.auth.selectedOrganization === null) {
 			this.setState({ isOpen: true });
 		} else {
+			this.getData();
 			this.props.clearErrors();
-			this.props.getVariables('Supplier');
-			this.props.getVariables('PurchaseInvoice');
 		}
 	}
 
@@ -118,7 +124,7 @@ class SupplierList extends React.Component {
 	}
 
 	onRefresh() {
-		this.props.getVariables('Suppliers');
+		this.getData();
 	}
 
 	onResetDefaults() {
@@ -141,8 +147,7 @@ class SupplierList extends React.Component {
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('Supplier');
-		this.props.getVariables('PurchaseInvoice');
+		this.getData()
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
@@ -171,6 +176,18 @@ class SupplierList extends React.Component {
 			const totalDue = invoice.reduce(function(accumulator, currentValue) {
 				return accumulator + currentValue.values.balanceDue;
 			}, 0);
+
+			const defaultContact =
+				this.props.variables !== undefined
+					? this.props.variables.SupplierContact !== undefined
+						? this.props.variables.SupplierContact.filter(
+								(contact) =>
+									contact.values.supplier === supplier.variableName &&
+									contact.values.isDefault === true
+							)[0]
+						: []
+					: [];
+			
 			rows.push(
 				<SupplierListData
 					data={supplier}

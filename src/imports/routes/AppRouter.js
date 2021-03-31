@@ -5,6 +5,8 @@ import PrivateRoute from './PrivateRoute';
 //user
 import Profile from '../components/userManagement/UserProfile/Profile';
 //purchase and sales
+import PurchaseIndent from '../components/inventory/Purchase/PurchaseIndent/PurchaseIndent';
+import PurchaseIndentList from '../components/inventory/Purchase/PurchaseIndent/PurchaseIndentList';
 import Purchase from '../components/inventory/Purchase/Simple Purchase/Purchase';
 import ServicePurchase from '../components/inventory/Purchase/ServicePurchase/ServicePurchase';
 import PurchaseList from '../components/inventory/Purchase/PurchaseList';
@@ -19,17 +21,17 @@ import CustomerList from '../components/inventory/Customer/CustomerList/Customer
 //product
 import Product from '../components/inventory/Product/Product';
 import ProductList from '../components/inventory/Product/ProductList';
-import ProductMovementOrder from '../components/inventory/Product/Product Stock Movement/Product Movement Order/ProductMovementOrder'
-import ProductMovementOrderPlacedList from '../components/inventory/Product/Product Stock Movement/Product Movement Order/Product Movement Order List/ProductMovementOrderPlacedList'
-import ProductMovementOrderReceivedList from '../components/inventory/Product/Product Stock Movement/Product Movement Order/Product Movement Order List/ProductMovementOrderReceivedList'
+import ProductMovementOrder from '../components/inventory/Product/Product Stock Movement/Product Movement Order/ProductMovementOrder';
+import ProductMovementOrderPlacedList from '../components/inventory/Product/Product Stock Movement/Product Movement Order/Product Movement Order List/ProductMovementOrderPlacedList';
+import ProductMovementOrderReceivedList from '../components/inventory/Product/Product Stock Movement/Product Movement Order/Product Movement Order List/ProductMovementOrderReceivedList';
 import StockAdjustment from '../components/inventory/StockAdjustment/StockAdjustment';
 import StockAdjustmentList from '../components/inventory/StockAdjustment/StockAdjustmentList';
 //accounts
 import AccountList from '../components/inventory/Accounting/Accounts/AccountList';
 import Account from '../components/inventory/Accounting/Accounts/Account';
 import PurchaseInvoiceList from '../components/inventory/Accounting/Invoices/PurchaseInvoice/PurchaseInvoiceList';
-import SalesInvoiceList from '../components/inventory/Accounting/Invoices/SalesInvoice/SalesInvoiceList'
-import InternalProductMovementInvoiceList from '../components/inventory/Accounting/Invoices/Product Movement Invoice/Internal/InternalProductMovementInvoiceList'
+import SalesInvoiceList from '../components/inventory/Accounting/Invoices/SalesInvoice/SalesInvoiceList';
+import InternalProductMovementInvoiceList from '../components/inventory/Accounting/Invoices/Product Movement Invoice/Internal/InternalProductMovementInvoiceList';
 
 //extras
 import NotFound from '../components/main/NotFound';
@@ -46,6 +48,9 @@ import Locations from '../components/main/Reference Books/Locations';
 import ReferenceBook from '../components/main/Reference Books/ReferenceBook';
 import ProductStore from '../components/inventory/Product/Product Store/ProductStore';
 
+//Test links
+import Loading from '../components/main/LoadingTest';
+import PrintTest from '../components/main/PrintTest';
 
 export const AppRouter = () => (
 	<BrowserRouter>
@@ -76,12 +81,26 @@ export const AppRouter = () => (
 				render={(props) => <StockAdjustment {...props} />}
 			/>
 			<PrivateRoute exact path="/productMovementOrder" render={(props) => <ProductMovementOrder {...props} />} />
-			<PrivateRoute exact path="/productMovementOrder/:variableName" render={(props) => <ProductMovementOrder {...props} />} />
-			<PrivateRoute exact path="/productMovementOrderList/orderPlcaed" render={(props) => <ProductMovementOrderPlacedList {...props} />} />
-			<PrivateRoute exact path="/productMovementOrderList/orderReceived" render={(props) => <ProductMovementOrderReceivedList {...props} />} />
+			<PrivateRoute
+				exact
+				path="/productMovementOrder/:variableName"
+				render={(props) => <ProductMovementOrder {...props} />}
+			/>
+			<PrivateRoute
+				exact
+				path="/productMovementOrderList/orderPlcaed"
+				render={(props) => <ProductMovementOrderPlacedList {...props} />}
+			/>
+			<PrivateRoute
+				exact
+				path="/productMovementOrderList/orderReceived"
+				render={(props) => <ProductMovementOrderReceivedList {...props} />}
+			/>
 
-			
 			{/* sales And Purchase */}
+			<PrivateRoute exact path="/purchaseIndent" render={(props) => <PurchaseIndent {...props} />} />
+			<PrivateRoute exact path="/purchaseIndentList" render={(props) => <PurchaseIndentList {...props} />} />
+			<PrivateRoute exact path="/purchaseIndentList/:variableName" render={(props) => <PurchaseIndent {...props} />} />
 			<PrivateRoute exact path="/purchase" render={(props) => <Purchase {...props} />} />
 			<PrivateRoute exact path="/purchaseList" render={(props) => <PurchaseList {...props} />} />
 			<PrivateRoute exact path="/purchase/:variableName" render={(props) => <Purchase {...props} />} />
@@ -102,7 +121,11 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/accounts/:variableName" render={(props) => <Account {...props} />} />
 			<PrivateRoute exact path="/purchaseinvocies" render={(props) => <PurchaseInvoiceList {...props} />} />
 			<PrivateRoute exact path="/salesinvocies" render={(props) => <SalesInvoiceList {...props} />} />
-			<PrivateRoute exact path="/internalProductMovementInvocies" render={(props) => <InternalProductMovementInvoiceList {...props} />} />
+			<PrivateRoute
+				exact
+				path="/internalProductMovementInvocies"
+				render={(props) => <InternalProductMovementInvoiceList {...props} />}
+			/>
 
 			<PrivateRoute exact path="/brands" render={(props) => <Brands {...props} />} />
 			<PrivateRoute exact path="/carrierServices" render={(props) => <CarrierServices {...props} />} />
@@ -113,6 +136,9 @@ export const AppRouter = () => (
 			<PrivateRoute exact path="/locations" render={(props) => <Locations {...props} />} />
 			<PrivateRoute exact path="/productStores" render={(props) => <ProductStore {...props} />} />
 			<PrivateRoute exact path="/referenceBook" render={(props) => <ReferenceBook {...props} />} />
+
+			<PrivateRoute exact path="/loading" render={(props) => <Loading {...props} />} />
+			<PrivateRoute exact path="/printTest" render={(props) => <PrintTest {...props} />} />
 
 			{/* user management */}
 			{/* <PrivateRoute exact path="/Users" render={(props) => <UserList {...props} />} /> */}

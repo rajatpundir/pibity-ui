@@ -159,7 +159,7 @@ class ProductMovementOrderReceivedList extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">
 							<Link to={'/productMovementOrder/' + encodeURIComponent(productMovementOrder.variableName)}>
-								{productMovementOrder.values.product}
+								{productMovementOrder.variableName}
 							</Link>
 						</TableHeaderInner>
 					</TableData>
@@ -171,14 +171,10 @@ class ProductMovementOrderReceivedList extends React.Component {
 					<TableData width="10%">
 						<TableHeaderInner overflow="hidden">{productMovementOrder.values.toLocation}</TableHeaderInner>
 					</TableData>
-
 					<TableData width="10%">
-						<TableHeaderInner overflow="hidden">
-							{productMovementOrder.values.requestedQuantity}
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<StatusSpan backgroundColor={backgroundColor} color={color}>{productMovementOrder.values.status}</StatusSpan>
+						<StatusSpan backgroundColor={backgroundColor} color={color}>
+							{productMovementOrder.values.status}
+						</StatusSpan>
 					</TableData>
 				</TableRow>
 			);
@@ -239,7 +235,7 @@ class ProductMovementOrderReceivedList extends React.Component {
 								</Custombutton>
 							</PageBarAlign>
 							<PageBarAlign padding="10px 20px" float="left">
-								<FormControl  minHeight="0" paddingBottom="0">
+								<FormControl minHeight="0" paddingBottom="0">
 									<SelectWrapper minWidth="150px">
 										<Select
 											value={{
@@ -271,7 +267,7 @@ class ProductMovementOrderReceivedList extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Product</SelectSpan>
+																<SelectSpan>OrderId</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
@@ -279,16 +275,9 @@ class ProductMovementOrderReceivedList extends React.Component {
 																<SelectSpan> Location</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
-
 														<TableHeaders width="10%">
 															<SelectIconContainer>
 																<SelectSpan> To Location</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Requested Quantity</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">

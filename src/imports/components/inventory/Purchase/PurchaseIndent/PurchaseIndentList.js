@@ -1,11 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { clearErrors } from '../../../redux/actions/errors';
-import { getVariables } from '../../../redux/actions/variables';
+import { clearErrors } from '../../../../redux/actions/errors';
+import { getVariables } from '../../../../redux/actions/variables';
 import TablePagination from '@material-ui/core/TablePagination';
-import TablePaginationActions from '../../main/TablePagination';
-import SelectorganizationModal from '../../main/Modal/SelectorganizationModal';
+import TablePaginationActions from '../../../main/TablePagination';
+import SelectorganizationModal from '../../../main/Modal/SelectorganizationModal';
 import {
 	Container,
 	ListTableFieldContainer,
@@ -30,14 +30,15 @@ import {
 	TableHeaders,
 	TableData,
 	TableHeaderInner
-} from '../../../styles/inventory/Style';
-import { TablePaginationStyle } from '../../../styles/main/TablePagination';
+} from '../../../../styles/inventory/Style';
+import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
 
-class PurchaseOrderList extends React.Component {
+class PurchaseIndentList extends React.Component {
 	constructor(props) {
 		super();
 		this.state = {
-			purchase: [],
+			purchaseIndent: [],
+			purchaseIndentItems: [],
 			expandedRows: [],
 			activeCustomerOnly: false,
 			isOpen: false,
@@ -64,23 +65,32 @@ class PurchaseOrderList extends React.Component {
 			this.setState({ isOpen: true });
 		} else {
 			this.props.clearErrors();
-			this.props.getVariables('Purchase');
+			this.props.getVariables('PurchaseIndent');
+			this.props.getVariables('PurchaseIndentItem');
 		}
 	}
 
 	onClose() {
 		this.setState({ isOpen: false });
 		this.props.clearErrors();
-		this.props.getVariables('Purchase');
+        this.props.getVariables('PurchaseIndent');
+        this.props.getVariables('PurchaseIndentItem');
+
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState) {
 		return {
 			...prevState,
-			purchase:
+			purchaseIndent:
 				nextProps.variables !== undefined
-					? nextProps.variables.Purchase !== undefined
-						? nextProps.variables.Purchase.map((x, i) => ({ ...x, Id: i }))
+					? nextProps.variables.PurchaseIndent !== undefined
+						? nextProps.variables.PurchaseIndent.map((x, i) => ({ ...x, Id: i }))
+						: []
+					: [],
+			purchaseIndentItems:
+				nextProps.variables !== undefined
+					? nextProps.variables.PurchaseIndentItem !== undefined
+						? nextProps.variables.PurchaseIndentItem.map((x, i) => ({ ...x, Id: i }))
 						: []
 					: []
 		};
@@ -88,45 +98,31 @@ class PurchaseOrderList extends React.Component {
 
 	renderInputFields() {
 		const rows = [];
-		this.state.purchase.forEach((purchase) => {
+		this.state.purchaseIndent.forEach((purchaseIndent) => {
+			const purchaseIndentItems = this.state.purchaseIndentItems.filter(
+				(item) => item.values.purchaseIndent === purchaseIndent.variableName
+            );
 			rows.push(
-				<TableRow onClick={this.handleRowClick} key={purchase.variableName}>
+				<TableRow onClick={this.handleRowClick} key={purchaseIndent.variableName}>
 					<TableData width="5%" />
 					<TableData width="10%">
 						<TableHeaderInner>
-							{purchase.values.orderType === 'Simple' ? (
-								<Link to={'/purchase/' + purchase.variableName}>{purchase.variableName}</Link>
-							) : (
-								<Link to={'/servicePurchase/' + purchase.variableName}>
-									{purchase.variableName}
-								</Link>
-							)}
-						</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							<Link to={'/supplierList/' + purchase.values.general.values.supplierName}>
-								{purchase.values.general.values.supplierName}
+							<Link to={'/purchaseIndentList/' + purchaseIndent.variableName}>
+								{purchaseIndent.variableName}
 							</Link>
-						</TableHeaderInner>{' '}
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>{purchase.values.general.values.date}</TableHeaderInner>
-					</TableData>
-					<TableData width="10%">
-						<TableHeaderInner>
-							{/* {purchase.values.orderDetails[0].values.additionalCostBeforeTax +
-								purchase.values.orderDetails[0].values.productCostBeforeTax} */}
 						</TableHeaderInner>
 					</TableData>
 					<TableData width="10%">
-						<TableHeaderInner>
-							{/* {purchase.values.orderDetails[0].values.totalTaxOnAdditionalCost +
-								purchase.values.orderDetails[0].values.totalTaxOnProduct} */}
-						</TableHeaderInner>
+						<TableHeaderInner>{purchaseIndent.values.indentNumber}</TableHeaderInner>{' '}
 					</TableData>
 					<TableData width="10%">
-						{/* <TableHeaderInner>{purchase.values.orderDetails[0].values.total}</TableHeaderInner> */}
+						<TableHeaderInner>{purchaseIndent.values.date}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{purchaseIndentItems.length}</TableHeaderInner>
+					</TableData>
+					<TableData width="10%">
+						<TableHeaderInner>{purchaseIndent.values.status}</TableHeaderInner>
 					</TableData>
 				</TableRow>
 			);
@@ -137,7 +133,7 @@ class PurchaseOrderList extends React.Component {
 					this.state.page * this.state.rowsPerPage,
 					this.state.page * this.state.rowsPerPage + this.state.rowsPerPage
 				)
-			: rows;
+            : rows;
 	}
 
 	render() {
@@ -178,12 +174,12 @@ class PurchaseOrderList extends React.Component {
 														<TableHeaders width="5%" />
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Purchase Order</SelectSpan>
+																<SelectSpan>Purchase Indent</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Supplier</SelectSpan>
+																<SelectSpan>Indent Number</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
@@ -193,17 +189,12 @@ class PurchaseOrderList extends React.Component {
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Total Before Tax</SelectSpan>
+																<SelectSpan>Total Items</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 														<TableHeaders width="10%">
 															<SelectIconContainer>
-																<SelectSpan>Tax</SelectSpan>
-															</SelectIconContainer>
-														</TableHeaders>
-														<TableHeaders width="10%">
-															<SelectIconContainer>
-																<SelectSpan>Total</SelectSpan>
+																<SelectSpan>Status</SelectSpan>
 															</SelectIconContainer>
 														</TableHeaders>
 													</TableRow>
@@ -222,7 +213,7 @@ class PurchaseOrderList extends React.Component {
 						style={TablePaginationStyle}
 						rowsPerPageOptions={[ 5, 10, 20 ]}
 						colSpan={3}
-						count={this.state.purchase.length}
+						count={this.state.purchaseIndent.length}
 						rowsPerPage={rowsPerPage}
 						page={page}
 						onChangePage={this.handleChangePage}
@@ -244,4 +235,4 @@ const mapStateToProps = (state) => ({
 	auth: state.auth
 });
 
-export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseOrderList);
+export default connect(mapStateToProps, { clearErrors, getVariables })(PurchaseIndentList);

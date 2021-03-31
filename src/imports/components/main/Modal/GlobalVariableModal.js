@@ -105,8 +105,8 @@ class GlobalVariableModal extends React.Component {
 						onClick={(e) => {
 							this.props.createVariable(this.state.typeVariable).then((response) => {
 								if (response.status === 200) {
-									this.onClose();
 									successMessage(`${this.props.typeName} Added Succesfully`);
+									this.onClose();
 								}
 							});
 						}}

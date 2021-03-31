@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getVariables } from '../../../../../redux/actions/variables';
-
+import { successMessage, customErrorMessage } from '../../../../main/Notification';
 import {
 	BodyTable,
 	HeaderBody,
@@ -71,7 +71,7 @@ class ProductMovementRecord extends React.Component {
 		this.setState({ acceptOrderModal: false });
 	}
 
-	updateStatus(e, item, funtionName,rejectedQuantity) {
+	updateStatus(e, item, funtionName, rejectedQuantity) {
 		const args = {
 			productMovementRecord: item.variableName
 		};
@@ -85,15 +85,34 @@ class ProductMovementRecord extends React.Component {
 					refInvoice: item.values.productMovementInvoice,
 					productStore: item.values.fromProductStore
 				};
-				this.props.executeFuntion(updateStore, 'reduceQuantityInProductStore').then((response) => {
-					if (response.status === 200) {
-						this.props.executeFuntion(args, funtionName).then((response) => {
-							if (response.status === 200) {
-								this.props.getVariables('InternalProductMovementItemRecord');
+				this.props
+					.executeFuntion(
+						{
+							quantity: item.values.quantity,
+							productStore: item.values.fromProductStore
+						},
+						'isQuantityAvailableInStore'
+					)
+					.then((response) => {
+						if (response.status === 200) {
+							if (response.data.dispatchProduct) {
+								this.props
+									.executeFuntion(updateStore, 'reduceQuantityInProductStore')
+									.then((response) => {
+										if (response.status === 200) {
+											this.props.executeFuntion(args, funtionName).then((response) => {
+												if (response.status === 200) {
+													successMessage('Product Dispatched Succesfully');
+													this.props.getVariables('InternalProductMovementItemRecord');
+												}
+											});
+										}
+									});
+							} else {
+								customErrorMessage('Quantity insufficient in store');
 							}
-						});
-					}
-				});
+						}
+					});
 				break;
 			case 'approveShipmentReceivedAndUpdateProductMovementRecord':
 				this.onOpenAcceptOrderModal(item);
@@ -107,10 +126,11 @@ class ProductMovementRecord extends React.Component {
 					refInvoice: item.values.productMovementInvoice,
 					productStore: item.values.fromProductStore
 				};
-				this.props.executeFuntion(reciveRejectedItem, 'updateQuantityInProductStore').then((response) => {
+				this.props.executeFuntion(reciveRejectedItem, 'updateReturnedQuantityInProductStore1').then((response) => {
 					if (response.status === 200) {
 						this.props.executeFuntion(args, funtionName).then((response) => {
 							if (response.status === 200) {
+								successMessage('Product Recieved Succesfully');
 								this.props.getVariables('InternalProductMovementItemRecord');
 							}
 						});
@@ -207,7 +227,8 @@ class ProductMovementRecord extends React.Component {
 											this.updateStatus(
 												e,
 												data,
-												'dispatchShipmentAndUpdateProductMovementRecord',0
+												'dispatchShipmentAndUpdateProductMovementRecord',
+												0
 											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
@@ -229,7 +250,12 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'receiveShipmentAndUpdateProductMovementRecord',0)}
+											this.updateStatus(
+												e,
+												data,
+												'receiveShipmentAndUpdateProductMovementRecord',
+												0
+											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Recieve
@@ -253,7 +279,8 @@ class ProductMovementRecord extends React.Component {
 											this.updateStatus(
 												e,
 												data,
-												'approveShipmentReceivedAndUpdateProductMovementRecord',0
+												'approveShipmentReceivedAndUpdateProductMovementRecord',
+												0
 											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
@@ -291,7 +318,12 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'dispatchRejectedShipmentUpdateMovementRecord',log.values.rejectedQuantity)}
+											this.updateStatus(
+												e,
+												data,
+												'dispatchRejectedShipmentUpdateMovementRecord',
+												log.values.rejectedQuantity
+											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Dispatch Shipment
@@ -312,7 +344,12 @@ class ProductMovementRecord extends React.Component {
 										borderOnHover="#0bc295"
 										backgroundOnHover="#0bc295"
 										onClick={(e) =>
-											this.updateStatus(e, data, 'receiveRejectedShipmentUpdateMovementRecord',log.values.rejectedQuantity)}
+											this.updateStatus(
+												e,
+												data,
+												'receiveRejectedShipmentUpdateMovementRecord',
+												log.values.rejectedQuantity
+											)}
 									>
 										<FontAwsomeIcon className="fa fa-check-circle" />
 										Recieve Rejected Shipment
@@ -347,6 +384,10 @@ class ProductMovementRecord extends React.Component {
 			);
 		});
 		return rows;
+	}
+
+	funToPrint() {
+		return <div ref={(el) => (this.componentRef = el)}>"helolsofhsjf "</div>;
 	}
 
 	render() {
