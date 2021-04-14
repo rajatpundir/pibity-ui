@@ -50,7 +50,7 @@ class PurchaseIndent extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'date', '' ],
+						[ 'date', new Date().getTime()],
 						[ 'indentNumber', '' ],
 						[ 'raisedBy', '' ],
 						[ 'approvedBy', '' ],
@@ -175,7 +175,7 @@ class PurchaseIndent extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'date', '' ],
+						[ 'date', new Date().getTime() ],
 						[ 'indentNumber', '' ],
 						[ 'raisedBy', '' ],
 						[ 'approvedBy', '' ],

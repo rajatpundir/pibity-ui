@@ -84,8 +84,19 @@ class PurchaseIndentDetail extends React.Component {
 	onChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		variable.set(e.target.name, e.target.value);
+		if(e.target.name === "date"){
+			variable.set(e.target.name, new Date(e.target.value).getTime());
+		}
 		this.setState({ variable: variable });
 		this.props.updateDetails(variable);
+	
+		// const myDate = new Date(e.target.value);
+		// console.log("myDate" + new Date(e.target.value).toLocaleDateString());
+		// const a =  new Date(e.target.value).getTime();
+		// console.log(a);
+		// const b = new Date(a).toLocaleDateString();
+		// console.log("change date" + b);
+
 	}
 
 	onIndentItemChange(e, variableName) {
@@ -109,7 +120,7 @@ class PurchaseIndentDetail extends React.Component {
 		const indentItems = cloneDeep(this.state.indentItems);
 		indentItems.unshift(
 			new Map([
-				[ 'typeName', 'PurchaseIndentItem' ],
+				['typeName', 'PurchaseIndentItem'],
 				[
 					'variableName',
 					String(indentItems.length === 0 ? 0 : Math.max(...indentItems.map((o) => o.get('variableName'))) + 1)
@@ -117,13 +128,13 @@ class PurchaseIndentDetail extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'purchaseIndent', '' ],
-						[ 'product', '' ],
-						[ 'quantity', '' ],
-						[ 'unit', '' ],
-                        [ 'partNumber', '' ],
-                        [ 'requiredDate', '' ],
-						[ 'remark', '' ]
+						['purchaseIndent', ''],
+						['product', ''],
+						['quantity', ''],
+						['unit', ''],
+						['partNumber', ''],
+						['requiredDate', ''],
+						['remark', '']
 					])
 				]
 			])
@@ -196,7 +207,7 @@ class PurchaseIndentDetail extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-                    <TableData width="10%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="partNumber"
@@ -206,7 +217,7 @@ class PurchaseIndentDetail extends React.Component {
 							/>
 						</TableHeaderInner>
 					</TableData>
-                    <TableData width="10%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<SelectWrapper>
 								<Select
@@ -237,7 +248,7 @@ class PurchaseIndentDetail extends React.Component {
 							</SelectWrapper>
 						</TableHeaderInner>
 					</TableData>
-                    <TableData width="10%">
+					<TableData width="10%">
 						<TableHeaderInner>
 							<Input
 								name="quantity"
@@ -253,8 +264,8 @@ class PurchaseIndentDetail extends React.Component {
 							<Input
 								name="requiredDate"
 								type="Date"
-                                value={listVariable.get('values').get('requiredDate')}
-                                onChange={(e) => this.onIndentItemChange(e, listVariable.get('variableName'))}
+								value={listVariable.get('values').get('requiredDate')}
+								onChange={(e) => this.onIndentItemChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
 					</TableData>
@@ -294,7 +305,7 @@ class PurchaseIndentDetail extends React.Component {
 										name="date"
 										type="date"
 										placeholder="date"
-										value={this.state.variable.get('date')}
+										value={new Date(this.state.variable.get("date")).toISOString().substr(0,10)}
 										onChange={this.onChange}
 									/>
 									<InputLabel> Date</InputLabel>
@@ -329,7 +340,7 @@ class PurchaseIndentDetail extends React.Component {
 																	<SelectSpan>Part Number</SelectSpan>
 																</SelectIconContainer>
 															</TableHeaders>
-                                                            <TableHeaders width="10%">
+															<TableHeaders width="10%">
 																<SelectIconContainer>
 																	<SelectSpan>Unit</SelectSpan>
 																</SelectIconContainer>
@@ -343,8 +354,8 @@ class PurchaseIndentDetail extends React.Component {
 																<SelectIconContainer>
 																	<SelectSpan>Required date</SelectSpan>
 																</SelectIconContainer>
-															</TableHeaders>  
-                                                            <TableHeaders width="10%">
+															</TableHeaders>
+															<TableHeaders width="10%">
 																<SelectIconContainer>
 																	<SelectSpan>Remark</SelectSpan>
 																</SelectIconContainer>

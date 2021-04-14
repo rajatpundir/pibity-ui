@@ -88,8 +88,8 @@ class Customer extends React.Component {
 			customerContacts: [],
 			prevCustomerAddresses: [],
 			customerAddresses: [],
-			visibleSection: 'addresses'
-		};
+			visibleSection: 'addresses',
+				};
 		this.updateDetails = this.updateDetails.bind(this);
 		this.updateAddresses = this.updateAddresses.bind(this);
 		this.updateContactsList = this.updateContactsList.bind(this);
@@ -100,7 +100,6 @@ class Customer extends React.Component {
 		this.onClose = this.onClose.bind(this);
 		this.onCloseAlert = this.onCloseAlert.bind(this);
 	}
-
 	static getDerivedStateFromProps(nextProps, prevState) {
 		if (
 			nextProps.match.params.variableName &&
@@ -349,10 +348,11 @@ class Customer extends React.Component {
 	}
 
 	render() {
+
 		return (
 			<Container mediaPadding="20px 20px 0 20px" onscroll="extJS_realign()">
 				<SelectorganizationModal isOpen={this.state.isOpen} onClose={this.onClose} />
-				<CustomNotification limit={2} />
+				<CustomNotification limit={2} />			
 				<PageWrapper>
 					<PageBody>
 						<SaveButtonContaier>
@@ -428,7 +428,9 @@ class Customer extends React.Component {
 								<CheckIcon />
 							</SaveButton>
 						</SaveButtonContaier>
-						{this.state.visibleSection !== 'accounts' && (
+					
+					
+						{this.state.visibleSection !== 'accounts' && (											
 							<CustomerGeneralDetails
 								updatable={this.props.match.params.variableName ? true : false}
 								variable={this.state.variable}
