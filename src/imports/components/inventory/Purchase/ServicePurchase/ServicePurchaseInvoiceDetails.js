@@ -79,8 +79,8 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 					'values',
 					new Map([
 						[ 'purchaseOrder', props.purchaseOrder.variableName ],
-						[ 'invoiceDate', '' ],
-						[ 'dueDate', '' ],
+						[ 'invoiceDate', new Date().getTime() ],
+						[ 'dueDate', new Date().getTime() ],
 						[ 'invoiceNumber', '' ],
 						[ 'total', 0 ],
 						[ 'purchaseOrderMemo', '' ],
@@ -159,6 +159,12 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set(e.target.name, e.target.value);
+		if (e.target.name === "invoiceDate") {
+			values.set(e.target.name, new Date(e.target.value).getTime());
+		}
+		if (e.target.name === "dueDate") {
+			values.set(e.target.name, new Date(e.target.value).getTime());
+		}
 		variable.set('values', values);
 		this.setState({ variable: variable });
 	}
@@ -546,7 +552,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 							<Input
 								name="invoiceDate"
 								type="date"
-								value={this.state.variable.get('values').get('invoiceDate')}
+								value={new Date(this.state.variable.get('values').get('invoiceDate')).toISOString().substr(0, 10)}
 								onChange={this.onChange}
 							/>
 							<InputLabel>Invoice Date</InputLabel>
@@ -555,7 +561,7 @@ class ServicePurchaseInvoiceDetails extends React.Component {
 							<Input
 								name="dueDate"
 								type="date"
-								value={this.state.variable.get('values').get('dueDate')}
+								value={new Date(this.state.variable.get('values').get('dueDate')).toISOString().substr(0, 10)}
 								onChange={this.onChange}
 							/>{' '}
 							<InputLabel>
