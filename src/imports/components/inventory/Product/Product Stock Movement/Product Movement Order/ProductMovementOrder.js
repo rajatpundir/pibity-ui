@@ -64,7 +64,7 @@ class ProductMovementOrder extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'date', '' ],
+						[ 'date', new Date().getTime() ],
 						[ 'toLocation', '' ],
 						[ 'fromLocation', '' ],
 						[ 'movementType', 'Internal' ],
@@ -235,7 +235,7 @@ class ProductMovementOrder extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'date', '' ],
+						[ 'date', new Date().getTime() ],
 						[ 'toLocation', '' ],
 						[ 'fromLocation', '' ],
 						[ 'movementType', 'Internal' ],

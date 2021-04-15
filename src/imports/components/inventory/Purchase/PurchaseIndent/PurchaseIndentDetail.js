@@ -84,19 +84,11 @@ class PurchaseIndentDetail extends React.Component {
 	onChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		variable.set(e.target.name, e.target.value);
-		if(e.target.name === "date"){
+		if (e.target.name === "date") {
 			variable.set(e.target.name, new Date(e.target.value).getTime());
 		}
 		this.setState({ variable: variable });
 		this.props.updateDetails(variable);
-	
-		// const myDate = new Date(e.target.value);
-		// console.log("myDate" + new Date(e.target.value).toLocaleDateString());
-		// const a =  new Date(e.target.value).getTime();
-		// console.log(a);
-		// const b = new Date(a).toLocaleDateString();
-		// console.log("change date" + b);
-
 	}
 
 	onIndentItemChange(e, variableName) {
@@ -105,6 +97,9 @@ class PurchaseIndentDetail extends React.Component {
 			if (listVariable.get('variableName') === variableName) {
 				const values = listVariable.get('values');
 				values.set(e.target.name, e.target.value);
+				if (e.target.name === "requiredDate") {
+					listVariable.set(e.target.name, new Date(e.target.value).getTime());
+				}
 				listVariable.set('values', values);
 				return listVariable;
 			} else {
@@ -133,7 +128,7 @@ class PurchaseIndentDetail extends React.Component {
 						['quantity', ''],
 						['unit', ''],
 						['partNumber', ''],
-						['requiredDate', ''],
+						['requiredDate', new Date().getTime()],
 						['remark', '']
 					])
 				]
@@ -264,7 +259,7 @@ class PurchaseIndentDetail extends React.Component {
 							<Input
 								name="requiredDate"
 								type="Date"
-								value={listVariable.get('values').get('requiredDate')}
+								value={new Date(listVariable.get('values').get('requiredDate')).toISOString().substr(0, 10)}
 								onChange={(e) => this.onIndentItemChange(e, listVariable.get('variableName'))}
 							/>
 						</TableHeaderInner>
@@ -305,7 +300,7 @@ class PurchaseIndentDetail extends React.Component {
 										name="date"
 										type="date"
 										placeholder="date"
-										value={new Date(this.state.variable.get("date")).toISOString().substr(0,10)}
+										value={new Date(this.state.variable.get("date")).toISOString().substr(0, 10)}
 										onChange={this.onChange}
 									/>
 									<InputLabel> Date</InputLabel>

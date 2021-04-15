@@ -125,6 +125,9 @@ class SimpleSalesOrder extends React.Component {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set(e.target.name, e.target.value);
+		if (e.target.name === "date") {
+			values.set(e.target.name, new Date(e.target.value).getTime());
+		}
 		variable.set('values', values);
 		this.setState({ variable: variable });
 		this.props.updateSalesOrder(variable);
@@ -761,7 +764,8 @@ class SimpleSalesOrder extends React.Component {
 							<Input
 								name="date"
 								type="date"
-								value={this.state.variable.get('values').get('date')}
+								value={new Date(this.state.variable.get('values').get('date')).toISOString().substr(0, 10)}
+
 								onChange={this.onChange}
 							/>
 							<InputLabel>Date</InputLabel>

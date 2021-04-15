@@ -61,7 +61,7 @@ class SimpleSale extends React.Component {
 										[ 'customerName', '' ],
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
-										[ 'date', '' ],
+										[ 'date', new Date().getTime() ],
 										[ 'account', '1' ],
 										[ 'contact', '' ],
 										[ 'phone', '' ],
@@ -69,7 +69,7 @@ class SimpleSale extends React.Component {
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
 										[ 'address', '' ],
-										[ 'requiredBy', '' ],
+										[ 'requiredBy', new Date().getTime() ],
 										[ 'comments', '' ]
 									])
 								]
@@ -89,7 +89,7 @@ class SimpleSale extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'date', '' ],
+						[ 'date', new Date().getTime() ],
 						[ 'quotationNumber', '' ],
 						[ 'total', 0 ],
 						[ 'salesOrder', '' ],
@@ -136,7 +136,7 @@ class SimpleSale extends React.Component {
 					'values',
 					new Map([
 						[ 'sales', '' ],
-						[ 'date', '' ],
+						[ 'date', new Date().getTime() ],
 						[ 'orderNumber', '' ],
 						[ 'location', 'Offsite Storage' ],
 						[ 'salesQuotation', '' ],

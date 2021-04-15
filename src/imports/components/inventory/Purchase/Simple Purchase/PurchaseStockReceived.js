@@ -50,7 +50,7 @@ class PurchaseStockRecord extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'date', '' ],
+						[ 'date', new Date().getTime() ],
 						[ 'status', '' ],
 						[ 'movementType', '' ],
 						[ 'total', 0 ],

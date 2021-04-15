@@ -58,7 +58,7 @@ class ServicePurchase extends React.Component {
 										[ 'supplierName', '' ],
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
-										[ 'date', '' ],
+										[ 'date', new Date().getTime() ],
 										[ 'account', '1' ],
 										[ 'contact', '' ],
 										[ 'phone', '' ],
@@ -66,7 +66,7 @@ class ServicePurchase extends React.Component {
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
 										[ 'address', '' ],
-										[ 'requiredBy', '' ],
+										[ 'requiredBy', new Date().getTime() ],
 										[ 'comments', '' ]
 									])
 								]
@@ -89,7 +89,7 @@ class ServicePurchase extends React.Component {
 					'values',
 					new Map([
 						[ 'purchase', '' ],
-						[ 'date', '' ],
+						[ 'date', new Date().getTime() ],
 						[ 'orderNumber', '' ],
 						[ 'location', 'Offsite Storage' ],
 						[ 'total', 0 ],

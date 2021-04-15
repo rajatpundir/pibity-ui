@@ -88,15 +88,24 @@ class ProductMovementOrderDetails extends React.Component {
 		switch (e.target.name) {
 			case 'toLocation':
 				variable.set(e.target.name, e.target.value);
+				if (e.target.name === "date") {
+					variable.set(e.target.name, new Date(e.target.value).getTime());
+				}
 				variable.set('fromLocation', '');
 				this.props.updateOrderItems([]);
 				break;
 			case 'fromLocation':
 				variable.set(e.target.name, e.target.value);
+				if (e.target.name === "date") {
+					variable.set(e.target.name, new Date(e.target.value).getTime());
+				}
 				this.props.updateOrderItems([]);
 				break;
 			default:
 				variable.set(e.target.name, e.target.value);
+				if (e.target.name === "date") {
+					variable.set(e.target.name, new Date(e.target.value).getTime());
+				}
 				break;
 		}
 		this.setState({ variable: variable });
@@ -503,7 +512,7 @@ class ProductMovementOrderDetails extends React.Component {
 										name="date"
 										type="date"
 										placeholder="date"
-										value={this.state.variable.get('date')}
+										value={new Date(this.state.variable.get("date")).toISOString().substr(0, 10)}
 										onChange={this.onChange}
 										readOnly={this.props.isdisabled}
 									/>

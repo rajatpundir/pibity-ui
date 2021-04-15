@@ -90,16 +90,25 @@ class ServicePurchaseGeneralDetails extends React.Component {
 		switch (e.target.name) {
 			case 'contact':
 				values.set(e.target.name, e.target.value);
+				if (e.target.name === "requiredBy") {
+					values.set(e.target.name, new Date(e.target.value).getTime());
+				}
 				selectedContact.set('variableName', e.target.value);
 				selectedContact.set('values', objToMapRec(e.target.data.values));
 				break;
 			case 'address':
 				values.set(e.target.name, e.target.value);
+				if (e.target.name === "requiredBy") {
+					values.set(e.target.name, new Date(e.target.value).getTime());
+				}
 				selectedAddress.set('variableName', e.target.value);
 				selectedAddress.set('values', objToMapRec(e.target.data.values));
 				break;
 			default:
 				values.set(e.target.name, e.target.value);
+				if (e.target.name === "requiredBy") {
+					values.set(e.target.name, new Date(e.target.value).getTime());
+				}
 				break;
 		}
 		variable.set('values', values);
@@ -338,7 +347,7 @@ class ServicePurchaseGeneralDetails extends React.Component {
 										<Input
 											name="requiredBy"
 											type="date"
-											value={this.state.variable.get('values').get('requiredBy')}
+											value={new Date(this.state.variable.get('values').get('requiredBy')).toISOString().substr(0, 10)}
 											onChange={this.onChange}
 											style={{ height: '38px' }}
 										/>
@@ -419,7 +428,7 @@ class ServicePurchaseGeneralDetails extends React.Component {
 										<Input
 											name="date"
 											type="date"
-											value={this.state.variable.get('values').get('date')}
+											value={new Date(this.state.variable.get('values').get('date')).toISOString().substr(0, 10)}
 											onChange={this.onChange}
 											style={{ height: '38px' }}
 										/>{' '}

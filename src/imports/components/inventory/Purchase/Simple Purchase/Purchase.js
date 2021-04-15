@@ -59,7 +59,7 @@ class Purchase extends React.Component {
 										[ 'supplierName', '' ],
 										[ 'term', '' ],
 										[ 'taxRule', '' ],
-										[ 'date', '' ],
+										[ 'date',  new Date().getTime() ],
 										[ 'account', '1' ],
 										[ 'contact', '' ],
 										[ 'phone', '' ],
@@ -67,7 +67,7 @@ class Purchase extends React.Component {
 										[ 'shippingAddress2', '' ],
 										[ 'location', '' ],
 										[ 'address','' ],
-										[ 'requiredBy', '' ],
+										[ 'requiredBy', new Date().getTime() ],
 										[ 'comments', '' ]
 									])
 								]
@@ -90,7 +90,7 @@ class Purchase extends React.Component {
 					'values',
 					new Map([
 						[ 'purchase', '' ],
-						[ 'date', '' ],
+						[ 'date',  new Date().getTime() ],
 						[ 'orderNumber', '' ],
 						[ 'location', 'Offsite Storage' ],
 						[ 'total', 0 ],

@@ -79,8 +79,8 @@ class SimpleSalesInvoice extends React.Component {
 				[
 					'values',
 					new Map([
-						[ 'invoiceDate', '' ],
-						[ 'dueDate', '' ],
+						[ 'invoiceDate', new Date().getTime() ],
+						[ 'dueDate', new Date().getTime() ],
 						[ 'invoiceNumber', '' ],
 						[ 'total', 0 ],
 						[ 'salesOrderMemo', '' ],
@@ -164,6 +164,9 @@ class SimpleSalesInvoice extends React.Component {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
 		values.set(e.target.name, e.target.value);
+		if (e.target.name === "date") {
+			variable.set(e.target.name, new Date(e.target.value).getTime());
+		}
 		variable.set('values', values);
 		this.setState({ variable: variable });
 	}
@@ -801,7 +804,7 @@ class SimpleSalesInvoice extends React.Component {
 					[
 						'values',
 						new Map([
-							[ 'date', 1610606634582 ],
+							[ 'date', new Date().getTime() ],
 							[ 'sales', invoice.values.sales ],
 							[ 'salesStockRecord', salesStockRecord.variableName ],
 							[ 'status', salesStockRecord.values.status ],
@@ -963,7 +966,7 @@ class SimpleSalesInvoice extends React.Component {
 							<Input
 								name="invoiceDate"
 								type="date"
-								value={this.state.variable.get('values').get('invoiceDate')}
+								value={new Date(this.state.variable.get('values').get('invoiceDate')).toISOString().substr(0, 10)}
 								onChange={this.onChange}
 							/>
 							<InputLabel>Invoice Date</InputLabel>
@@ -972,7 +975,7 @@ class SimpleSalesInvoice extends React.Component {
 							<Input
 								name="dueDate"
 								type="date"
-								value={this.state.variable.get('values').get('dueDate')}
+								value={new Date(this.state.variable.get('values').get('invoiceDate')).toISOString().substr(0, 10)}
 								onChange={this.onChange}
 							/>{' '}
 							<InputLabel>

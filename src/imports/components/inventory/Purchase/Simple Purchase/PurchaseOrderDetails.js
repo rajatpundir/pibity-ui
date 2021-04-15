@@ -86,7 +86,7 @@ class PurchaseOrderDetails extends React.Component {
 	onChange(e) {
 		const variable = cloneDeep(this.state.variable);
 		const values = variable.get('values');
-		values.set(e.target.name, e.target.value);
+		values.set(e.target.name, e.target.value);	
 		variable.set('values', values);
 		this.setState({ variable: variable });
 		this.props.updateOrder(variable);
