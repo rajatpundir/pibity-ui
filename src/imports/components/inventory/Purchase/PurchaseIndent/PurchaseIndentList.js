@@ -32,6 +32,7 @@ import {
 	TableHeaderInner
 } from '../../../../styles/inventory/Style';
 import { TablePaginationStyle } from '../../../../styles/main/TablePagination';
+import axios from 'axios';
 
 class PurchaseIndentList extends React.Component {
 	constructor(props) {
@@ -68,6 +69,13 @@ class PurchaseIndentList extends React.Component {
 			this.props.getVariables('PurchaseIndent');
 			this.props.getVariables('PurchaseIndentItem');
 		}
+this.getapiData();
+	}
+	async getapiData(){
+		let resp = await axios.get("https://reactnative.dev/movies.json");
+		console.log(resp.data);
+		this.setState({data:['a','b']});
+		
 	}
 
 	onClose() {
@@ -137,6 +145,7 @@ class PurchaseIndentList extends React.Component {
 	}
 
 	render() {
+
 		const { rowsPerPage, page } = this.state;
 		return (
 			<Container mediaPadding="0" backgroundColor="white">
@@ -157,6 +166,7 @@ class PurchaseIndentList extends React.Component {
 										padding="0 10px"
 										placeholder="Type text to search"
 									/>
+									<h1>ghghghggggggg</h1>
 								</LeftItemFormControl>
 								<LeftItemFormControl paddingBottom="0">
 									<ButtonWithOutline>Search</ButtonWithOutline>
